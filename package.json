@@ -1,0 +1,7 @@
+{
+  "name": "di-data-analytics-platform",
+  "version": "0.0.1",
+  "description": "Data and Analytics platform which will enable the implementation of the OneLogin reporting strategy",
+  "license": "MIT",
+  "repository": "github:alphagov/di-data-analytics-platform"
+}
