@@ -1,0 +1,50 @@
+name: Pull request tests and validation
+
+on: pull_request
+
+jobs:
+  validate-iac:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Check out checkov hooks repository code
+        uses: actions/checkout@v3
+        with:
+          repository: alphagov/di-devplatform-checkov-hook
+          token: ${{ secrets.CHECKOUT_REPO_PAT }}
+          path: di-devplatform-checkov-hook
+      - name: Checkov setup
+        run: pip3 install checkov
+      - name: Checkov scan
+        env:
+          CHECKS_BASE_DIR: di-devplatform-checkov-hook/src/gds_digitalidentity_checkovhook
+        run: checkov --external-checks-dir $CHECKS_BASE_DIR/custom_policies --external-checks-dir $CHECKS_BASE_DIR/custom_policies_precommit --file template.yaml --quiet
+      - name: SAM setup
+        uses: aws-actions/setup-sam@v2
+        with:
+          version: 1.82.0
+      - name: SAM validate
+        run: sam validate --lint --region eu-west-2
+
+  validate-lambdas:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Node setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install node packages
+        run: npm ci
+      - name: Run linting and formatting
+        run: npm run check
+      - name: Run tests
+        run: npm run test
