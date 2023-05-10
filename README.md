@@ -30,6 +30,12 @@ The lambdas and supporting code are written in [TypeScript](https://www.typescri
 Individual lambda handlers (and unit tests) can be found in subdirectories of the [src/handlers](src/handlers) directory.
 Common and utility code can be found in the [src/shared](src/shared) directory.
 
+#### IaC
+
+IaC code is written in [AWS SAM](https://aws.amazon.com/serverless/sam) (a superset of [CloudFormation](https://aws.amazon.com/cloudformation) templates) and deployed as a SAM application.
+
+IaC code can be found in the [template.yaml](template.yaml) file. The [AWS SAM](https://aws.amazon.com/serverless/sam) config is at [samconfig.toml](samconfig.toml).
+
 ## Testing, linting and formatting
 
 #### Lambdas
@@ -49,3 +55,11 @@ rules of ESLint are disabled by the [eslint-config-prettier](https://github.com/
 * `npm run lint:fix` - run linting checks and (attempt to) automatically fix issues
 * `npm run format:check` - run formatting checks and print warnings
 * `npm run format:fix` - run formatting checks and automatically fix issues
+
+#### IaC
+
+AWS SAM can perform [validation and linting](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/validate-cfn-lint.html) of CloudFormation files.
+In addition, [checkov](https://www.checkov.io) can find misconfigurations.
+
+* `npm run iac:lint` - run validation and linting checks and print warnings
+* `npm run iac:scan` - run checkov scan and print warnings

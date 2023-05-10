@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Data and Analytics Stack
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Environment:
+    Description: Environment type
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - build
+      - staging
+      - integration
+      - production
+  CodeSigningConfig:
+    Description: ARN of Code Signing Config from deployment pipeline
+    Type: String
+    Default: none
+  PermissionsBoundary:
+    Description: ARN of permissions boundary for new roles
+    Type: String
+    Default: none
+
+Globals:
+  Function:
+    CodeSigningConfigArn: !Ref CodeSigningConfig
+    PermissionsBoundary: !Ref PermissionsBoundary
+    Runtime: nodejs18.x
+    Timeout: 30
+    CodeUri: dist/
+    Environment:
+      Variables:
+        NODE_OPTIONS: --enable-source-maps
+
+Resources:
+  EventQueue:
+    # checkov:skip=CKV_AWS_27: This is a temporary test queue
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: txma-event-queue
+
+  EventConsumerLambda:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub txma-event-consumer-${Environment}
+      Events:
+        CleanEvent:
+          Type: SQS
+          Properties:
+            BatchSize: 1
+            Queue: !GetAtt EventQueue.Arn
+      Handler: txma-event-consumer.handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+                - sqs:ReceiveMessage
+              Resource: !GetAtt EventQueue.Arn
+      ReservedConcurrentExecutions: 10
