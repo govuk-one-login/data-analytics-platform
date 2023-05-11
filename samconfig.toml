@@ -1,0 +1,11 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "di-data-dap"
+region = "eu-west-2"
+capabilities = "CAPABILITY_NAMED_IAM"
+parameter_overrides=[
+    "Environment=dev",
+    "CodeSigningConfigArn=none",
+    "PermissionsBoundary=none"
+]

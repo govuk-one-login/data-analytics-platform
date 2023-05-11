@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "messageId": "6737fe3a-54f3-4514-aab5-5df69e2742be",
+      "receiptHandle": "nk11u1ujl0jbssohgfvnkxpv4edg06d949ktogb8",
+      "body": "{\"event_id\":\"4ff25ded-bd62-493d-a71a-f1397ad130ec\",\"client_id\":\"8WJB-LSDH-UKBL-LXY5\",\"timestamp\":1615873908,\"event_name\":\"AUTH_AUTHORISATION_INITIATED\",\"component_id\":\"AUTH\",\"user\":{\"user_id\":\"58989038\",\"ip_address\":\"89.199.157.146\",\"session_id\":\"i7um6prvq8\",\"govuk_signin_journey_id\":\"44w9no3cvuf\"}}",
+      "attributes": {
+        "ApproximateFirstReceiveTimestamp": "1683794350",
+        "ApproximateReceiveCount": "1",
+        "SenderId": "AIDADE0HWR0H4YT7HKVX",
+        "SentTimestamp": "1683794290"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "52a256baffdda431217e795ac774b14b",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:eu-west-2:123456789012:MyQueue",
+      "awsRegion": "eu-west-2"
+    }
+  ]
+}
