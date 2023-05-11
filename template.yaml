@@ -45,7 +45,7 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub txma-event-consumer-${Environment}
+      FunctionName: txma-event-consumer
       Events:
         CleanEvent:
           Type: SQS
@@ -63,3 +63,9 @@ Resources:
                 - sqs:ReceiveMessage
               Resource: !GetAtt EventQueue.Arn
       ReservedConcurrentExecutions: 10
+      Environment:
+        # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+        Variables:
+          FIREHOSE_STREAM_NAME: todo
+      Tags:
+        Environment: !Ref Environment
