@@ -114,3 +114,11 @@ sam build
 ```
 which will build `template.yaml` and use the lambda code in `dist/`.
 A different template file path can be specified with the `--template-file` flag and a different lambda code directory by changing the `CodeUri` global property in `template.yaml`.
+
+## Deploying
+
+#### Dev
+
+Our dev environment is a standalone environment and can therefore be used as a sandbox.
+A dedicated GitHub Action [Manually deploy to the dev environment](.github/workflows/deploy-to-dev.yml) exists to enable this.
+It can be manually invoked on a chosen branch by finding it in the [GitHub Actions tab](https://github.com/alphagov/di-data-analytics-platform/actions) and using the _Run workflow_ button.

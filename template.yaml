@@ -13,7 +13,7 @@ Parameters:
       - staging
       - integration
       - production
-  CodeSigningConfig:
+  CodeSigningConfigArn:
     Description: ARN of Code Signing Config from deployment pipeline
     Type: String
     Default: none
@@ -22,10 +22,20 @@ Parameters:
     Type: String
     Default: none
 
+Conditions:
+  UseCodeSigning: !Not [ !Equals [ !Ref CodeSigningConfigArn, none ] ]
+  UsePermissionsBoundary: !Not [ !Equals [ !Ref PermissionsBoundary, none ] ]
+
 Globals:
   Function:
-    CodeSigningConfigArn: !Ref CodeSigningConfig
-    PermissionsBoundary: !Ref PermissionsBoundary
+    CodeSigningConfigArn: !If
+      - UseCodeSigning
+      - !Ref CodeSigningConfigArn
+      - !Ref AWS::NoValue
+    PermissionsBoundary: !If
+      - UsePermissionsBoundary
+      - !Ref PermissionsBoundary
+      - !Ref AWS::NoValue
     Runtime: nodejs18.x
     Timeout: 30
     CodeUri: dist/
@@ -66,6 +76,6 @@ Resources:
       Environment:
         # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
         Variables:
-          FIREHOSE_STREAM_NAME: todo
+          FIREHOSE_STREAM_NAME: !Sub txma-event-stream-${Environment}
       Tags:
         Environment: !Ref Environment
