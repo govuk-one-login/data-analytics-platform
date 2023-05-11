@@ -30,6 +30,8 @@ The lambdas and supporting code are written in [TypeScript](https://www.typescri
 Individual lambda handlers (and unit tests) can be found in subdirectories of the [src/handlers](src/handlers) directory.
 Common and utility code can be found in the [src/shared](src/shared) directory.
 
+In addition, files to support running lambdas with `sam local invoke` are in the [sam-local-examples](sam-local-examples) directory.
+
 #### IaC
 
 IaC code is written in [AWS SAM](https://aws.amazon.com/serverless/sam) (a superset of [CloudFormation](https://aws.amazon.com/cloudformation) templates) and deployed as a SAM application.
@@ -63,3 +65,52 @@ In addition, [checkov](https://www.checkov.io) can find misconfigurations.
 
 * `npm run iac:lint` - run validation and linting checks and print warnings
 * `npm run iac:scan` - run checkov scan and print warnings
+
+## Building and running
+
+#### Lambdas
+
+* `npm run build` - build (transpile, bundle, etc.) lambdas into the [dist](dist) directory
+
+Lambdas can be run locally with [sam local invoke](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-invoke.html). A few prerequisites:
+
+* Docker is running
+* Lambda you wish to run has been built into a `.js` file (`npm run build`)
+* Lambda you wish to run is defined in CloudFormation (`template.yml`)
+* SAM application has been built (`sam build`)
+    * **Order matters here** - this command copies the lambda JS into `.aws-sam/`, so make sure `npm run build` has been run beforehand
+* You have defined a JSON file (ideally [here](sam-local-examples)) containing the event you wish to be the input event of the lambda (unless you don't need an input event)
+* You have added any environment variables you need the lambda to take to [env.json](sam-local-examples/env.json)
+
+An example invocation might be
+```shell
+npm run build
+sam build
+
+# invoke with no input event or environment vars
+sam local invoke txma-event-consumer
+
+# invoke specifying both an input event and environment variables
+sam local invoke txma-event-consumer --env-vars sam-local-examples/env.json --event sam-local-examples/txma-event-consumer/valid.json
+```
+
+###### A note on args
+
+* The `--env-vars` arg takes the path to a JSON file with any environment vars you want the lambda to have access to (via node `process.env`). Find these (and define more) in per-function objects within the main object in `sam-local-examples/env.json`
+* The `--event` arg takes the path to a JSON file with the input event you want the lambda to have. Find these (and define more) in per-function subdirectories under `sam-local-examples/`
+* A different template file path can be specified with the `--template-file` flag
+
+SAM local can also be used to [generate events](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/using-sam-cli-local-generate-event.html).
+An example invocation might be `sam local generate-event sqs receive-message` or `sam local generate-event s3 put`.
+You can run `sam local generate` with no args for a list of supported services.
+
+#### IaC
+
+AWS SAM can [build the YAML template](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/using-sam-cli-build.html).
+Artifacts will be placed into `.aws-sam/`. If you wish the lambda code to be included, it must first have been built into a `.js` file (`npm run build`).
+An example invocation might be
+```shell
+sam build
+```
+which will build `template.yaml` and use the lambda code in `dist/`.
+A different template file path can be specified with the `--template-file` flag and a different lambda code directory by changing the `CodeUri` global property in `template.yaml`.
