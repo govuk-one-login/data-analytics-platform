@@ -9,23 +9,29 @@ Data and Analytics platform which will enable the implementation of the [OneLogi
 The project uses the current (as of 03/05/2023) LTS of Node, version 18.
 The GDS recommendation is to use `nvm` to manage Node versions - installation instructions can be found [here](https://github.com/nvm-sh/nvm#installing-and-updating).
 
+###### Core
+
 * [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) - for running SAM commands
-* [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) - (optional) for interacting with AWS on the command line
-* [Node](https://nodejs.org/en) - we use LTS version 18. GDS recommends using [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to install
+* [Node](https://nodejs.org/en) - for lambda development and running `npm` commands
 * [Docker](https://docs.docker.com/desktop/install/mac-install) - for running `sam local`
-* [Checkov](https://www.checkov.io) - IaC validation tool. Install on GDS Macs in the terminal by running `pip3 install checkov`
+* [Checkov](https://www.checkov.io) - for validating IaC code. Install on GDS Macs in the terminal by running `pip3 install checkov`
 
-#### Set up GPG commit signing
+###### Optional
 
-Commits will be rejected if not signed and verified by GitHub. SSH keys do not support verification so GPG must be used.
+* [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) - for interacting with AWS on the command line
+* [GitHub CLI](https://cli.github.com) - for interacting with GitHub on the command line. Can do some things not possible via the GUI, such as running workflows that have not been merged to `main`
+
+#### Set up commit signing
+
+Commits will be rejected by GitHub if they are not signed using an SSH or GPG key. SSH keys do not support expiration or revocation so GPG is preferred.
 Follow the instructions [here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#gpg-commit-signature-verification) to generate a key and set it up with GitHub.
-You may need to install `gpg` first - open the Mac terminal and run `brew install gpg`.
+You may need to install `gpg` first - on a GDS Mac open the terminal and run `brew install gpg`.
 
 ## Repository structure
 
 #### Lambdas
 
-The lambdas and supporting code are written in [TypeScript](https://www.typescriptlang.org) and built with [esbuild](https://esbuild.github.io/).
+The lambdas and supporting code are written in [TypeScript](https://www.typescriptlang.org) and built with [esbuild](https://esbuild.github.io).
 
 Individual lambda handlers (and unit tests) can be found in subdirectories of the [src/handlers](src/handlers) directory.
 Common and utility code can be found in the [src/shared](src/shared) directory.
@@ -38,6 +44,16 @@ IaC code is written in [AWS SAM](https://aws.amazon.com/serverless/sam) (a super
 
 IaC code can be found in the [template.yaml](template.yaml) file. The [AWS SAM](https://aws.amazon.com/serverless/sam) config is at [samconfig.toml](samconfig.toml).
 
+#### Workflows
+
+[Workflows](https://docs.github.com/en/actions/using-workflows/about-workflows) that enable [GitHub Actions](https://docs.github.com/en/actions) can be found in the [.github/workflows](.github/workflows) directory.
+Below is a list of workflows:
+
+| Name                                   | File                  | Triggers                                                                                                                                                                                                                                                                                                                                                                        | Purpose                                                                                   |
+|----------------------------------------|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| Manually deploy to the dev environment | deploy-to-dev.yml     | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Allows a manual deploy to the dev AWS                                                     |
+| Test and validate iac and lambdas      | test-and-validate.yml | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li><li>[pull requests](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request)</li></ul> | Runs linting, formatting and testing of lambda code, and linting and scanning of IaC code |
+
 ## Testing, linting and formatting
 
 #### Lambdas
@@ -48,7 +64,7 @@ Unit testing is done with [Jest](https://jestjs.io) and the lambdas should all h
 * `npm run test consumer` - run a specific test
     * anything after `test` is used as a regex match - so in this example `consumer` causes jest to match all tests under the `txma-event-consumer/` directory (and any other directory that might have `consumer` in its name)
 
-Linting and formatting are handled by [ESLint](https://eslint.org) and [Prettier](https://prettier.io) respectively.
+Linting and formatting are handled by [ESLint](https://eslint.org) and [Prettier](https://prettier.io) (with an [EditorConfig file](https://editorconfig.org)) respectively.
 [typescript-eslint](https://typescript-eslint.io) is used to allow these tools to work with TypeScript. The formatting
 rules of ESLint are disabled by the [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier) NPM package so as not to conflict with Prettier.
 
@@ -61,10 +77,12 @@ rules of ESLint are disabled by the [eslint-config-prettier](https://github.com/
 #### IaC
 
 AWS SAM can perform [validation and linting](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/validate-cfn-lint.html) of CloudFormation files.
-In addition, [checkov](https://www.checkov.io) can find misconfigurations.
+In addition, [checkov](https://www.checkov.io) can find misconfigurations. Prettier can also check (or fix) the formatting of the YAML of the SAM template.
 
 * `npm run iac:lint` - run validation and linting checks and print warnings
 * `npm run iac:scan` - run checkov scan and print warnings
+* `npm run iac:format:check` - run formatting checks and print warnings
+* `npm run iac:format:fix` - run formatting checks and automatically fix issues
 
 ## Building and running
 
@@ -117,8 +135,17 @@ A different template file path can be specified with the `--template-file` flag 
 
 ## Deploying
 
+Deployment is done via [Secure Pipelines](https://govukverify.atlassian.net/wiki/spaces/DAP/pages/3535667315/Secure+Pipelines).
+At a high level, we are responsible for the SAM app and running `sam build`, but Secure Pipelines calls `sam deploy` for us.
+
 #### Dev
 
 Our dev environment is a standalone environment and can therefore be used as a sandbox.
 A dedicated GitHub Action [Manually deploy to the dev environment](.github/workflows/deploy-to-dev.yml) exists to enable this.
 It can be manually invoked on a chosen branch by finding it in the [GitHub Actions tab](https://github.com/alphagov/di-data-analytics-platform/actions) and using the _Run workflow_ button.
+
+## Additional Documents
+
+For a guide to how and why certain development decisions, coding practices, etc. were made, please refer to the [Development Decisions document](docs/development-decisions.md).
+
+For a list of TODOs for the project, please see the [TODOs document](docs/todos.md).

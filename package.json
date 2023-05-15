@@ -31,6 +31,8 @@
     "lint:fix": "eslint --fix src",
     "test": "jest",
     "iac:lint": "sam validate --lint --region eu-west-2",
-    "iac:scan": "checkov --external-checks-git https://github.com/alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies --external-checks-git https://github.com/alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies_precommit --file template.yaml --quiet"
+    "iac:scan": "checkov --external-checks-git https://github.com/alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies --external-checks-git https://github.com/alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies_precommit --file template.yaml --quiet",
+    "iac:format:check": "prettier --check template.yaml",
+    "iac:format:fix": "prettier --write template.yaml"
   }
 }

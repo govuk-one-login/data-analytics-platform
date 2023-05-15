@@ -1,6 +1,11 @@
 name: Test and validate iac and lambdas
 
-on: [pull_request, workflow_call, workflow_dispatch]
+on:
+  pull_request:
+      paths-ignore:
+        - '**.md'
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
   validate-iac:
@@ -8,6 +13,20 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+      - name: Node setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install node packages
+        run: npm ci
+      - name: IaC formatting checks
+        run: npm run iac:format:check
+      - name: SAM setup
+        uses: aws-actions/setup-sam@v2
+        with:
+          version: 1.82.0
+      - name: IaC linting checks
+        run: npm run iac:lint
       - name: Check out checkov hooks repository code
         uses: actions/checkout@v3
         with:
@@ -20,12 +39,6 @@ jobs:
         env:
           CHECKS_BASE_DIR: di-devplatform-checkov-hook/src/gds_digitalidentity_checkovhook
         run: checkov --external-checks-dir $CHECKS_BASE_DIR/custom_policies --external-checks-dir $CHECKS_BASE_DIR/custom_policies_precommit --file template.yaml --quiet
-      - name: SAM setup
-        uses: aws-actions/setup-sam@v2
-        with:
-          version: 1.82.0
-      - name: SAM validate
-        run: sam validate --lint --region eu-west-2
 
   validate-lambdas:
     runs-on: ubuntu-latest
