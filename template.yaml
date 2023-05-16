@@ -23,8 +23,8 @@ Parameters:
     Default: none
 
 Conditions:
-  UseCodeSigning: !Not [ !Equals [ !Ref CodeSigningConfigArn, none ] ]
-  UsePermissionsBoundary: !Not [ !Equals [ !Ref PermissionsBoundary, none ] ]
+  UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
+  UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
 
 Globals:
   Function:
