@@ -10,7 +10,7 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
       try {
         const buffer = getBodyAsBuffer(record);
         const firehoseRequest = getFirehoseCommand(buffer);
-        await client.send(firehoseRequest);
+        sendMessageToKinesisFirehose(firehoseRequest)
       } catch (e) {
         console.error(`Error in TxMA Event Consumer for record with body "${record.body}"`, e);
         batchItemFailures.push({ itemIdentifier: record.messageId });
@@ -20,12 +20,21 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   return { batchItemFailures };
 };
 
+const sendMessageToKinesisFirehose = async (firehoseRequest: PutRecordCommand): Promise<void> => {
+  try {
+    await client.send(firehoseRequest);
+  } catch (error) {
+    console.error("Error delivering data to DAP's Kinesis Firehose:", error);
+    throw error;
+  }
+};
+
 const getBodyAsBuffer = (record: SQSRecord): Uint8Array => {
   try {
     return Buffer.from(record.body);
-  } catch (e) {
-    console.error('Unable to parse event body into Buffer', e);
-    throw e;
+  } catch (error) {
+    console.error('Unable to parse event body into Buffer', error);
+    throw error;
   }
 };
 
