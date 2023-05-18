@@ -3,7 +3,7 @@ import { FirehoseClient, PutRecordCommand } from '@aws-sdk/client-firehose';
 import { SQSClient, SendMessageCommand, GetQueueUrlCommand } from '@aws-sdk/client-sqs';
 
 const firehoseClient = new FirehoseClient({ region: 'eu-west-2' });
-const sqsClient = new SQSClient({ region: 'eu-west-2' }); 
+const sqsClient = new SQSClient({ region: 'eu-west-2' });
 const DLQ_MAX_RETRY_ATTEMPTS = 3;
 const DEAD_LETTER_QUEUE_NAME = process.env.DEAD_LETTER_QUEUE_NAME;
 
@@ -24,7 +24,10 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   return { batchItemFailures };
 };
 
-const sendMessageToKinesisFirehose = async (originalMessage: Uint8Array, firehoseRequest: PutRecordCommand): Promise<void> => {
+const sendMessageToKinesisFirehose = async (
+  originalMessage: Uint8Array,
+  firehoseRequest: PutRecordCommand
+): Promise<void> => {
   let retryAttempts = 0;
   let success = false;
   while (retryAttempts < DLQ_MAX_RETRY_ATTEMPTS) {
@@ -39,18 +42,19 @@ const sendMessageToKinesisFirehose = async (originalMessage: Uint8Array, firehos
     }
   }
   if (!success) {
-    console.error(`Exceeded maximum retry attempts for delivering data to DAP’s Kinesis Firehose. Sending message to Dead Letter Queue.`);
+    console.error(
+      `Exceeded maximum retry attempts for delivering data to DAP’s Kinesis Firehose. Sending message to Dead Letter Queue.`
+    );
     await sendToDeadLetterQueue(originalMessage);
   }
 };
 
 const waitBeforeRetry = async (retryAttempt: number): Promise<void> => {
-  const exponentialBackoffTime = Math.pow(2, retryAttempt) * 1000; 
+  const exponentialBackoffTime = Math.pow(2, retryAttempt) * 1000;
   await new Promise(resolve => setTimeout(resolve, exponentialBackoffTime));
 };
 
 const sendToDeadLetterQueue = async (originalMessage: Uint8Array): Promise<void> => {
-  
   try {
     const queueName = DEAD_LETTER_QUEUE_NAME;
     if (queueName === undefined || queueName.length === 0) {
@@ -60,10 +64,12 @@ const sendToDeadLetterQueue = async (originalMessage: Uint8Array): Promise<void>
     if (queueUrl === undefined) {
       throw new Error(`Queue URL for queue “${queueName}” is not available`);
     }
-    await sqsClient.send(new SendMessageCommand({
-      QueueUrl: queueUrl,
-      MessageBody: JSON.stringify(originalMessage),
-    }));
+    await sqsClient.send(
+      new SendMessageCommand({
+        QueueUrl: queueUrl,
+        MessageBody: JSON.stringify(originalMessage),
+      })
+    );
   } catch (error) {
     console.error(`Error sending message to Dead Letter Queue "${DEAD_LETTER_QUEUE_NAME ?? ''}":`, error);
     throw error;
