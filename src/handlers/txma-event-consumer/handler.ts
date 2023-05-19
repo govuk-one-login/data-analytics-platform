@@ -1,10 +1,11 @@
 import type { SQSBatchItemFailure, SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import { FirehoseClient, PutRecordCommand } from '@aws-sdk/client-firehose';
-import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { ConfiguredRetryStrategy } from '@aws-sdk/util-retry';
 
-const firehoseClient = new FirehoseClient({ region: 'eu-west-2' });
-const sqsClient = new SQSClient({ region: 'eu-west-2' });
-const DLQ_MAX_RETRY_ATTEMPTS = 3;
+const firehoseClient = new FirehoseClient({
+  region: 'eu-west-2',
+  retryStrategy: new ConfiguredRetryStrategy(3, retryAttempt => Math.pow(2, retryAttempt) * 1000),
+});
 
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   const batchItemFailures: SQSBatchItemFailure[] = [];
@@ -13,7 +14,7 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
       try {
         const buffer = getBodyAsBuffer(record);
         const firehoseRequest = getFirehoseCommand(buffer);
-        await sendMessageToKinesisFirehose(buffer, firehoseRequest);
+        await sendMessageToKinesisFirehose(firehoseRequest);
       } catch (e) {
         console.error(`Error in TxMA Event Consumer for record with body "${record.body}"`, e);
         batchItemFailures.push({ itemIdentifier: record.messageId });
@@ -23,44 +24,11 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   return { batchItemFailures };
 };
 
-const sendMessageToKinesisFirehose = async (
-  originalMessage: Uint8Array,
-  firehoseRequest: PutRecordCommand
-): Promise<void> => {
-  let retryAttempts = 0;
-  let success = false;
-  while (retryAttempts < DLQ_MAX_RETRY_ATTEMPTS) {
-    try {
-      await firehoseClient.send(firehoseRequest);
-      success = true;
-      break;
-    } catch (e) {
-      console.error(`Error delivering data to DAP’s Kinesis Firehose (Attempt ${retryAttempts + 1}):`, e);
-      retryAttempts++;
-    }
-  }
-  if (!success) {
-    console.error(
-      `Exceeded maximum retry attempts for delivering data to DAP’s Kinesis Firehose. Sending message to Dead Letter Queue.`
-    );
-    await sendToDeadLetterQueue(originalMessage);
-  }
-};
-
-const sendToDeadLetterQueue = async (originalMessage: Uint8Array): Promise<void> => {
-  const queueURL = process.env.queueURL;
+const sendMessageToKinesisFirehose = async (firehoseRequest: PutRecordCommand): Promise<void> => {
   try {
-    if (queueURL === undefined || queueURL.length === 0) {
-      throw new Error('DEAD_LETTER_QUEUE_NAME is not defined in this environment');
-    }
-    await sqsClient.send(
-      new SendMessageCommand({
-        QueueUrl: queueURL,
-        MessageBody: JSON.stringify(originalMessage),
-      })
-    );
+    await firehoseClient.send(firehoseRequest);
   } catch (error) {
-    console.error(`Error sending message to Dead Letter Queue "${queueURL ?? ''}":`, error);
+    console.error("Error delivering data to DAP's Kinesis Firehose:", error);
     throw error;
   }
 };
