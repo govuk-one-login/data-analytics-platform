@@ -1,11 +1,10 @@
 import type { SQSBatchItemFailure, SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import { FirehoseClient, PutRecordCommand } from '@aws-sdk/client-firehose';
-import { SQSClient, SendMessageCommand, GetQueueUrlCommand } from '@aws-sdk/client-sqs';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 
 const firehoseClient = new FirehoseClient({ region: 'eu-west-2' });
 const sqsClient = new SQSClient({ region: 'eu-west-2' });
 const DLQ_MAX_RETRY_ATTEMPTS = 3;
-const DEAD_LETTER_QUEUE_NAME = process.env.DEAD_LETTER_QUEUE_NAME;
 
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   const batchItemFailures: SQSBatchItemFailure[] = [];
@@ -38,7 +37,6 @@ const sendMessageToKinesisFirehose = async (
     } catch (e) {
       console.error(`Error delivering data to DAP’s Kinesis Firehose (Attempt ${retryAttempts + 1}):`, e);
       retryAttempts++;
-      await waitBeforeRetry(retryAttempts);
     }
   }
   if (!success) {
@@ -49,40 +47,20 @@ const sendMessageToKinesisFirehose = async (
   }
 };
 
-const waitBeforeRetry = async (retryAttempt: number): Promise<void> => {
-  const exponentialBackoffTime = Math.pow(2, retryAttempt) * 1000;
-  await new Promise(resolve => setTimeout(resolve, exponentialBackoffTime));
-};
-
 const sendToDeadLetterQueue = async (originalMessage: Uint8Array): Promise<void> => {
+  const queueURL = process.env.queueURL;
   try {
-    const queueName = DEAD_LETTER_QUEUE_NAME;
-    if (queueName === undefined || queueName.length === 0) {
+    if (queueURL === undefined || queueURL.length === 0) {
       throw new Error('DEAD_LETTER_QUEUE_NAME is not defined in this environment');
-    }
-    const queueUrl = await getQueueUrl(queueName);
-    if (queueUrl === undefined) {
-      throw new Error(`Queue URL for queue “${queueName}” is not available`);
     }
     await sqsClient.send(
       new SendMessageCommand({
-        QueueUrl: queueUrl,
+        QueueUrl: queueURL,
         MessageBody: JSON.stringify(originalMessage),
       })
     );
   } catch (error) {
-    console.error(`Error sending message to Dead Letter Queue "${DEAD_LETTER_QUEUE_NAME ?? ''}":`, error);
-    throw error;
-  }
-};
-
-const getQueueUrl = async (queueName: string): Promise<string | undefined> => {
-  try {
-    const command = new GetQueueUrlCommand({ QueueName: queueName });
-    const response = await sqsClient.send(command);
-    return response.QueueUrl;
-  } catch (error) {
-    console.error(`Error retrieving URL for queue “${queueName}“:`, error);
+    console.error(`Error sending message to Dead Letter Queue "${queueURL ?? ''}":`, error);
     throw error;
   }
 };
@@ -101,7 +79,6 @@ const getFirehoseCommand = (body: Uint8Array): PutRecordCommand => {
   if (deliveryStreamName === undefined || deliveryStreamName.length === 0) {
     throw new Error('FIREHOSE_STREAM_NAME is not defined in this environment');
   }
-
   return new PutRecordCommand({
     DeliveryStreamName: deliveryStreamName,
     Record: {
