@@ -1,7 +1,11 @@
 import type { SQSBatchItemFailure, SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import { FirehoseClient, PutRecordCommand } from '@aws-sdk/client-firehose';
+import { ConfiguredRetryStrategy } from '@aws-sdk/util-retry';
 
-const client = new FirehoseClient({ region: 'eu-west-2' });
+const firehoseClient = new FirehoseClient({
+  region: 'eu-west-2',
+  retryStrategy: new ConfiguredRetryStrategy(3, retryAttempt => Math.pow(2, retryAttempt) * 1000),
+});
 
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   const batchItemFailures: SQSBatchItemFailure[] = [];
@@ -10,7 +14,7 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
       try {
         const buffer = getBodyAsBuffer(record);
         const firehoseRequest = getFirehoseCommand(buffer);
-        await client.send(firehoseRequest);
+        await sendMessageToKinesisFirehose(firehoseRequest);
       } catch (e) {
         console.error(`Error in TxMA Event Consumer for record with body "${record.body}"`, e);
         batchItemFailures.push({ itemIdentifier: record.messageId });
@@ -20,12 +24,21 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   return { batchItemFailures };
 };
 
+const sendMessageToKinesisFirehose = async (firehoseRequest: PutRecordCommand): Promise<void> => {
+  try {
+    await firehoseClient.send(firehoseRequest);
+  } catch (error) {
+    console.error("Error delivering data to DAP's Kinesis Firehose:", error);
+    throw error;
+  }
+};
+
 const getBodyAsBuffer = (record: SQSRecord): Uint8Array => {
   try {
     return Buffer.from(record.body);
-  } catch (e) {
-    console.error('Unable to parse event body into Buffer', e);
-    throw e;
+  } catch (error) {
+    console.error('Unable to parse event body into Buffer', error);
+    throw error;
   }
 };
 
@@ -34,7 +47,6 @@ const getFirehoseCommand = (body: Uint8Array): PutRecordCommand => {
   if (deliveryStreamName === undefined || deliveryStreamName.length === 0) {
     throw new Error('FIREHOSE_STREAM_NAME is not defined in this environment');
   }
-
   return new PutRecordCommand({
     DeliveryStreamName: deliveryStreamName,
     Record: {
