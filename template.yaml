@@ -1,7 +1,6 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: 2010-09-09
 Description: Data and Analytics Stack
-Transform: AWS::Serverless-2016-10-31
-
+Transform: 'AWS::Serverless-2016-10-31'
 Parameters:
   Environment:
     Description: Environment type
@@ -21,39 +20,42 @@ Parameters:
     Description: ARN of permissions boundary for new roles
     Type: String
     Default: none
-
+  DeliveryStreamName:
+    Description: Delivery Stream
+    Type: String
+    Default: none
 Conditions:
-  UseCodeSigning: !Not [!Equals [!Ref CodeSigningConfigArn, none]]
-  UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
-
+  UseCodeSigning: !Not
+    - !Equals
+      - !Ref CodeSigningConfigArn
+      - none
+  UsePermissionsBoundary: !Not
+    - !Equals
+      - !Ref PermissionsBoundary
+      - none
 Globals:
   Function:
     CodeSigningConfigArn: !If
       - UseCodeSigning
       - !Ref CodeSigningConfigArn
-      - !Ref AWS::NoValue
+      - !Ref 'AWS::NoValue'
     PermissionsBoundary: !If
       - UsePermissionsBoundary
       - !Ref PermissionsBoundary
-      - !Ref AWS::NoValue
+      - !Ref 'AWS::NoValue'
     Runtime: nodejs18.x
     Timeout: 30
     CodeUri: dist/
     Environment:
       Variables:
-        NODE_OPTIONS: --enable-source-maps
-
+        NODE_OPTIONS: '--enable-source-maps'
 Resources:
   EventQueue:
-    # checkov:skip=CKV_AWS_27: This is a temporary test queue
-    Type: AWS::SQS::Queue
+    Type: 'AWS::SQS::Queue'
     Properties:
       QueueName: txma-event-queue
-
   EventConsumerLambda:
-    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
-    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-    Type: AWS::Serverless::Function
+    Type: 'AWS::Serverless::Function'
     Properties:
       FunctionName: txma-event-consumer
       Events:
@@ -68,14 +70,64 @@ Resources:
         - Statement:
             - Effect: Allow
               Action:
-                - sqs:DeleteMessage
-                - sqs:GetQueueAttributes
-                - sqs:ReceiveMessage
+                - 'sqs:DeleteMessage'
+                - 'sqs:GetQueueAttributes'
+                - 'sqs:ReceiveMessage'
               Resource: !GetAtt EventQueue.Arn
       ReservedConcurrentExecutions: 10
       Environment:
-        # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
         Variables:
-          FIREHOSE_STREAM_NAME: !Sub txma-event-stream-${Environment}
+          FIREHOSE_STREAM_NAME: !Sub 'txma-event-stream-${Environment}'
       Tags:
         Environment: !Ref Environment
+  IAMRoleKinesisFirehose:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: kinesis-firehose-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: firehose.amazonaws.com
+            Action: 'sts:AssumeRole'
+      MaxSessionDuration: 3600
+      Policies:
+        - PolicyName: policy1
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:AbortMultipartUpload'
+                  - 's3:GetBucketLocation'
+                  - 's3:GetObject'
+                  - 's3:ListBucket'
+                  - 's3:ListBucketMultipartUploads'
+                  - 's3:PutObject'
+                Resource:
+                  - !Ref S3Bucket
+
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      BucketName: '[AWS::AccountId]_dap_raw_layer'
+  KinesisFirehose:
+    Type: 'AWS::KinesisFirehose::DeliveryStream'
+    Properties:
+      DeliveryStreamName: !Ref DeliveryStreamName
+      DeliveryStreamType: DirectPut
+      ExtendedS3DestinationConfiguration:
+        BucketARN: !GetAtt S3Bucket.Arn
+        BufferingHints:
+          IntervalInSeconds: 900
+          SizeInMBs: 128
+        RoleARN: !Ref IAMRoleKinesisFirehose
+        # Prefix: !{partitionKeyFromQuery:datasource}/!{partitionKeyFromQuery:event_name}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/
+        CompressionFormat: GZIP
+        ErrorOutputPrefix: kinesis-processing-errors-
+        DynamicPartitioningConfiguration:
+          Enabled: true
+
+      # RoleARN: !GetAtt IAMRoleKinesisFirehose //test
