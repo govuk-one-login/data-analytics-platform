@@ -2,3 +2,6 @@
 .idea/
 dist/
 node_modules/
+coverage/
+jest-stare/
+test-report/
