@@ -51,13 +51,13 @@ Globals:
         NODE_OPTIONS: '--enable-source-maps'
 Resources:
   EventQueue:
-    # checkov:skip=CKV_AWS_27: This is a temporary test queue  
+    # checkov:skip=CKV_AWS_27: This is a temporary test queue
     Type: 'AWS::SQS::Queue'
     Properties:
       QueueName: txma-event-queue
   EventConsumerLambda:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
-    # checkov:skip=CKV_AWS_117: VPC not needed for lambda  
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: 'AWS::Serverless::Function'
     Properties:
       FunctionName: txma-event-consumer
@@ -118,12 +118,12 @@ Resources:
       AccessControl: Private
       BucketName: '[AWS::AccountId]_dap_raw_layer'
       PublicAccessBlockConfiguration:
-          # BlockPublicAcls: Boolean
-          BlockPublicPolicy: true
-          IgnorePublicAcls: true
-          RestrictPublicBuckets: true
+        # BlockPublicAcls: Boolean
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
 
-      VersioningConfiguration: 
+      VersioningConfiguration:
         Status: Enabled
   KinesisFirehose:
     Type: 'AWS::KinesisFirehose::DeliveryStream'
