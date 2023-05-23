@@ -9,6 +9,7 @@ Parameters:
     Default: dev
     AllowedValues:
       - dev
+      - test
       - build
       - staging
       - integration
@@ -77,5 +78,35 @@ Resources:
         # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
         Variables:
           FIREHOSE_STREAM_NAME: !Sub txma-event-stream-${Environment}
+      Tags:
+        Environment: !Ref Environment
+
+  TestSupportLambda:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: test-support
+      Handler: test-support.handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action: lambda:InvokeFunction
+              Resource: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:*
+            - Effect: Allow
+              Action:
+                - logs:FilterLogEvents
+                - logs:GetLogEvents
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+              Resource: !Sub arn:aws:s3:::${AWS::StackName}*
+            - Effect: Allow
+              Action: sqs:SendMessage
+              Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:*
+      ReservedConcurrentExecutions: 10
       Tags:
         Environment: !Ref Environment

@@ -5,8 +5,11 @@
   "license": "MIT",
   "repository": "github:alphagov/di-data-analytics-platform",
   "devDependencies": {
+    "@aws-sdk/client-cloudwatch-logs": "^3.335.0",
     "@aws-sdk/client-firehose": "^3.335.0",
-    "@aws-sdk/client-lambda": "^3.337.0",
+    "@aws-sdk/client-lambda": "^3.332.0",
+    "@aws-sdk/client-s3": "^3.332.0",
+    "@aws-sdk/client-sqs": "^3.332.0",
     "@aws-sdk/types": "^3.329.0",
     "@aws-sdk/util-retry": "^3.329.0",
     "@aws-sdk/util-utf8-node": "^3.259.0",
