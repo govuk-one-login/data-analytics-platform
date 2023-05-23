@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": "github:alphagov/di-data-analytics-platform",
   "devDependencies": {
-    "@aws-sdk/client-firehose": "^3.335.0",
+    "@aws-sdk/client-firehose": "^3.337.0",
     "@aws-sdk/types": "^3.329.0",
     "@aws-sdk/util-retry": "^3.329.0",
     "@tsconfig/node18": "^2.0.1",
