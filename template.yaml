@@ -113,6 +113,12 @@ Resources:
     Properties:
       AccessControl: Private
       BucketName: '[AWS::AccountId]_dap_raw_layer'
+      PublicAccessBlockConfiguration:
+          # BlockPublicAcls: Boolean
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+
       VersioningConfiguration: 
         Status: Enabled
   KinesisFirehose:
