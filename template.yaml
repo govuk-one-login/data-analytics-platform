@@ -113,6 +113,8 @@ Resources:
     Properties:
       AccessControl: Private
       BucketName: '[AWS::AccountId]_dap_raw_layer'
+      VersioningConfiguration: 
+        Status: Enabled
   KinesisFirehose:
     Type: 'AWS::KinesisFirehose::DeliveryStream'
     Properties:
