@@ -112,11 +112,12 @@ Resources:
                   - 's3:PutObject'
                 Resource:
                   - !Ref S3Bucket
-    # checkov:skip=CKV_AWS_18: Ensure the S3 bucket has access logging enabled
-    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
-    # checkov:skip=CKV_AWS_53: Ensure S3 bucket has block public ACLS enabled
+
 
   S3Bucket:
+    # checkov:skip=CKV_AWS_18: Ensure the S3 bucket has access logging enabled
+    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+    # checkov:skip=CKV_AWS_53: Ensure S3 bucket has block public ACLS enabled  
     Type: 'AWS::S3::Bucket'
     Properties:
       AccessControl: Private
