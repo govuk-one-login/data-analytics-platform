@@ -59,8 +59,6 @@ Resources:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
 
-
-
     Type: 'AWS::Serverless::Function'
     Properties:
       FunctionName: txma-event-consumer
@@ -82,7 +80,7 @@ Resources:
               Resource: !GetAtt EventQueue.Arn
       ReservedConcurrentExecutions: 10
       Environment:
-    # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+        # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
         Variables:
           FIREHOSE_STREAM_NAME: !Sub 'txma-event-stream-${Environment}'
       Tags:
