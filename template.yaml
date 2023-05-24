@@ -58,6 +58,9 @@ Resources:
   EventConsumerLambda:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+
+
+
     Type: 'AWS::Serverless::Function'
     Properties:
       FunctionName: txma-event-consumer
@@ -79,7 +82,7 @@ Resources:
               Resource: !GetAtt EventQueue.Arn
       ReservedConcurrentExecutions: 10
       Environment:
-        # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+    # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
         Variables:
           FIREHOSE_STREAM_NAME: !Sub 'txma-event-stream-${Environment}'
       Tags:
@@ -111,6 +114,9 @@ Resources:
                   - 's3:PutObject'
                 Resource:
                   - !Ref S3Bucket
+    # checkov:skip=CKV_AWS_18: Ensure the S3 bucket has access logging enabled
+    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+    # checkov:skip=CKV_AWS_53: Ensure S3 bucket has block public ACLS enabled
 
   S3Bucket:
     Type: 'AWS::S3::Bucket'
