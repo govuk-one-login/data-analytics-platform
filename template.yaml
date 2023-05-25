@@ -120,7 +120,7 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       AccessControl: Private
-      BucketName: !Join 
+      BucketName: !Join
         - '-'
         - - !Ref Environment
           # - !Ref AWS::AccountId
