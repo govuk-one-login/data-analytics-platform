@@ -120,7 +120,11 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       AccessControl: Private
-      BucketName: '[AWS::AccountId]_dap_raw_layer'
+      BucketName: !Join 
+        - '-'
+        - - !Ref Environment
+          # - !Ref AWS::AccountId
+          - 'dap-raw-layer'
       PublicAccessBlockConfiguration:
         # BlockPublicAcls: Boolean
         BlockPublicPolicy: true
