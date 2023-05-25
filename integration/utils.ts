@@ -16,7 +16,7 @@ export const invokeTestSupportLambda = async (event: Omit<TestSupportEvent, 'env
   try {
     const response = await lambdaClient.send(
       new InvokeCommand({
-        FunctionName: `test-support-lambda-${environment}`,
+        FunctionName: `test-support-${environment}`,
         Payload: encodeObject(payload),
         LogType: 'Tail',
         InvocationType: 'RequestResponse',

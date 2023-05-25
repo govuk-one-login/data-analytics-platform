@@ -86,7 +86,7 @@ Resources:
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: test-support
+      FunctionName: test-support-${Environment}
       Handler: test-support.handler
       Policies:
         - AWSLambdaBasicExecutionRole
