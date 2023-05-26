@@ -1,0 +1,5 @@
+{
+  "datasource": "txma",
+  "S3MetaDataBucketName": "elt-metadata",
+  "action": "GetInsertQuery"
+}

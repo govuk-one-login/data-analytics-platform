@@ -1,12 +1,6 @@
 import type { SQSBatchItemFailure, SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
-import { FirehoseClient, PutRecordCommand } from '@aws-sdk/client-firehose';
-import { ConfiguredRetryStrategy } from '@aws-sdk/util-retry';
-import { AWS_CLIENT_BASE_CONFIG } from '../../shared/constants';
-
-const firehoseClient = new FirehoseClient({
-  ...AWS_CLIENT_BASE_CONFIG,
-  retryStrategy: new ConfiguredRetryStrategy(3, retryAttempt => Math.pow(2, retryAttempt) * 1000),
-});
+import { PutRecordCommand } from '@aws-sdk/client-firehose';
+import { firehoseClient } from '../../shared/clients';
 
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   const batchItemFailures: SQSBatchItemFailure[] = [];

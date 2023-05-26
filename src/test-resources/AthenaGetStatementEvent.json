@@ -1,0 +1,117 @@
+{
+  "datasource": "txma",
+  "S3MetaDataBucketName": "elt-metadata",
+  "action": "GetInsertQuery",
+  "configObject": {
+    "event_name": "auth_create_account",
+    "enabled": true,
+    "sqlText": {
+      "ExecutedVersion": "$LATEST",
+      "Payload": "WITH get_latest_stg_processed_dt AS (\n\tSELECT coalesce(max(processed_date), 20000101) as processed_date\n\tFROM \"stage-layer\".\"auth_create_account$partitions\"\n),\nget_stg_partitions AS (\n\tSELECT DISTINCT year,\n\t\tmonth,\n\t\tday\n\tFROM \"stage-layer\".\"auth_create_account\" stg,\n\t\tget_latest_stg_processed_dt\n\tWHERE stg.processed_date = get_latest_stg_processed_dt.processed_date\n),\nget_stg_filter_values AS (\n\tSELECT MAX(\n\t\t\tCAST(\n\t\t\t\tCONCAT(\n\t\t\t\t\tCAST(year AS varchar),\n\t\t\t\t\tCAST(LPAD(CAST(month AS varchar), 2, '0') AS varchar),\n\t\t\t\t\tCAST(LPAD(CAST(day AS varchar), 2, '0') AS varchar)\n\t\t\t\t) AS int\n\t\t\t)\n\t\t) as max_partition_value\n\tfrom get_stg_partitions\n\tUNION ALL\n\tselect 20000101 as max_partition_value\n\tfrom (\n\t\t\tvalues(1)\n\t\t) as t(dummy)\n\twhere not exists (\n\t\t\tselect 1\n\t\t\tfrom get_stg_partitions\n\t\t)\n)\nselect max(max_partition_value) as max_partition_value\nfrom get_stg_filter_values;",
+      "SdkHttpMetadata": {
+        "AllHttpHeaders": {
+          "X-Amz-Executed-Version": ["$LATEST"],
+          "x-amzn-Remapped-Content-Length": ["0"],
+          "Connection": ["keep-alive"],
+          "x-amzn-RequestId": ["9d862554-bd64-4e48-ba08-96faa973164f"],
+          "Content-Length": ["989"],
+          "Date": ["Tue, 23 May 2023 18:19:52 GMT"],
+          "X-Amzn-Trace-Id": ["root=1-646d03c6-01e25b4c66fa624239c2bcac;sampled=0;lineage=0a828a22:0"],
+          "Content-Type": ["application/json"]
+        },
+        "HttpHeaders": {
+          "Connection": "keep-alive",
+          "Content-Length": "989",
+          "Content-Type": "application/json",
+          "Date": "Tue, 23 May 2023 18:19:52 GMT",
+          "X-Amz-Executed-Version": "$LATEST",
+          "x-amzn-Remapped-Content-Length": "0",
+          "x-amzn-RequestId": "9d862554-bd64-4e48-ba08-96faa973164f",
+          "X-Amzn-Trace-Id": "root=1-646d03c6-01e25b4c66fa624239c2bcac;sampled=0;lineage=0a828a22:0"
+        },
+        "HttpStatusCode": 200
+      },
+      "SdkResponseMetadata": {
+        "RequestId": "9d862554-bd64-4e48-ba08-96faa973164f"
+      },
+      "StatusCode": 200
+    },
+    "queryResult": {
+      "ResultSet": {
+        "ResultSetMetadata": {
+          "ColumnInfo": [
+            {
+              "CaseSensitive": false,
+              "CatalogName": "hive",
+              "Label": "max_partition_value",
+              "Name": "max_partition_value",
+              "Nullable": "UNKNOWN",
+              "Precision": 10,
+              "Scale": 0,
+              "SchemaName": "",
+              "TableName": "",
+              "Type": "integer"
+            }
+          ]
+        },
+        "Rows": [
+          {
+            "Data": [
+              {
+                "VarCharValue": "max_partition_value"
+              }
+            ]
+          },
+          {
+            "Data": [
+              {
+                "VarCharValue": "20230518"
+              }
+            ]
+          }
+        ]
+      },
+      "UpdateCount": 0
+    },
+    "queryExecutionStatus": {
+      "QueryExecution": {
+        "EngineVersion": {
+          "EffectiveEngineVersion": "Athena engine version 3",
+          "SelectedEngineVersion": "AUTO"
+        },
+        "Query": "WITH get_latest_stg_processed_dt AS (\n\tSELECT coalesce(max(processed_date), 20000101) as processed_date\n\tFROM \"stage-layer\".\"auth_create_account$partitions\"\n),\nget_stg_partitions AS (\n\tSELECT DISTINCT year,\n\t\tmonth,\n\t\tday\n\tFROM \"stage-layer\".\"auth_create_account\" stg,\n\t\tget_latest_stg_processed_dt\n\tWHERE stg.processed_date = get_latest_stg_processed_dt.processed_date\n),\nget_stg_filter_values AS (\n\tSELECT MAX(\n\t\t\tCAST(\n\t\t\t\tCONCAT(\n\t\t\t\t\tCAST(year AS varchar),\n\t\t\t\t\tCAST(LPAD(CAST(month AS varchar), 2, '0') AS varchar),\n\t\t\t\t\tCAST(LPAD(CAST(day AS varchar), 2, '0') AS varchar)\n\t\t\t\t) AS int\n\t\t\t)\n\t\t) as max_partition_value\n\tfrom get_stg_partitions\n\tUNION ALL\n\tselect 20000101 as max_partition_value\n\tfrom (\n\t\t\tvalues(1)\n\t\t) as t(dummy)\n\twhere not exists (\n\t\t\tselect 1\n\t\t\tfrom get_stg_partitions\n\t\t)\n)\nselect max(max_partition_value) as max_partition_value\nfrom get_stg_filter_values",
+        "QueryExecutionContext": {
+          "Database": "stage-layer"
+        },
+        "QueryExecutionId": "732ff362-6b0e-429e-9698-10c447410cab",
+        "ResultConfiguration": {
+          "OutputLocation": "s3://563887642259-athena-workgroup-queries-demo/txma/732ff362-6b0e-429e-9698-10c447410cab.csv"
+        },
+        "ResultReuseConfiguration": {
+          "ResultReuseByAgeConfiguration": {
+            "Enabled": false
+          }
+        },
+        "StatementType": "DML",
+        "Statistics": {
+          "DataScannedInBytes": 1758,
+          "EngineExecutionTimeInMillis": 6444,
+          "QueryPlanningTimeInMillis": 5777,
+          "QueryQueueTimeInMillis": 133,
+          "ResultReuseInformation": {
+            "ReusedPreviousResult": false
+          },
+          "ServiceProcessingTimeInMillis": 33,
+          "TotalExecutionTimeInMillis": 6610
+        },
+        "Status": {
+          "CompletionDateTime": 1684865999787,
+          "State": "SUCCEEDED",
+          "SubmissionDateTime": 1684865993177
+        },
+        "SubstatementType": "SELECT",
+        "WorkGroup": "dap-txma-processing"
+      }
+    }
+  }
+}
