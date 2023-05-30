@@ -1,8 +1,10 @@
 import { AWS_CLIENT_BASE_CONFIG, AWS_ENVIRONMENTS } from '../../shared/constants';
-import { getRequiredParams } from '../../shared/utils/utils';
+import { decodeObject, getRequiredParams } from '../../shared/utils/utils';
 import { CloudWatchLogsClient, GetLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
+import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 import { GetObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
+import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 
 const cloudwatchClient = new CloudWatchLogsClient(AWS_CLIENT_BASE_CONFIG);
@@ -47,7 +49,7 @@ const handleEvent = async (event: TestSupportEvent): Promise<unknown> => {
   switch (event.command) {
     case 'CLOUDWATCH_GET': {
       const request = new GetLogEventsCommand({
-        ...getRequiredParams(event.input, 'logStreamName', 'startTime'),
+        ...getRequiredParams(event.input, 'logGroupName', 'logStreamName', 'startTime'),
       });
       return await cloudwatchClient.send(request);
     }
@@ -57,7 +59,7 @@ const handleEvent = async (event: TestSupportEvent): Promise<unknown> => {
         LogType: 'Tail',
         InvocationType: 'RequestResponse',
       });
-      return await lambdaClient.send(request);
+      return await lambdaClient.send(request).then(lambdaInvokeResponse);
     }
     case 'S3_LIST': {
       const request = new ListObjectsV2Command({
@@ -69,7 +71,7 @@ const handleEvent = async (event: TestSupportEvent): Promise<unknown> => {
       const request = new GetObjectCommand({
         ...getRequiredParams(event.input, 'Bucket', 'Key'),
       });
-      return await s3Client.send(request);
+      return await s3Client.send(request).then(s3GetResponse);
     }
     case 'SQS_SEND': {
       const request = new SendMessageCommand({
@@ -78,4 +80,25 @@ const handleEvent = async (event: TestSupportEvent): Promise<unknown> => {
       return await sqsClient.send(request);
     }
   }
+};
+
+// custom response as real response does not decode Body and has many properties we don't need
+const s3GetResponse = async (response: GetObjectCommandOutput): Promise<Record<string, unknown>> => {
+  const body = await response.Body?.transformToString('utf-8');
+  return {
+    body,
+    eTag: response.ETag,
+    lastModified: response.LastModified,
+  };
+};
+
+// custom response as real response LogResult is base64 encoded and Payload is encoded as a UintArray
+const lambdaInvokeResponse = async (response: InvokeCommandOutput): Promise<Record<string, unknown>> => {
+  return {
+    executedVersion: response.ExecutedVersion,
+    statusCode: response.StatusCode,
+    functionError: response.FunctionError,
+    logResult: Buffer.from(response.LogResult ?? '', 'base64').toString('utf-8'),
+    payload: decodeObject(response.Payload ?? new Uint8Array([0x7b, 0x7d])),
+  };
 };
