@@ -6,7 +6,7 @@
   "repository": "github:alphagov/di-data-analytics-platform",
   "devDependencies": {
     "@aws-sdk/client-cloudwatch-logs": "^3.338.0",
-    "@aws-sdk/client-firehose": "^3.338.0",
+    "@aws-sdk/client-firehose": "^3.341.0",
     "@aws-sdk/client-lambda": "^3.341.0",
     "@aws-sdk/client-s3": "^3.341.0",
     "@aws-sdk/client-sqs": "^3.338.0",
