@@ -150,3 +150,18 @@ It can be manually invoked on a chosen branch by finding it in the [GitHub Actio
 For a guide to how and why certain development decisions, coding practices, etc. were made, please refer to the [Development Decisions document](docs/development-decisions.md).
 
 For a list of TODOs for the project, please see the [TODOs document](docs/todos.md).
+
+### Running the test and generating test report
+
+To run the functional and unit test tests  
+
+* `npm run test`
+
+To run the functional/integration tests 
+
+* `npm run integration-test`
+
+Test report
+
+report will be generated at location /di-data-analytics-platform/test-report/index.html
+
