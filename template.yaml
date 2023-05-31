@@ -85,7 +85,7 @@ Resources:
           FIREHOSE_STREAM_NAME: !Sub 'txma-event-stream-${Environment}'
       Tags:
         Environment: !Ref Environment
-  
+
   S3Bucket:
     # checkov:skip=CKV_AWS_18: Ensure the S3 bucket has access logging enabled
     # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
@@ -104,7 +104,7 @@ Resources:
         RestrictPublicBuckets: true
       VersioningConfiguration:
         Status: Enabled
-  
+
   KinesisFirehose:
     Type: 'AWS::KinesisFirehose::DeliveryStream'
     Properties:
@@ -129,7 +129,7 @@ Resources:
         BufferingHints:
           IntervalInSeconds: 900
           SizeInMBs: 128
-        RoleARN: !GetAtt  IAMRoleKinesisFirehose.Arn
+        RoleARN: !GetAtt IAMRoleKinesisFirehose.Arn
         Prefix: '!{partitionKeyFromQuery:datasource}/!{partitionKeyFromQuery:event_name}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
         CompressionFormat: GZIP
         ErrorOutputPrefix: kinesis-processing-errors-
@@ -142,9 +142,9 @@ Resources:
             - Type: MetadataExtraction
               Parameters:
                 - ParameterName: MetadataExtractionQuery
-                  ParameterValue: "{datasource: 'txma',event_name: .event_name,year:now | strftime(\"%Y\"),month:now | strftime(\"%m\"),day:now | strftime(\"%d\")}"
+                  ParameterValue: '{datasource: ''txma'',event_name: .event_name,year:now | strftime("%Y"),month:now | strftime("%m"),day:now | strftime("%d")}'
                 - ParameterName: JsonParsingEngine
-                  ParameterValue: "JQ-1.6"
+                  ParameterValue: 'JQ-1.6'
         DataFormatConversionConfiguration:
           Enabled: false
 
@@ -174,5 +174,5 @@ Resources:
                   - 's3:ListBucketMultipartUploads'
                   - 's3:PutObject'
                 Resource:
-                  - !Sub "arn:aws:s3:::${S3Bucket}"
-                  - !Sub "arn:aws:s3:::${S3Bucket}/*"
+                  - !Sub 'arn:aws:s3:::${S3Bucket}'
+                  - !Sub 'arn:aws:s3:::${S3Bucket}/*'
