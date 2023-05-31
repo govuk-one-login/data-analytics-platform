@@ -98,7 +98,6 @@ Resources:
         - - !Ref Environment
           - 'dap-raw-layer'
       PublicAccessBlockConfiguration:
-        # BlockPublicAcls: Boolean
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
