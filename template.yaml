@@ -150,7 +150,7 @@ Resources:
   IAMRoleKinesisFirehose:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: kinesis-firehose-role
+      RoleName: kinesis-txma-firehose-role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
