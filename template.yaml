@@ -112,7 +112,6 @@ Resources:
         - '-'
         - - !Ref Environment
           - !Ref DeliveryStreamName
-          - 'demo'
       DeliveryStreamType: DirectPut
       ExtendedS3DestinationConfiguration:
         BucketARN: !GetAtt S3Bucket.Arn
