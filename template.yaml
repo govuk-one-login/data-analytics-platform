@@ -23,7 +23,7 @@ Parameters:
   DeliveryStreamName:
     Description: Delivery Stream
     Type: String
-    Default: none
+    Default: dap-txma-delivery-stream
 Conditions:
   UseCodeSigning: !Not
     - !Equals
@@ -85,6 +85,69 @@ Resources:
           FIREHOSE_STREAM_NAME: !Sub 'txma-event-stream-${Environment}'
       Tags:
         Environment: !Ref Environment
+  
+  S3Bucket:
+    # checkov:skip=CKV_AWS_18: Ensure the S3 bucket has access logging enabled
+    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+    # checkov:skip=CKV_AWS_53: Ensure S3 bucket has block public ACLS enabled
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      BucketName: !Join
+        - '-'
+        - - !Ref Environment
+          - 'dap-raw-layer'
+      PublicAccessBlockConfiguration:
+        # BlockPublicAcls: Boolean
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+  
+  KinesisFirehose:
+    Type: 'AWS::KinesisFirehose::DeliveryStream'
+    Properties:
+      DeliveryStreamName: !Join
+        - '-'
+        - - !Ref Environment
+          - !Ref DeliveryStreamName
+          - 'demo'
+      DeliveryStreamType: DirectPut
+      ExtendedS3DestinationConfiguration:
+        BucketARN: !GetAtt S3Bucket.Arn
+        CloudWatchLoggingOptions:
+          Enabled: true
+          LogGroupName: !Join
+            - '-'
+            - - !Ref Environment
+              - !Ref DeliveryStreamName
+          LogStreamName: !Join
+            - '-'
+            - - !Ref Environment
+              - !Ref DeliveryStreamName
+        BufferingHints:
+          IntervalInSeconds: 900
+          SizeInMBs: 128
+        RoleARN: !GetAtt  IAMRoleKinesisFirehose.Arn
+        Prefix: '!{partitionKeyFromQuery:datasource}/!{partitionKeyFromQuery:event_name}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
+        CompressionFormat: GZIP
+        ErrorOutputPrefix: kinesis-processing-errors-
+        DynamicPartitioningConfiguration:
+          Enabled: true
+        ProcessingConfiguration:
+          Enabled: true
+          Processors:
+            - Type: AppendDelimiterToRecord
+            - Type: MetadataExtraction
+              Parameters:
+                - ParameterName: MetadataExtractionQuery
+                  ParameterValue: "{datasource: 'txma',event_name: .event_name,year:now | strftime(\"%Y\"),month:now | strftime(\"%m\"),day:now | strftime(\"%d\")}"
+                - ParameterName: JsonParsingEngine
+                  ParameterValue: "JQ-1.6"
+        DataFormatConversionConfiguration:
+          Enabled: false
+
   IAMRoleKinesisFirehose:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -111,43 +174,5 @@ Resources:
                   - 's3:ListBucketMultipartUploads'
                   - 's3:PutObject'
                 Resource:
-                  - !Ref S3Bucket
-
-  S3Bucket:
-    # checkov:skip=CKV_AWS_18: Ensure the S3 bucket has access logging enabled
-    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
-    # checkov:skip=CKV_AWS_53: Ensure S3 bucket has block public ACLS enabled
-    Type: 'AWS::S3::Bucket'
-    Properties:
-      AccessControl: Private
-      BucketName: !Join
-        - '-'
-        - - !Ref Environment
-          # - !Ref AWS::AccountId
-          - 'dap-raw-layer'
-      PublicAccessBlockConfiguration:
-        # BlockPublicAcls: Boolean
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-
-      VersioningConfiguration:
-        Status: Enabled
-  KinesisFirehose:
-    Type: 'AWS::KinesisFirehose::DeliveryStream'
-    Properties:
-      DeliveryStreamName: !Ref DeliveryStreamName
-      DeliveryStreamType: DirectPut
-      ExtendedS3DestinationConfiguration:
-        BucketARN: !GetAtt S3Bucket.Arn
-        BufferingHints:
-          IntervalInSeconds: 900
-          SizeInMBs: 128
-        RoleARN: !Ref IAMRoleKinesisFirehose
-        # Prefix: !{partitionKeyFromQuery:datasource}/!{partitionKeyFromQuery:event_name}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/
-        CompressionFormat: GZIP
-        ErrorOutputPrefix: kinesis-processing-errors-
-        DynamicPartitioningConfiguration:
-          Enabled: true
-
-      # RoleARN: !GetAtt IAMRoleKinesisFirehose //test
+                  - !Sub "arn:aws:s3:::${S3Bucket}"
+                  - !Sub "arn:aws:s3:::${S3Bucket}/*"
