@@ -150,7 +150,7 @@ Resources:
             - - !Ref Environment
               - !Ref DeliveryStreamName
         BufferingHints:
-          IntervalInSeconds: 900
+          IntervalInSeconds: 60
           SizeInMBs: 128
         RoleARN: !GetAtt IAMRoleKinesisFirehose.Arn
         Prefix: '!{partitionKeyFromQuery:datasource}/!{partitionKeyFromQuery:event_name}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
@@ -165,7 +165,7 @@ Resources:
             - Type: MetadataExtraction
               Parameters:
                 - ParameterName: MetadataExtractionQuery
-                  ParameterValue: '{datasource: ''txma'',event_name: .event_name,year:now | strftime("%Y"),month:now | strftime("%m"),day:now | strftime("%d")}'
+                  ParameterValue: '{datasource: "txma",event_name: .event_name,year:now | strftime("%Y"),month:now | strftime("%m"),day:now | strftime("%d")}'
                 - ParameterName: JsonParsingEngine
                   ParameterValue: 'JQ-1.6'
         DataFormatConversionConfiguration:
