@@ -1,6 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Data and Analytics Stack
 Transform: 'AWS::Serverless-2016-10-31'
+
 Parameters:
   Environment:
     Description: Environment type
@@ -25,6 +26,7 @@ Parameters:
     Description: Delivery Stream
     Type: String
     Default: dap-txma-delivery-stream
+
 Conditions:
   UseCodeSigning: !Not
     - !Equals
@@ -34,6 +36,7 @@ Conditions:
     - !Equals
       - !Ref PermissionsBoundary
       - none
+
 Globals:
   Function:
     CodeSigningConfigArn: !If
@@ -50,16 +53,17 @@ Globals:
     Environment:
       Variables:
         NODE_OPTIONS: '--enable-source-maps'
+
 Resources:
   EventQueue:
     # checkov:skip=CKV_AWS_27: This is a temporary test queue
     Type: 'AWS::SQS::Queue'
     Properties:
       QueueName: txma-event-queue
+
   EventConsumerLambda:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-
     Type: 'AWS::Serverless::Function'
     Properties:
       FunctionName: txma-event-consumer
@@ -184,6 +188,7 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
+
   TestSupportLambda:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
@@ -210,6 +215,46 @@ Resources:
             - Effect: Allow
               Action: sqs:SendMessage
               Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:*
+      ReservedConcurrentExecutions: 10
+      Tags:
+        Environment: !Ref Environment
+
+  AthenaGetConfigLambda:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub athena-get-config-${Environment}
+      Handler: athena-get-config.handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+              # todo update this to reference the elt metadata bucket when it is in this template
+              Resource: !Sub arn:aws:s3:::${AWS::AccountId}-elt-metadata-demo/*
+      ReservedConcurrentExecutions: 10
+      Tags:
+        Environment: !Ref Environment
+
+  AthenaGetStatementLambda:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub athena-get-statement-${Environment}
+      Handler: athena-get-statement.handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+              # todo update this to reference the elt metadata bucket when it is in this template
+              Resource: !Sub arn:aws:s3:::${AWS::AccountId}-elt-metadata-demo/*
       ReservedConcurrentExecutions: 10
       Tags:
         Environment: !Ref Environment
