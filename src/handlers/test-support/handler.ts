@@ -1,16 +1,12 @@
-import { AWS_CLIENT_BASE_CONFIG, AWS_ENVIRONMENTS } from '../../shared/constants';
+import { AWS_ENVIRONMENTS } from '../../shared/constants';
 import { decodeObject, getRequiredParams } from '../../shared/utils/utils';
-import { CloudWatchLogsClient, GetLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
-import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
+import { GetLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
 import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
-import { GetObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
+import { InvokeCommand } from '@aws-sdk/client-lambda';
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-
-const cloudwatchClient = new CloudWatchLogsClient(AWS_CLIENT_BASE_CONFIG);
-const lambdaClient = new LambdaClient(AWS_CLIENT_BASE_CONFIG);
-const s3Client = new S3Client(AWS_CLIENT_BASE_CONFIG);
-const sqsClient = new SQSClient(AWS_CLIENT_BASE_CONFIG);
+import { GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { SendMessageCommand } from '@aws-sdk/client-sqs';
+import { cloudwatchClient, lambdaClient, s3Client, sqsClient } from '../../shared/clients';
 
 const TEST_SUPPORT_COMMANDS = ['CLOUDWATCH_GET', 'LAMBDA_INVOKE', 'S3_GET', 'S3_LIST', 'SQS_SEND'] as const;
 
