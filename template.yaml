@@ -23,7 +23,7 @@ Parameters:
     Type: String
     Default: none
   DeliveryStreamName:
-    Description: Delivery Stream
+    Description: Kinesis Firehose delivery stream name
     Type: String
     Default: dap-txma-delivery-stream
 
@@ -55,6 +55,21 @@ Globals:
         NODE_OPTIONS: '--enable-source-maps'
 
 Resources:
+  GlobalLogBucket:
+    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+    # checkov:skip=CKV_AWS_18: This is the log bucket for all other buckets - no need for a log bucket of the log bucket
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub '${Environment}-dap-s3-logs'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
   EventQueue:
     # checkov:skip=CKV_AWS_27: This is a temporary test queue
     Type: 'AWS::SQS::Queue'
@@ -83,18 +98,19 @@ Resources:
                 - 'sqs:GetQueueAttributes'
                 - 'sqs:ReceiveMessage'
               Resource: !GetAtt EventQueue.Arn
+            - Effect: Allow
+              Action: firehose:PutRecord
+              Resource: !GetAtt KinesisFirehose.Arn
       ReservedConcurrentExecutions: 10
       Environment:
         # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
         Variables:
-          FIREHOSE_STREAM_NAME: !Sub 'txma-event-stream-${Environment}'
+          FIREHOSE_STREAM_NAME: !Sub '${Environment}-${DeliveryStreamName}'
       Tags:
         Environment: !Ref Environment
 
-  S3Bucket:
-    # checkov:skip=CKV_AWS_18: Ensure the S3 bucket has access logging enabled
+  RawLayerBucket:
     # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
-    # checkov:skip=CKV_AWS_53: Ensure S3 bucket has block public ACLS enabled
     Type: 'AWS::S3::Bucket'
     Properties:
       AccessControl: Private
@@ -102,7 +118,11 @@ Resources:
         - '-'
         - - !Ref Environment
           - 'dap-raw-layer'
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: dap-raw-layer/log
       PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
@@ -118,7 +138,7 @@ Resources:
           - !Ref DeliveryStreamName
       DeliveryStreamType: DirectPut
       ExtendedS3DestinationConfiguration:
-        BucketARN: !GetAtt S3Bucket.Arn
+        BucketARN: !GetAtt RawLayerBucket.Arn
         CloudWatchLoggingOptions:
           Enabled: true
           LogGroupName: !Join
@@ -130,7 +150,7 @@ Resources:
             - - !Ref Environment
               - !Ref DeliveryStreamName
         BufferingHints:
-          IntervalInSeconds: 900
+          IntervalInSeconds: 60
           SizeInMBs: 128
         RoleARN: !GetAtt IAMRoleKinesisFirehose.Arn
         Prefix: '!{partitionKeyFromQuery:datasource}/!{partitionKeyFromQuery:event_name}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
@@ -145,7 +165,7 @@ Resources:
             - Type: MetadataExtraction
               Parameters:
                 - ParameterName: MetadataExtractionQuery
-                  ParameterValue: '{datasource: ''txma'',event_name: .event_name,year:now | strftime("%Y"),month:now | strftime("%m"),day:now | strftime("%d")}'
+                  ParameterValue: '{datasource: "txma",event_name: .event_name,year:now | strftime("%Y"),month:now | strftime("%m"),day:now | strftime("%d")}'
                 - ParameterName: JsonParsingEngine
                   ParameterValue: 'JQ-1.6'
         DataFormatConversionConfiguration:
@@ -180,8 +200,8 @@ Resources:
                   - 's3:ListBucketMultipartUploads'
                   - 's3:PutObject'
                 Resource:
-                  - !Sub 'arn:aws:s3:::${S3Bucket}'
-                  - !Sub 'arn:aws:s3:::${S3Bucket}/*'
+                  - !Sub 'arn:aws:s3:::${RawLayerBucket}'
+                  - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
               - Effect: Allow
                 Resource: arn:aws:logs:*:*:*
                 Action:
