@@ -360,7 +360,7 @@ Resources:
         JobBookmarksEncryption:
           JobBookmarksEncryptionMode: DISABLED
         S3Encryptions:
-          S3EncryptionMode: SSE-S3
+          - S3EncryptionMode: DISABLED
 
   RawGlueCrawler:
     Type: AWS::Glue::Crawler
