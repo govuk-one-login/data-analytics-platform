@@ -324,7 +324,7 @@ Resources:
   AthenaWorkGroup:
     Type: AWS::Athena::WorkGroup
     Properties:
-      Name: dap-txma-processing
+      Name: !Sub ${Environment}-dap-txma-processing
       Description: DAP project
       State: ENABLED
       WorkGroupConfiguration:
