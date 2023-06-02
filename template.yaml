@@ -78,12 +78,6 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
 
-  EventQueue:
-    # checkov:skip=CKV_AWS_27: This is a temporary test queue
-    Type: 'AWS::SQS::Queue'
-    Properties:
-      QueueName: txma-event-queue
-
   EventConsumerLambda:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
@@ -95,7 +89,9 @@ Resources:
           Type: SQS
           Properties:
             BatchSize: 1
-            Queue: !GetAtt EventQueue.Arn
+            Queue: '{{resolve:ssm:TxMAEventQueueARN}}'
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
       Handler: txma-event-consumer.handler
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -105,7 +101,7 @@ Resources:
                 - 'sqs:DeleteMessage'
                 - 'sqs:GetQueueAttributes'
                 - 'sqs:ReceiveMessage'
-              Resource: !GetAtt EventQueue.Arn
+              Resource: '{{resolve:ssm:TxMAEventQueueARN}}'
             - Effect: Allow
               Action: firehose:PutRecord
               Resource: !GetAtt KinesisFirehose.Arn

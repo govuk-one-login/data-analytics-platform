@@ -61,3 +61,9 @@ and assembled into a single `template.yaml` by a build step).
 ## GitHub Policies
 
 Commit signing, branch protection and mandatory pull requests are taken from the [DI best practices](https://di-team-manual.london.cloudapps.digital/github-policies/#github-policies).
+
+## Deployment Config
+
+Some configuration properties needed for deployment are stored in the AWS System Manager Parameter Store.
+This enables them to be [dynamically referenced](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html#dynamic-references-ssm) in the template.
+This approach is used by both BTM and TxMA.

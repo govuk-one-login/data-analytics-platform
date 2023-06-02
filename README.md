@@ -139,6 +139,14 @@ A different template file path can be specified with the `--template-file` flag 
 Deployment is done via [Secure Pipelines](https://govukverify.atlassian.net/wiki/spaces/DAP/pages/3535667315/Secure+Pipelines).
 At a high level, we are responsible for the SAM app and running `sam build`, but Secure Pipelines calls `sam deploy` for us.
 
+#### Config
+
+Deployment relies on the following AWS System Manager Parameters being available in the target AWS account:
+
+| Name              | Description                                                                 |
+|-------------------|-----------------------------------------------------------------------------|
+| TxmaEventQueueARN | ARN of the TxMA event queue which triggers the `txma-event-consumer` lambda |
+
 #### Dev
 
 Our dev environment is a standalone environment and can therefore be used as a sandbox.
