@@ -329,7 +329,7 @@ Resources:
       State: ENABLED
       WorkGroupConfiguration:
         BytesScannedCutoffPerQuery: 200000000
-        EnforceWorkGroupConfiguration: false
+        EnforceWorkGroupConfiguration: true
         PublishCloudWatchMetricsEnabled: false
         RequesterPaysEnabled: true
         ResultConfiguration:
@@ -349,6 +349,19 @@ Resources:
       DatabaseInput:
         Name: !Ref StageGlueDatabaseName
 
+  GlueSecurityConfig:
+    # checkov:skip=CKV_AWS_99: Ensure Glue Security Configuration Encryption is enabled
+    Type: AWS::Glue::SecurityConfiguration
+    Properties:
+      Name: dap-glue-security-config
+      EncryptionConfiguration:
+        CloudWatchEncryption:
+          CloudWatchEncryptionMode: DISABLED
+        JobBookmarksEncryption:
+          JobBookmarksEncryptionMode: DISABLED
+        S3Encryptions:
+          S3EncryptionMode: SSE-S3
+
   RawGlueCrawler:
     Type: AWS::Glue::Crawler
     DependsOn: RawGlueDatabase
@@ -360,6 +373,7 @@ Resources:
           - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
           - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_APP_START/'
       DatabaseName: !Ref RawGlueDatabaseName
+      CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
       RecrawlPolicy:
         RecrawlBehavior: CRAWL_EVERYTHING
       SchemaChangePolicy:
@@ -413,6 +427,7 @@ Resources:
           - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
           - Path: !Sub 's3://${StageLayerBucket}/txma/DCMAW_APP_START/'
       DatabaseName: !Ref StageGlueDatabaseName
+      CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
       RecrawlPolicy:
         RecrawlBehavior: CRAWL_EVERYTHING
       SchemaChangePolicy:
