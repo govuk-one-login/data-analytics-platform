@@ -340,20 +340,20 @@ Resources:
     Properties:
       CatalogId: !Sub ${AWS::AccountId}
       DatabaseInput:
-        Name: !Ref RawGlueDatabaseName
+        Name: !Sub ${Environment}-${RawGlueDatabaseName}
 
   StageGlueDatabase:
     Type: AWS::Glue::Database
     Properties:
       CatalogId: !Sub ${AWS::AccountId}
       DatabaseInput:
-        Name: !Ref StageGlueDatabaseName
+        Name: !Sub ${Environment}-${StageGlueDatabaseName}
 
   GlueSecurityConfig:
     # checkov:skip=CKV_AWS_99: Ensure Glue Security Configuration Encryption is enabled
     Type: AWS::Glue::SecurityConfiguration
     Properties:
-      Name: dap-glue-security-config
+      Name: !Sub ${Environment}-dap-glue-security-config
       EncryptionConfiguration:
         CloudWatchEncryption:
           CloudWatchEncryptionMode: DISABLED
@@ -366,7 +366,7 @@ Resources:
     Type: AWS::Glue::Crawler
     DependsOn: RawGlueDatabase
     Properties:
-      Name: raw-txma-datasets
+      Name: !Sub ${Environment}-raw-txma-datasets
       Role: !GetAtt RawGlueCrawlerRole.Arn
       Targets:
         S3Targets:
@@ -420,7 +420,7 @@ Resources:
     Type: AWS::Glue::Crawler
     DependsOn: StageGlueDatabase
     Properties:
-      Name: stage-txma-datasets
+      Name: !Sub ${Environment}-stage-txma-datasets
       Role: !GetAtt StageGlueCrawlerRole.Arn
       Targets:
         S3Targets:
