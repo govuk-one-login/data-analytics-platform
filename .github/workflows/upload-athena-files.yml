@@ -1,0 +1,35 @@
+name: Upload Athena files to S3
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: string
+        required: true
+
+jobs:
+  validate-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Validate input environment
+        run: scripts/validate-environment.sh ${{ inputs.environment }}
+
+  upload-to-s3:
+    needs: [validate-environment]
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Assume AWS GitHub actions role
+        uses: aws-actions/configure-aws-credentials@v2.1.0
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_{0}', inputs.environment)] }}
+      - name: Upload athena files to S3
+        run: scripts/athena-upload.sh ${{ inputs.environment }}

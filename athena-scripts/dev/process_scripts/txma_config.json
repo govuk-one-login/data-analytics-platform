@@ -1,0 +1,10 @@
+[
+    {
+        "event_name": "auth_create_account",
+        "enabled": true
+    },
+    {
+        "event_name": "dcmaw_app_start",
+        "enabled": false
+    }
+]
