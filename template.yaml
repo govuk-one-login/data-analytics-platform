@@ -26,6 +26,14 @@ Parameters:
     Description: Kinesis Firehose delivery stream name
     Type: String
     Default: dap-txma-delivery-stream
+  RawGlueDatabaseName:
+    Default: txma-raw
+    Type: String
+    Description: Name for the TxMA Raw Glue database
+  StageGlueDatabaseName:
+    Default: txma-stage
+    Type: String
+    Description: Name for the TxMA Stage Glue database
 
 Conditions:
   UseCodeSigning: !Not
@@ -114,10 +122,7 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       AccessControl: Private
-      BucketName: !Join
-        - '-'
-        - - !Ref Environment
-          - 'dap-raw-layer'
+      BucketName: !Sub ${Environment}-dap-raw-layer
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
         LogFilePrefix: dap-raw-layer/log
@@ -132,23 +137,14 @@ Resources:
   KinesisFirehose:
     Type: 'AWS::KinesisFirehose::DeliveryStream'
     Properties:
-      DeliveryStreamName: !Join
-        - '-'
-        - - !Ref Environment
-          - !Ref DeliveryStreamName
+      DeliveryStreamName: !Sub ${Environment}-${DeliveryStreamName}
       DeliveryStreamType: DirectPut
       ExtendedS3DestinationConfiguration:
         BucketARN: !GetAtt RawLayerBucket.Arn
         CloudWatchLoggingOptions:
           Enabled: true
-          LogGroupName: !Join
-            - '-'
-            - - !Ref Environment
-              - !Ref DeliveryStreamName
-          LogStreamName: !Join
-            - '-'
-            - - !Ref Environment
-              - !Ref DeliveryStreamName
+          LogGroupName: !Sub ${Environment}-${DeliveryStreamName}
+          LogStreamName: !Sub ${Environment}-${DeliveryStreamName}
         BufferingHints:
           IntervalInSeconds: 60
           SizeInMBs: 128
@@ -174,10 +170,7 @@ Resources:
   IAMRoleKinesisFirehose:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: !Join
-        - '-'
-        - - !Ref Environment
-          - 'kinesis-txma-firehose-role'
+      RoleName: !Sub ${Environment}-kinesis-txma-firehose-role
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -187,7 +180,7 @@ Resources:
             Action: 'sts:AssumeRole'
       MaxSessionDuration: 3600
       Policies:
-        - PolicyName: policy1
+        - PolicyName: !Sub ${Environment}-kinesis-txma-firehose-policy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -253,8 +246,7 @@ Resources:
               Action:
                 - s3:GetObject
                 - s3:ListBucket
-              # todo update this to reference the elt metadata bucket when it is in this template
-              Resource: !Sub arn:aws:s3:::${AWS::AccountId}-elt-metadata-demo/*
+              Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
       ReservedConcurrentExecutions: 10
       Tags:
         Environment: !Ref Environment
@@ -273,8 +265,367 @@ Resources:
               Action:
                 - s3:GetObject
                 - s3:ListBucket
-              # todo update this to reference the elt metadata bucket when it is in this template
-              Resource: !Sub arn:aws:s3:::${AWS::AccountId}-elt-metadata-demo/*
+              Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
       ReservedConcurrentExecutions: 10
       Tags:
         Environment: !Ref Environment
+
+  StageLayerBucket:
+    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub ${Environment}-dap-stage-layer
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: dap-stage-layer/log
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  ELTMetadataBucket:
+    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub ${Environment}-dap-elt-metadata
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: dap-elt-metadata/log
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  AthenaWorkgroupBucket:
+    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub ${Environment}-dap-athena-workgroup
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: dap-athena-workgroup/log
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  AthenaWorkGroup:
+    Type: AWS::Athena::WorkGroup
+    Properties:
+      Name: dap-txma-processing
+      Description: DAP project
+      State: ENABLED
+      WorkGroupConfiguration:
+        BytesScannedCutoffPerQuery: 200000000
+        EnforceWorkGroupConfiguration: false
+        PublishCloudWatchMetricsEnabled: false
+        RequesterPaysEnabled: true
+        ResultConfiguration:
+          OutputLocation: !Sub "s3://${AthenaWorkgroupBucket}/txma/"
+
+  RawGlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Sub ${AWS::AccountId}
+      DatabaseInput:
+        Name: !Ref RawGlueDatabaseName
+
+  StageGlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Sub ${AWS::AccountId}
+      DatabaseInput:
+        Name: !Ref StageGlueDatabaseName
+
+  RawGlueCrawler:
+    Type: AWS::Glue::Crawler
+    DependsOn: RawGlueDatabase
+    Properties:
+      Name: raw-txma-datasets
+      Role: !GetAtt RawGlueCrawlerRole.Arn
+      Targets:
+        S3Targets:
+          - Path: !Sub "s3://${RawLayerBucket}/txma/AUTH_CREATE_ACCOUNT/"
+          - Path: !Sub "s3://${RawLayerBucket}/txma/DCMAW_APP_START/"
+      DatabaseName: !Ref RawGlueDatabaseName
+      RecrawlPolicy:
+        RecrawlBehavior: CRAWL_EVERYTHING
+      SchemaChangePolicy:
+        UpdateBehavior: UPDATE_IN_DATABASE
+        DeleteBehavior: DELETE_FROM_DATABASE
+  RawGlueCrawlerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${Environment}-raw-glue-crawler-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [glue.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+      Path: /
+      Policies:
+        - PolicyName: !Sub ${Environment}-raw-glue-crawler-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'glue:GetConnection'
+                  - 'glue:GetCrawler'
+                  - 'glue:CreateTable'
+                  - 'glue:UpdateCrawler'
+                  - 'glue:CreatePartition'
+                  - 'glue:BatchCreatePartition'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                  - 's3:ListObject'
+                Resource:
+                  - !Sub "arn:aws:s3:::${RawLayerBucket}"
+                  - !Sub "arn:aws:s3:::${RawLayerBucket}/*"
+
+  StageGlueCrawler:
+    Type: AWS::Glue::Crawler
+    DependsOn: StageGlueDatabase
+    Properties:
+      Name: stage-txma-datasets
+      Role: !GetAtt StageGlueCrawlerRole.Arn
+      Targets:
+        S3Targets:
+          - Path: !Sub "s3://${StageLayerBucket}/txma/AUTH_CREATE_ACCOUNT/"
+          - Path: !Sub "s3://${StageLayerBucket}/txma/DCMAW_APP_START/"
+      DatabaseName: !Ref StageGlueDatabaseName
+      RecrawlPolicy:
+        RecrawlBehavior: CRAWL_EVERYTHING
+      SchemaChangePolicy:
+        UpdateBehavior: UPDATE_IN_DATABASE
+        DeleteBehavior: DELETE_FROM_DATABASE
+  StageGlueCrawlerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${Environment}-stage-glue-crawler-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [glue.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+      Path: /
+      Policies:
+        - PolicyName: !Sub ${Environment}-stage-glue-crawler-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'glue:GetConnection'
+                  - 'glue:GetCrawler'
+                  - 'glue:CreateTable'
+                  - 'glue:UpdateCrawler'
+                  - 'glue:CreatePartition'
+                  - 'glue:BatchCreatePartition'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                  - 's3:ListObject'
+                Resource:
+                  - !Sub "arn:aws:s3:::${StageLayerBucket}"
+                  - !Sub "arn:aws:s3:::${StageLayerBucket}/*"
+
+  AthenaRawLayerProcessingStateMachine:
+    Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+    Properties:
+      DefinitionUri: statemachine/athena_raw_layer_processing.asl.json
+      Name: !Sub ${Environment}-dap-raw-to-stage-process
+      Role: !GetAtt StepFunctionRole.Arn
+      DefinitionSubstitutions:
+        GetEventConfigFunctionArn: !GetAtt AthenaGetConfigLambda.Arn
+        GetAthenaStatementFunctionArn: !GetAtt AthenaGetStatementLambda.Arn
+        GlueCrawlerRawName: !Ref RawGlueCrawler
+        GlueCrawlerStageName: !Ref StageGlueCrawler
+        AthenaWorkGroupName: !Ref AthenaWorkGroup
+        S3RawBucketName: !Ref RawLayerBucket
+        S3StageBucketName: !Ref StageLayerBucket
+        S3MetaDataBucketName: !Ref ELTMetadataBucket
+      Events:
+        DailySchedule:
+          Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
+          Properties:
+            Enabled: false # This schedule is disabled by default to avoid incurring charges.
+            Schedule: cron(0 7 * * ? *)
+
+  StepFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${Environment}-dap-statemachine-processing-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - states.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        -
+          PolicyName: !Sub ${Environment}-dap-statemachine-processing-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              -
+                Effect: Allow
+                Resource:
+                  - arn:aws:s3:::*
+
+                Action:
+                  - s3:Get*
+                  - s3:Put*
+                  - s3:List*
+                  - s3:ListBucketMultipartUploads
+                  - s3:AbortMultipartUpload
+                  - s3:CreateBucket
+                  - s3:ListBucket
+                  - s3:GetBucketLocation
+                  - s3:ListMultipartUploadParts
+
+              -
+                Effect: Allow
+                Resource: arn:aws:logs:*:*:*
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:CreateLogDelivery
+                  - logs:GetLogDelivery
+                  - logs:UpdateLogDelivery
+                  - logs:DeleteLogDelivery
+                  - logs:ListLogDeliveries
+                  - logs:PutResourcePolicy
+                  - logs:DescribeResourcePolicies
+                  - logs:DescribeLogGroups
+
+              -
+                Effect: Allow
+                Resource:
+                  - !Sub arn:aws:glue:*:${AWS::AccountId}:crawler/*
+
+                Action:
+                  - glue:GetCrawler
+                  - glue:GetCrawlers
+                  - glue:ListCrawlers
+                  - glue:ListCrawler
+                  - glue:StartCrawler
+                  - glue:StartCrawlerSchedule
+
+              -
+                Effect: Allow
+                Resource:
+                  - !Join [':', [ !GetAtt AthenaGetConfigLambda.Arn, '$LATEST']]
+                  - !Join [':', [ !GetAtt AthenaGetStatementLambda.Arn, '$LATEST']]
+
+                Action:
+                  - lambda:InvokeFunction
+
+              -
+                Effect: Allow
+                Resource:
+                  - !Sub "arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-raw-to-stage-process"
+
+                Action:
+                  - states:ListExecutions
+
+
+              - 
+                Effect: Allow
+                Resource:
+                  - "*"
+
+                Action:
+                  - athena:GetTableMetadata
+                  - athena:ListEngineVersions
+                  - athena:ListDataCatalogs
+                  - athena:ListDatabases
+                  - athena:GetDatabase
+                  - athena:ListTableMetadata
+                  - athena:ListWorkGroups
+
+              - 
+                Effect: Allow
+                Resource:
+                  - !Sub "arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/dap-txma-processing"
+                  - !Sub "arn:aws:athena:${AWS::Region}:${AWS::AccountId}:datacatalog/*"
+
+                Action:
+                  - athena:CreatePreparedStatement
+                  - athena:StartQueryExecution
+                  - athena:GetQueryResultsStream
+                  - athena:UpdatePreparedStatement
+                  - athena:GetQueryResults
+                  - athena:DeletePreparedStatement
+                  - athena:DeleteNamedQuery
+                  - athena:GetNamedQuery
+                  - athena:GetPreparedStatement
+                  - athena:ListQueryExecutions
+                  - athena:ListNamedQueries
+                  - athena:GetWorkGroup
+                  - athena:CreateNamedQuery
+                  - athena:StopQueryExecution
+                  - athena:GetQueryExecution
+                  - athena:BatchGetNamedQuery
+                  - athena:ListPreparedStatements
+                  - athena:BatchGetQueryExecution
+                  - athena:getDataCatalog
+
+              - 
+                Effect: Allow
+                Resource:
+                  - !Sub "arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog"
+                  - !Sub "arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/*"
+                  - !Sub "arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/*"
+
+                Action:
+                  - glue:CreateDatabase
+                  - glue:GetDatabase
+                  - glue:GetDatabases
+                  - glue:UpdateDatabase
+                  - glue:DeleteDatabase
+                  - glue:CreateTable
+                  - glue:UpdateTable
+                  - glue:GetTable
+                  - glue:GetTables
+                  - glue:DeleteTable
+                  - glue:BatchDeleteTable
+                  - glue:BatchCreatePartition
+                  - glue:CreatePartition
+                  - glue:UpdatePartition
+                  - glue:GetPartition
+                  - glue:GetPartitions
+                  - glue:BatchGetPartition
+                  - glue:DeletePartition
+                  - glue:BatchDeletePartition
