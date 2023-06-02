@@ -333,7 +333,7 @@ Resources:
         PublishCloudWatchMetricsEnabled: false
         RequesterPaysEnabled: true
         ResultConfiguration:
-          OutputLocation: !Sub "s3://${AthenaWorkgroupBucket}/txma/"
+          OutputLocation: !Sub 's3://${AthenaWorkgroupBucket}/txma/'
 
   RawGlueDatabase:
     Type: AWS::Glue::Database
@@ -357,8 +357,8 @@ Resources:
       Role: !GetAtt RawGlueCrawlerRole.Arn
       Targets:
         S3Targets:
-          - Path: !Sub "s3://${RawLayerBucket}/txma/AUTH_CREATE_ACCOUNT/"
-          - Path: !Sub "s3://${RawLayerBucket}/txma/DCMAW_APP_START/"
+          - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_APP_START/'
       DatabaseName: !Ref RawGlueDatabaseName
       RecrawlPolicy:
         RecrawlBehavior: CRAWL_EVERYTHING
@@ -399,8 +399,8 @@ Resources:
                   - 's3:PutObject'
                   - 's3:ListObject'
                 Resource:
-                  - !Sub "arn:aws:s3:::${RawLayerBucket}"
-                  - !Sub "arn:aws:s3:::${RawLayerBucket}/*"
+                  - !Sub 'arn:aws:s3:::${RawLayerBucket}'
+                  - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
 
   StageGlueCrawler:
     Type: AWS::Glue::Crawler
@@ -410,8 +410,8 @@ Resources:
       Role: !GetAtt StageGlueCrawlerRole.Arn
       Targets:
         S3Targets:
-          - Path: !Sub "s3://${StageLayerBucket}/txma/AUTH_CREATE_ACCOUNT/"
-          - Path: !Sub "s3://${StageLayerBucket}/txma/DCMAW_APP_START/"
+          - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
+          - Path: !Sub 's3://${StageLayerBucket}/txma/DCMAW_APP_START/'
       DatabaseName: !Ref StageGlueDatabaseName
       RecrawlPolicy:
         RecrawlBehavior: CRAWL_EVERYTHING
@@ -452,8 +452,8 @@ Resources:
                   - 's3:PutObject'
                   - 's3:ListObject'
                 Resource:
-                  - !Sub "arn:aws:s3:::${StageLayerBucket}"
-                  - !Sub "arn:aws:s3:::${StageLayerBucket}/*"
+                  - !Sub 'arn:aws:s3:::${StageLayerBucket}'
+                  - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'
 
   AthenaRawLayerProcessingStateMachine:
     Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
@@ -484,8 +484,7 @@ Resources:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
-          -
-            Effect: Allow
+          - Effect: Allow
             Principal:
               Service:
                 - states.amazonaws.com
@@ -493,13 +492,11 @@ Resources:
               - sts:AssumeRole
       Path: /
       Policies:
-        -
-          PolicyName: !Sub ${Environment}-dap-statemachine-processing-policy
+        - PolicyName: !Sub ${Environment}-dap-statemachine-processing-policy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-              -
-                Effect: Allow
+              - Effect: Allow
                 Resource:
                   - arn:aws:s3:::*
 
@@ -514,8 +511,7 @@ Resources:
                   - s3:GetBucketLocation
                   - s3:ListMultipartUploadParts
 
-              -
-                Effect: Allow
+              - Effect: Allow
                 Resource: arn:aws:logs:*:*:*
                 Action:
                   - logs:CreateLogGroup
@@ -530,8 +526,7 @@ Resources:
                   - logs:DescribeResourcePolicies
                   - logs:DescribeLogGroups
 
-              -
-                Effect: Allow
+              - Effect: Allow
                 Resource:
                   - !Sub arn:aws:glue:*:${AWS::AccountId}:crawler/*
 
@@ -543,28 +538,24 @@ Resources:
                   - glue:StartCrawler
                   - glue:StartCrawlerSchedule
 
-              -
-                Effect: Allow
+              - Effect: Allow
                 Resource:
-                  - !Join [':', [ !GetAtt AthenaGetConfigLambda.Arn, '$LATEST']]
-                  - !Join [':', [ !GetAtt AthenaGetStatementLambda.Arn, '$LATEST']]
+                  - !Join [':', [!GetAtt AthenaGetConfigLambda.Arn, '$LATEST']]
+                  - !Join [':', [!GetAtt AthenaGetStatementLambda.Arn, '$LATEST']]
 
                 Action:
                   - lambda:InvokeFunction
 
-              -
-                Effect: Allow
+              - Effect: Allow
                 Resource:
-                  - !Sub "arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-raw-to-stage-process"
+                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-raw-to-stage-process'
 
                 Action:
                   - states:ListExecutions
 
-
-              - 
-                Effect: Allow
+              - Effect: Allow
                 Resource:
-                  - "*"
+                  - '*'
 
                 Action:
                   - athena:GetTableMetadata
@@ -575,11 +566,10 @@ Resources:
                   - athena:ListTableMetadata
                   - athena:ListWorkGroups
 
-              - 
-                Effect: Allow
+              - Effect: Allow
                 Resource:
-                  - !Sub "arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/dap-txma-processing"
-                  - !Sub "arn:aws:athena:${AWS::Region}:${AWS::AccountId}:datacatalog/*"
+                  - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/dap-txma-processing'
+                  - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:datacatalog/*'
 
                 Action:
                   - athena:CreatePreparedStatement
@@ -602,12 +592,11 @@ Resources:
                   - athena:BatchGetQueryExecution
                   - athena:getDataCatalog
 
-              - 
-                Effect: Allow
+              - Effect: Allow
                 Resource:
-                  - !Sub "arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog"
-                  - !Sub "arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/*"
-                  - !Sub "arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/*"
+                  - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog'
+                  - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/*'
+                  - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/*'
 
                 Action:
                   - glue:CreateDatabase
