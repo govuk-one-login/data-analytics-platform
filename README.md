@@ -49,11 +49,12 @@ IaC code can be found in the [template.yaml](template.yaml) file. The [AWS SAM](
 [Workflows](https://docs.github.com/en/actions/using-workflows/about-workflows) that enable [GitHub Actions](https://docs.github.com/en/actions) can be found in the [.github/workflows](.github/workflows) directory.
 Below is a list of workflows:
 
-| Name                                   | File                  | Triggers                                                                                                                                                                                                                                                                                                                                                                        | Purpose                                                                                                            |
-|----------------------------------------|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| Manually deploy to the dev environment | deploy-to-dev.yml     | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Allows a manual deploy to the dev AWS                                                                              |
-| Test and validate iac and lambdas      | test-and-validate.yml | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li><li>[pull requests](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request)</li></ul> | Runs linting, formatting and testing of lambda code, and linting and scanning of IaC code                          |
-| Combine PRs                            | combine-prs.yml       | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Combines multiple dependabot PRs into one - see [here](https://github.com/github/combine-prs) for more information |
+| Name                                   | File                    | Triggers                                                                                                                                                                                                                                                                                                                                                                        | Purpose                                                                                                            |
+|----------------------------------------|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| Manually deploy to the dev environment | deploy-to-dev.yml       | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Allows a manual deploy to the dev AWS                                                                              |
+| Test and validate iac and lambdas      | test-and-validate.yml   | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li><li>[pull requests](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request)</li></ul> | Runs linting, formatting and testing of lambda code, and linting and scanning of IaC code                          |
+| Combine PRs                            | combine-prs.yml         | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Combines multiple dependabot PRs into one - see [here](https://github.com/github/combine-prs) for more information |
+| Upload Athena files to S3              | upload-athena-files.yml | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Combines multiple dependabot PRs into one - see [here](https://github.com/github/combine-prs) for more information |
 
 ## Testing, linting and formatting
 
@@ -138,6 +139,27 @@ A different template file path can be specified with the `--template-file` flag 
 
 Deployment is done via [Secure Pipelines](https://govukverify.atlassian.net/wiki/spaces/DAP/pages/3535667315/Secure+Pipelines).
 At a high level, we are responsible for the SAM app and running `sam build`, but Secure Pipelines calls `sam deploy` for us.
+
+#### Config
+
+Deployment relies on the following AWS System Manager Parameters being available in the target AWS account:
+
+| Name              | Description                                                                 |
+|-------------------|-----------------------------------------------------------------------------|
+| TxMAEventQueueARN | ARN of the TxMA event queue which triggers the `txma-event-consumer` lambda |
+| TxMAKMSKeyARN     | ARN of the TxMA KMS key needed for the `txma-event-consumer` lambda         |
+
+You can see these values being referenced in the template file in the following way:
+
+```
+'{{resolve:ssm:TxMAEventQueueARN}}'
+```
+
+See the following links for how to create the parameters via:
+
+- [AWS Console](https://docs.aws.amazon.com/systems-manager/latest/userguide/parameter-create-console.html)
+- [AWS CLI](https://docs.aws.amazon.com/systems-manager/latest/userguide/param-create-cli.html)
+- [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-parameter.html)
 
 #### Dev
 

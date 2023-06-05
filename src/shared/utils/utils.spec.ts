@@ -1,4 +1,13 @@
-import { decodeObject, encodeObject, getRequiredParams } from './utils';
+import {
+  decodeObject,
+  encodeObject,
+  getRequiredParams,
+  parseS3ResponseAsObject,
+  parseS3ResponseAsString,
+} from './utils';
+import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
+import type { SdkStream } from '@aws-sdk/types';
+import type { Readable } from 'stream';
 
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 test('get required params correctly errors', () => {
@@ -38,12 +47,51 @@ test('get required params preserves optional params', () => {
   expect(requiredAndOptional).toEqual({ Bucket: 'bucket-name', Prefix: 'prefix' });
 });
 
+test('get required params errors if field present but null or undefined', () => {
+  const presentButNull = { Bucket: 'bucket-name', Prefix: null };
+  expect(() => getRequiredParams(presentButNull, 'Bucket', 'Prefix')).toThrow(
+    'Object is missing the following required fields: Prefix'
+  );
+
+  const presentButUndefined = { Bucket: 'bucket-name', Prefix: undefined };
+  expect(() => getRequiredParams(presentButUndefined, 'Bucket', 'Prefix')).toThrow(
+    'Object is missing the following required fields: Prefix'
+  );
+});
+
 test('encode and decode', () => {
-  const encoded = encodeObject({ a: 'b', c: true, d: 42 });
+  const testObject = { a: 'b', c: true, d: 42 };
+
+  const encoded = encodeObject(testObject);
   expect(encoded).toBeDefined();
   expect(encoded).not.toHaveLength(0);
 
   const decoded = decodeObject(encoded);
   expect(decoded).toBeDefined();
-  expect(decoded).toEqual({ a: 'b', c: true, d: 42 });
+  expect(decoded).toEqual(testObject);
 });
+
+test('parse s3 response as string', async () => {
+  await expect(parseS3ResponseAsString(mockS3Response('hi'))).resolves.toEqual('hi');
+  await expect(parseS3ResponseAsString(mockS3Response(null))).rejects.toThrow('S3 response body was undefined');
+  await expect(parseS3ResponseAsString(mockS3Response(undefined))).rejects.toThrow('S3 response body was undefined');
+});
+
+test('parse s3 response as object', async () => {
+  await expect(parseS3ResponseAsObject(mockS3Response('{}'))).resolves.toEqual({});
+  await expect(parseS3ResponseAsObject(mockS3Response('[1,2,3]'))).resolves.toEqual([1, 2, 3]);
+  const testObject = { a: 'b', c: true, d: 42 };
+  await expect(parseS3ResponseAsObject(mockS3Response('{"a":"b","c":true,"d":42}'))).resolves.toEqual(testObject);
+  await expect(parseS3ResponseAsObject(mockS3Response(null))).rejects.toThrow('S3 response body was undefined');
+  await expect(parseS3ResponseAsObject(mockS3Response(undefined))).rejects.toThrow('S3 response body was undefined');
+});
+
+const mockS3Response = (body: unknown): GetObjectCommandOutput => {
+  const mockBodyStream: unknown = {
+    transformToString: async () => body,
+  };
+  return {
+    Body: mockBodyStream as SdkStream<Readable | ReadableStream | Blob>,
+    $metadata: {},
+  };
+};

@@ -1,0 +1,20 @@
+import { S3Client } from '@aws-sdk/client-s3';
+import { CloudWatchLogsClient } from '@aws-sdk/client-cloudwatch-logs';
+import { AWS_CLIENT_BASE_CONFIG } from './constants';
+import { LambdaClient } from '@aws-sdk/client-lambda';
+import { SQSClient } from '@aws-sdk/client-sqs';
+import { FirehoseClient } from '@aws-sdk/client-firehose';
+import { ConfiguredRetryStrategy } from '@aws-sdk/util-retry';
+
+export const cloudwatchClient = new CloudWatchLogsClient(AWS_CLIENT_BASE_CONFIG);
+
+export const firehoseClient = new FirehoseClient({
+  ...AWS_CLIENT_BASE_CONFIG,
+  retryStrategy: new ConfiguredRetryStrategy(3, retryAttempt => Math.pow(2, retryAttempt) * 1000),
+});
+
+export const lambdaClient = new LambdaClient(AWS_CLIENT_BASE_CONFIG);
+
+export const s3Client = new S3Client(AWS_CLIENT_BASE_CONFIG);
+
+export const sqsClient = new SQSClient(AWS_CLIENT_BASE_CONFIG);
