@@ -146,7 +146,20 @@ Deployment relies on the following AWS System Manager Parameters being available
 
 | Name              | Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
-| TxmaEventQueueARN | ARN of the TxMA event queue which triggers the `txma-event-consumer` lambda |
+| TxMAEventQueueARN | ARN of the TxMA event queue which triggers the `txma-event-consumer` lambda |
+| TxMAKMSKeyARN     | ARN of the TxMA KMS key needed for the `txma-event-consumer` lambda         |
+
+You can see these values being referenced in the template file in the following way:
+
+```
+'{{resolve:ssm:TxMAEventQueueARN}}'
+```
+
+See the following links for how to create the parameters via:
+
+- [AWS Console](https://docs.aws.amazon.com/systems-manager/latest/userguide/parameter-create-console.html)
+- [AWS CLI](https://docs.aws.amazon.com/systems-manager/latest/userguide/param-create-cli.html)
+- [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-parameter.html)
 
 #### Dev
 

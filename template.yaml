@@ -105,6 +105,9 @@ Resources:
             - Effect: Allow
               Action: firehose:PutRecord
               Resource: !GetAtt KinesisFirehose.Arn
+            - Effect: Allow
+              Action: kms:decrypt
+              Resource: '{{resolve:ssm:TxMAKMSKeyARN}}'
       ReservedConcurrentExecutions: 10
       Environment:
         # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
