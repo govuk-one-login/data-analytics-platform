@@ -5,7 +5,7 @@ import {getTxmaDataFile, publishToTxmaQueue} from "../helpers/lambda-utils";
 describe('Publish TXMA Event', () => {
   test('Publish valid TXMA event to SQS and expect event id stored in S3', async () => {
     // given
-    const event: string = fs.readFileSync('../fixtures/txma-event.json', "utf-8");
+    const event: string = fs.readFileSync('integration-test/fixtures/txma-event.json', "utf-8");
     // when
     const publishResult = await publishToTxmaQueue(event);
     // then
