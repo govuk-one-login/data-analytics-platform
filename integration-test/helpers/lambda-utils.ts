@@ -1,9 +1,8 @@
-import {InvokeCommand, LambdaClient} from '@aws-sdk/client-lambda';
-import {AWS_CLIENT_BASE_CONFIG} from '../../src/shared/constants';
+import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {TestSupportEnvironment, TestSupportEvent} from '../../src/handlers/test-support/handler';
 import {decodeObject, encodeObject} from '../../src/shared/utils/utils';
+import {s3Client} from '../../src/shared/clients';
 
-const lambdaClient = new LambdaClient(AWS_CLIENT_BASE_CONFIG);
 
 export const publishToTxmaQueue = async (payload: string): Promise<unknown> => {
   const event = {
@@ -38,7 +37,7 @@ export const invokeTestSupportLambda = async (event: Omit<TestSupportEvent, 'env
   };
 
   try {
-    const response = await lambdaClient.send(
+    const response = await s3Client.send(
       new InvokeCommand({
         FunctionName: `test-support-${environment}`,
         Payload: encodeObject(payload),
@@ -47,7 +46,7 @@ export const invokeTestSupportLambda = async (event: Omit<TestSupportEvent, 'env
       })
     );
     if (response.StatusCode !== 200 && response.Payload === undefined) {
-      throw new Error('Lambda Call is unsuccessful');
+      throw new Error('TestSupportEvent Lambda Call failed with status code ' +response.StatusCode);
     }
     return decodeObject(response.Payload);
   } catch (error) {
