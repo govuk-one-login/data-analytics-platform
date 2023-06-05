@@ -1,11 +1,11 @@
 import {InvokeCommand, LambdaClient} from '@aws-sdk/client-lambda';
-import {AWS_CLIENT_BASE_CONFIG} from '../src/shared/constants';
-import type {TestSupportEnvironment, TestSupportEvent} from '../src/handlers/test-support/handler';
-import {decodeObject, encodeObject} from '../src/shared/utils/utils';
+import {AWS_CLIENT_BASE_CONFIG} from '../../src/shared/constants';
+import type {TestSupportEnvironment, TestSupportEvent} from '../../src/handlers/test-support/handler';
+import {decodeObject, encodeObject} from '../../src/shared/utils/utils';
 
 const lambdaClient = new LambdaClient(AWS_CLIENT_BASE_CONFIG);
 
-export const publishToTxma = async (payload: string): Promise<unknown> => {
+export const publishToTxmaQueue = async (payload: string): Promise<unknown> => {
   const event = {
     command: 'SQS_SEND',
     input: {
