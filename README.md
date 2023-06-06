@@ -42,7 +42,11 @@ In addition, files to support running lambdas with `sam local invoke` are in the
 
 IaC code is written in [AWS SAM](https://aws.amazon.com/serverless/sam) (a superset of [CloudFormation](https://aws.amazon.com/cloudformation) templates) and deployed as a SAM application.
 
-IaC code can be found in the [template.yaml](template.yaml) file. The [AWS SAM](https://aws.amazon.com/serverless/sam) config is at [samconfig.toml](samconfig.toml).
+IaC code can be found in the [iac](iac) directory. In here there is a base file, [base.yml](iac/base.yml), which contains everything except the `Resources` section.
+In the [resources subdirectory](iac/resources), there are YAML files containing all the stack resources, grouped by functional area. A `package.json` script, `iac:build`,
+(which uses [a bash script](scripts/build-sam-template.sh)) concatenates all these files into a single top-level `template.yaml` file that is expected by SAM and Secure Pipelines.
+
+The [AWS SAM](https://aws.amazon.com/serverless/sam) config is at [samconfig.toml](samconfig.toml).
 
 #### Workflows
 
