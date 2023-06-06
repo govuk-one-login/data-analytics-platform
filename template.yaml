@@ -363,7 +363,6 @@ Resources:
 
   RawGlueCrawler:
     Type: AWS::Glue::Crawler
-    DependsOn: RawGlueDatabase
     Properties:
       Name: !Sub ${Environment}-raw-txma-datasets
       Role: !GetAtt RawGlueCrawlerRole.Arn
@@ -432,7 +431,6 @@ Resources:
 
   StageGlueCrawler:
     Type: AWS::Glue::Crawler
-    DependsOn: StageGlueDatabase
     Properties:
       Name: !Sub ${Environment}-stage-txma-datasets
       Role: !GetAtt StageGlueCrawlerRole.Arn
