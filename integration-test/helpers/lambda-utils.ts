@@ -27,6 +27,16 @@ export const getTxmaDataFile = async (key: string): Promise<unknown> => {
 
   return await invokeTestSupportLambda(event);
 };
+export const getEventListS3 = async (prefix: string): Promise<unknown> => {
+  const event = {
+    command: 'S3_LIST',
+    input: {
+      Bucket: process.env.TXMA_BUCKET,
+      Prefix: prefix,
+    },
+  };
+  return await invokeTestSupportLambda(event);
+};
 
 export const invokeTestSupportLambda = async (event: Omit<TestSupportEvent, 'environment'>): Promise<unknown> => {
   const environment = process.env.AWS_ENVIRONMENT as TestSupportEnvironment;
@@ -35,8 +45,6 @@ export const invokeTestSupportLambda = async (event: Omit<TestSupportEvent, 'env
     environment,
     ...event,
   };
-
-  console.log(payload);
 
   try {
     const response = await s3Client.send(
