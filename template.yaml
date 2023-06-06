@@ -386,7 +386,7 @@ Resources:
           - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_START/'
           - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_START/'
           - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_VC_ISSUED/'
-      DatabaseName: !Ref RawGlueDatabaseName
+      DatabaseName: !Ref RawGlueDatabase
       CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
       RecrawlPolicy:
         RecrawlBehavior: CRAWL_EVERYTHING
@@ -440,7 +440,7 @@ Resources:
         S3Targets:
           - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
           - Path: !Sub 's3://${StageLayerBucket}/txma/DCMAW_APP_START/'
-      DatabaseName: !Ref StageGlueDatabaseName
+      DatabaseName: !Ref StageGlueDatabase
       CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
       RecrawlPolicy:
         RecrawlBehavior: CRAWL_EVERYTHING
