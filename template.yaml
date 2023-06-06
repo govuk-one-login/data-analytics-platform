@@ -369,8 +369,23 @@ Resources:
       Role: !GetAtt RawGlueCrawlerRole.Arn
       Targets:
         S3Targets:
+          - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTHORISATION_INITIATED/'
           - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_APP_END/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_APP_HANDOFF_START/'
           - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_APP_START/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_CRI_START/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_DRIVING_LICENCE_SELECTED/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_PASSPORT_SELECTED/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_ADDRESS_CRI_START/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_ADDRESS_CRI_VC_ISSUED/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_START/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_IDENTITY_REUSE_COMPLETE/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_JOURNEY_END/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_JOURNEY_START/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_START/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_START/'
+          - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_VC_ISSUED/'
       DatabaseName: !Ref RawGlueDatabaseName
       CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
       RecrawlPolicy:
