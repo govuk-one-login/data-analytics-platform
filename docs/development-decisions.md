@@ -50,7 +50,10 @@ and is pretty trivial in that is merely sets a verbosity setting (in line with T
 
 ## SAM Template
 
-The SAM template is located in the [template.yaml](../template.yaml) file at the top-level. This seems to be a GDS convention as several tools expect this.
+SAM template YAML code is split into various files under the [iac](../iac) directory. These files can be concatenated into a top-level template.yaml file by a bash script.
+This is based on the approach in the BTM repository, where their template YAML is split into separate files under a `cloudformation/` directory and concatenated with a TypeScript script.
+
+Having the SAM template in a `template.yaml` file at the top-level seems to be a GDS convention as several tools expect this.
 For instance, the [di-devplatform-upload-action](https://github.com/alphagov/di-devplatform-upload-action) expects this, providing optional `working-directory` and `template-file` arguments if you need to change it.
 
 In addition, [SAM itself expects this](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-build.html).

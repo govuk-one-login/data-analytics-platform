@@ -1,0 +1,78 @@
+StageLayerBucket:
+  # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub ${Environment}-dap-stage-layer
+    LoggingConfiguration:
+      DestinationBucketName: !Ref GlobalLogBucket
+      LogFilePrefix: dap-stage-layer/log
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+
+StageGlueCrawler:
+  Type: AWS::Glue::Crawler
+  DependsOn: StageGlueDatabase
+  Properties:
+    Name: !Sub ${Environment}-stage-txma-datasets
+    Role: !GetAtt StageGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/DCMAW_APP_START/'
+    DatabaseName: !Ref StageGlueDatabaseName
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+
+StageGlueCrawlerRole:
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: !Sub ${Environment}-stage-glue-crawler-role
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: [glue.amazonaws.com]
+          Action: ['sts:AssumeRole']
+    ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+    Path: /
+    Policies:
+      - PolicyName: !Sub ${Environment}-stage-glue-crawler-policy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'glue:GetConnection'
+                - 'glue:GetCrawler'
+                - 'glue:CreateTable'
+                - 'glue:UpdateCrawler'
+                - 'glue:CreatePartition'
+                - 'glue:BatchCreatePartition'
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - 's3:GetObject'
+                - 's3:PutObject'
+                - 's3:ListObject'
+              Resource:
+                - !Sub 'arn:aws:s3:::${StageLayerBucket}'
+                - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'
+
+StageGlueDatabase:
+  Type: AWS::Glue::Database
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseInput:
+      Name: !Sub ${Environment}-${StageGlueDatabaseName}

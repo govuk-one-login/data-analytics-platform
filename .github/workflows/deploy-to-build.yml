@@ -1,17 +1,16 @@
-name: Deploy to the dev environment
+name: Deploy to the build environment
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   test-and-validate:
     secrets: inherit
     uses: ./.github/workflows/test-and-validate.yml
 
-  deploy-to-dev:
+  deploy-to-build:
     needs: [test-and-validate]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
@@ -20,4 +19,4 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/deploy-to-aws.yml
     with:
-      environment: DEV
+      environment: BUILD

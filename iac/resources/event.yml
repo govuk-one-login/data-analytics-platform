@@ -1,0 +1,111 @@
+EventConsumerQueue:
+  Type: AWS::SQS::Queue
+  Condition: UsePlaceholderTxMAQueue
+  Properties:
+    QueueName: !Sub ${Environment}-placeholder-txma-event-queue
+
+EventConsumerLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: txma-event-consumer
+    Events:
+      CleanEvent:
+        Type: SQS
+        Properties:
+          BatchSize: 1
+          Queue: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
+          FunctionResponseTypes:
+            - ReportBatchItemFailures
+    Handler: txma-event-consumer.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - 'sqs:DeleteMessage'
+              - 'sqs:GetQueueAttributes'
+              - 'sqs:ReceiveMessage'
+            Resource: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
+          - Effect: Allow
+            Action: firehose:PutRecord
+            Resource: !GetAtt KinesisFirehose.Arn
+          - Effect: Allow
+            Action: kms:decrypt
+            Resource: !If [UsePlaceholderTxMAQueue, !Ref AWS::NoValue, '{{resolve:ssm:TxMAKMSKeyARN}}']
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        FIREHOSE_STREAM_NAME: !Sub '${Environment}-${DeliveryStreamName}'
+    Tags:
+      Environment: !Ref Environment
+
+KinesisFirehose:
+  Type: 'AWS::KinesisFirehose::DeliveryStream'
+  Properties:
+    DeliveryStreamName: !Sub ${Environment}-${DeliveryStreamName}
+    DeliveryStreamType: DirectPut
+    ExtendedS3DestinationConfiguration:
+      BucketARN: !GetAtt RawLayerBucket.Arn
+      CloudWatchLoggingOptions:
+        Enabled: true
+        LogGroupName: !Sub ${Environment}-${DeliveryStreamName}
+        LogStreamName: !Sub ${Environment}-${DeliveryStreamName}
+      BufferingHints:
+        IntervalInSeconds: !If [IsTest, 10, !If [IsDev, 60, 900]]
+        SizeInMBs: 128
+      RoleARN: !GetAtt IAMRoleKinesisFirehose.Arn
+      Prefix: '!{partitionKeyFromQuery:datasource}/!{partitionKeyFromQuery:event_name}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
+      CompressionFormat: GZIP
+      ErrorOutputPrefix: kinesis-processing-errors-
+      DynamicPartitioningConfiguration:
+        Enabled: true
+      ProcessingConfiguration:
+        Enabled: true
+        Processors:
+          - Type: AppendDelimiterToRecord
+          - Type: MetadataExtraction
+            Parameters:
+              - ParameterName: MetadataExtractionQuery
+                ParameterValue: '{datasource: "txma",event_name: .event_name,year:now | strftime("%Y"),month:now | strftime("%m"),day:now | strftime("%d")}'
+              - ParameterName: JsonParsingEngine
+                ParameterValue: 'JQ-1.6'
+      DataFormatConversionConfiguration:
+        Enabled: false
+
+IAMRoleKinesisFirehose:
+  Type: 'AWS::IAM::Role'
+  Properties:
+    RoleName: !Sub ${Environment}-kinesis-txma-firehose-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: firehose.amazonaws.com
+          Action: 'sts:AssumeRole'
+    MaxSessionDuration: 3600
+    Policies:
+      - PolicyName: !Sub ${Environment}-kinesis-txma-firehose-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - 's3:AbortMultipartUpload'
+                - 's3:GetBucketLocation'
+                - 's3:GetObject'
+                - 's3:ListBucket'
+                - 's3:ListBucketMultipartUploads'
+                - 's3:PutObject'
+              Resource:
+                - !Sub 'arn:aws:s3:::${RawLayerBucket}'
+                - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
+            - Effect: Allow
+              Resource: arn:aws:logs:*:*:*
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents

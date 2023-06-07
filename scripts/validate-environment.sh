@@ -1,14 +1,29 @@
 #!/bin/bash -e
 
-ENVIRONMENT=$1
+DEPLOYABLE_ENVIRONMENTS=("DEV" "BUILD" "TEST")
+HIGHER_ENVIRONMENTS=("STAGING" "INTEGRATION" "PRODUCTION")
 
-if [ -z "$1" ]; then
+DEPLOY=0
+VALID_ENVIRONMENTS+=("${DEPLOYABLE_ENVIRONMENTS[@]}")
+
+for arg in "$@"; do
+    if [ "$arg" == "-d" ]; then
+        DEPLOY=1
+    else
+        ENVIRONMENT=$arg
+    fi
+done
+
+if [ -z "$ENVIRONMENT" ]; then
   echo "Environment not provided"
-  echo "Usage: validate-environment.sh ENVIRONMENT"
-  exit 1
+  echo "Usage: validate-environment.sh [-d] ENVIRONMENT"
+  exit 1;
 fi
 
-VALID_ENVIRONMENTS=("DEV" "BUILD" "TEST" "STAGING" "INTEGRATION" "PRODUCTION")
+# if intent is not to deploy then the higher environments can be added to the list of valid environments
+if [ $DEPLOY == 0 ]; then
+  VALID_ENVIRONMENTS+=("${HIGHER_ENVIRONMENTS[@]}")
+fi
 
 for env in "${VALID_ENVIRONMENTS[@]}"; do
     if [ "${ENVIRONMENT}" == "${env}" ]; then
@@ -16,5 +31,6 @@ for env in "${VALID_ENVIRONMENTS[@]}"; do
     fi
 done
 
-echo "Invalid environment: \"$ENVIRONMENT\""
+[ $DEPLOY == 1 ] && DEPLOY_MESSAGE=" for deployment"
+echo "Invalid environment$DEPLOY_MESSAGE: \"$ENVIRONMENT\""
 exit 1

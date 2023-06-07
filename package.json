@@ -5,12 +5,12 @@
   "license": "MIT",
   "repository": "github:alphagov/di-data-analytics-platform",
   "devDependencies": {
-    "@aws-sdk/client-athena": "^3.345.0",
-    "@aws-sdk/client-cloudwatch-logs": "^3.345.0",
-    "@aws-sdk/client-firehose": "^3.345.0",
-    "@aws-sdk/client-lambda": "^3.345.0",
-    "@aws-sdk/client-s3": "^3.345.0",
-    "@aws-sdk/client-sqs": "^3.345.0",
+    "@aws-sdk/client-athena": "^3.347.1",
+    "@aws-sdk/client-cloudwatch-logs": "^3.347.1",
+    "@aws-sdk/client-firehose": "^3.347.1",
+    "@aws-sdk/client-lambda": "^3.347.1",
+    "@aws-sdk/client-s3": "^3.347.1",
+    "@aws-sdk/client-sqs": "^3.347.1",
     "@aws-sdk/types": "^3.342.0",
     "@aws-sdk/util-retry": "^3.342.0",
     "@faker-js/faker": "^8.0.2",
@@ -40,9 +40,10 @@
     "lint:fix": "eslint --fix src integration-test",
     "test": "jest src",
     "integration-test": "jest ./integration-test",
-    "iac:lint": "sam validate --lint --region eu-west-2",
-    "iac:scan": "checkov --external-checks-git https://github.com/alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies --external-checks-git https://github.com/alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies_precommit --file template.yaml --quiet",
-    "iac:format:check": "prettier --check template.yaml",
-    "iac:format:fix": "prettier --write template.yaml"
+    "iac:build": "scripts/build-sam-template.sh",
+    "iac:lint": "npm run iac:build && sam validate --lint --region eu-west-2",
+    "iac:scan": "npm run iac:build && checkov --external-checks-git https://github.com/alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies --external-checks-git https://github.com/alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies_precommit --file template.yaml --quiet",
+    "iac:format:check": "prettier --check iac",
+    "iac:format:fix": "prettier --write iac"
   }
 }

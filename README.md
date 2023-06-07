@@ -42,29 +42,47 @@ In addition, files to support running lambdas with `sam local invoke` are in the
 
 IaC code is written in [AWS SAM](https://aws.amazon.com/serverless/sam) (a superset of [CloudFormation](https://aws.amazon.com/cloudformation) templates) and deployed as a SAM application.
 
-IaC code can be found in the [template.yaml](template.yaml) file. The [AWS SAM](https://aws.amazon.com/serverless/sam) config is at [samconfig.toml](samconfig.toml).
+IaC code can be found in the [iac](iac) directory. In here there is a base file, [base.yml](iac/base.yml), which contains everything except the `Resources` section.
+In the [resources subdirectory](iac/resources), there are YAML files containing all the stack resources, grouped by functional area. A `package.json` script, `iac:build`,
+(which uses [a bash script](scripts/build-sam-template.sh)) concatenates all these files into a single top-level `template.yaml` file that is expected by SAM and Secure Pipelines.
+
+The [AWS SAM](https://aws.amazon.com/serverless/sam) config is at [samconfig.toml](samconfig.toml).
 
 #### Workflows
 
 [Workflows](https://docs.github.com/en/actions/using-workflows/about-workflows) that enable [GitHub Actions](https://docs.github.com/en/actions) can be found in the [.github/workflows](.github/workflows) directory.
 Below is a list of workflows:
 
-| Name                                   | File                    | Triggers                                                                                                                                                                                                                                                                                                                                                                        | Purpose                                                                                                            |
-|----------------------------------------|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| Manually deploy to the dev environment | deploy-to-dev.yml       | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Allows a manual deploy to the dev AWS                                                                              |
-| Test and validate iac and lambdas      | test-and-validate.yml   | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li><li>[pull requests](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request)</li></ul> | Runs linting, formatting and testing of lambda code, and linting and scanning of IaC code                          |
-| Combine PRs                            | combine-prs.yml         | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Combines multiple dependabot PRs into one - see [here](https://github.com/github/combine-prs) for more information |
-| Upload Athena files to S3              | upload-athena-files.yml | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Combines multiple dependabot PRs into one - see [here](https://github.com/github/combine-prs) for more information |
+| Name                              | File                    | Triggers                                                                                                                                                                                                                                                                                                                                                                        | Purpose                                                                                            |
+|-----------------------------------|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+| Deploy to an AWS environment      | deploy-to-aws.yml       | <ul><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li></ul>                                                                                                                                                                                                                                             | Deploys to a deployable AWS environment (dev, build, test)                                         |
+| Deploy to the dev environment     | deploy-to-dev.yml       | <ul><li>[merge to main](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push)</li><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                   | Deploys IaC and lambda code to the dev AWS                                                         |
+| Deploy to the build environment   | deploy-to-build.yml     | <ul><li>[merge to main](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push)</li></ul>                                                                                                                                                                                                                                                        | Deploys IaC and lambda code to the build AWS                                                       |
+| Test and validate iac and lambdas | test-and-validate.yml   | <ul><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li><li>[pull requests](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request)</li><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul> | Runs linting, formatting and testing of lambda code, and linting and scanning of IaC code          |
+| Upload Athena files to S3         | upload-athena-files.yml | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Uploads athena scripts for a particular environment (under [athena-scripts](athena-scripts)) to S3 |
 
-## Testing, linting and formatting
+## Testing
 
-#### Lambdas
+#### Unit tests
 
 Unit testing is done with [Jest](https://jestjs.io) and the lambdas should all have associated unit tests (`*.spec.ts`).
 
 * `npm run test` - run all tests
 * `npm run test consumer` - run a specific test
     * anything after `test` is used as a regex match - so in this example `consumer` causes jest to match all tests under the `txma-event-consumer/` directory (and any other directory that might have `consumer` in its name)
+
+#### Integration tests
+
+TODO
+
+#### Test reports
+
+After running unit or integration tests, a test report called `index.html` will be available in the [test-report](test-report) directory.
+This behaviour is provided by [jest-stare](https://www.npmjs.com/package/jest-stare) and configured in `jest.config.js`.
+
+## Linting, formatting and validation
+
+#### Lambdas
 
 Linting and formatting are handled by [ESLint](https://eslint.org) and [Prettier](https://prettier.io) (with an [EditorConfig file](https://editorconfig.org)) respectively.
 [typescript-eslint](https://typescript-eslint.io) is used to allow these tools to work with TypeScript. The formatting
@@ -164,26 +182,20 @@ See the following links for how to create the parameters via:
 #### Dev
 
 Our dev environment is a standalone environment and can therefore be used as a sandbox.
-A dedicated GitHub Action [Manually deploy to the dev environment](.github/workflows/deploy-to-dev.yml) exists to enable this.
-It can be manually invoked on a chosen branch by finding it in the [GitHub Actions tab](https://github.com/alphagov/di-data-analytics-platform/actions) and using the _Run workflow_ button.
+A dedicated GitHub Action [Deploy to the dev environment](.github/workflows/deploy-to-dev.yml) exists to enable this.
+The action will automatically run after a merge into the `main` branch after a Pull Request is approved.
+Additionally, it can be manually invoked on a chosen branch by finding it in the [GitHub Actions tab](https://github.com/alphagov/di-data-analytics-platform/actions) and using the _Run workflow_ button.
+
+#### Build
+
+The build environment is the entry point to the Secure Pipelines world. It is sometimes referred to as the Initial Account
+in Secure Pipelines, as it is the first account on the journey to Production, and has unique needs such as the ability to deploy to from GitHub.
+
+A GitHub Action [Deploy to the build environment](.github/workflows/deploy-to-build.yml) exists to enable this.
+The action cannot be invoked manually like the one for dev, only by merging into the `main` branch after a Pull Request is approved.
 
 ## Additional Documents
 
 For a guide to how and why certain development decisions, coding practices, etc. were made, please refer to the [Development Decisions document](docs/development-decisions.md).
 
 For a list of TODOs for the project, please see the [TODOs document](docs/todos.md).
-
-### Running the test and generating test report
-
-To run the functional and unit test tests  
-
-* `npm run test`
-
-To run the functional/integration tests 
-
-* `npm run integration-test`
-
-Test report
-
-report will be generated at location /di-data-analytics-platform/test-report/index.html
-
