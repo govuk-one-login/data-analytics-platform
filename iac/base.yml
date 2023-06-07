@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Data and Analytics Stack
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Environment:
+    Description: Environment type
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - test
+      - build
+      - staging
+      - integration
+      - production
+  CodeSigningConfigArn:
+    Description: ARN of Code Signing Config from deployment pipeline
+    Type: String
+    Default: none
+  PermissionsBoundary:
+    Description: ARN of permissions boundary for new roles
+    Type: String
+    Default: none
+  DeliveryStreamName:
+    Description: Kinesis Firehose delivery stream name
+    Type: String
+    Default: dap-txma-delivery-stream
+  RawGlueDatabaseName:
+    Default: txma-raw
+    Type: String
+    Description: Name for the TxMA Raw Glue database
+  StageGlueDatabaseName:
+    Default: txma-stage
+    Type: String
+    Description: Name for the TxMA Stage Glue database
+
+Conditions:
+  UseCodeSigning: !Not
+    - !Equals
+      - !Ref CodeSigningConfigArn
+      - none
+  UsePermissionsBoundary: !Not
+    - !Equals
+      - !Ref PermissionsBoundary
+      - none
+
+Globals:
+  Function:
+    CodeSigningConfigArn: !If
+      - UseCodeSigning
+      - !Ref CodeSigningConfigArn
+      - !Ref 'AWS::NoValue'
+    PermissionsBoundary: !If
+      - UsePermissionsBoundary
+      - !Ref PermissionsBoundary
+      - !Ref 'AWS::NoValue'
+    Runtime: nodejs18.x
+    Timeout: 30
+    CodeUri: dist/
+    Environment:
+      Variables:
+        NODE_OPTIONS: '--enable-source-maps'

@@ -34,6 +34,8 @@ jobs:
         run: npm ci
       - name: Build lambdas
         run: npm run build
+      - name: Build SAM template
+        run: npm run iac:build
       - name: SAM setup
         uses: aws-actions/setup-sam@v2
         with:

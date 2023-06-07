@@ -1,0 +1,68 @@
+AthenaWorkgroupBucket:
+  # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub ${Environment}-dap-athena-workgroup
+    LoggingConfiguration:
+      DestinationBucketName: !Ref GlobalLogBucket
+      LogFilePrefix: dap-athena-workgroup/log
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+
+AthenaWorkGroup:
+  Type: AWS::Athena::WorkGroup
+  Properties:
+    Name: !Sub ${Environment}-dap-txma-processing
+    Description: DAP project
+    State: ENABLED
+    WorkGroupConfiguration:
+      BytesScannedCutoffPerQuery: 200000000
+      EnforceWorkGroupConfiguration: true
+      PublishCloudWatchMetricsEnabled: false
+      RequesterPaysEnabled: true
+      ResultConfiguration:
+        OutputLocation: !Sub 's3://${AthenaWorkgroupBucket}/txma/'
+
+AthenaGetConfigLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub athena-get-config-${Environment}
+    Handler: athena-get-config.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:ListBucket
+            Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
+    ReservedConcurrentExecutions: 10
+    Tags:
+      Environment: !Ref Environment
+
+AthenaGetStatementLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub athena-get-statement-${Environment}
+    Handler: athena-get-statement.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:ListBucket
+            Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
+    ReservedConcurrentExecutions: 10
+    Tags:
+      Environment: !Ref Environment

@@ -1,0 +1,57 @@
+GlobalLogBucket:
+  # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+  # checkov:skip=CKV_AWS_18: This is the log bucket for all other buckets - no need for a log bucket of the log bucket
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub '${Environment}-dap-s3-logs'
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+
+GlueSecurityConfig:
+  # checkov:skip=CKV_AWS_99: Ensure Glue Security Configuration Encryption is enabled
+  Type: AWS::Glue::SecurityConfiguration
+  Properties:
+    Name: !Sub ${Environment}-dap-glue-security-config
+    EncryptionConfiguration:
+      CloudWatchEncryption:
+        CloudWatchEncryptionMode: DISABLED
+      JobBookmarksEncryption:
+        JobBookmarksEncryptionMode: DISABLED
+      S3Encryptions:
+        - S3EncryptionMode: DISABLED
+
+TestSupportLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub test-support-${Environment}
+    Handler: test-support.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action: lambda:InvokeFunction
+            Resource: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:*
+          - Effect: Allow
+            Action:
+              - logs:FilterLogEvents
+              - logs:GetLogEvents
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:ListBucket
+            Resource: !Sub arn:aws:s3:::${AWS::StackName}*
+          - Effect: Allow
+            Action: sqs:SendMessage
+            Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:*
+    ReservedConcurrentExecutions: 10
+    Tags:
+      Environment: !Ref Environment
