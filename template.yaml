@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Data and Analytics Stack
-Transform: 'AWS::Serverless-2016-10-31'
+Transform: AWS::Serverless-2016-10-31
 
 Parameters:
   Environment:
@@ -44,6 +44,14 @@ Conditions:
     - !Equals
       - !Ref PermissionsBoundary
       - none
+  IsTest: !Equals [!Ref Environment, test]
+  IsDev: !Equals [!Ref Environment, dev]
+  IsBuild: !Equals [!Ref Environment, build]
+  UsePlaceholderTxMAQueue: !Or
+    - !Condition IsTest
+    # todo uncomment when txma queue has been moved from dev to staging
+    # - !Condition IsDev
+    - !Condition IsBuild
 
 Globals:
   Function:
@@ -63,13 +71,15 @@ Globals:
         NODE_OPTIONS: '--enable-source-maps'
 
 Resources:
-  GlobalLogBucket:
+  AthenaWorkgroupBucket:
     # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
-    # checkov:skip=CKV_AWS_18: This is the log bucket for all other buckets - no need for a log bucket of the log bucket
     Type: 'AWS::S3::Bucket'
     Properties:
       AccessControl: Private
-      BucketName: !Sub '${Environment}-dap-s3-logs'
+      BucketName: !Sub ${Environment}-dap-athena-workgroup
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: dap-athena-workgroup/log
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -78,10 +88,68 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
 
+  AthenaWorkGroup:
+    Type: AWS::Athena::WorkGroup
+    Properties:
+      Name: !Sub ${Environment}-dap-txma-processing
+      Description: DAP project
+      State: ENABLED
+      WorkGroupConfiguration:
+        BytesScannedCutoffPerQuery: 200000000
+        EnforceWorkGroupConfiguration: true
+        PublishCloudWatchMetricsEnabled: false
+        RequesterPaysEnabled: true
+        ResultConfiguration:
+          OutputLocation: !Sub 's3://${AthenaWorkgroupBucket}/txma/'
+
+  AthenaGetConfigLambda:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub athena-get-config-${Environment}
+      Handler: athena-get-config.handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+              Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
+      ReservedConcurrentExecutions: 10
+      Tags:
+        Environment: !Ref Environment
+
+  AthenaGetStatementLambda:
+    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub athena-get-statement-${Environment}
+      Handler: athena-get-statement.handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+              Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
+      ReservedConcurrentExecutions: 10
+      Tags:
+        Environment: !Ref Environment
+
+  EventConsumerQueue:
+    Type: AWS::SQS::Queue
+    Condition: UsePlaceholderTxMAQueue
+    Properties:
+      QueueName: !Sub ${Environment}-placeholder-txma-event-queue
+
   EventConsumerLambda:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-    Type: 'AWS::Serverless::Function'
+    Type: AWS::Serverless::Function
     Properties:
       FunctionName: txma-event-consumer
       Events:
@@ -89,7 +157,7 @@ Resources:
           Type: SQS
           Properties:
             BatchSize: 1
-            Queue: '{{resolve:ssm:TxMAEventQueueARN}}'
+            Queue: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
             FunctionResponseTypes:
               - ReportBatchItemFailures
       Handler: txma-event-consumer.handler
@@ -101,13 +169,14 @@ Resources:
                 - 'sqs:DeleteMessage'
                 - 'sqs:GetQueueAttributes'
                 - 'sqs:ReceiveMessage'
-              Resource: '{{resolve:ssm:TxMAEventQueueARN}}'
+              Resource:
+                !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
             - Effect: Allow
               Action: firehose:PutRecord
               Resource: !GetAtt KinesisFirehose.Arn
             - Effect: Allow
               Action: kms:decrypt
-              Resource: '{{resolve:ssm:TxMAKMSKeyARN}}'
+              Resource: !If [UsePlaceholderTxMAQueue, !Ref AWS::NoValue, '{{resolve:ssm:TxMAKMSKeyARN}}']
       ReservedConcurrentExecutions: 10
       Environment:
         # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
@@ -115,23 +184,6 @@ Resources:
           FIREHOSE_STREAM_NAME: !Sub '${Environment}-${DeliveryStreamName}'
       Tags:
         Environment: !Ref Environment
-
-  RawLayerBucket:
-    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
-    Type: 'AWS::S3::Bucket'
-    Properties:
-      AccessControl: Private
-      BucketName: !Sub ${Environment}-dap-raw-layer
-      LoggingConfiguration:
-        DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: dap-raw-layer/log
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      VersioningConfiguration:
-        Status: Enabled
 
   KinesisFirehose:
     Type: 'AWS::KinesisFirehose::DeliveryStream'
@@ -145,7 +197,7 @@ Resources:
           LogGroupName: !Sub ${Environment}-${DeliveryStreamName}
           LogStreamName: !Sub ${Environment}-${DeliveryStreamName}
         BufferingHints:
-          IntervalInSeconds: 60
+          IntervalInSeconds: !If [IsTest, 10, !If [IsDev, 60, 900]]
           SizeInMBs: 128
         RoleARN: !GetAtt IAMRoleKinesisFirehose.Arn
         Prefix: '!{partitionKeyFromQuery:datasource}/!{partitionKeyFromQuery:event_name}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
@@ -201,6 +253,34 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
 
+  GlobalLogBucket:
+    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+    # checkov:skip=CKV_AWS_18: This is the log bucket for all other buckets - no need for a log bucket of the log bucket
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub '${Environment}-dap-s3-logs'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  GlueSecurityConfig:
+    # checkov:skip=CKV_AWS_99: Ensure Glue Security Configuration Encryption is enabled
+    Type: AWS::Glue::SecurityConfiguration
+    Properties:
+      Name: !Sub ${Environment}-dap-glue-security-config
+      EncryptionConfiguration:
+        CloudWatchEncryption:
+          CloudWatchEncryptionMode: DISABLED
+        JobBookmarksEncryption:
+          JobBookmarksEncryptionMode: DISABLED
+        S3Encryptions:
+          - S3EncryptionMode: DISABLED
+
   TestSupportLambda:
     # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
     # checkov:skip=CKV_AWS_117: VPC not needed for lambda
@@ -231,53 +311,15 @@ Resources:
       Tags:
         Environment: !Ref Environment
 
-  AthenaGetConfigLambda:
-    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
-    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub athena-get-config-${Environment}
-      Handler: athena-get-config.handler
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - Statement:
-            - Effect: Allow
-              Action:
-                - s3:GetObject
-                - s3:ListBucket
-              Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
-      ReservedConcurrentExecutions: 10
-      Tags:
-        Environment: !Ref Environment
-
-  AthenaGetStatementLambda:
-    # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
-    # checkov:skip=CKV_AWS_117: VPC not needed for lambda
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub athena-get-statement-${Environment}
-      Handler: athena-get-statement.handler
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - Statement:
-            - Effect: Allow
-              Action:
-                - s3:GetObject
-                - s3:ListBucket
-              Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
-      ReservedConcurrentExecutions: 10
-      Tags:
-        Environment: !Ref Environment
-
-  StageLayerBucket:
+  RawLayerBucket:
     # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
     Type: 'AWS::S3::Bucket'
     Properties:
       AccessControl: Private
-      BucketName: !Sub ${Environment}-dap-stage-layer
+      BucketName: !Sub ${Environment}-dap-raw-layer
       LoggingConfiguration:
         DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: dap-stage-layer/log
+        LogFilePrefix: dap-raw-layer/log
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -285,84 +327,10 @@ Resources:
         RestrictPublicBuckets: true
       VersioningConfiguration:
         Status: Enabled
-
-  ELTMetadataBucket:
-    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
-    Type: 'AWS::S3::Bucket'
-    Properties:
-      AccessControl: Private
-      BucketName: !Sub ${Environment}-dap-elt-metadata
-      LoggingConfiguration:
-        DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: dap-elt-metadata/log
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      VersioningConfiguration:
-        Status: Enabled
-
-  AthenaWorkgroupBucket:
-    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
-    Type: 'AWS::S3::Bucket'
-    Properties:
-      AccessControl: Private
-      BucketName: !Sub ${Environment}-dap-athena-workgroup
-      LoggingConfiguration:
-        DestinationBucketName: !Ref GlobalLogBucket
-        LogFilePrefix: dap-athena-workgroup/log
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      VersioningConfiguration:
-        Status: Enabled
-
-  AthenaWorkGroup:
-    Type: AWS::Athena::WorkGroup
-    Properties:
-      Name: !Sub ${Environment}-dap-txma-processing
-      Description: DAP project
-      State: ENABLED
-      WorkGroupConfiguration:
-        BytesScannedCutoffPerQuery: 200000000
-        EnforceWorkGroupConfiguration: true
-        PublishCloudWatchMetricsEnabled: false
-        RequesterPaysEnabled: true
-        ResultConfiguration:
-          OutputLocation: !Sub 's3://${AthenaWorkgroupBucket}/txma/'
-
-  RawGlueDatabase:
-    Type: AWS::Glue::Database
-    Properties:
-      CatalogId: !Sub ${AWS::AccountId}
-      DatabaseInput:
-        Name: !Sub ${Environment}-${RawGlueDatabaseName}
-
-  StageGlueDatabase:
-    Type: AWS::Glue::Database
-    Properties:
-      CatalogId: !Sub ${AWS::AccountId}
-      DatabaseInput:
-        Name: !Sub ${Environment}-${StageGlueDatabaseName}
-
-  GlueSecurityConfig:
-    # checkov:skip=CKV_AWS_99: Ensure Glue Security Configuration Encryption is enabled
-    Type: AWS::Glue::SecurityConfiguration
-    Properties:
-      Name: !Sub ${Environment}-dap-glue-security-config
-      EncryptionConfiguration:
-        CloudWatchEncryption:
-          CloudWatchEncryptionMode: DISABLED
-        JobBookmarksEncryption:
-          JobBookmarksEncryptionMode: DISABLED
-        S3Encryptions:
-          - S3EncryptionMode: DISABLED
 
   RawGlueCrawler:
     Type: AWS::Glue::Crawler
+    DependsOn: RawGlueDatabase
     Properties:
       Name: !Sub ${Environment}-raw-txma-datasets
       Role: !GetAtt RawGlueCrawlerRole.Arn
@@ -385,13 +353,14 @@ Resources:
           - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_START/'
           - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_START/'
           - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_VC_ISSUED/'
-      DatabaseName: !Ref RawGlueDatabase
+      DatabaseName: !Ref RawGlueDatabaseName
       CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
       RecrawlPolicy:
         RecrawlBehavior: CRAWL_EVERYTHING
       SchemaChangePolicy:
         UpdateBehavior: UPDATE_IN_DATABASE
         DeleteBehavior: DELETE_FROM_DATABASE
+
   RawGlueCrawlerRole:
     Type: AWS::IAM::Role
     Properties:
@@ -429,8 +398,33 @@ Resources:
                   - !Sub 'arn:aws:s3:::${RawLayerBucket}'
                   - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
 
+  RawGlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Sub ${AWS::AccountId}
+      DatabaseInput:
+        Name: !Sub ${Environment}-${RawGlueDatabaseName}
+
+  StageLayerBucket:
+    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub ${Environment}-dap-stage-layer
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: dap-stage-layer/log
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
   StageGlueCrawler:
     Type: AWS::Glue::Crawler
+    DependsOn: StageGlueDatabase
     Properties:
       Name: !Sub ${Environment}-stage-txma-datasets
       Role: !GetAtt StageGlueCrawlerRole.Arn
@@ -438,13 +432,14 @@ Resources:
         S3Targets:
           - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
           - Path: !Sub 's3://${StageLayerBucket}/txma/DCMAW_APP_START/'
-      DatabaseName: !Ref StageGlueDatabase
+      DatabaseName: !Ref StageGlueDatabaseName
       CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
       RecrawlPolicy:
         RecrawlBehavior: CRAWL_EVERYTHING
       SchemaChangePolicy:
         UpdateBehavior: UPDATE_IN_DATABASE
         DeleteBehavior: DELETE_FROM_DATABASE
+
   StageGlueCrawlerRole:
     Type: AWS::IAM::Role
     Properties:
@@ -481,6 +476,30 @@ Resources:
                 Resource:
                   - !Sub 'arn:aws:s3:::${StageLayerBucket}'
                   - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'
+
+  StageGlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Sub ${AWS::AccountId}
+      DatabaseInput:
+        Name: !Sub ${Environment}-${StageGlueDatabaseName}
+
+  ELTMetadataBucket:
+    # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub ${Environment}-dap-elt-metadata
+      LoggingConfiguration:
+        DestinationBucketName: !Ref GlobalLogBucket
+        LogFilePrefix: dap-elt-metadata/log
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
 
   AthenaRawLayerProcessingStateMachine:
     Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
@@ -524,9 +543,7 @@ Resources:
             Version: 2012-10-17
             Statement:
               - Effect: Allow
-                Resource:
-                  - arn:aws:s3:::*
-
+                Resource: arn:aws:s3:::*
                 Action:
                   - s3:Get*
                   - s3:Put*
@@ -554,9 +571,7 @@ Resources:
                   - logs:DescribeLogGroups
 
               - Effect: Allow
-                Resource:
-                  - !Sub arn:aws:glue:*:${AWS::AccountId}:crawler/*
-
+                Resource: !Sub arn:aws:glue:*:${AWS::AccountId}:crawler/*
                 Action:
                   - glue:GetCrawler
                   - glue:GetCrawlers
@@ -569,21 +584,14 @@ Resources:
                 Resource:
                   - !Join [':', [!GetAtt AthenaGetConfigLambda.Arn, '$LATEST']]
                   - !Join [':', [!GetAtt AthenaGetStatementLambda.Arn, '$LATEST']]
-
-                Action:
-                  - lambda:InvokeFunction
+                Action: lambda:InvokeFunction
 
               - Effect: Allow
-                Resource:
-                  - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-raw-to-stage-process'
-
-                Action:
-                  - states:ListExecutions
+                Resource: !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-raw-to-stage-process'
+                Action: states:ListExecutions
 
               - Effect: Allow
-                Resource:
-                  - '*'
-
+                Resource: '*'
                 Action:
                   - athena:GetTableMetadata
                   - athena:ListEngineVersions
@@ -597,7 +605,6 @@ Resources:
                 Resource:
                   - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/dap-txma-processing'
                   - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:datacatalog/*'
-
                 Action:
                   - athena:CreatePreparedStatement
                   - athena:StartQueryExecution
@@ -624,7 +631,6 @@ Resources:
                   - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog'
                   - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/*'
                   - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/*'
-
                 Action:
                   - glue:CreateDatabase
                   - glue:GetDatabase
