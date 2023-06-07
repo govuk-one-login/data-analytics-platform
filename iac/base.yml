@@ -44,6 +44,14 @@ Conditions:
     - !Equals
       - !Ref PermissionsBoundary
       - none
+  IsTest: !Equals [!Ref Environment, test]
+  IsDev: !Equals [!Ref Environment, dev]
+  IsBuild: !Equals [!Ref Environment, build]
+  UsePlaceholderTxMAQueue: !Or
+    - !Condition IsTest
+    # todo uncomment when txma queue has been moved from dev to staging
+    # - !Condition IsDev
+    - !Condition IsBuild
 
 Globals:
   Function:
