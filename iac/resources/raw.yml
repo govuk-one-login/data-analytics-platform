@@ -50,7 +50,7 @@ RawGlueCrawler:
     Configuration:
       Version: 1.0
       Grouping:
-        TableGroupingPolicy: "CombineCompatibleSchemas"
+        TableGroupingPolicy: 'CombineCompatibleSchemas'
 
 RawGlueCrawlerRole:
   Type: AWS::IAM::Role
