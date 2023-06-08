@@ -31,9 +31,12 @@ EventConsumerLambda:
           - Effect: Allow
             Action: firehose:PutRecord
             Resource: !GetAtt KinesisFirehose.Arn
-          - Effect: Allow
-            Action: kms:decrypt
-            Resource: !If [UsePlaceholderTxMAQueue, !Ref AWS::NoValue, '{{resolve:ssm:TxMAKMSKeyARN}}']
+          - !If
+            - UsePlaceholderTxMAQueue
+            - Effect: Allow
+              Action: kms:decrypt
+              Resource: '{{resolve:ssm:TxMAKMSKeyARN}}'
+            - !Ref AWS::NoValue
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
