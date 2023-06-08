@@ -21,10 +21,8 @@ jobs:
         run: npm ci
       - name: IaC formatting checks
         run: npm run iac:format:check
-      - name: SAM setup
-        uses: aws-actions/setup-sam@v2
-        with:
-          version: 1.82.0
+      - name: Install SAM and Checkov
+        run: pip3 install aws-sam-cli checkov
       - name: IaC linting checks
         run: npm run iac:lint
       - name: Check out checkov hooks repository code
@@ -33,8 +31,6 @@ jobs:
           repository: alphagov/di-devplatform-checkov-hook
           token: ${{ secrets.CHECKOUT_REPO_PAT }}
           path: di-devplatform-checkov-hook
-      - name: Checkov setup
-        run: pip3 install checkov
       - name: Checkov scan
         env:
           CHECKS_BASE_DIR: di-devplatform-checkov-hook/src/gds_digitalidentity_checkovhook
