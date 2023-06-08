@@ -360,6 +360,7 @@ Resources:
       SchemaChangePolicy:
         UpdateBehavior: UPDATE_IN_DATABASE
         DeleteBehavior: DELETE_FROM_DATABASE
+      Configuration: '{"Version":1.0,"CrawlerOutput":{"Grouping":{"TableGroupingPolicy":"CombineCompatibleSchemas"}}}'
 
   RawGlueCrawlerRole:
     Type: AWS::IAM::Role
