@@ -1,10 +1,87 @@
 [
     {
-        "event_name": "auth_create_account",
+        "event_name": "AUTH_AUTHORISATION_INITIATED",
+        "product_family": "RELYING_PARTY",
         "enabled": true
     },
     {
-        "event_name": "dcmaw_app_start",
-        "enabled": false
+        "event_name": "AUTH_CREATE_ACCOUNT",
+        "product_family": "AUTH_USER_ACCOUNT",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_APP_END",
+        "product_family": "DCMAW_APP",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_APP_HANDOFF_START",
+        "product_family": "DCMAW_APP",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_APP_START",
+        "product_family": "DCMAW_APP",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_CRI_START",
+        "product_family": "DCMAW_CRI",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_DRIVING_LICENCE_SELECTED",
+        "product_family": "DCMAW_CRI",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_PASSPORT_SELECTED",
+        "product_family": "DCMAW_CRI",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_ADDRESS_CRI_START",
+        "product_family": "IPV_ADDRESS",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_ADDRESS_CRI_VC_ISSUED",
+        "product_family": "IPV_ADDRESS",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_FRAUD_CRI_START",
+        "product_family": "IPV_FRAUD",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_IDENTITY_REUSE_COMPLETE",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_JOURNEY_END",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_JOURNEY_START",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_KBV_CRI_START",
+        "product_family": "IPV_KBV",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_PASSPORT_CRI_START",
+        "product_family": "IPV_PASSPORT",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_PASSPORT_CRI_VC_ISSUED",
+        "product_family": "IPV_PASSPORT",
+        "enabled": true
     }
 ]

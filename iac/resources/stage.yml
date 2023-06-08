@@ -17,7 +17,6 @@ StageLayerBucket:
 
 StageGlueCrawler:
   Type: AWS::Glue::Crawler
-  DependsOn: StageGlueDatabase
   Properties:
     Name: !Sub ${Environment}-stage-txma-datasets
     Role: !GetAtt StageGlueCrawlerRole.Arn
@@ -25,13 +24,14 @@ StageGlueCrawler:
       S3Targets:
         - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
         - Path: !Sub 's3://${StageLayerBucket}/txma/DCMAW_APP_START/'
-    DatabaseName: !Ref StageGlueDatabaseName
+    DatabaseName: !Ref StageGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
       RecrawlBehavior: CRAWL_EVERYTHING
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
       DeleteBehavior: DELETE_FROM_DATABASE
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
 
 StageGlueCrawlerRole:
   Type: AWS::IAM::Role
