@@ -330,7 +330,6 @@ Resources:
 
   RawGlueCrawler:
     Type: AWS::Glue::Crawler
-    DependsOn: RawGlueDatabase
     Properties:
       Name: !Sub ${Environment}-raw-txma-datasets
       Role: !GetAtt RawGlueCrawlerRole.Arn
@@ -353,7 +352,7 @@ Resources:
           - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_START/'
           - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_START/'
           - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_VC_ISSUED/'
-      DatabaseName: !Ref RawGlueDatabaseName
+      DatabaseName: !Ref RawGlueDatabase
       CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
       RecrawlPolicy:
         RecrawlBehavior: CRAWL_EVERYTHING
@@ -425,7 +424,6 @@ Resources:
 
   StageGlueCrawler:
     Type: AWS::Glue::Crawler
-    DependsOn: StageGlueDatabase
     Properties:
       Name: !Sub ${Environment}-stage-txma-datasets
       Role: !GetAtt StageGlueCrawlerRole.Arn
@@ -433,13 +431,14 @@ Resources:
         S3Targets:
           - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
           - Path: !Sub 's3://${StageLayerBucket}/txma/DCMAW_APP_START/'
-      DatabaseName: !Ref StageGlueDatabaseName
+      DatabaseName: !Ref StageGlueDatabase
       CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
       RecrawlPolicy:
         RecrawlBehavior: CRAWL_EVERYTHING
       SchemaChangePolicy:
         UpdateBehavior: UPDATE_IN_DATABASE
         DeleteBehavior: DELETE_FROM_DATABASE
+      Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
 
   StageGlueCrawlerRole:
     Type: AWS::IAM::Role

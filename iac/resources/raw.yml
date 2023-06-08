@@ -17,7 +17,6 @@ RawLayerBucket:
 
 RawGlueCrawler:
   Type: AWS::Glue::Crawler
-  DependsOn: RawGlueDatabase
   Properties:
     Name: !Sub ${Environment}-raw-txma-datasets
     Role: !GetAtt RawGlueCrawlerRole.Arn
@@ -40,7 +39,7 @@ RawGlueCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_START/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_START/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_VC_ISSUED/'
-    DatabaseName: !Ref RawGlueDatabaseName
+    DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
       RecrawlBehavior: CRAWL_EVERYTHING
