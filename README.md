@@ -56,6 +56,7 @@ Below is a list of workflows:
 | Name                              | File                    | Triggers                                                                                                                                                                                                                                                                                                                                                                        | Purpose                                                                                            |
 |-----------------------------------|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
 | Deploy to an AWS environment      | deploy-to-aws.yml       | <ul><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li></ul>                                                                                                                                                                                                                                             | Deploys to a deployable AWS environment (dev, build, test)                                         |
+| Deploy to the test environment    | deploy-to-test.yml      | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Deploys IaC and lambda code to the test AWS                                                        |
 | Deploy to the dev environment     | deploy-to-dev.yml       | <ul><li>[merge to main](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push)</li><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                   | Deploys IaC and lambda code to the dev AWS                                                         |
 | Deploy to the build environment   | deploy-to-build.yml     | <ul><li>[merge to main](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push)</li></ul>                                                                                                                                                                                                                                                        | Deploys IaC and lambda code to the build AWS                                                       |
 | Test and validate iac and lambdas | test-and-validate.yml   | <ul><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li><li>[pull requests](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request)</li><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul> | Runs linting, formatting and testing of lambda code, and linting and scanning of IaC code          |
@@ -179,12 +180,18 @@ See the following links for how to create the parameters via:
 - [AWS CLI](https://docs.aws.amazon.com/systems-manager/latest/userguide/param-create-cli.html)
 - [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-parameter.html)
 
+#### Test
+
+Our test environment is a standalone environment and can therefore be used as a sandbox.
+A dedicated GitHub Action [Deploy to the test environment](.github/workflows/deploy-to-test.yml) exists to enable this.
+It can be manually invoked on a chosen branch by finding it in the [GitHub Actions tab](https://github.com/alphagov/di-data-analytics-platform/actions) and using the _Run workflow_ button.
+
 #### Dev
 
-Our dev environment is a standalone environment and can therefore be used as a sandbox.
-A dedicated GitHub Action [Deploy to the dev environment](.github/workflows/deploy-to-dev.yml) exists to enable this.
-The action will automatically run after a merge into the `main` branch after a Pull Request is approved.
-Additionally, it can be manually invoked on a chosen branch by finding it in the [GitHub Actions tab](https://github.com/alphagov/di-data-analytics-platform/actions) and using the _Run workflow_ button.
+Our dev environment is also a standalone environment and can therefore be used as a sandbox.
+A dedicated GitHub Action [Deploy to the dev environment](.github/workflows/deploy-to-dev.yml) exists to enable this, allowing manual deploys like the one for test.
+
+Additionally, the action will automatically run after a merge into the `main` branch after a Pull Request is approved.
 
 #### Build
 
