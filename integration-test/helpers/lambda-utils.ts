@@ -1,7 +1,7 @@
 import { InvokeCommand } from '@aws-sdk/client-lambda';
 import type { TestSupportEnvironment, TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { decodeObject, encodeObject } from '../../src/shared/utils/utils';
-import { s3Client } from '../../src/shared/clients';
+import { lambdaClient } from '../../src/shared/clients';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const publishToTxmaQueue = async (payload: any): Promise<unknown> => {
@@ -39,7 +39,7 @@ export const getEventListS3 = async (prefix: string): Promise<unknown> => {
 };
 
 export const invokeTestSupportLambda = async (event: Omit<TestSupportEvent, 'environment'>): Promise<unknown> => {
-  const environment = process.env.AWS_ENVIRONMENT as TestSupportEnvironment;
+  const environment = process.env.AWS_ENVIRONMENT as TestSupportEnvironment ?? 'dev';
 
   const payload: TestSupportEvent = {
     environment,
@@ -47,7 +47,7 @@ export const invokeTestSupportLambda = async (event: Omit<TestSupportEvent, 'env
   };
 
   try {
-    const response = await s3Client.send(
+    const response = await lambdaClient.send(
       new InvokeCommand({
         FunctionName: `test-support-${environment}`,
         Payload: encodeObject(payload),
