@@ -11,22 +11,24 @@ jobs:
   validate-iac:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: 'pip-cache'
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Node setup
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: npm
       - name: Install node packages
         run: npm ci
+      - name: Python setup
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+          cache: pip
+      - name: Install SAM and Checkov
+        run: pip install -r requirements.txt
       - name: IaC formatting checks
         run: npm run iac:format:check
-      - name: Install SAM and Checkov
-        run: pip3 install aws-sam-cli==1.86.1 checkov==2.3.284
       - name: IaC linting checks
         run: npm run iac:lint
       - name: Check out checkov hooks repository code
@@ -49,6 +51,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: npm
       - name: Install node packages
         run: npm ci
       - name: Run linting and formatting

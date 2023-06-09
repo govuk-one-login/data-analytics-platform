@@ -1,0 +1,2 @@
+aws-sam-cli==1.86.1
+checkov==2.3.284
