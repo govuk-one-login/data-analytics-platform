@@ -10,6 +10,6 @@ export const mockSQSEvent = (...bodies: unknown[]): SQSEvent => {
   } as unknown as SQSEvent;
 };
 
-export const getTestResource = async (filename: string): Promise<string> => {
-  return await readFile(`src/test-resources/${filename}`, 'utf-8');
+export const getTestResource = async (filename: string, encoding: BufferEncoding = 'utf-8'): Promise<string> => {
+  return await readFile(`src/test-resources/${filename}`, { encoding });
 };

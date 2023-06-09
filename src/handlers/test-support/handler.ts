@@ -7,6 +7,7 @@ import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { cloudwatchClient, lambdaClient, s3Client, sqsClient } from '../../shared/clients';
+import * as zlib from 'zlib';
 
 const TEST_SUPPORT_COMMANDS = ['CLOUDWATCH_GET', 'LAMBDA_INVOKE', 'S3_GET', 'S3_LIST', 'SQS_SEND'] as const;
 
@@ -80,9 +81,11 @@ const handleEvent = async (event: TestSupportEvent): Promise<unknown> => {
 
 // custom response as real response does not decode Body and has many properties we don't need
 const s3GetResponse = async (response: GetObjectCommandOutput): Promise<Record<string, unknown>> => {
-  const body = await response.Body?.transformToString('utf-8');
+  const contentEncoding = response.ContentEncoding;
+  const body = await (contentEncoding === 'gzip' ? gzipToString(response) : response.Body?.transformToString('utf-8'));
   return {
     body,
+    contentEncoding,
     eTag: response.ETag,
     lastModified: response.LastModified,
   };
@@ -97,4 +100,20 @@ const lambdaInvokeResponse = async (response: InvokeCommandOutput): Promise<Reco
     logResult: Buffer.from(response.LogResult ?? '', 'base64').toString('utf-8'),
     payload: decodeObject(response.Payload ?? new Uint8Array([0x7b, 0x7d])),
   };
+};
+
+const gzipToString = async (response: GetObjectCommandOutput): Promise<string> => {
+  const bytes = await response.Body?.transformToByteArray();
+  if (bytes === undefined) {
+    throw new Error('Gzipped body is undefined');
+  }
+  return await new Promise((resolve, reject) => {
+    zlib.gunzip(bytes, (error, buffer) => {
+      if (error !== null) {
+        reject(error);
+      } else {
+        resolve(buffer.toString('utf8'));
+      }
+    });
+  });
 };
