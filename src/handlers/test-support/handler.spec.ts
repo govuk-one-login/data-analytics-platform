@@ -158,15 +158,7 @@ test('s3 handle text response', async () => {
     LastModified: lastModified,
   });
 
-  const event = getEvent({ command: 'S3_GET', input: { Bucket: 'bucket', Key: 'key' } });
-  const response = (await handler(event)) as Record<string, unknown>;
-
-  expect(response).toBeDefined();
-  expect(JSON.parse(response.body as string)).toEqual(EXPECTED_S3_BODY);
-  expect(response.eTag).toEqual(eTag);
-  expect(response.lastModified).toEqual(lastModified);
-
-  expect(mockS3Client.calls()).toHaveLength(1);
+  await testS3Response(eTag, lastModified, undefined);
 });
 
 test('s3 handle gzipped response', async () => {
@@ -184,15 +176,7 @@ test('s3 handle gzipped response', async () => {
     ContentEncoding: 'gzip',
   });
 
-  const event = getEvent({ command: 'S3_GET', input: { Bucket: 'bucket', Key: 'key' } });
-  const response = (await handler(event)) as Record<string, unknown>;
-
-  expect(response).toBeDefined();
-  expect(JSON.parse(response.body as string)).toEqual(EXPECTED_S3_BODY);
-  expect(response.eTag).toEqual(eTag);
-  expect(response.lastModified).toEqual(lastModified);
-
-  expect(mockS3Client.calls()).toHaveLength(1);
+  await testS3Response(eTag, lastModified, 'gzip');
 });
 
 const getEvent = (overrides: { environment?: string; command?: string; input?: object }): TestSupportEvent => {
@@ -201,4 +185,21 @@ const getEvent = (overrides: { environment?: string; command?: string; input?: o
     command: (overrides.command ?? 'LAMBDA_INVOKE') as TestSupportCommand,
     input: overrides.input ?? {},
   };
+};
+
+const testS3Response = async (
+  expectedETag: string,
+  expectedLastModified: Date,
+  expectedContentEncoding: string | undefined
+): Promise<void> => {
+  const event = getEvent({ command: 'S3_GET', input: { Bucket: 'bucket', Key: 'key' } });
+  const response = (await handler(event)) as Record<string, unknown>;
+
+  expect(response).toBeDefined();
+  expect(JSON.parse(response.body as string)).toEqual(EXPECTED_S3_BODY);
+  expect(response.eTag).toEqual(expectedETag);
+  expect(response.lastModified).toEqual(expectedLastModified);
+  expect(response.contentEncoding).toEqual(expectedContentEncoding);
+
+  expect(mockS3Client.calls()).toHaveLength(1);
 };
