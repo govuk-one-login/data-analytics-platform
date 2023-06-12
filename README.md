@@ -154,21 +154,63 @@ sam build
 which will build `template.yaml` and use the lambda code in `dist/`.
 A different template file path can be specified with the `--template-file` flag and a different lambda code directory by changing the `CodeUri` global property in `template.yaml`.
 
-## Deploying
+## Deploying and environments
 
 Deployment is done via [Secure Pipelines](https://govukverify.atlassian.net/wiki/spaces/DAP/pages/3535667315/Secure+Pipelines).
-At a high level, we are responsible for the SAM app and running `sam build`, but Secure Pipelines calls `sam deploy` for us.
 
-#### Config
+From a Secure Pipelines point-of-view, environments can be split into two types: 'higher' and 'lower' environments.
+The lower environments are _test_, _dev_ and _build_&ast;. The higher environments are _staging_, _integration_ and _production_.
+More information can be found using the Secure Pipelines link above, but the key differences are that the lower environments are the only ones
+that can be deployed to directly from GitHub. Deployment to the higher environments relies on 'promotion' from a lower environment, specifically
+the _build_ environment. In addition, the higher environment lambdas are triggered by real TxMA event queues&ast;&ast;, whereas lower environments use a
+placeholder one that we create and must put our own test events onto.
 
-Deployment relies on the following AWS System Manager Parameters being available in the target AWS account:
+&ast; Strictly speaking, `test` and `dev` do not form part of the Secure Pipelines build system which takes an application
+that is deployed to `build` all the way to `production` via the other higher environments. Our `test` and `dev` environments are
+disconnected sandboxes; however they still use Secure Pipelines to deploy directly from GitHub 
+
+&ast;&ast; An important exception is that _dev_ is connected to the real TxMA staging queue. This is intended to be temporary
+since at time of writing we do not have the higher environments set up. Once our own _staging_ account is ready, it will receive
+the real TxMA staging queue and _dev_ will get a placeholder queue
+
+#### Lower Environments
+
+###### Test
+
+Our _test_ environment is a standalone environment and can therefore be used as a sandbox.
+A dedicated GitHub Action [Deploy to the test environment](.github/workflows/deploy-to-test.yml) exists to enable this.
+It can be manually invoked on a chosen branch by finding it in the [GitHub Actions tab](https://github.com/alphagov/di-data-analytics-platform/actions) and using the _Run workflow_ button.
+
+###### Dev
+
+Our _dev_ environment is also a standalone environment and can therefore be used as a sandbox.
+A dedicated GitHub Action [Deploy to the dev environment](.github/workflows/deploy-to-dev.yml) exists to enable this, allowing manual deploys like the one for test.
+
+Additionally, the action will automatically run after a merge into the `main` branch after a Pull Request is approved.
+
+###### Build
+
+The _build_ environment is the entry point to the Secure Pipelines world. It is sometimes referred to as the 'Initial Account'
+in Secure Pipelines, as it is the first account on the journey to Production, and has unique needs (compared with the higher environments) such as the ability to deploy to from GitHub.
+
+A GitHub Action [Deploy to the build environment](.github/workflows/deploy-to-build.yml) exists to enable this.
+The action cannot be invoked manually like the one for dev, only by merging into the `main` branch after a Pull Request is approved.
+
+#### Higher Environments
+
+###### Higher environment config
+
+Because they use real TxMA event queues (from external AWS accounts and not in our IaC code),
+deployment to higher environments&ast; relies on the following AWS System Manager Parameters being available in the target account:
+
+&ast; These parameters are also required in the _dev_ account for the reasons mentioned above (_dev_ currently having the real TxMA staging queue)
 
 | Name              | Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
 | TxMAEventQueueARN | ARN of the TxMA event queue which triggers the `txma-event-consumer` lambda |
 | TxMAKMSKeyARN     | ARN of the TxMA KMS key needed for the `txma-event-consumer` lambda         |
 
-You can see these values being referenced in the template file in the following way:
+You can see these values being referenced in the template files in the following way:
 
 ```
 '{{resolve:ssm:TxMAEventQueueARN}}'
@@ -180,26 +222,9 @@ See the following links for how to create the parameters via:
 - [AWS CLI](https://docs.aws.amazon.com/systems-manager/latest/userguide/param-create-cli.html)
 - [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-parameter.html)
 
-#### Test
-
-Our test environment is a standalone environment and can therefore be used as a sandbox.
-A dedicated GitHub Action [Deploy to the test environment](.github/workflows/deploy-to-test.yml) exists to enable this.
-It can be manually invoked on a chosen branch by finding it in the [GitHub Actions tab](https://github.com/alphagov/di-data-analytics-platform/actions) and using the _Run workflow_ button.
-
-#### Dev
-
-Our dev environment is also a standalone environment and can therefore be used as a sandbox.
-A dedicated GitHub Action [Deploy to the dev environment](.github/workflows/deploy-to-dev.yml) exists to enable this, allowing manual deploys like the one for test.
-
-Additionally, the action will automatically run after a merge into the `main` branch after a Pull Request is approved.
-
-#### Build
-
-The build environment is the entry point to the Secure Pipelines world. It is sometimes referred to as the Initial Account
-in Secure Pipelines, as it is the first account on the journey to Production, and has unique needs such as the ability to deploy to from GitHub.
-
-A GitHub Action [Deploy to the build environment](.github/workflows/deploy-to-build.yml) exists to enable this.
-The action cannot be invoked manually like the one for dev, only by merging into the `main` branch after a Pull Request is approved.
+#### Staging
+#### Integration
+#### Production
 
 ## Additional Documents
 
