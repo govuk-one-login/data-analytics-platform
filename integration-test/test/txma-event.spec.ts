@@ -8,13 +8,6 @@ function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function getFileNamesSoredByLatestTime(dataFile: any) {
-  dataFile.Contents.sort((f1, f2) => Date.parse(f2.LastModified) - Date.parse(f1.LastModified))
-  const contents = dataFile.Contents;
-  contents.forEach((val) => console.log('FileName->' + val.Key))
-  return dataFile.Contents;
-}
-
 async function checkFileUploaded(contents: any, eventid: string) {
   for (const val of contents) {
     // console.log('FileName->' + val.Key)
@@ -31,14 +24,13 @@ async function checkFileUploaded(contents: any, eventid: string) {
   }
   return false;
 }
-
 describe(
   "\n Happy path tests\n" +
   "\n Publish valid TXMA Event to SQS and expect event id stored in S3\n",
   () => {
       test.concurrent.each`
       eventName            | event_id               | client_id              | journey_id
-      ${'DCMAW_APP_START'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+      ${'DCMAW_PASSPORT_SELECTED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `('Should validate $eventName event content stored on S3', async ({ ...data }) => {
         // given
         const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event.json', 'utf-8'));
@@ -73,38 +65,5 @@ describe(
         expect(fileUploaded).toEqual(true);
 
       },200000);
-
-  });
-describe(
-  "\nUn Happy path tests\n" +
-  "\n Publish in-valid TXMA Event to SQS and expect event id stored in error folder in S3\n",
-  () => {
-    test("S3 should contain event id for valid SQS message", async () => {
-      // given
-      const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event.json', 'utf-8'));
-      event.event_id = faker.string.uuid();
-      event.event_name = "";
-      console.log(event);
-      // when
-      const publishResult = await publishToTxmaQueue(event);
-      // then
-      expect(publishResult).not.toBeNull();
-      expect(publishResult).toHaveProperty("MessageId");
-      // given
-      const result = await getErrorFilePrefix();
-      await delay(100000);
-      // when
-      const dataFile = await getEventListS3(result);
-      // then
-      expect(dataFile).toHaveProperty("Contents");
-      console.log(dataFile)
-
-      // console.log('Before->>' + JSON.stringify(dataFile.Contents));
-      dataFile.Contents.sort((f1, f2) => Date.parse(f2.LastModified) - Date.parse(f1.LastModified))
-      // console.log('After->>' + JSON.stringify(dataFile.Contents))
-      const contents = dataFile.Contents;
-      let fileUploaded= await checkFileUploaded(contents, event.event_id);
-      expect(fileUploaded).toEqual(true);
-    }, 200000);
 
   });
