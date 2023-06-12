@@ -15,7 +15,7 @@
     "@aws-sdk/util-retry": "^3.342.0",
     "@faker-js/faker": "^8.0.2",
     "@tsconfig/node18": "^2.0.1",
-    "@types/aws-lambda": "^8.10.116",
+    "@types/aws-lambda": "^8.10.117",
     "@types/jest": "^29.5.2",
     "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^5.59.9",
