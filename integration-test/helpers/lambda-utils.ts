@@ -16,7 +16,7 @@ export const publishToTxmaQueue = async (payload: any): Promise<unknown> => {
   return await invokeTestSupportLambda(event);
 };
 
-export const getTxmaDataFile = async (key: string): Promise<unknown> => {
+export const getS3DataFileContent = async (key: string): Promise<unknown> => {
   const event = {
     command: 'S3_GET',
     input: {
