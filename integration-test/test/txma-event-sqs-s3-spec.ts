@@ -36,15 +36,14 @@ const checkFileCreatedOnS3 = async (
       if (result.Contents.length > 0) {
         result.Contents.sort((f1, f2) => Date.parse(f2.LastModified) - Date.parse(f1.LastModified))
         let fileUploaded = await checkFileUploaded(result.Contents, eventID);
-        if (fileUploaded) {
+        if (fileUploaded)
           return true;
-        } else
+        else
           return false;
       }
       return false;
-    } else {
+    } else
       return false;
-    }
   };
   try {
     return await poll(pollS3BucketForEventIdString, (result) => result, {
@@ -62,7 +61,7 @@ describe(
       test.concurrent.each`
       eventName            | event_id               | client_id              | journey_id
       ${'DCMAW_PASSPORT_SELECTED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-      ${'DCMAW_PASSPORT_SELECTED1'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+      ${'IPV_FRAUD_CRI_START'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `('Should validate $eventName event content stored on S3', async ({ ...data }) => {
         // given
         const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event.json', 'utf-8'));
