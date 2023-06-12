@@ -2,7 +2,7 @@ import {describe, expect, test} from '@jest/globals';
 import * as fs from 'fs';
 import {getEventListS3, getS3DataFileContent, publishToTxmaQueue} from '../helpers/lambda-helpers';
 import {faker} from '@faker-js/faker';
-import {getErrorFilePrefix, getEventFileKey, getEventFilePrefix, poll, sleep} from "../helpers/common-helpers";
+import {getEventFilePrefix} from "../helpers/common-helpers";
 
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -25,8 +25,7 @@ async function checkFileUploaded(contents: any, eventid: string) {
   return false;
 }
 describe(
-  "\n Happy path tests\n" +
-  "\n Publish valid TXMA Event to SQS and expect event id stored in S3\n",
+  "Happy path tests Publish valid TXMA Event to SQS and expect event id stored in S3",
   () => {
       test.concurrent.each`
       eventName            | event_id               | client_id              | journey_id

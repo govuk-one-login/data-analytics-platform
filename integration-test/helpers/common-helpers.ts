@@ -1,4 +1,4 @@
-export const getEventFileKey = (eventName: string, eventId: string) => {
+export const getEventFileKey = (eventName: string) => {
   const today = new Date();
   return `${eventName}/${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
 };
@@ -17,6 +17,7 @@ export const getErrorFilePrefix = () => {
   console.log(today)
   return `kinesis-processing-errors-metadata-extraction-failed/${today.getFullYear()}/${formatNumberInTwoDigits(today.getMonth() + 1)}/${formatNumberInTwoDigits(today.getDate())}`;
 };
+
 export function sleep(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);

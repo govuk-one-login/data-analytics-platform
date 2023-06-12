@@ -39,7 +39,7 @@ export const getEventListS3 = async (prefix: string): Promise<unknown> => {
 };
 
 export const invokeTestSupportLambda = async (event: Omit<TestSupportEvent, 'environment'>): Promise<unknown> => {
-  const environment = process.env.AWS_ENVIRONMENT as TestSupportEnvironment ?? 'dev';
+  const environment = process.env.AWS_ENVIRONMENT as TestSupportEnvironment ?? 'test';
 
   const payload: TestSupportEvent = {
     environment,
