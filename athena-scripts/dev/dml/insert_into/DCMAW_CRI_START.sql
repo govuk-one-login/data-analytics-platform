@@ -1,4 +1,4 @@
-INSERT INTO "dev-txma-stage"."auth_user_account" (
+INSERT INTO "dev-txma-stage"."dcmaw_cri" (
 	event_id,
 	client_id,
 	component_id,
@@ -6,6 +6,7 @@ INSERT INTO "dev-txma-stage"."auth_user_account" (
 	user_user_id,
 	timestamp,
 	timestamp_formatted,
+	extensions_evidence,
 	year,
 	month,
 	day,
@@ -20,10 +21,11 @@ SELECT
 	'' as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
+	'' as extensions_evidence,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
 	CAST(date_format(now(), '%Y%m%d') as INT) AS processed_date,
 	event_name as event_name
 FROM 
-	"dev-txma-raw"."auth_create_account";
+	"dev-txma-raw"."dcmaw_cri_start";
