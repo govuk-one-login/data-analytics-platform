@@ -1,12 +1,12 @@
 WITH get_latest_stg_processed_dt AS (
 	SELECT coalesce(max(processed_date), 20000101) as processed_date
-	FROM "${Environment}-txma-stage"."tablename$partitions"
+	FROM "environment-txma-stage"."tablename$partitions"
 ),
 get_stg_partitions AS (
 	SELECT DISTINCT year,
 		month,
 		day
-	FROM "${Environment}-txma-stage"."tablename" stg,
+	FROM "environment-txma-stage"."tablename" stg,
 		get_latest_stg_processed_dt
 	WHERE stg.processed_date = get_latest_stg_processed_dt.processed_date
 ),
