@@ -5,7 +5,7 @@ import { lambdaClient } from '../../src/shared/clients';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const publishToTxmaQueue = async (payload: any): Promise<unknown> => {
-  const event = {
+  const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'SQS_SEND',
     input: {
       QueueUrl: process.env.TXMA_QUEUE_URL,
@@ -16,8 +16,8 @@ export const publishToTxmaQueue = async (payload: any): Promise<unknown> => {
   return await invokeTestSupportLambda(event);
 };
 
-export const getS3DataFileContent = async (key: string): Promise<unknown> => {
-  const event = {
+export const getS3DataFileContent = async (key: string | undefined): Promise<Record<string, unknown>> => {
+  const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'S3_GET',
     input: {
       Bucket: process.env.TXMA_BUCKET,
@@ -27,8 +27,9 @@ export const getS3DataFileContent = async (key: string): Promise<unknown> => {
 
   return await invokeTestSupportLambda(event);
 };
-export const getEventListS3 = async (prefix: string): Promise<unknown> => {
-  const event = {
+
+export const getEventListS3 = async (prefix: string): Promise<Record<string, unknown>> => {
+  const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'S3_LIST',
     input: {
       Bucket: process.env.TXMA_BUCKET,
@@ -38,8 +39,10 @@ export const getEventListS3 = async (prefix: string): Promise<unknown> => {
   return await invokeTestSupportLambda(event);
 };
 
-export const invokeTestSupportLambda = async (event: Omit<TestSupportEvent, 'environment'>): Promise<unknown> => {
-  const environment = process.env.AWS_ENVIRONMENT as TestSupportEnvironment ?? 'test';
+export const invokeTestSupportLambda = async (
+  event: Omit<TestSupportEvent, 'environment'>
+): Promise<Record<string, unknown>> => {
+  const environment = (process.env.AWS_ENVIRONMENT as TestSupportEnvironment) ?? 'test';
 
   const payload: TestSupportEvent = {
     environment,

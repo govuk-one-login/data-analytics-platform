@@ -1,28 +1,21 @@
-export const getEventFileKey = (eventName: string) => {
-  const today = new Date();
-  return `${eventName}/${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
-};
-
 const formatNumberInTwoDigits = (num: number): string => {
-  return ("0" + num).slice(-2)
-}
-
-export const getEventFilePrefix = (eventName: string) => {
-  const today = new Date();
-  console.log(today)
-  return `txma/${eventName}/year=${today.getFullYear()}/month=${formatNumberInTwoDigits(today.getMonth() + 1)}/day=${formatNumberInTwoDigits(today.getDate())}`;
-};
-export const getErrorFilePrefix = () => {
-  const today = new Date();
-  console.log(today)
-  return `kinesis-processing-errors-metadata-extraction-failed/${today.getFullYear()}/${formatNumberInTwoDigits(today.getMonth() + 1)}/${formatNumberInTwoDigits(today.getDate())}`;
+  return `0${num}`.slice(-2);
 };
 
-export function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
+export const getEventFilePrefix = (eventName: string): string => {
+  const today = new Date();
+  return `txma/${eventName}/year=${today.getFullYear()}/month=${formatNumberInTwoDigits(
+    today.getMonth() + 1
+  )}/day=${formatNumberInTwoDigits(today.getDate())}`;
+};
+
+export const getErrorFilePrefix = (): string => {
+  const today = new Date();
+  return `kinesis-processing-errors-metadata-extraction-failed/${today.getFullYear()}/${formatNumberInTwoDigits(
+    today.getMonth() + 1
+  )}/${formatNumberInTwoDigits(today.getDate())}`;
+};
+
 export const poll = async <Resolution>(
   promise: () => Promise<Resolution>,
   completionCondition: (resolution: Resolution) => boolean,
@@ -35,7 +28,7 @@ export const poll = async <Resolution>(
   const {
     interval = 1_000,
     timeout = 30_000,
-    nonCompleteErrorMessage = "Polling completion condition was never achieved",
+    nonCompleteErrorMessage = 'Polling completion condition was never achieved',
   } = options ?? {};
   return await new Promise((resolve, reject) => {
     // This timeout safely exits the function if the completion condition
@@ -57,10 +50,10 @@ export const poll = async <Resolution>(
       // enqueue a new promise
       promiseStack.push(promise());
       Promise.all(promiseStack).then(
-        (responses) => {
+        responses => {
           // dequeue the last promise
           void promiseStack.pop();
-          responses.forEach((response) => {
+          responses.forEach(response => {
             const isComplete = completionCondition(response);
             // if one of the responses in the stack is the one we want
             // then clear down and resolve to that response
@@ -71,7 +64,7 @@ export const poll = async <Resolution>(
             }
           });
         },
-        (error) => {
+        error => {
           // if the underlying promise rejects then we stop polling,
           // clear down and pass the rejection up
           clearInterval(intervalHandle);
