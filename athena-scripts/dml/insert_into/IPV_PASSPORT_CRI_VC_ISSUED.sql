@@ -30,4 +30,7 @@ SELECT
 	CAST(date_format(now(), '%Y%m%d') as INT) AS processed_date,
 	event_name as event_name
 FROM 
-	"environment-txma-raw"."ipv_passport_cri_vc_issued";
+	"environment-txma-raw"."ipv_passport_cri_vc_issued"
+WHERE
+	CAST(concat(year, month, day) AS INT) > filter_value AND
+	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT);

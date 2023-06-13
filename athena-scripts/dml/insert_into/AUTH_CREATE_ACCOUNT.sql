@@ -26,4 +26,7 @@ SELECT
 	CAST(date_format(now(), '%Y%m%d') as INT) AS processed_date,
 	event_name as event_name
 FROM 
-	"environment-txma-raw"."auth_create_account";
+	"environment-txma-raw"."auth_create_account"
+WHERE
+	CAST(concat(year, month, day) AS INT) > filter_value AND
+	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT);
