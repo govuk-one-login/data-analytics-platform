@@ -22,8 +22,21 @@ StageGlueCrawler:
     Role: !GetAtt StageGlueCrawlerRole.Arn
     Targets:
       S3Targets:
-        - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/DCMAW_APP_START/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/ACCOUNT_MANAGEMENT/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_MFA/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_NEW_PHONE/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_USER_ACCOUNT/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_USER_LOGIN/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/DCMAW_APP/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/DCMAW_CRI/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/IPV_ADDRESS/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/IPV_CI/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/IPV_FRAUD/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/IPV_JOURNEY/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/IPV_KBV/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/IPV_PASSPORT/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/RELYING_PARTY/'
+        - Path: !Sub 's3://${StageLayerBucket}/txma/SPOT/'
     DatabaseName: !Ref StageGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:

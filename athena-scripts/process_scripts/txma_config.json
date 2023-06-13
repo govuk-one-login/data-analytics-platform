@@ -83,5 +83,10 @@
         "event_name": "IPV_PASSPORT_CRI_VC_ISSUED",
         "product_family": "IPV_PASSPORT",
         "enabled": true
+    },
+    {
+        "event_name": "IPV_KBV_CRI_VC_ISSUED",
+        "product_family": "IPV_KBV",
+        "enabled": true
     }
 ]
