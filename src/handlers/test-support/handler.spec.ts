@@ -5,12 +5,28 @@ import { LambdaClient } from '@aws-sdk/client-lambda';
 import { S3Client } from '@aws-sdk/client-s3';
 import type { SdkStream } from '@aws-sdk/types';
 import type { Readable } from 'stream';
+import { getTestResource } from '../../shared/utils/test-utils';
 
 jest.spyOn(console, 'log').mockImplementation(() => undefined);
 jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
 const mockLambdaClient = mockClient(LambdaClient);
 const mockS3Client = mockClient(S3Client);
+
+const EXPECTED_S3_BODY = {
+  event_id: '8e9d3367-f943-411a-b83d-076ab5b96725',
+  event_name: 'DCMAW_CRI_START',
+  client_id: '03A5A659-17AA-453F-B905-95D2804823D1',
+  component_id: 'https://www.review-b.staging.account.gov.uk',
+  user: {
+    govuk_signin_journey_id: '63dba1a7-253c-4698-a228-0e3844ddf0f6',
+  },
+  timestamp: 1684847567,
+  timestamp_formatted: '2023-05-23T13:12:47.000Z',
+  txma: {
+    config_version: '1.2.2',
+  },
+};
 
 beforeEach(() => {
   mockLambdaClient.reset();
@@ -128,13 +144,13 @@ REPORT RequestId: 883eb7bc-96db-4c83-8a8a-68ad3376bc90\tDuration: 27.94 ms\tBill
   expect(mockLambdaClient.calls()).toHaveLength(1);
 });
 
-test('s3 get custom response', async () => {
-  const body = 'Hello, world!';
+test('s3 handle text response', async () => {
+  const jsonFileContent = await getTestResource('raw-event.json');
   const eTag = '950275989e6e0a4789bda200e8054248';
   const lastModified = new Date(2023, 4, 30, 12, 30);
 
   const mockBodyStream: unknown = {
-    transformToString: async () => body,
+    transformToString: async () => jsonFileContent,
   };
   mockS3Client.resolves({
     Body: mockBodyStream as SdkStream<Readable | ReadableStream | Blob>,
@@ -142,15 +158,25 @@ test('s3 get custom response', async () => {
     LastModified: lastModified,
   });
 
-  const event = getEvent({ command: 'S3_GET', input: { Bucket: 'bucket', Key: 'key' } });
-  const response = (await handler(event)) as Record<string, unknown>;
+  await testS3Response(eTag, lastModified, undefined);
+});
 
-  expect(response).toBeDefined();
-  expect(response.body).toEqual(body);
-  expect(response.eTag).toEqual(eTag);
-  expect(response.lastModified).toEqual(lastModified);
+test('s3 handle gzipped response', async () => {
+  const gzippedFile = await getTestResource('raw-event.gz', 'binary');
+  const eTag = '950275989e6e0a4789bda200e8054248';
+  const lastModified = new Date(2023, 4, 30, 12, 30);
 
-  expect(mockS3Client.calls()).toHaveLength(1);
+  const mockBodyStream: unknown = {
+    transformToByteArray: async () => Buffer.from(gzippedFile, 'binary'),
+  };
+  mockS3Client.resolves({
+    Body: mockBodyStream as SdkStream<Readable | ReadableStream | Blob>,
+    ETag: eTag,
+    LastModified: lastModified,
+    ContentEncoding: 'gzip',
+  });
+
+  await testS3Response(eTag, lastModified, 'gzip');
 });
 
 const getEvent = (overrides: { environment?: string; command?: string; input?: object }): TestSupportEvent => {
@@ -159,4 +185,21 @@ const getEvent = (overrides: { environment?: string; command?: string; input?: o
     command: (overrides.command ?? 'LAMBDA_INVOKE') as TestSupportCommand,
     input: overrides.input ?? {},
   };
+};
+
+const testS3Response = async (
+  expectedETag: string,
+  expectedLastModified: Date,
+  expectedContentEncoding: string | undefined
+): Promise<void> => {
+  const event = getEvent({ command: 'S3_GET', input: { Bucket: 'bucket', Key: 'key' } });
+  const response = (await handler(event)) as Record<string, unknown>;
+
+  expect(response).toBeDefined();
+  expect(JSON.parse(response.body as string)).toEqual(EXPECTED_S3_BODY);
+  expect(response.eTag).toEqual(expectedETag);
+  expect(response.lastModified).toEqual(expectedLastModified);
+  expect(response.contentEncoding).toEqual(expectedContentEncoding);
+
+  expect(mockS3Client.calls()).toHaveLength(1);
 };

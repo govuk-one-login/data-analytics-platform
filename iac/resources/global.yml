@@ -48,7 +48,7 @@ TestSupportLambda:
             Action:
               - s3:GetObject
               - s3:ListBucket
-            Resource: !Sub arn:aws:s3:::${AWS::StackName}*
+            Resource: !Sub arn:aws:s3:::${Environment}-dap*
           - Effect: Allow
             Action: sqs:SendMessage
             Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:*
