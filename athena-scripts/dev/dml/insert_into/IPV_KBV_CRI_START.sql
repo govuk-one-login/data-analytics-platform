@@ -1,4 +1,4 @@
-INSERT INTO "dev-txma-stage"."ipv_kbv" (
+INSERT INTO "environment-txma-stage"."ipv_kbv" (
 	event_id,
 	client_id,
 	component_id,
@@ -30,4 +30,4 @@ SELECT
 	CAST(date_format(now(), '%Y%m%d') as INT) AS processed_date,
 	event_name as event_name
 FROM 
-	"dev-txma-raw"."ipv_kbv_cri_start";
+	"environment-txma-raw"."ipv_kbv_cri_start";

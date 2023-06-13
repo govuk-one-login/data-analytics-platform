@@ -1,4 +1,4 @@
-INSERT INTO "dev-txma-stage"."relying_party" (
+INSERT INTO "environment-txma-stage"."relying_party" (
 	event_id,
 	client_id,
 	component_id,
@@ -30,4 +30,4 @@ SELECT
 	CAST(date_format(now(), '%Y%m%d') as INT) AS processed_date,
 	event_name as event_name
 FROM 
-	"dev-txma-raw"."auth_authorisation_initiated";
+	"environment-txma-raw"."auth_authorisation_initiated";
