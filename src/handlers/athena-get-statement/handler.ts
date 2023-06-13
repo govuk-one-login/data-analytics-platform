@@ -17,10 +17,13 @@ export const handler = async (event: RawLayerProcessingEvent): Promise<string> =
 const handleEvent = async (event: Required<RawLayerProcessingEvent>): Promise<string> => {
   const bucket = event.S3MetaDataBucketName;
   const eventName = event.configObject.event_name;
+  const productFamily = event.configObject.product_family;
   switch (event.action) {
     case 'GetPartitionQuery': {
       const key = `${event.datasource}/utils/get_query_partition.sql`;
-      return await getFileDetails(bucket, key).then(body => body.replaceAll('tablename', eventName));
+      return await getFileDetails(bucket, key).then(body =>
+        body.replaceAll('tablename', productFamily).replaceAll('"event_name"', `"${eventName}"`)
+      );
     }
     case 'GetInsertQuery': {
       const key = `${event.datasource}/insert_statements/${eventName}.sql`;

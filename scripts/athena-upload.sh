@@ -4,12 +4,18 @@
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 REGION="eu-west-2"
 ENVIRONMENT=$1
+ENVIRONMENT_LOWER=$(echo "$ENVIRONMENT" | tr '[:upper:]' '[:lower:]')
 
 # validate environment for the benefit of local execution (it will have already been validated if running via the github action)
 "$SCRIPT_DIR/validate-environment.sh" "$ENVIRONMENT"
 
-FILES_ROOT="athena-scripts/$(echo "$ENVIRONMENT" | tr '[:upper:]' '[:lower:]')"
-S3_BUCKET="s3://$(echo "$ENVIRONMENT" | tr '[:upper:]' '[:lower:]')-dap-elt-metadata"
+FILES_ROOT="athena-scripts"
+S3_BUCKET="s3://$ENVIRONMENT_LOWER-dap-elt-metadata"
+
+echo "Replacing environment placeholder in DML files"
+
+# see https://stackoverflow.com/a/28070251 and https://singhkays.com/blog/sed-error-i-expects-followed-by-text for why sed -i gets an empty string arg
+find "$FILES_ROOT"/dml -type f -name "*.sql" -print0 | xargs -0 sed -i'' "s/environment/$ENVIRONMENT_LOWER/g"
 
 echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"
 

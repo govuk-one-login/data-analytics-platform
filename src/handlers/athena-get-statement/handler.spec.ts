@@ -18,11 +18,13 @@ const mockS3Client = mockClient(S3Client);
 let TEST_EVENT: Required<RawLayerProcessingEvent>;
 let DATASOURCE: string;
 let EVENT_NAME: string;
+let PRODUCT_FAMILY: string;
 
 beforeAll(async () => {
   TEST_EVENT = JSON.parse(await getTestResource('AthenaGetStatementEvent.json'));
   DATASOURCE = TEST_EVENT.datasource;
   EVENT_NAME = TEST_EVENT.configObject.event_name;
+  PRODUCT_FAMILY = TEST_EVENT.configObject.product_family;
 });
 
 beforeEach(() => mockS3Client.reset());
@@ -106,7 +108,7 @@ test('bad row or data', async () => {
 
 test('get insert query success', async () => {
   const mockBodyStream: unknown = {
-    transformToString: async () => await getTestResource('auth_create_account.sql'),
+    transformToString: async () => await getTestResource('AUTH_CREATE_ACCOUNT.sql'),
   };
   // make the mock client reject on any call except one with the correct S3 bucket and key
   mockS3Client
@@ -122,7 +124,7 @@ test('get insert query success', async () => {
   expect(response).toBeDefined();
   const expectedFilterValue =
     TEST_EVENT.configObject.queryResult.ResultSet?.Rows?.at(1)?.Data?.at(0)?.VarCharValue?.toString() ?? '';
-  expect(response).toContain(`WHERE CAST(concat(year, month, day) AS INT) > ${expectedFilterValue} AND`);
+  expect(response).toContain(`CAST(concat(year, month, day) AS INT) > ${expectedFilterValue} AND`);
   expect(mockS3Client.calls()).toHaveLength(1);
 });
 
@@ -142,8 +144,10 @@ test('get partition query success', async () => {
   const response = await handler({ ...TEST_EVENT, action: 'GetPartitionQuery' });
 
   expect(response).toBeDefined();
-  expect(response).toContain(`FROM "stage-layer"."${EVENT_NAME}$partitions"`);
-  expect(response).toContain(`FROM "stage-layer"."${EVENT_NAME}" stg,`);
+  expect(response).toContain(`FROM "environment-txma-stage"."${PRODUCT_FAMILY}$partitions"`);
+  expect(response).toContain(`FROM "environment-txma-stage"."${PRODUCT_FAMILY}" stg,`);
+  expect(response).toContain(`WHERE event_name = "${EVENT_NAME}"`);
+  expect(response).toContain(`event_name = "${EVENT_NAME}" AND`);
   expect(mockS3Client.calls()).toHaveLength(1);
 });
 

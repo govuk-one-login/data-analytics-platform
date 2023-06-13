@@ -1,14 +1,17 @@
 WITH get_latest_stg_processed_dt AS (
 	SELECT coalesce(max(processed_date), 20000101) as processed_date
-	FROM "stage-layer"."tablename$partitions"
+	FROM "environment-txma-stage"."tablename$partitions"
+	WHERE event_name = "event_name"
 ),
 get_stg_partitions AS (
 	SELECT DISTINCT year,
 		month,
 		day
-	FROM "stage-layer"."tablename" stg,
+	FROM "environment-txma-stage"."tablename" stg,
 		get_latest_stg_processed_dt
-	WHERE stg.processed_date = get_latest_stg_processed_dt.processed_date
+	WHERE 
+		event_name = "event_name" AND
+		stg.processed_date = get_latest_stg_processed_dt.processed_date
 ),
 get_stg_filter_values AS (
 	SELECT MAX(
