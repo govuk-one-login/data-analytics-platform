@@ -45,8 +45,10 @@ const validateEvent = (event: RawLayerProcessingEvent): Required<RawLayerProcess
     throw new Error(`Unknown action "${action}"`);
   }
   const rows = configObject?.queryResult?.ResultSet?.Rows;
-  if (rows === null || rows === undefined) {
-    throw new Error(`Missing ConfigObject, ResultSet or Rows`);
+  if (action === 'GetInsertQuery') {
+    if (rows === null || rows === undefined) {
+      throw new Error(`Missing ConfigObject, ResultSet or Rows`);
+    }
   }
   return { datasource, S3MetaDataBucketName, action, configObject };
 };
