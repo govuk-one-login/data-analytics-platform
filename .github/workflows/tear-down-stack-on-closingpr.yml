@@ -28,6 +28,6 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_{0}', inputs.environment)] }}
+          role-to-assume: ${{ secrets.GH_ACTIONS_ROLE_ARN_DEV }}
       - name: Tear down Cloudformation stack
         run: npm run sam:teardown
