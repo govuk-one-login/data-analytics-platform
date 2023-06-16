@@ -5,14 +5,20 @@ import { getEnvironmentVariable } from '../../shared/utils/utils';
 
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   const batchItemFailures: SQSBatchItemFailure[] = [];
+  const shouldLog = shouldLogEvents();
+
   await Promise.all(
     event.Records.map(async record => {
+      if (shouldLog) {
+        console.log(`Received record with message id ${record.messageId} with event ${JSON.stringify(record.body)}`);
+      }
+
       try {
         const buffer = getBodyAsBuffer(record);
         const firehoseRequest = getFirehoseCommand(buffer);
         await sendMessageToKinesisFirehose(firehoseRequest);
       } catch (e) {
-        console.error(`Error in TxMA Event Consumer for record with body "${record.body}"`, e);
+        console.error(`Error in TxMA Event Consumer for record with body "${JSON.stringify(record.body)}"`, e);
         batchItemFailures.push({ itemIdentifier: record.messageId });
       }
     })
@@ -46,4 +52,13 @@ const getFirehoseCommand = (body: Uint8Array): PutRecordCommand => {
       Data: body,
     },
   });
+};
+
+const shouldLogEvents = (): boolean => {
+  try {
+    const environment = getEnvironmentVariable('ENVIRONMENT');
+    return environment === 'dev' || environment === 'test';
+  } catch (e) {
+    return false;
+  }
 };
