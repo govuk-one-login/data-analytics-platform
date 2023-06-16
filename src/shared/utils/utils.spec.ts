@@ -6,8 +6,7 @@ import {
   parseS3ResponseAsString,
 } from './utils';
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
-import type { SdkStream } from '@aws-sdk/types';
-import type { Readable } from 'stream';
+import { mockS3BodyStream } from './test-utils';
 
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 test('get required params correctly errors', () => {
@@ -87,11 +86,8 @@ test('parse s3 response as object', async () => {
 });
 
 const mockS3Response = (body: unknown): GetObjectCommandOutput => {
-  const mockBodyStream: unknown = {
-    transformToString: async () => body,
-  };
   return {
-    Body: mockBodyStream as SdkStream<Readable | ReadableStream | Blob>,
+    Body: mockS3BodyStream({ stringValue: body }),
     $metadata: {},
   };
 };

@@ -1,14 +1,12 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getTestResource } from '../../shared/utils/test-utils';
+import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
 import { handler } from './handler';
 import type {
   RawLayerProcessingAction,
   RawLayerProcessingConfigObject,
   RawLayerProcessingEvent,
 } from '../../shared/types/raw-layer-processing';
-import type { SdkStream } from '@aws-sdk/types';
-import type { Readable } from 'stream';
 
 jest.spyOn(console, 'log').mockImplementation(() => undefined);
 jest.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -20,14 +18,18 @@ let DATASOURCE: string;
 let EVENT_NAME: string;
 let PRODUCT_FAMILY: string;
 
-beforeAll(async () => {
-  TEST_EVENT = JSON.parse(await getTestResource('AthenaGetStatementEvent.json'));
+const setTestEvent = async (action: RawLayerProcessingAction): Promise<void> => {
+  const event = JSON.parse(await getTestResource('AthenaGetStatementEvent.json'));
+  TEST_EVENT = { ...event, action }
   DATASOURCE = TEST_EVENT.datasource;
   EVENT_NAME = TEST_EVENT.configObject.event_name;
   PRODUCT_FAMILY = TEST_EVENT.configObject.product_family;
-});
+}
 
-beforeEach(() => mockS3Client.reset());
+beforeEach(async () => {
+  mockS3Client.reset();
+  await setTestEvent('GetInsertQuery');
+});
 
 test('missing required params', async () => {
   mockS3Client.resolves({});
@@ -69,7 +71,7 @@ test('unknown action', async () => {
   expect(mockS3Client.calls()).toHaveLength(0);
 });
 
-test('bad config object', async () => {
+test('getinsertquery needs valid config object', async () => {
   mockS3Client.resolves({});
 
   // different error here as it's caused by getRequiredParams
@@ -85,6 +87,22 @@ test('bad config object', async () => {
   expect(mockS3Client.calls()).toHaveLength(0);
 });
 
+test('getpartitionquery does not need valid config object', async () => {
+  await setTestEvent('GetPartitionQuery');
+  mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: 'hello' }) });
+
+  // different error here as it's caused by getRequiredParams
+  await testBadConfig(null, 'Object is missing the following required fields: configObject');
+
+  await handler(eventWithBadConfigObject({}));
+  await handler(eventWithBadConfigObject({ queryResult: null }));
+  await handler(eventWithBadConfigObject({ queryResult: {} }));
+  await handler(eventWithBadConfigObject({ queryResult: { ResultSet: null } }));
+  await handler(eventWithBadConfigObject({ queryResult: { ResultSet: {} } }));
+  await handler(eventWithBadConfigObject({ queryResult: { ResultSet: { Rows: null } } }));
+  expect(mockS3Client.calls()).toHaveLength(6);
+});
+
 test('client error', async () => {
   mockS3Client.rejectsOnce('S3 Error');
 
@@ -92,7 +110,7 @@ test('client error', async () => {
   expect(mockS3Client.calls()).toHaveLength(1);
 });
 
-test('bad row or data', async () => {
+test('getinsertquery needs valid row and data', async () => {
   mockS3Client.resolves({});
 
   const expectedError = 'Row number 1 or its Data at position 0 is missing or invalid';
@@ -106,10 +124,21 @@ test('bad row or data', async () => {
   expect(mockS3Client.calls()).toHaveLength(0);
 });
 
+test('getpartitionquery does not need valid row and data', async () => {
+  await setTestEvent('GetPartitionQuery');
+  mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: 'hello' }) });
+
+  await handler(eventWithBadConfigObject({ queryResult: { ResultSet: { Rows: [] } } }));
+  await handler(eventWithBadConfigObject({ queryResult: { ResultSet: { Rows: [null] } } }));
+  await handler(eventWithBadConfigObject({ queryResult: { ResultSet: { Rows: [{}] } } }));
+  await handler(eventWithBadConfigObject({ queryResult: { ResultSet: { Rows: [{ Data: null }] } } }));
+  await handler(eventWithBadConfigObject({ queryResult: { ResultSet: { Rows: [{ Data: {} }] } } }));
+  await handler(eventWithBadConfigObject({ queryResult: { ResultSet: { Rows: [{ Data: { VarCharValue: null } }] } } }));
+  await handler(eventWithBadConfigObject({ queryResult: { ResultSet: { Rows: [{ Data: { VarCharValue: undefined } }] } } }));
+  expect(mockS3Client.calls()).toHaveLength(7);
+});
+
 test('get insert query success', async () => {
-  const mockBodyStream: unknown = {
-    transformToString: async () => await getTestResource('AUTH_CREATE_ACCOUNT.sql'),
-  };
   // make the mock client reject on any call except one with the correct S3 bucket and key
   mockS3Client
     .rejects()
@@ -117,7 +146,7 @@ test('get insert query success', async () => {
       Bucket: TEST_EVENT.S3MetaDataBucketName,
       Key: `${DATASOURCE}/insert_statements/${EVENT_NAME}.sql`,
     })
-    .resolves({ Body: mockBodyStream as SdkStream<Readable | ReadableStream | Blob> });
+    .resolves({ Body: mockS3BodyStream({ stringValue: await getTestResource('AUTH_CREATE_ACCOUNT.sql') }) });
 
   const response = await handler({ ...TEST_EVENT, action: 'GetInsertQuery' });
 
@@ -129,9 +158,6 @@ test('get insert query success', async () => {
 });
 
 test('get partition query success', async () => {
-  const mockBodyStream: unknown = {
-    transformToString: async () => await getTestResource('get_query_partition.sql'),
-  };
   // make the mock client reject on any call except one with the correct S3 bucket and key
   mockS3Client
     .rejects()
@@ -139,7 +165,7 @@ test('get partition query success', async () => {
       Bucket: TEST_EVENT.S3MetaDataBucketName,
       Key: `${DATASOURCE}/utils/get_query_partition.sql`,
     })
-    .resolves({ Body: mockBodyStream as SdkStream<Readable | ReadableStream | Blob> });
+    .resolves({ Body: mockS3BodyStream({ stringValue: await getTestResource('get_query_partition.sql') }) });
 
   const response = await handler({ ...TEST_EVENT, action: 'GetPartitionQuery' });
 
