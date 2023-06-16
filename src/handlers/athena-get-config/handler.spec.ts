@@ -1,10 +1,8 @@
 import { handler } from './handler';
 import { S3Client } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
-import type { Readable } from 'stream';
-import type { SdkStream } from '@aws-sdk/types';
 import type { RawLayerProcessingEvent } from '../../shared/types/raw-layer-processing';
-import { getTestResource } from '../../shared/utils/test-utils';
+import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
 
 jest.spyOn(console, 'log').mockImplementation(() => undefined);
 jest.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -42,20 +40,14 @@ test('client error', async () => {
 });
 
 test('body is undefined', async () => {
-  const mockBodyStream: unknown = {
-    transformToString: async () => undefined,
-  };
-  mockS3Client.resolves({ Body: mockBodyStream as SdkStream<Readable | ReadableStream | Blob> });
+  mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: undefined }) });
 
   await expect(handler(TEST_EVENT)).rejects.toThrow('S3 response body was undefined');
   expect(mockS3Client.calls()).toHaveLength(1);
 });
 
 test('bad json', async () => {
-  const mockBodyStream: unknown = {
-    transformToString: async () => 'hi',
-  };
-  mockS3Client.resolves({ Body: mockBodyStream as SdkStream<Readable | ReadableStream | Blob> });
+  mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: 'hi' }) });
 
   await expect(handler(TEST_EVENT)).rejects.toThrow(
     'Error parsing JSON string "hi". Original error: SyntaxError: Unexpected token h in JSON at position 0'
@@ -64,10 +56,7 @@ test('bad json', async () => {
 });
 
 test('success', async () => {
-  const mockBodyStream: unknown = {
-    transformToString: async () => await getTestResource('txma_config.json'),
-  };
-  mockS3Client.resolves({ Body: mockBodyStream as SdkStream<Readable | ReadableStream | Blob> });
+  mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: await getTestResource('txma_config.json') }) });
 
   const response = await handler(TEST_EVENT);
   expect(response).toBeDefined();

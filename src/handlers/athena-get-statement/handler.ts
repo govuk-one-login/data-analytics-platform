@@ -1,4 +1,4 @@
-import { getRequiredParams, parseS3ResponseAsString } from '../../shared/utils/utils';
+import { getEnvironmentVariable, getRequiredParams, parseS3ResponseAsString } from '../../shared/utils/utils';
 import { s3Client } from '../../shared/clients';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import type { RawLayerProcessingEvent } from '../../shared/types/raw-layer-processing';
@@ -17,10 +17,13 @@ export const handler = async (event: RawLayerProcessingEvent): Promise<string> =
 const handleEvent = async (event: Required<RawLayerProcessingEvent>): Promise<string> => {
   const bucket = event.S3MetaDataBucketName;
   const eventName = event.configObject.event_name;
+  const productFamily = event.configObject.product_family;
   switch (event.action) {
     case 'GetPartitionQuery': {
       const key = `${event.datasource}/utils/get_query_partition.sql`;
-      return await getFileDetails(bucket, key).then(body => body.replaceAll('tablename', eventName));
+      return await getFileDetails(bucket, key).then(body =>
+        body.replaceAll('tablename', productFamily).replaceAll('"event_name"', `"${eventName}"`)
+      );
     }
     case 'GetInsertQuery': {
       const key = `${event.datasource}/insert_statements/${eventName}.sql`;
@@ -42,18 +45,24 @@ const validateEvent = (event: RawLayerProcessingEvent): Required<RawLayerProcess
     throw new Error(`Unknown action "${action}"`);
   }
   const rows = configObject?.queryResult?.ResultSet?.Rows;
-  if (rows === null || rows === undefined) {
-    throw new Error(`Missing ConfigObject, ResultSet or Rows`);
+  if (action === 'GetInsertQuery') {
+    if (rows === null || rows === undefined) {
+      throw new Error(`Missing ConfigObject, ResultSet or Rows`);
+    }
   }
   return { datasource, S3MetaDataBucketName, action, configObject };
 };
 
 const getFileDetails = async (bucket: string, key: string): Promise<string> => {
+  const environment = getEnvironmentVariable('ENVIRONMENT');
   const request = new GetObjectCommand({
     Bucket: bucket,
     Key: key,
   });
-  return await s3Client.send(request).then(async response => await parseS3ResponseAsString(response));
+  return await s3Client
+    .send(request)
+    .then(parseS3ResponseAsString)
+    .then(response => response.replaceAll('environment', environment));
 };
 
 const extractRowValue = (event: Required<RawLayerProcessingEvent>, rowNumber: number, dataNumber: number): string => {

@@ -8,7 +8,7 @@ ENVIRONMENT=$1
 # validate environment for the benefit of local execution (it will have already been validated if running via the github action)
 "$SCRIPT_DIR/validate-environment.sh" "$ENVIRONMENT"
 
-FILES_ROOT="athena-scripts/$(echo "$ENVIRONMENT" | tr '[:upper:]' '[:lower:]')"
+FILES_ROOT="athena-scripts"
 S3_BUCKET="s3://$(echo "$ENVIRONMENT" | tr '[:upper:]' '[:lower:]')-dap-elt-metadata"
 
 echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"

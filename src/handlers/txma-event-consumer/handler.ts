@@ -1,6 +1,7 @@
 import type { SQSBatchItemFailure, SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import { PutRecordCommand } from '@aws-sdk/client-firehose';
 import { firehoseClient } from '../../shared/clients';
+import { getEnvironmentVariable } from '../../shared/utils/utils';
 
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   const batchItemFailures: SQSBatchItemFailure[] = [];
@@ -38,10 +39,7 @@ const getBodyAsBuffer = (record: SQSRecord): Uint8Array => {
 };
 
 const getFirehoseCommand = (body: Uint8Array): PutRecordCommand => {
-  const deliveryStreamName = process.env.FIREHOSE_STREAM_NAME;
-  if (deliveryStreamName === undefined || deliveryStreamName.length === 0) {
-    throw new Error('FIREHOSE_STREAM_NAME is not defined in this environment');
-  }
+  const deliveryStreamName = getEnvironmentVariable('FIREHOSE_STREAM_NAME');
   return new PutRecordCommand({
     DeliveryStreamName: deliveryStreamName,
     Record: {

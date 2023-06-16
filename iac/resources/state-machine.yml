@@ -117,7 +117,7 @@ StepFunctionRole:
 
             - Effect: Allow
               Resource:
-                - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/dap-txma-processing'
+                - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${Environment}-dap-txma-processing'
                 - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:datacatalog/*'
               Action:
                 - athena:CreatePreparedStatement
