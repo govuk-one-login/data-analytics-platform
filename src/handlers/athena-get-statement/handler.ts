@@ -1,4 +1,4 @@
-import { getRequiredParams, parseS3ResponseAsString } from '../../shared/utils/utils';
+import { getEnvironmentVariable, getRequiredParams, parseS3ResponseAsString } from '../../shared/utils/utils';
 import { s3Client } from '../../shared/clients';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import type { RawLayerProcessingEvent } from '../../shared/types/raw-layer-processing';
@@ -54,11 +54,15 @@ const validateEvent = (event: RawLayerProcessingEvent): Required<RawLayerProcess
 };
 
 const getFileDetails = async (bucket: string, key: string): Promise<string> => {
+  const environment = getEnvironmentVariable('ENVIRONMENT');
   const request = new GetObjectCommand({
     Bucket: bucket,
     Key: key,
   });
-  return await s3Client.send(request).then(async response => await parseS3ResponseAsString(response));
+  return await s3Client
+    .send(request)
+    .then(parseS3ResponseAsString)
+    .then(response => response.replaceAll('environment', environment));
 };
 
 const extractRowValue = (event: Required<RawLayerProcessingEvent>, rowNumber: number, dataNumber: number): string => {
