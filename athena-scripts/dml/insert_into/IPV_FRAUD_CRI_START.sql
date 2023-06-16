@@ -19,8 +19,8 @@ SELECT
 	event_id as event_id,
 	'' as client_id,
 	component_id as component_id,
-	user.govuk_signin_journey_id as user_govuk_signin_journey_id,
-	'' as user_user_id,
+	user_govuk_signin_journey_id as user_govuk_signin_journey_id,
+	user_user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
 	'' as extensions_experiancrosscoreresponse,
@@ -35,4 +35,5 @@ FROM
 	"environment-txma-raw"."ipv_fraud_cri_start"
 WHERE
 	CAST(concat(year, month, day) AS INT) > filter_value AND
-	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT);
+	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)
+;

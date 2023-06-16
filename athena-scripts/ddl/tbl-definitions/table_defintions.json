@@ -112,7 +112,7 @@
         "user_user_id": "string",
         "timestamp": "int",
         "timestamp_formatted": "string",
-        "extensions_addressentered": "string",
+        "extensions_addressesentered": "string",
         "year": "int",
         "month": "int",
         "day": "int"
