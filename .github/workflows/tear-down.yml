@@ -31,3 +31,5 @@ jobs:
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_{0}', inputs.environment)] }}
       - name: Empty S3 buckets in the stack
         run: npm run s3:empty-buckets
+      - name: Delete CF stack
+        run: sam delete  
