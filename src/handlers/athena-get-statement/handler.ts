@@ -22,7 +22,7 @@ const handleEvent = async (event: Required<RawLayerProcessingEvent>): Promise<st
     case 'GetPartitionQuery': {
       const key = `${event.datasource}/utils/get_query_partition.sql`;
       return await getFileDetails(bucket, key).then(body =>
-        body.replaceAll('tablename', productFamily).replaceAll('"event_name"', `"${eventName}"`)
+        body.replaceAll('tablename', productFamily).replaceAll('"event_name"', `'${eventName}'`)
       );
     }
     case 'GetInsertQuery': {
