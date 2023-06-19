@@ -1,0 +1,8 @@
+{
+  "environment": "dev",
+  "command": "LAMBDA_INVOKE",
+  "input": {
+    "FunctionName": "hello-world",
+    "Payload": "{ \"hello\": \"world\" }"
+  }
+}

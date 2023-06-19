@@ -1,0 +1,7 @@
+{
+  "environment": "dev",
+  "command": "S3_LIST",
+  "input": {
+    "Bucket": "dev-dap-raw-layer"
+  }
+}
