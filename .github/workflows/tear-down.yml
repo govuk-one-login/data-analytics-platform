@@ -32,4 +32,4 @@ jobs:
       - name: Empty S3 buckets in the stack
         run: npm run s3:empty-buckets
       - name: Delete CF stack
-        run: sam delete  
+        run: sam delete --stack-name dap
