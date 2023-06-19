@@ -115,7 +115,8 @@ Lambdas can be run locally with [sam local invoke](https://docs.aws.amazon.com/s
 
 * Docker is running
 * Lambda you wish to run has been built into a `.js` file (`npm run build`)
-* Lambda you wish to run is defined in CloudFormation (`template.yml`)
+* Lambda you wish to run is defined in CloudFormation and has been built into the top-level `template.yml` file (`npm run iac:build`)
+  * You can use the CloudFormation resource name (e.g. `AthenaGetConfigLambda` or `EventConsumerLambda`) to refer to the lambda in the invoke command
 * SAM application has been built (`sam build`)
     * **Order matters here** - this command copies the lambda JS into `.aws-sam/`, so make sure `npm run build` has been run beforehand
 * You have defined a JSON file (ideally [here](sam-local-examples)) containing the event you wish to be the input event of the lambda (unless you don't need an input event)
@@ -124,13 +125,14 @@ Lambdas can be run locally with [sam local invoke](https://docs.aws.amazon.com/s
 An example invocation might be
 ```shell
 npm run build
+npm run iac:build
 sam build
 
 # invoke with no input event or environment vars
-sam local invoke txma-event-consumer
+sam local invoke EventConsumerLambda
 
 # invoke specifying both an input event and environment variables
-sam local invoke txma-event-consumer --env-vars sam-local-examples/env.json --event sam-local-examples/txma-event-consumer/valid.json
+sam local invoke EventConsumerLambda --env-vars sam-local-examples/env.json --event sam-local-examples/txma-event-consumer/valid.json
 ```
 
 ###### A note on args
