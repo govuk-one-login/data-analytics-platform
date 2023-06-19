@@ -19,7 +19,7 @@
     "@types/jest": "^29.5.2",
     "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^5.59.9",
-    "@typescript-eslint/parser": "^5.59.9",
+    "@typescript-eslint/parser": "^5.59.11",
     "aws-sdk-client-mock": "^2.1.1",
     "esbuild": "^0.17.19",
     "esbuild-jest": "^0.5.0",
