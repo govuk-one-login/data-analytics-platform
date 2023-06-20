@@ -1,0 +1,8 @@
+{
+  "environment": "dev",
+  "command": "SQS_SEND",
+  "input": {
+    "QueueUrl": "<paste here>",
+    "MessageBody": "{\"hello\":\"world\"}"
+  }
+}

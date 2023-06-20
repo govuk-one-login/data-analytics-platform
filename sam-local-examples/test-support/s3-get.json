@@ -1,0 +1,8 @@
+{
+  "environment": "dev",
+  "command": "S3_GET",
+  "input": {
+    "Bucket": "txma-events-dev",
+    "Key": "message_sample_1.json"
+  }
+}
