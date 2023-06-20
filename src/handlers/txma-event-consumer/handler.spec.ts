@@ -3,13 +3,14 @@ import { mockSQSEvent } from '../../shared/utils/test-utils';
 import { FirehoseClient } from '@aws-sdk/client-firehose';
 import { mockClient } from 'aws-sdk-client-mock';
 
-jest.spyOn(console, 'log').mockImplementation(() => undefined);
+const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
 const mockFirehoseClient = mockClient(FirehoseClient);
 
 beforeEach(() => {
   mockFirehoseClient.reset();
+  consoleLogSpy.mockReset();
   process.env.FIREHOSE_STREAM_NAME = 'stream-name';
 });
 
@@ -64,4 +65,31 @@ test('batch error handling', async () => {
   expect(response.batchItemFailures).toHaveLength(2);
   expect(response.batchItemFailures.map(failure => failure.itemIdentifier)).toEqual(expect.arrayContaining(['1', '3']));
   expect(mockFirehoseClient.calls()).toHaveLength(3);
+});
+
+test('logs in dev', async () => {
+  mockFirehoseClient.resolves({});
+  process.env.ENVIRONMENT = 'dev';
+
+  const sqsEvent = mockSQSEvent('{"hello":"world"}');
+  const response = await handler(sqsEvent);
+
+  expect(response.batchItemFailures).toHaveLength(0);
+  expect(mockFirehoseClient.calls()).toHaveLength(1);
+  expect(consoleLogSpy).toHaveBeenCalledTimes(1);
+  expect(consoleLogSpy).toHaveBeenCalledWith(
+    'Received record with message id 1 with event "{\\"hello\\":\\"world\\"}"'
+  );
+});
+
+test('does not log in build', async () => {
+  mockFirehoseClient.resolves({});
+  process.env.ENVIRONMENT = 'build';
+
+  const sqsEvent = mockSQSEvent('{"hello":"world"}');
+  const response = await handler(sqsEvent);
+
+  expect(response.batchItemFailures).toHaveLength(0);
+  expect(mockFirehoseClient.calls()).toHaveLength(1);
+  expect(consoleLogSpy).toHaveBeenCalledTimes(0);
 });

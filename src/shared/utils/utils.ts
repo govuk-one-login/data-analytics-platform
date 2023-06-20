@@ -53,6 +53,14 @@ export const parseS3ResponseAsString = async (s3Response: GetObjectCommandOutput
   return (await s3Response.Body?.transformToString('utf-8')) ?? throwExpression('S3 response body was undefined');
 };
 
+export const getEnvironmentVariable = (key: string): string => {
+  const value = process.env[key];
+  if (value === undefined || value.length === 0) {
+    throw new Error(`${key} is not defined in this environment`);
+  }
+  return value;
+};
+
 // see https://stackoverflow.com/a/65666402
 const throwExpression = (message: string): never => {
   throw new Error(message);

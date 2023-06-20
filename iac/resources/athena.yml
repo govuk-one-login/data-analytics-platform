@@ -63,6 +63,10 @@ AthenaGetStatementLambda:
               - s3:GetObject
               - s3:ListBucket
             Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
-    ReservedConcurrentExecutions: 10
+    ReservedConcurrentExecutions: 30
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
     Tags:
       Environment: !Ref Environment

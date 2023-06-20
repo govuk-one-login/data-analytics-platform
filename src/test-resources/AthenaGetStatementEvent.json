@@ -4,6 +4,7 @@
   "action": "GetInsertQuery",
   "configObject": {
     "event_name": "auth_create_account",
+    "product_family": "auth_user_account",
     "enabled": true,
     "sqlText": {
       "ExecutedVersion": "$LATEST",

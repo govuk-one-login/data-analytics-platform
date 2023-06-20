@@ -1,0 +1,16 @@
+name: Tear down test environment
+
+on: workflow_dispatch
+
+jobs:
+
+  tear-down-test:
+    # needs: [test-and-validate]
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/tear-down.yml
+    with:
+      environment: TEST

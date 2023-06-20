@@ -42,6 +42,7 @@ EventConsumerLambda:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
         FIREHOSE_STREAM_NAME: !Sub '${Environment}-${DeliveryStreamName}'
+        ENVIRONMENT: !Ref Environment
     Tags:
       Environment: !Ref Environment
 

@@ -1,11 +1,9 @@
-import { handler } from './handler';
 import type { TestSupportCommand, TestSupportEnvironment, TestSupportEvent } from './handler';
+import { handler } from './handler';
 import { mockClient } from 'aws-sdk-client-mock';
 import { LambdaClient } from '@aws-sdk/client-lambda';
 import { S3Client } from '@aws-sdk/client-s3';
-import type { SdkStream } from '@aws-sdk/types';
-import type { Readable } from 'stream';
-import { getTestResource } from '../../shared/utils/test-utils';
+import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
 
 jest.spyOn(console, 'log').mockImplementation(() => undefined);
 jest.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -149,11 +147,8 @@ test('s3 handle text response', async () => {
   const eTag = '950275989e6e0a4789bda200e8054248';
   const lastModified = new Date(2023, 4, 30, 12, 30);
 
-  const mockBodyStream: unknown = {
-    transformToString: async () => jsonFileContent,
-  };
   mockS3Client.resolves({
-    Body: mockBodyStream as SdkStream<Readable | ReadableStream | Blob>,
+    Body: mockS3BodyStream({ stringValue: jsonFileContent }),
     ETag: eTag,
     LastModified: lastModified,
   });
@@ -166,11 +161,8 @@ test('s3 handle gzipped response', async () => {
   const eTag = '950275989e6e0a4789bda200e8054248';
   const lastModified = new Date(2023, 4, 30, 12, 30);
 
-  const mockBodyStream: unknown = {
-    transformToByteArray: async () => Buffer.from(gzippedFile, 'binary'),
-  };
   mockS3Client.resolves({
-    Body: mockBodyStream as SdkStream<Readable | ReadableStream | Blob>,
+    Body: mockS3BodyStream({ byteValue: Buffer.from(gzippedFile, 'binary') }),
     ETag: eTag,
     LastModified: lastModified,
     ContentEncoding: 'gzip',

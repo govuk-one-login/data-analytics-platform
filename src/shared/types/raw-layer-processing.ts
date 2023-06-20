@@ -13,6 +13,7 @@ export interface RawLayerProcessingEvent {
 
 export interface RawLayerProcessingConfigObject {
   event_name: string;
+  product_family: string;
   enabled: boolean;
   sqlText: unknown;
   queryResult: GetQueryResultsOutput;
