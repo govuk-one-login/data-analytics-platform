@@ -1,0 +1,9 @@
+{
+  "environment": "dev",
+  "command": "CLOUDWATCH_GET",
+  "input": {
+    "logGroupName": "/aws/lambda/test-support-dev",
+    "logStreamName": "2023/06/19/[$LATEST]37c46301f5c240fa93d1357ff359d0f7",
+    "startTime": 0
+  }
+}

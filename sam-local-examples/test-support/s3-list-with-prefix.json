@@ -1,0 +1,8 @@
+{
+  "environment": "dev",
+  "command": "S3_LIST",
+  "input": {
+    "Bucket": "dev-dap-raw-layer",
+    "Prefix": "txma/AUTH_CREATE_ACCOUNT/year=2023/month=06/day=19"
+  }
+}
