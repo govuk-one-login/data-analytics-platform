@@ -56,13 +56,12 @@ AccountManagementGlueTable:
           - Name: day
             Type: int
         InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
-        Location: !Sub s3://${StorageBucket}/txma/account_management/
+        Location: !Sub s3://${StageLayerBucket}/txma/account_management/
         OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
         SerdeInfo:
-            Parameters:
-              serialiazation.format: 1
-            SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
-
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
 
 StageGlueCrawler:
   Type: AWS::Glue::Crawler
