@@ -28,7 +28,7 @@ AccountManagementGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: ACCOUNT_MANAGEMENT
+      Name: account_management
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -69,7 +69,7 @@ AuthMfaGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: AUTH_MFA
+      Name: auth_mfa
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -114,7 +114,7 @@ AuthNewPhoneGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: AUTH_NEW_PHONE
+      Name: auth_new_phone
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -161,7 +161,7 @@ AuthUserAccountGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: AUTH_USER_ACCOUNT
+      Name: auth_user_account
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -202,7 +202,7 @@ AuthUserLoginGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: AUTH_USER_LOGIN
+      Name: auth_user_login
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -243,7 +243,7 @@ DcmawAppGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: DCMAW_APP
+      Name: dcmaw_app
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -284,7 +284,7 @@ DcmawCriGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: DCMAW_CRI
+      Name: dcmaw_cri
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -327,7 +327,7 @@ IpvAddressGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: IPV_ADDRESS
+      Name: ipv_address
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -370,7 +370,7 @@ IpvCiGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: IPV_CI
+      Name: ipv_ci
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -411,7 +411,7 @@ IpvFraudGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: IPV_FRAUD
+      Name: ipv_fraud
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -458,7 +458,7 @@ IpvJourneyGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: IPV_JOURNEY
+      Name: ipv_journey
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -513,7 +513,7 @@ IpvKbvGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: IPV_KBV
+      Name: ipv_kbv
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -558,7 +558,7 @@ IpvPassportGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: IPV_PASSPORT
+      Name: ipv_passport
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -603,7 +603,7 @@ RelyingPartyGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: RELYING_PARTY
+      Name: relying_party
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
@@ -648,7 +648,7 @@ SpotGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: SPOT
+      Name: spot
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: int }
