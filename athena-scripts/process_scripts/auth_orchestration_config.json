@@ -1,0 +1,7 @@
+[
+    {
+        "event_name": "AUTH_AUTHORISATION_INITIATED",
+        "product_family": "AUTH_ORCHESTRATION",
+        "enabled": true
+    }
+]

@@ -1,0 +1,27 @@
+[
+    {
+        "event_name": "IPV_PASSPORT_CRI_END",
+        "product_family": "IPV_CRI_PASSPORT",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_PASSPORT_CRI_REQUEST_SENT",
+        "product_family": "IPV_CRI_PASSPORT",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_PASSPORT_CRI_RESPONSE_RECEIVED",
+        "product_family": "IPV_CRI_PASSPORT",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_PASSPORT_CRI_START",
+        "product_family": "IPV_CRI_PASSPORT",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_PASSPORT_CRI_VC_ISSUED",
+        "product_family": "IPV_CRI_PASSPORT",
+        "enabled": true
+    }
+]

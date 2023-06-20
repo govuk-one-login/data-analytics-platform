@@ -1,0 +1,7 @@
+[
+    {
+        "event_name": "IPV_CRI_AUTH_RESPONSE_RECEIVED",
+        "product_family": "IPV_CONTRA_INDICATOR",
+        "enabled": true
+    }
+]
