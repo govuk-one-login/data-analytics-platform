@@ -17,7 +17,7 @@ SELECT
 	client_id as client_id,
 	component_id as component_id,
 	user.govuk_signin_journey_id as user_govuk_signin_journey_id,
-	'' as user_user_id,
+	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
 	CAST(year as INT) as year,
@@ -29,4 +29,5 @@ FROM
 	"environment-txma-raw"."dcmaw_app_handoff_start"
 WHERE
 	CAST(concat(year, month, day) AS INT) > filter_value AND
-	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT);
+	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)
+;

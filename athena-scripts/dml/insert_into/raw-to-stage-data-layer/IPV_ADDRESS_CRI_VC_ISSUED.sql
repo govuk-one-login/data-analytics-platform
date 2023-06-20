@@ -1,4 +1,4 @@
-INSERT INTO "environment-txma-stage"."auth_user_account" (
+INSERT INTO "environment-txma-stage"."ipv_address" (
 	event_id,
 	client_id,
 	component_id,
@@ -6,6 +6,7 @@ INSERT INTO "environment-txma-stage"."auth_user_account" (
 	user_user_id,
 	timestamp,
 	timestamp_formatted,
+	extensions_addressesentered,
 	year,
 	month,
 	day,
@@ -14,19 +15,21 @@ INSERT INTO "environment-txma-stage"."auth_user_account" (
 )
 SELECT
 	event_id as event_id,
-	client_id as client_id,
+	'' as client_id,
 	component_id as component_id,
 	user.govuk_signin_journey_id as user_govuk_signin_journey_id,
-	'' as user_user_id,
+	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
+	format('%s',cast(extensions.addressesEntered as JSON)) as extensions_addressesentered,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
 	CAST(date_format(now(), '%Y%m%d') as INT) AS processed_date,
 	event_name as event_name
 FROM 
-	"environment-txma-raw"."auth_create_account"
+	"environment-txma-raw"."ipv_address_cri_vc_issued"
 WHERE
 	CAST(concat(year, month, day) AS INT) > filter_value AND
-	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT);
+	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)
+;

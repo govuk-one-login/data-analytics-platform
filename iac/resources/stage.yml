@@ -15,35 +15,709 @@ StageLayerBucket:
     VersioningConfiguration:
       Status: Enabled
 
+StageGlueDatabase:
+  Type: AWS::Glue::Database
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseInput:
+      Name: !Sub ${Environment}-${StageGlueDatabaseName}
+
+AccountManagementGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: account_management
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/ACCOUNT_MANAGEMENT/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+AuthMfaGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: auth_mfa
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: extensions_mfatype
+            Type: string
+          - Name: extensions_notificationtype
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/AUTH_MFA/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+AuthNewPhoneGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: auth_new_phone
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: extensions_evidence
+            Type: string
+          - Name: extensions_iss
+            Type: string
+          - Name: extensions_notificationtype
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/AUTH_NEW_PHONE/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+AuthUserAccountGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: auth_user_account
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/AUTH_USER_ACCOUNT/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+AuthUserLoginGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: auth_user_login
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/AUTH_USER_LOGIN/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+DcmawAppGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: dcmaw_app
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/DCMAW_APP/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+DcmawCriGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: dcmaw_cri
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: extensions_evidence
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/DCMAW_CRI/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+IpvAddressGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: ipv_address
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: extensions_addressesentered
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/IPV_ADDRESS/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+IpvCiGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: ipv_ci
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/IPV_CI/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+IpvFraudGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: ipv_fraud
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: extensions_experiancrosscoreresponse
+            Type: string
+          - Name: extensions_evidence
+            Type: string
+          - Name: extensions_iss
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/IPV_FRAUD/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+IpvJourneyGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: ipv_journey
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: extensions_evidence
+            Type: string
+          - Name: extensions_successful
+            Type: string
+          - Name: extensions_error_code
+            Type: string
+          - Name: extensions_error_description
+            Type: string
+          - Name: extensions_gpg45profile
+            Type: string
+          - Name: extensions_gpg45scores
+            Type: string
+          - Name: extensions_levelofconfidence
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/IPV_JOURNEY/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+IpvKbvGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: ipv_kbv
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: extensions_evidence
+            Type: string
+          - Name: extensions_iss
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/IPV_KBV/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+IpvPassportGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: ipv_passport
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: extensions_evidence
+            Type: string
+          - Name: extensions_iss
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/IPV_PASSPORT/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+RelyingPartyGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: relying_party
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: extensions_clientname
+            Type: string
+          - Name: extensions_description
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/RELYING_PARTY/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+SpotGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref StageGlueDatabase
+    TableInput:
+      Name: spot
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: processed_date, Type: int }
+        - { Name: event_name, Type: string }
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: user_govuk_signin_journey_id
+            Type: string
+          - Name: user_user_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: extensions_reason
+            Type: string
+          - Name: extensions_rejectionreason
+            Type: string
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/SPOT/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
 StageGlueCrawler:
   Type: AWS::Glue::Crawler
   Properties:
     Name: !Sub ${Environment}-stage-txma-datasets
     Role: !GetAtt StageGlueCrawlerRole.Arn
     Targets:
-      S3Targets:
-        - Path: !Sub 's3://${StageLayerBucket}/txma/ACCOUNT_MANAGEMENT/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_MFA/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_NEW_PHONE/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_USER_ACCOUNT/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/AUTH_USER_LOGIN/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/DCMAW_APP/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/DCMAW_CRI/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/IPV_ADDRESS/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/IPV_CI/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/IPV_FRAUD/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/IPV_JOURNEY/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/IPV_KBV/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/IPV_PASSPORT/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/RELYING_PARTY/'
-        - Path: !Sub 's3://${StageLayerBucket}/txma/SPOT/'
+      CatalogTargets:
+        - DatabaseName: !Ref StageGlueDatabase
+          Tables:
+            - !Ref AccountManagementGlueTable
+            - !Ref AuthMfaGlueTable
+            - !Ref AuthNewPhoneGlueTable
+            - !Ref AuthUserAccountGlueTable
+            - !Ref AuthUserLoginGlueTable
+            - !Ref DcmawAppGlueTable
+            - !Ref DcmawCriGlueTable
+            - !Ref IpvAddressGlueTable
+            - !Ref IpvCiGlueTable
+            - !Ref IpvFraudGlueTable
+            - !Ref IpvJourneyGlueTable
+            - !Ref IpvKbvGlueTable
+            - !Ref IpvPassportGlueTable
+            - !Ref RelyingPartyGlueTable
+            - !Ref SpotGlueTable
     DatabaseName: !Ref StageGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
       RecrawlBehavior: CRAWL_EVERYTHING
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
-      DeleteBehavior: DELETE_FROM_DATABASE
+      DeleteBehavior: LOG
     Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
 
 StageGlueCrawlerRole:
@@ -82,10 +756,3 @@ StageGlueCrawlerRole:
               Resource:
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}'
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'
-
-StageGlueDatabase:
-  Type: AWS::Glue::Database
-  Properties:
-    CatalogId: !Sub ${AWS::AccountId}
-    DatabaseInput:
-      Name: !Sub ${Environment}-${StageGlueDatabaseName}

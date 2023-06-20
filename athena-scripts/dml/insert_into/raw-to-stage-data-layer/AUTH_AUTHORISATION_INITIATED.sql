@@ -22,7 +22,7 @@ SELECT
 	'' as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	extensions."client-name" as extensions_clientname,
+	'' as extensions_clientname,
 	'' as extensions_description,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
@@ -33,4 +33,5 @@ FROM
 	"environment-txma-raw"."auth_authorisation_initiated"
 WHERE
 	CAST(concat(year, month, day) AS INT) > filter_value AND
-	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT);
+	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)
+;
