@@ -15,31 +15,214 @@ RawLayerBucket:
     VersioningConfiguration:
       Status: Enabled
 
-RawGlueCrawler:
+AuthAccountCreationCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: !Sub ${Environment}-raw-txma-datasets
+    Name: AUTH_ACCOUNT_CREATION
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+
+AuthOrchestrationCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: AUTH_ORCHESTRATION
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTHORISATION_INITIATED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_CREATE_ACCOUNT/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+
+DcmawAppJourneyCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: DCMAW_APP_JOURNEY
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_ABORT_APP/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_ABORT_WEB/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_APP_END/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_APP_HANDOFF_START/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_APP_START/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_MISSING_CONTEXT_AFTER_ABORT/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_MISSING_CONTEXT_AFTER_COMPLETION/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_REDIRECT_ABORT/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_REDIRECT_SUCCESS/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_SESSION_RECOVERED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_WEB_END/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+
+DcmawCriCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: DCMAW_CRI
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_BRP_SELECTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_CRI_4XXERROR/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_CRI_5XXERROR/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_CRI_ABORT/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_CRI_END/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_CRI_START/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_CRI_VC_ISSUED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_DRIVING_LICENCE_SELECTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_HYBRID_BILLING_STARTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_IPROOV_BILLING_STARTED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_PASSPORT_SELECTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_READID_NFC_BILLING_STARTED/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+
+IpvCriAddressCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: IPV_CRI_ADDRESS
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_ADDRESS_CRI_END/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_ADDRESS_CRI_REQUEST_SENT/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_ADDRESS_CRI_START/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_ADDRESS_CRI_VC_ISSUED/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+
+IpvContraIndicatorCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: IPV_CONTRA_INDICATOR
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_CRI_AUTH_RESPONSE_RECEIVED/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+
+IpvCriFraudCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: IPV_CRI_FRAUD
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_END/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_REQUEST_SENT/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_RESPONSE_RECEIVED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_START/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_VC_ISSUED/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+
+IpvJourneyCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: IPV_JOURNEY
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_DELETE_USER_DATA/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_IDENTITY_REUSE_COMPLETE/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_IDENTITY_REUSE_RESET/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_JOURNEY_END/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_JOURNEY_START/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_REDIRECT_TO_CRI/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_VC_RECEIVED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_SPOT_REQUEST_RECEIVED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_SPOT_RESPONSE_APPROVED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_SPOT_RESPONSE_REJECTED/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+
+IpvCriKbvCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: IPV_CRI_KBV
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_END/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_REQUEST_SENT/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_RESPONSE_RECEIVED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_START/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_THIRD_PARTY_REQUEST_ENDED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_VC_ISSUED/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+
+IpvCriPassportCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: IPV_CRI_PASSPORT
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_END/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_REQUEST_SENT/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_RESPONSE_RECEIVED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_START/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_VC_ISSUED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_VC_ISSUED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
