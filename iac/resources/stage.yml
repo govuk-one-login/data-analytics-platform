@@ -79,7 +79,7 @@ StageGlueCrawler:
       RecrawlBehavior: CRAWL_EVERYTHING
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
-      DeleteBehavior: DELETE_FROM_DATABASE
+      DeleteBehavior: LOG
     Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
 
 StageGlueCrawlerRole:
