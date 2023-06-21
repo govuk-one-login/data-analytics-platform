@@ -18,7 +18,7 @@ RawLayerBucket:
 AuthAccountCreationCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: AUTH_ACCOUNT_CREATION
+    Name: auth_account_creation
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
@@ -35,7 +35,7 @@ AuthAccountCreationCrawler:
 AuthOrchestrationCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: AUTH_ORCHESTRATION
+    Name: auth_orchestration
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
@@ -52,7 +52,7 @@ AuthOrchestrationCrawler:
 DcmawAppJourneyCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: DCMAW_APP_JOURNEY
+    Name: dcmaw_app_journey
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
@@ -79,7 +79,7 @@ DcmawAppJourneyCrawler:
 DcmawCriCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: DCMAW_CRI
+    Name: dcmaw_cri
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
@@ -107,7 +107,7 @@ DcmawCriCrawler:
 IpvCriAddressCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: IPV_CRI_ADDRESS
+    Name: ipv_cri_address
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
@@ -127,7 +127,7 @@ IpvCriAddressCrawler:
 IpvContraIndicatorCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: IPV_CONTRA_INDICATOR
+    Name: ipv_contra_indicator
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
@@ -144,7 +144,7 @@ IpvContraIndicatorCrawler:
 IpvCriFraudCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: IPV_CRI_FRAUD
+    Name: ipv_cri_fraud
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
@@ -166,7 +166,7 @@ IpvCriFraudCrawler:
 IpvJourneyCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: IPV_JOURNEY
+    Name: ipv_journey
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
@@ -192,7 +192,7 @@ IpvJourneyCrawler:
 IpvCriKbvCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: IPV_CRI_KBV
+    Name: ipv_cri_kbv
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
@@ -214,7 +214,7 @@ IpvCriKbvCrawler:
 IpvCriPassportCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: IPV_CRI_PASSPORT
+    Name: ipv_cri_passport
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:

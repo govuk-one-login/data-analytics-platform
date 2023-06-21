@@ -1,32 +1,32 @@
 [
     {
-        "event_name": "IPV_KBV_CRI_END",
-        "product_family": "IPV_CRI_KBV",
+        "event_name": "ipv_kbv_cri_end",
+        "product_family": "ipv_cri_kbv",
         "enabled": true
     },
     {
-        "event_name": "IPV_KBV_CRI_REQUEST_SENT",
-        "product_family": "IPV_CRI_KBV",
+        "event_name": "ipv_kbv_cri_request_sent",
+        "product_family": "ipv_cri_kbv",
         "enabled": true
     },
     {
-        "event_name": "IPV_KBV_CRI_RESPONSE_RECEIVED",
-        "product_family": "IPV_CRI_KBV",
+        "event_name": "ipv_kbv_cri_response_received",
+        "product_family": "ipv_cri_kbv",
         "enabled": true
     },
     {
-        "event_name": "IPV_KBV_CRI_START",
-        "product_family": "IPV_CRI_KBV",
+        "event_name": "ipv_kbv_cri_start",
+        "product_family": "ipv_cri_kbv",
         "enabled": true
     },
     {
-        "event_name": "IPV_KBV_CRI_THIRD_PARTY_REQUEST_ENDED",
-        "product_family": "IPV_CRI_KBV",
+        "event_name": "ipv_kbv_cri_third_party_request_ended",
+        "product_family": "ipv_cri_kbv",
         "enabled": true
     },
     {
-        "event_name": "IPV_KBV_CRI_VC_ISSUED",
-        "product_family": "IPV_CRI_KBV",
+        "event_name": "ipv_kbv_cri_vc_issued",
+        "product_family": "ipv_cri_kbv",
         "enabled": true
     }
 ]

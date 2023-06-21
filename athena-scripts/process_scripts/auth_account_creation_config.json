@@ -1,7 +1,7 @@
 [
     {
-        "event_name": "AUTH_CREATE_ACCOUNT",
-        "product_family": "AUTH_ACCOUNT_CREATION",
+        "event_name": "auth_create_account",
+        "product_family": "auth_account_creation",
         "enabled": true
     }
 ]

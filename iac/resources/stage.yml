@@ -690,7 +690,7 @@ SpotGlueTable:
 StageGlueCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: STAGE_TXMA_PRODUCT_GROUPS
+    Name: txma_product_groups_stage_datalayer
     Role: !GetAtt StageGlueCrawlerRole.Arn
     Targets:
       CatalogTargets:

@@ -1,52 +1,52 @@
 [
     {
-        "event_name": "IPV_DELETE_USER_DATA",
-        "product_family": "IPV_JOURNEY",
+        "event_name": "ipv_delete_user_data",
+        "product_family": "ipv_journey",
         "enabled": true
     },
     {
-        "event_name": "IPV_IDENTITY_REUSE_COMPLETE",
-        "product_family": "IPV_JOURNEY",
+        "event_name": "ipv_identity_reuse_complete",
+        "product_family": "ipv_journey",
         "enabled": true
     },
     {
-        "event_name": "IPV_IDENTITY_REUSE_RESET",
-        "product_family": "IPV_JOURNEY",
+        "event_name": "ipv_identity_reuse_reset",
+        "product_family": "ipv_journey",
         "enabled": true
     },
     {
-        "event_name": "IPV_JOURNEY_END",
-        "product_family": "IPV_JOURNEY",
+        "event_name": "ipv_journey_end",
+        "product_family": "ipv_journey",
         "enabled": true
     },
     {
-        "event_name": "IPV_JOURNEY_START",
-        "product_family": "IPV_JOURNEY",
+        "event_name": "ipv_journey_start",
+        "product_family": "ipv_journey",
         "enabled": true
     },
     {
-        "event_name": "IPV_REDIRECT_TO_CRI",
-        "product_family": "IPV_JOURNEY",
+        "event_name": "ipv_redirect_to_cri",
+        "product_family": "ipv_journey",
         "enabled": true
     },
     {
-        "event_name": "IPV_VC_RECEIVED",
-        "product_family": "IPV_JOURNEY",
+        "event_name": "ipv_vc_received",
+        "product_family": "ipv_journey",
         "enabled": true
     },
     {
-        "event_name": "IPV_SPOT_REQUEST_RECEIVED",
-        "product_family": "IPV_JOURNEY",
+        "event_name": "ipv_spot_request_received",
+        "product_family": "ipv_journey",
         "enabled": true
     },
     {
-        "event_name": "IPV_SPOT_RESPONSE_APPROVED",
-        "product_family": "IPV_JOURNEY",
+        "event_name": "ipv_spot_response_approved",
+        "product_family": "ipv_journey",
         "enabled": true
     },
     {
-        "event_name": "IPV_SPOT_RESPONSE_REJECTED",
-        "product_family": "IPV_JOURNEY",
+        "event_name": "ipv_spot_response_rejected",
+        "product_family": "ipv_journey",
         "enabled": true
     }
 ]
