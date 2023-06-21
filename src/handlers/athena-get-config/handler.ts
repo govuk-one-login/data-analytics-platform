@@ -1,14 +1,18 @@
 import { getRequiredParams, parseS3ResponseAsObject } from '../../shared/utils/utils';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client } from '../../shared/clients';
-import type { RawLayerEventStatus, RawLayerProcessingEvent } from '../../shared/types/raw-layer-processing';
+import type { AthenaGetConfigEvent, RawLayerEventStatus } from '../../shared/types/raw-layer-processing';
 
-export const handler = async (event: RawLayerProcessingEvent): Promise<RawLayerEventStatus[]> => {
+export const handler = async (event: AthenaGetConfigEvent): Promise<RawLayerEventStatus[]> => {
   try {
-    const { datasource, S3MetaDataBucketName: Bucket } = getRequiredParams(event, 'datasource', 'S3MetaDataBucketName');
+    const {
+      datasource,
+      S3MetaDataBucketName: Bucket,
+      configFilePrefix,
+    } = getRequiredParams(event, 'datasource', 'S3MetaDataBucketName', 'configFilePrefix');
     const request = new GetObjectCommand({
       Bucket,
-      Key: `${datasource}/process_config/${datasource}_config.json`,
+      Key: `${datasource}/process_config/${configFilePrefix}_config.json`,
     });
 
     console.log('Getting athena config', request.input);

@@ -7,8 +7,15 @@ export type RawLayerProcessingAction = (typeof RawLayerProcessingActions)[number
 export interface RawLayerProcessingEvent {
   datasource: string;
   S3MetaDataBucketName: string;
+}
+
+export interface AthenaGetConfigEvent extends RawLayerProcessingEvent {
+  configFilePrefix: string;
+}
+
+export interface AthenaGetStatementEvent extends RawLayerProcessingEvent {
   action: RawLayerProcessingAction;
-  configObject?: RawLayerProcessingConfigObject;
+  configObject: RawLayerProcessingConfigObject;
 }
 
 export interface RawLayerProcessingConfigObject {
