@@ -1,62 +1,62 @@
 [
     {
-        "event_name": "DCMAW_BRP_SELECTED",
-        "product_family": "DCMAW_CRI",
+        "event_name": "dcmaw_brp_selected",
+        "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "DCMAW_CRI_4XXERROR",
-        "product_family": "DCMAW_CRI",
+        "event_name": "dcmaw_cri_4xxerror",
+        "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "DCMAW_CRI_5XXERROR",
-        "product_family": "DCMAW_CRI",
+        "event_name": "dcmaw_cri_5xxerror",
+        "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "DCMAW_CRI_ABORT",
-        "product_family": "DCMAW_CRI",
+        "event_name": "dcmaw_cri_abort",
+        "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "DCMAW_CRI_END",
-        "product_family": "DCMAW_CRI",
+        "event_name": "dcmaw_cri_end",
+        "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "DCMAW_CRI_START",
-        "product_family": "DCMAW_CRI",
+        "event_name": "dcmaw_cri_start",
+        "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "DCMAW_CRI_VC_ISSUED",
-        "product_family": "DCMAW_CRI",
+        "event_name": "dcmaw_cri_vc_issued",
+        "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "DCMAW_DRIVING_LICENCE_SELECTED",
-        "product_family": "DCMAW_CRI",
+        "event_name": "dcmaw_driving_licence_selected",
+        "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "DCMAW_HYBRID_BILLING_STARTED",
-        "product_family": "DCMAW_CRI",
+        "event_name": "dcmaw_hybrid_billing_started",
+        "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "DCMAW_IPROOV_BILLING_STARTED",
-        "product_family": "DCMAW_CRI",
+        "event_name": "dcmaw_iproov_billing_started",
+        "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "DCMAW_PASSPORT_SELECTED",
-        "product_family": "DCMAW_CRI",
+        "event_name": "dcmaw_passport_selected",
+        "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "DCMAW_READID_NFC_BILLING_STARTED",
-        "product_family": "DCMAW_CRI",
+        "event_name": "dcmaw_readid_nfc_billing_started",
+        "product_family": "dcmaw_cri",
         "enabled": true
     }
 ]

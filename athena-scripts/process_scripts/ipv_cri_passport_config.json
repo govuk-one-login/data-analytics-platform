@@ -1,27 +1,27 @@
 [
     {
-        "event_name": "IPV_PASSPORT_CRI_END",
-        "product_family": "IPV_CRI_PASSPORT",
+        "event_name": "ipv_passport_cri_end",
+        "product_family": "ipv_cri_passport",
         "enabled": true
     },
     {
-        "event_name": "IPV_PASSPORT_CRI_REQUEST_SENT",
-        "product_family": "IPV_CRI_PASSPORT",
+        "event_name": "ipv_passport_cri_request_sent",
+        "product_family": "ipv_cri_passport",
         "enabled": true
     },
     {
-        "event_name": "IPV_PASSPORT_CRI_RESPONSE_RECEIVED",
-        "product_family": "IPV_CRI_PASSPORT",
+        "event_name": "ipv_passport_cri_response_received",
+        "product_family": "ipv_cri_passport",
         "enabled": true
     },
     {
-        "event_name": "IPV_PASSPORT_CRI_START",
-        "product_family": "IPV_CRI_PASSPORT",
+        "event_name": "ipv_passport_cri_start",
+        "product_family": "ipv_cri_passport",
         "enabled": true
     },
     {
-        "event_name": "IPV_PASSPORT_CRI_VC_ISSUED",
-        "product_family": "IPV_CRI_PASSPORT",
+        "event_name": "ipv_passport_cri_vc_issued",
+        "product_family": "ipv_cri_passport",
         "enabled": true
     }
 ]

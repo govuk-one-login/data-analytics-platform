@@ -1,42 +1,42 @@
 [
     {
-        "product_family": "AUTH_ACCOUNT_CREATION",
+        "product_family": "auth_account_creation",
         "enabled": true
     },
     {
-        "product_family": "AUTH_ORCHESTRATION",
+        "product_family": "auth_orchestration",
         "enabled": true
     },
     {
-        "product_family": "DCMAW_APP_JOURNEY",
+        "product_family": "dcmaw_app_journey",
         "enabled": true
     },
     {
-        "product_family": "DCMAW_CRI",
+        "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "product_family": "IPV_CRI_ADDRESS",
+        "product_family": "ipv_cri_address",
         "enabled": true
     },
     {
-        "product_family": "IPV_CONTRA_INDICATOR",
+        "product_family": "ipv_contra_indicator",
         "enabled": true
     },
     {
-        "product_family": "IPV_CRI_FRAUD",
+        "product_family": "ipv_cri_fraud",
         "enabled": true
     },
     {
-        "product_family": "IPV_JOURNEY",
+        "product_family": "ipv_journey",
         "enabled": true
     },
     {
-        "product_family": "IPV_CRI_KBV",
+        "product_family": "ipv_cri_kbv",
         "enabled": true
     },
     {
-        "product_family": "IPV_CRI_PASSPORT",
+        "product_family": "ipv_cri_passport",
         "enabled": true
     }
 ]
