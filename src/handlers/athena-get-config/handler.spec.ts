@@ -1,7 +1,7 @@
 import { handler } from './handler';
-import { S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
-import type { RawLayerProcessingEvent } from '../../shared/types/raw-layer-processing';
+import type { AthenaGetConfigEvent } from '../../shared/types/raw-layer-processing';
 import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
 
 jest.spyOn(console, 'log').mockImplementation(() => undefined);
@@ -9,7 +9,7 @@ jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
 const mockS3Client = mockClient(S3Client);
 
-let TEST_EVENT: RawLayerProcessingEvent;
+let TEST_EVENT: AthenaGetConfigEvent;
 
 beforeAll(async () => {
   TEST_EVENT = JSON.parse(await getTestResource('AthenaGetConfigEvent.json'));
@@ -20,14 +20,28 @@ beforeEach(() => mockS3Client.reset());
 test('missing required params', async () => {
   mockS3Client.resolves({});
 
-  const missingDatasource = { S3MetaDataBucketName: 'elt-metadata' } as unknown as RawLayerProcessingEvent;
+  const missingDatasource = {
+    S3MetaDataBucketName: 'elt-metadata',
+    configFilePrefix: 'auth_account_creation',
+  } as unknown as AthenaGetConfigEvent;
   await expect(handler(missingDatasource)).rejects.toThrow(
     'Object is missing the following required fields: datasource'
   );
 
-  const missingBucket = { datasource: 'txma' } as unknown as RawLayerProcessingEvent;
+  const missingBucket = {
+    datasource: 'txma',
+    configFilePrefix: 'auth_account_creation',
+  } as unknown as AthenaGetConfigEvent;
   await expect(handler(missingBucket)).rejects.toThrow(
     'Object is missing the following required fields: S3MetaDataBucketName'
+  );
+
+  const missingConfigFilePrefix = {
+    datasource: 'txma',
+    S3MetaDataBucketName: 'elt-metadata',
+  } as unknown as AthenaGetConfigEvent;
+  await expect(handler(missingConfigFilePrefix)).rejects.toThrow(
+    'Object is missing the following required fields: configFilePrefix'
   );
   expect(mockS3Client.calls()).toHaveLength(0);
 });
@@ -56,7 +70,14 @@ test('bad json', async () => {
 });
 
 test('success', async () => {
-  mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: await getTestResource('txma_config.json') }) });
+  // make the mock client reject on any call except one with the correct S3 bucket and key
+  mockS3Client
+    .rejects()
+    .on(GetObjectCommand, {
+      Bucket: TEST_EVENT.S3MetaDataBucketName,
+      Key: `${TEST_EVENT.datasource}/process_config/${TEST_EVENT.configFilePrefix}_config.json`,
+    })
+    .resolves({ Body: mockS3BodyStream({ stringValue: await getTestResource('txma_config.json') }) });
 
   const response = await handler(TEST_EVENT);
   expect(response).toBeDefined();

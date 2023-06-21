@@ -1,5 +1,5 @@
 {
   "datasource": "txma",
-  "S3MetaDataBucketName": "elt-metadata",
-  "action": "GetInsertQuery"
+  "S3MetaDataBucketName": "dev-dap-elt-metadata",
+  "configFilePrefix": "auth_account_creation"
 }
