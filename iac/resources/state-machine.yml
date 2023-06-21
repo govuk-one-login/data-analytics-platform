@@ -24,7 +24,6 @@ AthenaRawLayerProcessingStateMachine:
     DefinitionSubstitutions:
       GetEventConfigFunctionArn: !GetAtt AthenaGetConfigLambda.Arn
       GetAthenaStatementFunctionArn: !GetAtt AthenaGetStatementLambda.Arn
-      GlueCrawlerRawName: !Ref StageGlueCrawler
       GlueCrawlerStageName: !Ref StageGlueCrawler
       AthenaWorkGroupName: !Ref AthenaWorkGroup
       S3RawBucketName: !Ref RawLayerBucket
