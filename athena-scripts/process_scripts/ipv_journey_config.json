@@ -1,0 +1,52 @@
+[
+    {
+        "event_name": "IPV_DELETE_USER_DATA",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_IDENTITY_REUSE_COMPLETE",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_IDENTITY_REUSE_RESET",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_JOURNEY_END",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_JOURNEY_START",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_REDIRECT_TO_CRI",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_VC_RECEIVED",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_SPOT_REQUEST_RECEIVED",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_SPOT_RESPONSE_APPROVED",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_SPOT_RESPONSE_REJECTED",
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    }
+]

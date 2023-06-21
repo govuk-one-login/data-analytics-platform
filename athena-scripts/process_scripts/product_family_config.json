@@ -1,0 +1,42 @@
+[
+    {
+        "product_family": "AUTH_ACCOUNT_CREATION",
+        "enabled": true
+    },
+    {
+        "product_family": "AUTH_ORCHESTRATION",
+        "enabled": true
+    },
+    {
+        "product_family": "DCMAW_APP_JOURNEY",
+        "enabled": true
+    },
+    {
+        "product_family": "DCMAW_CRI",
+        "enabled": true
+    },
+    {
+        "product_family": "IPV_CRI_ADDRESS",
+        "enabled": true
+    },
+    {
+        "product_family": "IPV_CONTRA_INDICATOR",
+        "enabled": true
+    },
+    {
+        "product_family": "IPV_CRI_FRAUD",
+        "enabled": true
+    },
+    {
+        "product_family": "IPV_JOURNEY",
+        "enabled": true
+    },
+    {
+        "product_family": "IPV_CRI_KBV",
+        "enabled": true
+    },
+    {
+        "product_family": "IPV_CRI_PASSPORT",
+        "enabled": true
+    }
+]

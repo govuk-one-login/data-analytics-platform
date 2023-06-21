@@ -1,0 +1,32 @@
+[
+    {
+        "event_name": "IPV_FRAUD_CRI_END",
+        "product_family": "IPV_CRI_FRAUD",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_FRAUD_CRI_REQUEST_SENT",
+        "product_family": "IPV_CRI_FRAUD",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_FRAUD_CRI_RESPONSE_RECEIVED",
+        "product_family": "IPV_CRI_FRAUD",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_FRAUD_CRI_START",
+        "product_family": "IPV_CRI_FRAUD",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED",
+        "product_family": "IPV_CRI_FRAUD",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_FRAUD_CRI_VC_ISSUED",
+        "product_family": "IPV_CRI_FRAUD",
+        "enabled": true
+    }
+]

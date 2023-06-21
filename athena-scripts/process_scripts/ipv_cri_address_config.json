@@ -1,0 +1,22 @@
+[
+    {
+        "event_name": "IPV_ADDRESS_CRI_END",
+        "product_family": "IPV_CRI_ADDRESS",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_ADDRESS_CRI_REQUEST_SENT",
+        "product_family": "IPV_CRI_ADDRESS",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_ADDRESS_CRI_START",
+        "product_family": "IPV_CRI_ADDRESS",
+        "enabled": true
+    },
+    {
+        "event_name": "IPV_ADDRESS_CRI_VC_ISSUED",
+        "product_family": "IPV_CRI_ADDRESS",
+        "enabled": true
+    }
+]

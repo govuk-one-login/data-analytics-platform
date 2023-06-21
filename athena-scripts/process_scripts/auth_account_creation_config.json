@@ -1,0 +1,7 @@
+[
+    {
+        "event_name": "AUTH_CREATE_ACCOUNT",
+        "product_family": "AUTH_ACCOUNT_CREATION",
+        "enabled": true
+    }
+]

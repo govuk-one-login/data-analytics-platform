@@ -1,0 +1,57 @@
+[
+    {
+        "event_name": "DCMAW_ABORT_APP",
+        "product_family": "DCMAW_APP_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_ABORT_WEB",
+        "product_family": "DCMAW_APP_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_APP_END",
+        "product_family": "DCMAW_APP_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_APP_HANDOFF_START",
+        "product_family": "DCMAW_APP_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_APP_START",
+        "product_family": "DCMAW_APP_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_MISSING_CONTEXT_AFTER_ABORT",
+        "product_family": "DCMAW_APP_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_MISSING_CONTEXT_AFTER_COMPLETION",
+        "product_family": "DCMAW_APP_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_REDIRECT_ABORT",
+        "product_family": "DCMAW_APP_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_REDIRECT_SUCCESS",
+        "product_family": "DCMAW_APP_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_SESSION_RECOVERED",
+        "product_family": "DCMAW_APP_JOURNEY",
+        "enabled": true
+    },
+    {
+        "event_name": "DCMAW_WEB_END",
+        "product_family": "DCMAW_APP_JOURNEY",
+        "enabled": true
+    }
+]
