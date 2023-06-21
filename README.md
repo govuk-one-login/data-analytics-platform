@@ -68,9 +68,9 @@ Below is a list of workflows:
 
 Unit testing is done with [Jest](https://jestjs.io) and the lambdas should all have associated unit tests (`*.spec.ts`).
 
-* `npm run test` - run all tests
-* `npm run test consumer` - run a specific test
-    * anything after `test` is used as a regex match - so in this example `consumer` causes jest to match all tests under the `txma-event-consumer/` directory (and any other directory that might have `consumer` in its name)
+* `npm run test` - run all tests under `src/`
+* `jest consumer` - run a specific test or tests
+    * anything after `jest` is used as a regex match - so in this example `consumer` causes jest to match all tests under the `src/handlers/txma-event-consumer/` directory (and any other directory that might have `consumer` in its name)
 
 #### Integration tests
 

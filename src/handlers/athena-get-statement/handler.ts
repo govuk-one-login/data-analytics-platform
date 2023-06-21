@@ -1,10 +1,10 @@
 import { getEnvironmentVariable, getRequiredParams, parseS3ResponseAsString } from '../../shared/utils/utils';
 import { s3Client } from '../../shared/clients';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
-import type { RawLayerProcessingEvent } from '../../shared/types/raw-layer-processing';
+import type { AthenaGetStatementEvent } from '../../shared/types/raw-layer-processing';
 import { RawLayerProcessingActions } from '../../shared/types/raw-layer-processing';
 
-export const handler = async (event: RawLayerProcessingEvent): Promise<string> => {
+export const handler = async (event: AthenaGetStatementEvent): Promise<string> => {
   try {
     console.log(`Athena get statement lambda being called with event ${JSON.stringify(event)}`);
     return await handleEvent(validateEvent(event));
@@ -14,7 +14,7 @@ export const handler = async (event: RawLayerProcessingEvent): Promise<string> =
   }
 };
 
-const handleEvent = async (event: Required<RawLayerProcessingEvent>): Promise<string> => {
+const handleEvent = async (event: AthenaGetStatementEvent): Promise<string> => {
   const bucket = event.S3MetaDataBucketName;
   const eventName = event.configObject.event_name;
   const productFamily = event.configObject.product_family;
@@ -33,7 +33,7 @@ const handleEvent = async (event: Required<RawLayerProcessingEvent>): Promise<st
   }
 };
 
-const validateEvent = (event: RawLayerProcessingEvent): Required<RawLayerProcessingEvent> => {
+const validateEvent = (event: AthenaGetStatementEvent): AthenaGetStatementEvent => {
   const { datasource, S3MetaDataBucketName, action, configObject } = getRequiredParams(
     event,
     'datasource',
@@ -65,7 +65,7 @@ const getFileDetails = async (bucket: string, key: string): Promise<string> => {
     .then(response => response.replaceAll('environment', environment));
 };
 
-const extractRowValue = (event: Required<RawLayerProcessingEvent>, rowNumber: number, dataNumber: number): string => {
+const extractRowValue = (event: AthenaGetStatementEvent, rowNumber: number, dataNumber: number): string => {
   const data = event.configObject.queryResult.ResultSet?.Rows?.at(rowNumber)?.Data?.at(dataNumber);
   if (data === undefined || data.VarCharValue === undefined) {
     throw new Error(`Row number ${rowNumber} or its Data at position ${dataNumber} is missing or invalid`);

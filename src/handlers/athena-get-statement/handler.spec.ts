@@ -3,9 +3,9 @@ import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
 import { handler } from './handler';
 import type {
+  AthenaGetStatementEvent,
   RawLayerProcessingAction,
   RawLayerProcessingConfigObject,
-  RawLayerProcessingEvent,
 } from '../../shared/types/raw-layer-processing';
 import type { AWS_ENVIRONMENTS } from '../../shared/constants';
 
@@ -14,7 +14,7 @@ jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
 const mockS3Client = mockClient(S3Client);
 
-let TEST_EVENT: Required<RawLayerProcessingEvent>;
+let TEST_EVENT: AthenaGetStatementEvent;
 let DATASOURCE: string;
 let EVENT_NAME: string;
 let PRODUCT_FAMILY: string;
@@ -41,27 +41,27 @@ beforeEach(async () => {
 test('missing required params', async () => {
   mockS3Client.resolves({});
 
-  const missingDatasource = { ...TEST_EVENT } as unknown as Partial<RawLayerProcessingEvent>;
+  const missingDatasource = { ...TEST_EVENT } as unknown as Partial<AthenaGetStatementEvent>;
   delete missingDatasource.datasource;
-  await expect(handler(missingDatasource as unknown as RawLayerProcessingEvent)).rejects.toThrow(
+  await expect(handler(missingDatasource as unknown as AthenaGetStatementEvent)).rejects.toThrow(
     'Object is missing the following required fields: datasource'
   );
 
-  const missingBucket = { ...TEST_EVENT } as unknown as Partial<RawLayerProcessingEvent>;
+  const missingBucket = { ...TEST_EVENT } as unknown as Partial<AthenaGetStatementEvent>;
   delete missingBucket.S3MetaDataBucketName;
-  await expect(handler(missingBucket as unknown as RawLayerProcessingEvent)).rejects.toThrow(
+  await expect(handler(missingBucket as unknown as AthenaGetStatementEvent)).rejects.toThrow(
     'Object is missing the following required fields: S3MetaDataBucketName'
   );
 
-  const missingAction = { ...TEST_EVENT } as unknown as Partial<RawLayerProcessingEvent>;
+  const missingAction = { ...TEST_EVENT } as unknown as Partial<AthenaGetStatementEvent>;
   delete missingAction.action;
-  await expect(handler(missingAction as unknown as RawLayerProcessingEvent)).rejects.toThrow(
+  await expect(handler(missingAction as unknown as AthenaGetStatementEvent)).rejects.toThrow(
     'Object is missing the following required fields: action'
   );
 
-  const missingConfigObject = { ...TEST_EVENT } as unknown as RawLayerProcessingEvent;
+  const missingConfigObject = { ...TEST_EVENT } as unknown as Partial<AthenaGetStatementEvent>;
   delete missingConfigObject.configObject;
-  await expect(handler(missingConfigObject as unknown as RawLayerProcessingEvent)).rejects.toThrow(
+  await expect(handler(missingConfigObject as unknown as AthenaGetStatementEvent)).rejects.toThrow(
     'Object is missing the following required fields: configObject'
   );
   expect(mockS3Client.calls()).toHaveLength(0);
@@ -70,7 +70,7 @@ test('missing required params', async () => {
 test('unknown action', async () => {
   mockS3Client.resolves({});
 
-  const event: RawLayerProcessingEvent = {
+  const event: AthenaGetStatementEvent = {
     ...TEST_EVENT,
     action: 'NotAnAction' as unknown as RawLayerProcessingAction,
   };
@@ -204,6 +204,6 @@ const testBadConfig = async (configObject: unknown, expectedErrorMessage: string
   await expect(handler(eventWithBadConfigObject(configObject))).rejects.toThrow(expectedErrorMessage);
 };
 
-const eventWithBadConfigObject = (configObject: unknown): RawLayerProcessingEvent => {
+const eventWithBadConfigObject = (configObject: unknown): AthenaGetStatementEvent => {
   return { ...TEST_EVENT, configObject: configObject as RawLayerProcessingConfigObject };
 };
