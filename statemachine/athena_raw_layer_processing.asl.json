@@ -181,7 +181,35 @@
                       "Next": "Pass"
                     }
                   ],
-                  "Default": "AthenaGetLatestTablePartition"
+                  "Default": "GetPartitionQuery"
+                },
+                "GetPartitionQuery": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "ResultPath": "$.sqlText",
+                  "Parameters": {
+                    "FunctionName": "${GetAthenaStatementFunctionArn}:$LATEST",
+                    "Payload": {
+                      "configObject.$": "$",
+                      "datasource": "txma",
+                      "S3MetaDataBucketName": "${S3MetaDataBucketName}",
+                      "action": "GetPartitionQuery"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2
+                    }
+                  ],
+                  "Next": "AthenaGetLatestTablePartition"
                 },
                 "Pass": {
                   "Type": "Pass",
