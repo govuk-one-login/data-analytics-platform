@@ -102,7 +102,7 @@ StepFunctionRole:
 
             - Effect: Allow
               Resource: !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-raw-to-stage-process'
-              Action: 
+              Action:
                 - states:ListExecutions
                 - states:StartExecution
 
