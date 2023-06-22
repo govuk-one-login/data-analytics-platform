@@ -181,7 +181,37 @@
                       "Next": "Pass"
                     }
                   ],
-                  "Default": "GetPartitionQuery"
+                  "Default": "RawTableExistsQuery"
+                },
+                "RawTableExistsQuery": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::athena:startQueryExecution.sync",
+                  "Parameters": {
+                    "QueryString.$": "States.Format('SELECT count(*) as rowCount FROM information_schema.tables where table_schema = \\'{RawDatabaseName}\\' and table_name = \\'{}\\'', $.event_name)",
+                    "WorkGroup": "${AthenaWorkGroupName}"
+                  },
+                  "Next": "GetCheckTableExistsResults",
+                  "ResultPath": "$.checkTableExists"
+                },
+                "GetCheckTableExistsResults": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::athena:getQueryResults",
+                  "Parameters": {
+                    "QueryExecutionId.$": "$.checkTableExists.QueryExecution.QueryExecutionId"
+                  },
+                  "Next": "Choice",
+                  "ResultPath": "$.tableExistsResults"
+                },
+                "Choice": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "Variable": "$.tableExistsResults.ResultSet.Rows[1].Data[0].VarCharValue",
+                      "StringEquals": "1",
+                      "Next": "GetPartitionQuery"
+                    }
+                  ],
+                  "Default": "Pass"
                 },
                 "GetPartitionQuery": {
                   "Type": "Task",

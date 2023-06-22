@@ -29,6 +29,7 @@ AthenaRawLayerProcessingStateMachine:
       S3RawBucketName: !Ref RawLayerBucket
       S3StageBucketName: !Ref StageLayerBucket
       S3MetaDataBucketName: !Ref ELTMetadataBucket
+      RawDatabaseName: !Ref RawGlueDatabase
     Events:
       DailySchedule:
         Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
