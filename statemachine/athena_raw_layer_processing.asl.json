@@ -413,15 +413,15 @@
         {
           "Or": [
             {
-              "Variable": "$.crawlerStatus.Crawler.State",
+              "Variable": "$.crawlerStageStatus.Crawler.State",
               "StringEquals": "RUNNING"
             },
             {
-              "Variable": "$.crawlerStatus.Crawler.State",
+              "Variable": "$.crawlerStageStatus.Crawler.State",
               "StringEquals": "STOPPING"
             },
             {
-              "Variable": "$.crawlerStatus.Crawler.State",
+              "Variable": "$.crawlerStageStatus.Crawler.State",
               "StringEquals": "STARTED"
             }
           ],
