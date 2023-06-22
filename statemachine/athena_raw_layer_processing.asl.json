@@ -60,7 +60,8 @@
       "Type": "Map",
       "ItemProcessor": {
         "ProcessorConfig": {
-          "Mode": "INLINE"
+          "Mode": "DISTRIBUTED",
+          "ExecutionType": "STANDARD"
         },
         "StartAt": "CheckForProductFamilyEnabledStatus",
         "States": {
@@ -367,12 +368,15 @@
                 }
               }
             },
-            "MaxConcurrency": 20,
+            "MaxConcurrency": 30,
             "End": true
           }
         }
       },
-      "Next": "StartStageCrawler"
+      "Next": "StartStageCrawler",
+      "Label": "ProcessProductFamily",
+      "MaxConcurrency": 1000,
+      "ToleratedFailurePercentage": 50
     },
     "StartStageCrawler": {
       "Type": "Task",
