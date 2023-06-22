@@ -15,6 +15,23 @@ ELTMetadataBucket:
     VersioningConfiguration:
       Status: Enabled
 
+StateMachineResultsBucket:
+  # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub ${Environment}-dap-step-function-process-results
+    LoggingConfiguration:
+      DestinationBucketName: !Ref GlobalLogBucket
+      LogFilePrefix: dap-step-function-process-results/log
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+
 AthenaRawLayerProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
   Properties:
@@ -30,6 +47,7 @@ AthenaRawLayerProcessingStateMachine:
       S3StageBucketName: !Ref StageLayerBucket
       S3MetaDataBucketName: !Ref ELTMetadataBucket
       RawDatabaseName: !Ref RawGlueDatabase
+      StateMachineResultsBucket: !Ref StateMachineResultsBucket
     Events:
       DailySchedule:
         Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
