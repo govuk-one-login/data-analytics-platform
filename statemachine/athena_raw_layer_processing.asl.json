@@ -380,7 +380,7 @@
       "ResultWriter": {
         "Resource": "arn:aws:states:::s3:putObject",
         "Parameters": {
-          "Bucket": "{StateMachineResultsBucket}",
+          "Bucket": "${StateMachineResultsBucket}",
           "Prefix": "txma"
         }
       }
