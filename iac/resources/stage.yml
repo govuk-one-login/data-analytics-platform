@@ -169,7 +169,7 @@ IpvCriAddressGlueTable:
           - { Name: user_user_id, Type: string }
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
-          - { Name: extensions_addressEntered, Type: string }
+          - { Name: extensions_addressesEntered, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
@@ -270,7 +270,7 @@ IpvJourneyGlueTable:
           - { Name: timestamp_formatted, Type: string }
           - { Name: extensions_evidence, Type: string }
           - { Name: extensions_successful, Type: string }
-          - { Name: extensions_error_code, Type: string }
+          - { Name: extensions_errorCode, Type: string }
           - { Name: extensions_error, Type: string }
           - { Name: extention_gpg45Profile, Type: string }
           - { Name: extention_gpg45Scores, Type: string }
