@@ -24,7 +24,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets.integration_test-stacks-role }} 
+          role-to-assume: ${{ secrets.integration_test_stacks_role }} 
       - name: Empty S3 buckets in the stack
         run: npm run s3:empty-buckets
       - name: Delete CF stack
