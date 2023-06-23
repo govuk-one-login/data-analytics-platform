@@ -22,6 +22,6 @@
     {
         "event_name": "ipv_passport_cri_vc_issued",
         "product_family": "ipv_cri_passport",
-        "enabled": true
+        "enabled": false
     }
 ]

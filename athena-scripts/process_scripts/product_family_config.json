@@ -1,27 +1,27 @@
 [
     {
         "product_family": "auth_account_creation",
-        "enabled": true
+        "enabled": false
     },
     {
         "product_family": "auth_orchestration",
-        "enabled": true
+        "enabled": false
     },
     {
         "product_family": "dcmaw_app_journey",
-        "enabled": true
+        "enabled": false
     },
     {
         "product_family": "dcmaw_cri",
-        "enabled": true
+        "enabled": false
     },
     {
         "product_family": "ipv_cri_address",
-        "enabled": true
+        "enabled": false
     },
     {
         "product_family": "ipv_contra_indicator",
-        "enabled": true
+        "enabled": false
     },
     {
         "product_family": "ipv_cri_fraud",
@@ -33,7 +33,7 @@
     },
     {
         "product_family": "ipv_cri_kbv",
-        "enabled": true
+        "enabled": false
     },
     {
         "product_family": "ipv_cri_passport",
