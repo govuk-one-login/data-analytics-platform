@@ -377,7 +377,7 @@ StageGlueCrawler:
     DatabaseName: !Ref StageGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
-      RecrawlBehavior: CRAWL_NEW_FOLDERS_ONLY
+      RecrawlBehavior: CRAWL_EVERYTHING
     SchemaChangePolicy:
       UpdateBehavior: LOG
       DeleteBehavior: LOG
