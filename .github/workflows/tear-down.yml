@@ -7,10 +7,6 @@ on:
         type: string
         required: true
 
-# env:
-#   AWS_REGION: eu-west-2
-#   ENV_NAME: pr-${{ github.event.pull_request.number }}
-
 jobs:
   tear-down-cf-stack:
     permissions:
