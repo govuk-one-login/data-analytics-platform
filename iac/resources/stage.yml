@@ -31,7 +31,7 @@ AuthAccountCreationGlueTable:
       Name: auth_account_creation
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: processed_date, Type: int }
+        - { Name: processed_date, Type: string }
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
@@ -62,7 +62,7 @@ AuthOrchestrationGlueTable:
       Name: auth_orchestration
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: processed_date, Type: int }
+        - { Name: processed_date, Type: string }
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
@@ -73,7 +73,7 @@ AuthOrchestrationGlueTable:
           - { Name: user_user_id, Type: string }
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
-          - { Name: extentions_clientName, Type: string }
+          - { Name: extensions_clientName, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
@@ -94,7 +94,7 @@ DcmawAppJourneyGlueTable:
       Name: dcmaw_app_journey
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: processed_date, Type: int }
+        - { Name: processed_date, Type: string }
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
@@ -126,7 +126,7 @@ DcmawCriGlueTable:
       Name: dcmaw_cri
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: processed_date, Type: int }
+        - { Name: processed_date, Type: string }
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
@@ -158,7 +158,7 @@ IpvCriAddressGlueTable:
       Name: ipv_cri_address
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: processed_date, Type: int }
+        - { Name: processed_date, Type: string }
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
@@ -190,7 +190,7 @@ IpvContraIndicatorGlueTable:
       Name: ipv_contra_indicator
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: processed_date, Type: int }
+        - { Name: processed_date, Type: string }
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
@@ -223,7 +223,7 @@ IpvCriFraudGlueTable:
       Name: ipv_cri_fraud
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: processed_date, Type: int }
+        - { Name: processed_date, Type: string }
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
@@ -257,7 +257,7 @@ IpvJourneyGlueTable:
       Name: ipv_journey
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: processed_date, Type: int }
+        - { Name: processed_date, Type: string }
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
@@ -272,8 +272,8 @@ IpvJourneyGlueTable:
           - { Name: extensions_successful, Type: string }
           - { Name: extensions_errorCode, Type: string }
           - { Name: extensions_error, Type: string }
-          - { Name: extention_gpg45Profile, Type: string }
-          - { Name: extention_gpg45Scores, Type: string }
+          - { Name: extensions_gpg45Profile, Type: string }
+          - { Name: extensions_gpg45Scores, Type: string }
           - { Name: extensions_levelOfConfidence, Type: string }
           - { Name: extensions_reason, Type: string }
           - { Name: extensions_rejectionReason, Type: string }
@@ -297,7 +297,7 @@ IpvCriKbvGlueTable:
       Name: ipv_cri_kbv
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: processed_date, Type: int }
+        - { Name: processed_date, Type: string }
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
@@ -331,7 +331,7 @@ IpvCriPassportGlueTable:
       Name: ipv_cri_passport
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: processed_date, Type: int }
+        - { Name: processed_date, Type: string }
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
@@ -343,7 +343,7 @@ IpvCriPassportGlueTable:
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
           - { Name: extensions_evidence, Type: string }
-          - { Name: extentions_iss, Type: string }
+          - { Name: extensions_iss, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
@@ -379,7 +379,7 @@ StageGlueCrawler:
     RecrawlPolicy:
       RecrawlBehavior: CRAWL_EVERYTHING
     SchemaChangePolicy:
-      UpdateBehavior: UPDATE_IN_DATABASE
+      UpdateBehavior: LOG
       DeleteBehavior: LOG
     Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
 

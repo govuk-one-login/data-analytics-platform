@@ -29,8 +29,8 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	'' as extensions_evidence,
-	'' as extensions_successful,
+	format('%s',cast(extensions.evidence as JSON)) as extensions_evidence,
+	format('%s',cast(extensions.successful as JSON)) as extensions_successful,
 	'' as extensions_errorcode,
 	'' as extensions_error,
 	'' as extensions_gpg45profile,
@@ -44,7 +44,7 @@ SELECT
 	CAST(date_format(now(), '%Y%m%d') as VARCHAR) AS processed_date,
 	event_name as event_name
 FROM 
-	"environment-txma-raw"."ipv_identity_reuse_complete"
+	"environment-txma-raw"."ipv_vc_received"
 WHERE
 	CAST(concat(year, month, day) AS INT) > filter_value AND
 	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)

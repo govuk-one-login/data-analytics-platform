@@ -1,4 +1,4 @@
-INSERT INTO "environment-txma-stage"."ipv_passport" (
+INSERT INTO "environment-txma-stage"."ipv_cri_passport" (
 	event_id,
 	client_id,
 	component_id,
@@ -27,7 +27,7 @@ SELECT
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
-	CAST(date_format(now(), '%Y%m%d') as INT) AS processed_date,
+	CAST(date_format(now(), '%Y%m%d') as VARCHAR) AS processed_date,
 	event_name as event_name
 FROM 
 	"environment-txma-raw"."ipv_passport_cri_vc_issued"

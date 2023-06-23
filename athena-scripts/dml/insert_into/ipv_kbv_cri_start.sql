@@ -1,4 +1,4 @@
-INSERT INTO "environment-txma-stage"."ipv_kbv" (
+INSERT INTO "environment-txma-stage"."ipv_cri_kbv" (
 	event_id,
 	client_id,
 	component_id,
@@ -8,6 +8,7 @@ INSERT INTO "environment-txma-stage"."ipv_kbv" (
 	timestamp_formatted,
 	extensions_evidence,
 	extensions_iss,
+	extensions_experianiiqresponse,
 	year,
 	month,
 	day,
@@ -24,10 +25,11 @@ SELECT
 	timestamp_formatted as timestamp_formatted,
 	'' as extensions_evidence,
 	'' as extensions_iss,
+	'' as extensions_experianiiqresponse,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
-	CAST(date_format(now(), '%Y%m%d') as INT) AS processed_date,
+	CAST(date_format(now(), '%Y%m%d') as VARCHAR) AS processed_date,
 	event_name as event_name
 FROM 
 	"environment-txma-raw"."ipv_kbv_cri_start"
