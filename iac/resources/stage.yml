@@ -379,7 +379,7 @@ StageGlueCrawler:
     RecrawlPolicy:
       RecrawlBehavior: CRAWL_EVERYTHING
     SchemaChangePolicy:
-      UpdateBehavior: UPDATE_IN_DATABASE
+      UpdateBehavior: LOG
       DeleteBehavior: LOG
     Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
 
