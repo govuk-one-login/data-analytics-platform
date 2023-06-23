@@ -1,4 +1,4 @@
-INSERT INTO "environment-txma-stage"."ipv_address" (
+INSERT INTO "environment-txma-stage"."ipv_cri_address" (
 	event_id,
 	client_id,
 	component_id,
@@ -21,11 +21,11 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	format('%s',cast(extensions.addressesEntered as JSON)) as extensions_addressesentered,
+	'' as extensions_addressesentered,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
-	CAST(date_format(now(), '%Y%m%d') as INT) AS processed_date,
+	CAST(date_format(now(), '%Y%m%d') as VARCHAR) AS processed_date,
 	event_name as event_name
 FROM 
 	"environment-txma-raw"."ipv_address_cri_vc_issued"

@@ -25,7 +25,7 @@ SELECT
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
-	CAST(date_format(now(), '%Y%m%d') as INT) AS processed_date,
+	CAST(date_format(now(), '%Y%m%d') as VARCHAR) AS processed_date,
 	event_name as event_name
 FROM 
 	"environment-txma-raw"."dcmaw_passport_selected"

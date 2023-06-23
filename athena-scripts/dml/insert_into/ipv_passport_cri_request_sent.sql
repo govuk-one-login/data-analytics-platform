@@ -1,4 +1,4 @@
-INSERT INTO "environment-txma-stage"."ipv_journey" (
+INSERT INTO "environment-txma-stage"."ipv_cri_passport" (
 	event_id,
 	client_id,
 	component_id,
@@ -7,14 +7,7 @@ INSERT INTO "environment-txma-stage"."ipv_journey" (
 	timestamp,
 	timestamp_formatted,
 	extensions_evidence,
-	extensions_successful,
-	extensions_errorcode,
-	extensions_error,
-	extensions_gpg45profile,
-	extensions_gpg45scores,
-	extensions_levelofconfidence,
-	extensions_reason,
-	extensions_rejectionreason,
+	extensions_iss,
 	year,
 	month,
 	day,
@@ -30,21 +23,14 @@ SELECT
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
 	'' as extensions_evidence,
-	'' as extensions_successful,
-	'' as extensions_errorcode,
-	'' as extensions_error,
-	'' as extensions_gpg45profile,
-	'' as extensions_gpg45scores,
-	'' as extensions_levelofconfidence,
-	'' as extensions_reason,
-	'' as extensions_rejectionreason,
+	format('%s',cast(extensions.iss as JSON)) as extensions_iss,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
 	CAST(date_format(now(), '%Y%m%d') as VARCHAR) AS processed_date,
 	event_name as event_name
 FROM 
-	"environment-txma-raw"."ipv_identity_reuse_complete"
+	"environment-txma-raw"."ipv_passport_cri_request_sent"
 WHERE
 	CAST(concat(year, month, day) AS INT) > filter_value AND
 	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)

@@ -26,7 +26,7 @@ SELECT
 	'' as client_id,
 	component_id as component_id,
 	user.govuk_signin_journey_id as user_govuk_signin_journey_id,
-	user.user_id as user_user_id,
+	'' as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
 	'' as extensions_evidence,
@@ -36,7 +36,7 @@ SELECT
 	'' as extensions_gpg45profile,
 	'' as extensions_gpg45scores,
 	'' as extensions_levelofconfidence,
-	'' as extensions_reason,
+	format('%s',cast(extensions.reason as JSON)) as extensions_reason,
 	'' as extensions_rejectionreason,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
@@ -44,7 +44,7 @@ SELECT
 	CAST(date_format(now(), '%Y%m%d') as VARCHAR) AS processed_date,
 	event_name as event_name
 FROM 
-	"environment-txma-raw"."ipv_identity_reuse_complete"
+	"environment-txma-raw"."ipv_spot_response_rejected"
 WHERE
 	CAST(concat(year, month, day) AS INT) > filter_value AND
 	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)
