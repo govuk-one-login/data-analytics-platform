@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 for bucket in $(aws s3api list-buckets --query 'Buckets[].Name' --output text); do
   tag1=$(aws s3api get-bucket-tagging --bucket $bucket --query 'TagSet[?Key==`aws:cloudformation:stack-name`].Value' --output text 2>/dev/null)
   tag2=$(aws s3api get-bucket-tagging --bucket $bucket --query 'TagSet[?Key==`BillingEnvironment`].Value' --output text 2>/dev/null)
