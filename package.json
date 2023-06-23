@@ -39,7 +39,7 @@
     "lint:check": "eslint src integration-test",
     "lint:fix": "eslint --fix src integration-test",
     "test": "jest src",
-    "integration-test": "jest ./integration-test",
+    "integration-test": "scripts/integration-test-check.sh && jest ./integration-test",
     "iac:build": "scripts/build-sam-template.sh",
     "iac:lint": "npm run iac:build && sam validate --lint --region eu-west-2",
     "iac:scan": "npm run iac:build && checkov --external-checks-git https://github.com/alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies --external-checks-git https://github.com/alphagov/di-devplatform-checkov-hook.git//src/gds_digitalidentity_checkovhook/custom_policies_precommit --file template.yaml --quiet",
