@@ -4,6 +4,9 @@ for bucket in $(aws s3api list-buckets --query 'Buckets[].Name' --output text); 
   tag2=$(aws s3api get-bucket-tagging --bucket $bucket --query 'TagSet[?Key==`BillingEnvironment`].Value' --output text 2>/dev/null)
   if [[ $tag1 =~ ^(dap)$ ]] && [[ $tag2 =~ ^($ENVIRONMENT)$ ]]; then
     echo $bucket
-    aws s3api delete-objects --bucket $bucket --delete "$(aws s3api list-object-versions --bucket $bucket --output=json --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')"  
+    aws s3api put-bucket-versioning --bucket $bucket --versioning-configuration Status=Suspended
+    aws s3 rm s3://$bucket --recursive
+    aws s3api put-bucket-versioning --bucket $bucket --versioning-configuration Status=Enabled
+    # aws s3api delete-objects --bucket $bucket --delete "$(aws s3api list-object-versions --bucket $bucket --output=json --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')"  
   fi
 done
