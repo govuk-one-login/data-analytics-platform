@@ -6,6 +6,9 @@ on:
       environment:
         type: string
         required: true
+      billingenvironment:
+         type: string
+         required: true
 
 jobs:
   tear-down-cf-stack:
