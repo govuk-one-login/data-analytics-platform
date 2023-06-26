@@ -52,6 +52,12 @@ TestSupportLambda:
           - Effect: Allow
             Action: sqs:SendMessage
             Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:*
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+            Resource: !GetAtt KmsKey.Arn
     ReservedConcurrentExecutions: 10
     Tags:
       Environment: !Ref Environment
