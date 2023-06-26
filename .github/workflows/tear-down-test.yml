@@ -14,4 +14,3 @@ jobs:
     uses: ./.github/workflows/tear-down.yml
     with:
       environment: TEST
-      billingenvironment: test
