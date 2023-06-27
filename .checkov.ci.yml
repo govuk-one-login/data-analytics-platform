@@ -1,0 +1,3 @@
+external-checks-dir:
+  - di-devplatform-checkov-hook/src/gds_digitalidentity_checkovhook/custom_policies
+  - di-devplatform-checkov-hook/src/gds_digitalidentity_checkovhook/custom_policies_precommit
