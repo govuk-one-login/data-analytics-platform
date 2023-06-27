@@ -224,9 +224,20 @@ See the following links for how to create the parameters via:
 - [AWS CLI](https://docs.aws.amazon.com/systems-manager/latest/userguide/param-create-cli.html)
 - [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-parameter.html)
 
+Parameter values can be found [on this page](https://govukverify.atlassian.net/wiki/spaces/DAP/pages/3591471337/DAP+-+TxMA+Events+Subscription#TxMA-Integration-Queue-&-KMS-Details) -
+recall that our `dev` environment currently takes the values assigned to `staging` on that page.
+
 #### Staging
-#### Integration
-#### Production
+
+The `staging` environment is the first higher environment and so cannot be directly deployed to.
+When a deployment pipeline is successful in the `build` environment, the artifact will be put in a promotion bucket
+in the `build` account, which is polled by `staging`. When `staging` picks up a new build it is deployed to that environment.
+
+#### Integration and Production
+
+The `integration` and `production` environments are the second (and final) level of higher environment.
+They behave like the `staging` environment in the sense that they cannot be deployed to but instead poll for promoted artifacts from a lower environment.
+The difference between them and `staging` is that the promotion bucket `integration` and `production` poll is the one in `staging`.
 
 ## Additional Documents
 
