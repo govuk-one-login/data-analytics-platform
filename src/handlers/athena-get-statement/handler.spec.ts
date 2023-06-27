@@ -195,8 +195,8 @@ test('get partition query success', async () => {
   expect(response).toBeDefined();
   expect(response).toContain(`FROM "${ENVIRONMENT}-txma-stage"."${PRODUCT_FAMILY}$partitions"`);
   expect(response).toContain(`FROM "${ENVIRONMENT}-txma-stage"."${PRODUCT_FAMILY}" stg,`);
-  expect(response).toContain(`WHERE event_name = '${EVENT_NAME}'`);
-  expect(response).toContain(`event_name = '${EVENT_NAME}' AND`);
+  expect(response).toContain(`WHERE event_name = '${EVENT_NAME.toUpperCase()}'`);
+  expect(response).toContain(`event_name = '${EVENT_NAME.toUpperCase()}' AND`);
   expect(mockS3Client.calls()).toHaveLength(1);
 });
 
