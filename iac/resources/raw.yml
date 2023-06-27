@@ -30,7 +30,7 @@ AuthAccountCreationCrawler:
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
       DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
 AuthOrchestrationCrawler:
   Type: AWS::Glue::Crawler
@@ -47,7 +47,7 @@ AuthOrchestrationCrawler:
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
       DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
 DcmawAppJourneyCrawler:
   Type: AWS::Glue::Crawler
@@ -74,7 +74,7 @@ DcmawAppJourneyCrawler:
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
       DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
 DcmawCriCrawler:
   Type: AWS::Glue::Crawler
@@ -102,7 +102,7 @@ DcmawCriCrawler:
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
       DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
 IpvCriAddressCrawler:
   Type: AWS::Glue::Crawler
@@ -122,7 +122,7 @@ IpvCriAddressCrawler:
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
       DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
 IpvContraIndicatorCrawler:
   Type: AWS::Glue::Crawler
@@ -139,7 +139,7 @@ IpvContraIndicatorCrawler:
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
       DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
 IpvCriFraudCrawler:
   Type: AWS::Glue::Crawler
@@ -161,7 +161,7 @@ IpvCriFraudCrawler:
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
       DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
 IpvJourneyCrawler:
   Type: AWS::Glue::Crawler
@@ -187,7 +187,7 @@ IpvJourneyCrawler:
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
       DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
 IpvCriKbvCrawler:
   Type: AWS::Glue::Crawler
@@ -209,7 +209,7 @@ IpvCriKbvCrawler:
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
       DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
 IpvCriPassportCrawler:
   Type: AWS::Glue::Crawler
@@ -230,7 +230,7 @@ IpvCriPassportCrawler:
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
       DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
 RawGlueCrawlerRole:
   Type: AWS::IAM::Role

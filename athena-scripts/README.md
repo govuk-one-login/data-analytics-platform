@@ -27,10 +27,8 @@ The overall solution architecture covering the ingestion and raw -> stage data t
 
 ## Orchestration
 
-The State machine initially reads the `product_family_config.json` configuration file to determine the scope of product families to process, for each 'enabled' product family a child process is spawned which processes all events mapped to that product family.  Any failures processing a product family are isolated and do not impact the other running processes.  All logging from the State machine is delivered to the following S3 bucket `${Environment}-dap-elt-metadata` for further analysis.
+The State machine initially reads the `product_family_config.json` configuration file to determine the scope of product families to process, for each 'enabled' product family a child process is spawned which processes all events mapped to that product family.
+![Child ELT processes](images/product_family_orchestration.png)  
 
 
-
-
-
-
+Any failures processing a product family are isolated and do not impact the other running processes.  All logging from the State machine is delivered to the following S3 bucket `${Environment}-dap-step-function-process-results` for further analysis.
