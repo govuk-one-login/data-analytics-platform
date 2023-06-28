@@ -41,6 +41,7 @@
     "test": "jest src",
     "integration-test": "scripts/integration-test-check.sh && jest ./integration-test",
     "iac:build": "scripts/build-sam-template.sh",
+    "s3:empty-buckets": "scripts/s3-empty.sh",    
     "iac:lint": "npm run iac:build && sam validate --lint --region eu-west-2",
     "iac:scan": "npm run iac:build && checkov --config-file .checkov.local.yml --file template.yaml --quiet",
     "iac:format:check": "prettier --check iac",
