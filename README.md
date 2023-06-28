@@ -68,9 +68,9 @@ Below is a list of workflows:
 
 Unit testing is done with [Jest](https://jestjs.io) and the lambdas should all have associated unit tests (`*.spec.ts`).
 
-* `npm run test` - run all tests
-* `npm run test consumer` - run a specific test
-    * anything after `test` is used as a regex match - so in this example `consumer` causes jest to match all tests under the `txma-event-consumer/` directory (and any other directory that might have `consumer` in its name)
+* `npm run test` - run all tests under `src/`
+* `jest consumer` - run a specific test or tests
+    * anything after `jest` is used as a regex match - so in this example `consumer` causes jest to match all tests under the `src/handlers/txma-event-consumer/` directory (and any other directory that might have `consumer` in its name)
 
 #### Integration tests
 
@@ -115,7 +115,8 @@ Lambdas can be run locally with [sam local invoke](https://docs.aws.amazon.com/s
 
 * Docker is running
 * Lambda you wish to run has been built into a `.js` file (`npm run build`)
-* Lambda you wish to run is defined in CloudFormation (`template.yml`)
+* Lambda you wish to run is defined in CloudFormation and has been built into the top-level `template.yml` file (`npm run iac:build`)
+  * You can use the CloudFormation resource name (e.g. `AthenaGetConfigLambda` or `EventConsumerLambda`) to refer to the lambda in the invoke command
 * SAM application has been built (`sam build`)
     * **Order matters here** - this command copies the lambda JS into `.aws-sam/`, so make sure `npm run build` has been run beforehand
 * You have defined a JSON file (ideally [here](sam-local-examples)) containing the event you wish to be the input event of the lambda (unless you don't need an input event)
@@ -124,13 +125,14 @@ Lambdas can be run locally with [sam local invoke](https://docs.aws.amazon.com/s
 An example invocation might be
 ```shell
 npm run build
+npm run iac:build
 sam build
 
 # invoke with no input event or environment vars
-sam local invoke txma-event-consumer
+sam local invoke EventConsumerLambda
 
 # invoke specifying both an input event and environment variables
-sam local invoke txma-event-consumer --env-vars sam-local-examples/env.json --event sam-local-examples/txma-event-consumer/valid.json
+sam local invoke EventConsumerLambda --env-vars sam-local-examples/env.json --event sam-local-examples/txma-event-consumer/valid.json
 ```
 
 ###### A note on args
@@ -222,9 +224,20 @@ See the following links for how to create the parameters via:
 - [AWS CLI](https://docs.aws.amazon.com/systems-manager/latest/userguide/param-create-cli.html)
 - [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-parameter.html)
 
+Parameter values can be found [on this page](https://govukverify.atlassian.net/wiki/spaces/DAP/pages/3591471337/DAP+-+TxMA+Events+Subscription#TxMA-Integration-Queue-&-KMS-Details) -
+recall that our `dev` environment currently takes the values assigned to `staging` on that page.
+
 #### Staging
-#### Integration
-#### Production
+
+The `staging` environment is the first higher environment and so cannot be directly deployed to.
+When a deployment pipeline is successful in the `build` environment, the artifact will be put in a promotion bucket
+in the `build` account, which is polled by `staging`. When `staging` picks up a new build it is deployed to that environment.
+
+#### Integration and Production
+
+The `integration` and `production` environments are the second (and final) level of higher environment.
+They behave like the `staging` environment in the sense that they cannot be deployed to but instead poll for promoted artifacts from a lower environment.
+The difference between them and `staging` is that the promotion bucket `integration` and `production` poll is the one in `staging`.
 
 ## Additional Documents
 

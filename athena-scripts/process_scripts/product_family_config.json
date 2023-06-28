@@ -1,0 +1,42 @@
+[
+    {
+        "product_family": "auth_account_creation",
+        "enabled": true
+    },
+    {
+        "product_family": "auth_orchestration",
+        "enabled": true
+    },
+    {
+        "product_family": "dcmaw_app_journey",
+        "enabled": true
+    },
+    {
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_cri_address",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_contra_indicator",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_cri_fraud",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_journey",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_cri_kbv",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_cri_passport",
+        "enabled": true
+    }
+]

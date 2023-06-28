@@ -3,6 +3,7 @@ EventConsumerQueue:
   Condition: UsePlaceholderTxMAQueue
   Properties:
     QueueName: !Sub ${Environment}-placeholder-txma-event-queue
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 EventConsumerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
@@ -31,17 +32,15 @@ EventConsumerLambda:
           - Effect: Allow
             Action: firehose:PutRecord
             Resource: !GetAtt KinesisFirehose.Arn
-          - !If
-            - UsePlaceholderTxMAQueue
-            - !Ref AWS::NoValue
-            - Effect: Allow
-              Action: kms:decrypt
-              Resource: '{{resolve:ssm:TxMAKMSKeyARN}}'
+          - Effect: Allow
+            Action: kms:decrypt
+            Resource: !If [UsePlaceholderTxMAQueue, !GetAtt KmsKey.Arn, '{{resolve:ssm:TxMAKMSKeyARN}}']
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
         FIREHOSE_STREAM_NAME: !Sub '${Environment}-${DeliveryStreamName}'
+        ENVIRONMENT: !Ref Environment
     Tags:
       Environment: !Ref Environment
 

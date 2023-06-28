@@ -1,0 +1,62 @@
+[
+    {
+        "event_name": "dcmaw_brp_selected",
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "event_name": "dcmaw_cri_4xxerror",
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "event_name": "dcmaw_cri_5xxerror",
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "event_name": "dcmaw_cri_abort",
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "event_name": "dcmaw_cri_end",
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "event_name": "dcmaw_cri_start",
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "event_name": "dcmaw_cri_vc_issued",
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "event_name": "dcmaw_driving_licence_selected",
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "event_name": "dcmaw_hybrid_billing_started",
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "event_name": "dcmaw_iproov_billing_started",
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "event_name": "dcmaw_passport_selected",
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "event_name": "dcmaw_readid_nfc_billing_started",
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    }
+]

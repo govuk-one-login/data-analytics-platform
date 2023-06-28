@@ -1,346 +1,448 @@
 {
-    "Comment": "AWS Step Functions state machine that processes raw datasets from TxMA into the staging layer of Athena",
-    "StartAt": "ListExecutions",
-    "States": {
-      "ListExecutions": {
-        "Type": "Task",
-        "Next": "ValidateRunningInstances",
-        "Parameters": {
-          "StateMachineArn.$": "$$.StateMachine.Id",
-          "StatusFilter": "RUNNING"
-        },
-        "Resource": "arn:aws:states:::aws-sdk:sfn:listExecutions",
-        "ResultSelector": {
-          "runningExecutionsCount.$": "States.ArrayLength($.Executions)"
+  "Comment": "AWS Step Functions state machine that processes raw datasets from TxMA into the staging layer of Athena",
+  "StartAt": "ListExecutions",
+  "States": {
+    "ListExecutions": {
+      "Type": "Task",
+      "Next": "ValidateRunningInstances",
+      "Parameters": {
+        "StateMachineArn.$": "$$.StateMachine.Id",
+        "StatusFilter": "RUNNING"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:sfn:listExecutions",
+      "ResultSelector": {
+        "runningExecutionsCount.$": "States.ArrayLength($.Executions)"
+      }
+    },
+    "ValidateRunningInstances": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.runningExecutionsCount",
+          "NumericGreaterThan": 1,
+          "Next": "RunningInstanceDetected"
+        }
+      ],
+      "Default": "GetProductFamilyConfig"
+    },
+    "RunningInstanceDetected": {
+      "Type": "Fail",
+      "Error": "RunningInstanceDetected"
+    },
+    "GetProductFamilyConfig": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "FunctionName": "${GetEventConfigFunctionArn}:$LATEST",
+        "Payload": {
+          "datasource": "txma",
+          "configFilePrefix": "product_family",
+          "S3MetaDataBucketName": "${S3MetaDataBucketName}"
         }
       },
-      "ValidateRunningInstances": {
-        "Type": "Choice",
-        "Choices": [
-          {
-            "Variable": "$.runningExecutionsCount",
-            "NumericGreaterThan": 1,
-            "Next": "Success"
-          }
-        ],
-        "Default": "RunRawGlueCrawler"
-      },
-      "Success": {
-        "Type": "Succeed"
-      },
-      "RunRawGlueCrawler": {
-        "Type": "Task",
-        "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
-        "Parameters": {
-          "Name": "${GlueCrawlerRawName}"
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "ProcessProductFamily"
+    },
+    "ProcessProductFamily": {
+      "Type": "Map",
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "DISTRIBUTED",
+          "ExecutionType": "STANDARD"
         },
-        "Next": "MonitorCrawlerStatus",
-        "ResultPath": "$.rawCrawlerResult"
-      },
-      "MonitorCrawlerStatus": {
-        "Type": "Task",
-        "Resource": "arn:aws:states:::aws-sdk:glue:getCrawler",
-        "Parameters": {
-          "Name": "${GlueCrawlerRawName}"
-        },
-        "ResultPath": "$.crawlerStatus",
-        "Next": "CheckCrawlerStatus"
-      },
-      "CheckCrawlerStatus": {
-        "Type": "Choice",
-        "Choices": [
-          {
-            "Variable": "$.crawlerStatus.Crawler.State",
-            "StringEquals": "READY",
-            "Next": "CrawlerFinished"
-          },
-          {
-            "Variable": "$.crawlerStatus.Crawler.State",
-            "StringEquals": "RUNNING",
-            "Next": "WaitForCrawler"
-          },
-          {
-            "Variable": "$.crawlerStatus.Crawler.State",
-            "StringEquals": "STOPPING",
-            "Next": "WaitForCrawler"
-          },
-          {
-            "Variable": "$.crawlerStatus.Crawler.State",
-            "StringEquals": "STARTED",
-            "Next": "WaitForCrawler"
-          }
-        ],
-        "Default": "CrawlerFailed"
-      },
-      "WaitForCrawler": {
-        "Type": "Wait",
-        "Seconds": 30,
-        "Next": "MonitorCrawlerStatus"
-      },
-      "CrawlerFinished": {
-        "Type": "Pass",
-        "Next": "GetDataSourceConfig"
-      },
-      "GetDataSourceConfig": {
-        "Type": "Task",
-        "Resource": "arn:aws:states:::lambda:invoke",
-        "OutputPath": "$.Payload",
-        "Parameters": {
-          "FunctionName": "${GetEventConfigFunctionArn}:$LATEST",
-          "Payload": {
-            "datasource": "txma",
-            "S3MetaDataBucketName": "${S3MetaDataBucketName}"
-          }
-        },
-        "Retry": [
-          {
-            "ErrorEquals": [
-              "Lambda.ServiceException",
-              "Lambda.AWSLambdaException",
-              "Lambda.SdkClientException",
-              "Lambda.TooManyRequestsException"
+        "StartAt": "CheckForProductFamilyEnabledStatus",
+        "States": {
+          "CheckForProductFamilyEnabledStatus": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Not": {
+                  "Variable": "$.enabled",
+                  "BooleanEquals": true
+                },
+                "Next": "DoNotProcessProductFamily"
+              }
             ],
-            "IntervalSeconds": 2,
-            "MaxAttempts": 3,
-            "BackoffRate": 2
-          }
-        ],
-        "Next": "Map"
-      },
-      "Map": {
-        "Type": "Map",
-        "ItemProcessor": {
-          "ProcessorConfig": {
-            "Mode": "INLINE"
+            "Default": "RunRawGlueCrawler"
           },
-          "StartAt": "CheckForEventEnabledStatus",
-          "States": {
-            "CheckForEventEnabledStatus": {
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "Not": {
-                    "Variable": "$.enabled",
-                    "BooleanEquals": true
+          "RunRawGlueCrawler": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+            "Parameters": {
+              "Name.$": "$.product_family"
+            },
+            "ResultPath": "$.rawCrawlerResult",
+            "Next": "MonitorCrawlerStatus"
+          },
+          "MonitorCrawlerStatus": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::aws-sdk:glue:getCrawler",
+            "Parameters": {
+              "Name.$": "$.product_family"
+            },
+            "ResultPath": "$.crawlerStatus",
+            "Next": "CheckStatusOfRawCrawler"
+          },
+          "CheckStatusOfRawCrawler": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Or": [
+                  {
+                    "Variable": "$.crawlerStatus.Crawler.State",
+                    "StringEquals": "RUNNING"
                   },
-                  "Next": "Pass"
-                }
-              ],
-              "Default": "GetPartitionQuery"
-            },
-            "Pass": {
-              "Type": "Pass",
-              "End": true
-            },
-            "GetPartitionQuery": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::lambda:invoke",
-              "ResultPath": "$.sqlText",
-              "Parameters": {
-                "FunctionName": "${GetAthenaStatementFunctionArn}:$LATEST",
-                "Payload": {
-                  "configObject.$": "$",
-                  "datasource": "txma",
-                  "S3MetaDataBucketName": "${S3MetaDataBucketName}",
-                  "action": "GetPartitionQuery"
-                }
+                  {
+                    "Variable": "$.crawlerStatus.Crawler.State",
+                    "StringEquals": "STOPPING"
+                  },
+                  {
+                    "Variable": "$.crawlerStatus.Crawler.State",
+                    "StringEquals": "STARTED"
+                  }
+                ],
+                "Next": "WaitForCrawler"
               },
-              "Retry": [
-                {
-                  "ErrorEquals": [
-                    "Lambda.ServiceException",
-                    "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException",
-                    "Lambda.TooManyRequestsException"
+              {
+                "Variable": "$.crawlerStatus.Crawler.State",
+                "StringEquals": "READY",
+                "Next": "GetProductFamilyEventDataSourceConfig"
+              }
+            ],
+            "Default": "Fail"
+          },
+          "WaitForCrawler": {
+            "Type": "Wait",
+            "Seconds": 30,
+            "Next": "MonitorCrawlerStatus"
+          },
+          "DoNotProcessProductFamily": {
+            "Type": "Pass",
+            "End": true
+          },
+          "Fail": {
+            "Type": "Fail"
+          },
+          "GetProductFamilyEventDataSourceConfig": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "FunctionName": "${GetEventConfigFunctionArn}:$LATEST",
+              "Payload": {
+                "datasource": "txma",
+                "configFilePrefix.$": "$.product_family",
+                "S3MetaDataBucketName": "${S3MetaDataBucketName}"
+              }
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 3,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Map"
+          },
+          "Map": {
+            "Type": "Map",
+            "ItemProcessor": {
+              "ProcessorConfig": {
+                "Mode": "INLINE"
+              },
+              "StartAt": "CheckForEventEnabledStatus",
+              "States": {
+                "CheckForEventEnabledStatus": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "Not": {
+                        "Variable": "$.enabled",
+                        "BooleanEquals": true
+                      },
+                      "Next": "Pass"
+                    }
                   ],
-                  "IntervalSeconds": 2,
-                  "MaxAttempts": 6,
-                  "BackoffRate": 2
-                }
-              ],
-              "Next": "AthenaGetLatestTablePartition"
-            },
-            "AthenaGetLatestTablePartition": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::athena:startQueryExecution",
-              "Parameters": {
-                "QueryExecutionContext": {
-                  "Database": "stage-layer"
+                  "Default": "RawTableExistsQuery"
                 },
-                "QueryString.$": "$.sqlText.Payload",
-                "WorkGroup": "${AthenaWorkGroupName}"
-              },
-              "ResultPath": "$.queryResult",
-              "Next": "WaitForQueryCompletion"
-            },
-            "WaitForQueryCompletion": {
-              "Type": "Wait",
-              "Seconds": 30,
-              "Next": "CheckQueryStatus"
-            },
-            "CheckQueryStatus": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::athena:getQueryExecution",
-              "Parameters": {
-                "QueryExecutionId.$": "$.queryResult.QueryExecutionId"
-              },
-              "ResultPath": "$.queryExecutionStatus",
-              "Next": "CheckStatusLoop"
-            },
-            "CheckStatusLoop": {
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "Variable": "$.queryExecutionStatus.QueryExecution.Status.State",
-                  "StringEquals": "QUEUED",
+                "RawTableExistsQuery": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::athena:startQueryExecution.sync",
+                  "Parameters": {
+                    "QueryString.$": "States.Format('SELECT count(*) as rowCount FROM information_schema.tables where table_schema = \\'${RawDatabaseName}\\' and table_name = \\'{}\\'', $.event_name)",
+                    "WorkGroup": "${AthenaWorkGroupName}"
+                  },
+                  "Next": "GetCheckTableExistsResults",
+                  "ResultPath": "$.checkTableExists"
+                },
+                "GetCheckTableExistsResults": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::athena:getQueryResults",
+                  "Parameters": {
+                    "QueryExecutionId.$": "$.checkTableExists.QueryExecution.QueryExecutionId"
+                  },
+                  "Next": "Choice",
+                  "ResultPath": "$.tableExistsResults"
+                },
+                "Choice": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "Variable": "$.tableExistsResults.ResultSet.Rows[1].Data[0].VarCharValue",
+                      "StringEquals": "1",
+                      "Next": "GetPartitionQuery"
+                    }
+                  ],
+                  "Default": "Pass"
+                },
+                "GetPartitionQuery": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "ResultPath": "$.sqlText",
+                  "Parameters": {
+                    "FunctionName": "${GetAthenaStatementFunctionArn}:$LATEST",
+                    "Payload": {
+                      "configObject.$": "$",
+                      "datasource": "txma",
+                      "S3MetaDataBucketName": "${S3MetaDataBucketName}",
+                      "action": "GetPartitionQuery"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2
+                    }
+                  ],
+                  "Next": "AthenaGetLatestTablePartition"
+                },
+                "Pass": {
+                  "Type": "Pass",
+                  "End": true
+                },
+                "AthenaGetLatestTablePartition": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::athena:startQueryExecution",
+                  "Parameters": {
+                    "QueryExecutionContext": {
+                      "Database": "stage-layer"
+                    },
+                    "QueryString.$": "$.sqlText.Payload",
+                    "WorkGroup": "${AthenaWorkGroupName}"
+                  },
+                  "ResultPath": "$.queryResult",
                   "Next": "WaitForQueryCompletion"
                 },
-                {
-                  "Variable": "$.queryExecutionStatus.QueryExecution.Status.State",
-                  "StringEquals": "RUNNING",
-                  "Next": "WaitForQueryCompletion"
-                }
-              ],
-              "Default": "AthenaGetQueryResults"
-            },
-            "AthenaGetQueryResults": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::athena:getQueryResults",
-              "Parameters": {
-                "QueryExecutionId.$": "$.queryResult.QueryExecutionId"
-              },
-              "Next": "GetInsertQuery",
-              "ResultPath": "$.queryResult"
-            },
-            "GetInsertQuery": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::lambda:invoke",
-              "ResultPath": "$.sqlInsertText",
-              "Parameters": {
-                "FunctionName": "${GetAthenaStatementFunctionArn}:$LATEST",
-                "Payload": {
-                  "configObject.$": "$",
-                  "datasource": "txma",
-                  "S3MetaDataBucketName": "${S3MetaDataBucketName}",
-                  "action": "GetInsertQuery"
-                }
-              },
-              "Retry": [
-                {
-                  "ErrorEquals": [
-                    "Lambda.ServiceException",
-                    "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException",
-                    "Lambda.TooManyRequestsException"
+                "WaitForQueryCompletion": {
+                  "Type": "Wait",
+                  "Seconds": 30,
+                  "Next": "CheckQueryStatus"
+                },
+                "CheckQueryStatus": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::athena:getQueryExecution",
+                  "Parameters": {
+                    "QueryExecutionId.$": "$.queryResult.QueryExecutionId"
+                  },
+                  "ResultPath": "$.queryExecutionStatus",
+                  "Next": "CheckStatusLoop"
+                },
+                "CheckStatusLoop": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "Variable": "$.queryExecutionStatus.QueryExecution.Status.State",
+                      "StringEquals": "QUEUED",
+                      "Next": "WaitForQueryCompletion"
+                    },
+                    {
+                      "Variable": "$.queryExecutionStatus.QueryExecution.Status.State",
+                      "StringEquals": "RUNNING",
+                      "Next": "WaitForQueryCompletion"
+                    }
                   ],
-                  "IntervalSeconds": 2,
-                  "MaxAttempts": 6,
-                  "BackoffRate": 2
-                }
-              ],
-              "Next": "AthenaPerformRawToStageInsert"
-            },
-            "AthenaPerformRawToStageInsert": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::athena:startQueryExecution",
-              "Parameters": {
-                "QueryString.$": "$.sqlInsertText.Payload",
-                "WorkGroup": "${AthenaWorkGroupName}"
-              },
-              "ResultPath": "$.insertResult",
-              "Next": "WaitForInsertCompletion"
-            },
-            "WaitForInsertCompletion": {
-              "Type": "Wait",
-              "Seconds": 30,
-              "Next": "CheckInsertStatus"
-            },
-            "CheckInsertStatus": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::athena:getQueryExecution",
-              "Parameters": {
-                "QueryExecutionId.$": "$.insertResult.QueryExecutionId"
-              },
-              "ResultPath": "$.insertExecutionStatus",
-              "Next": "CheckInsertStatusLoop"
-            },
-            "CheckInsertStatusLoop": {
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "Variable": "$.insertExecutionStatus.QueryExecution.Status.State",
-                  "StringEquals": "QUEUED",
+                  "Default": "AthenaGetQueryResults"
+                },
+                "AthenaGetQueryResults": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::athena:getQueryResults",
+                  "Parameters": {
+                    "QueryExecutionId.$": "$.queryResult.QueryExecutionId"
+                  },
+                  "Next": "GetInsertQuery",
+                  "ResultPath": "$.queryResult"
+                },
+                "GetInsertQuery": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "ResultPath": "$.sqlInsertText",
+                  "Parameters": {
+                    "FunctionName": "${GetAthenaStatementFunctionArn}:$LATEST",
+                    "Payload": {
+                      "configObject.$": "$",
+                      "datasource": "txma",
+                      "S3MetaDataBucketName": "${S3MetaDataBucketName}",
+                      "action": "GetInsertQuery"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2
+                    }
+                  ],
+                  "Next": "AthenaPerformRawToStageInsert"
+                },
+                "AthenaPerformRawToStageInsert": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::athena:startQueryExecution",
+                  "Parameters": {
+                    "QueryString.$": "$.sqlInsertText.Payload",
+                    "WorkGroup": "${AthenaWorkGroupName}"
+                  },
+                  "ResultPath": "$.insertResult",
                   "Next": "WaitForInsertCompletion"
                 },
-                {
-                  "Variable": "$.insertExecutionStatus.QueryExecution.Status.State",
-                  "StringEquals": "RUNNING",
-                  "Next": "WaitForInsertCompletion"
+                "WaitForInsertCompletion": {
+                  "Type": "Wait",
+                  "Seconds": 30,
+                  "Next": "CheckInsertStatus"
+                },
+                "CheckInsertStatus": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::athena:getQueryExecution",
+                  "Parameters": {
+                    "QueryExecutionId.$": "$.insertResult.QueryExecutionId"
+                  },
+                  "ResultPath": "$.insertExecutionStatus",
+                  "Next": "CheckInsertStatusLoop"
+                },
+                "CheckInsertStatusLoop": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "Variable": "$.insertExecutionStatus.QueryExecution.Status.State",
+                      "StringEquals": "QUEUED",
+                      "Next": "WaitForInsertCompletion"
+                    },
+                    {
+                      "Variable": "$.insertExecutionStatus.QueryExecution.Status.State",
+                      "StringEquals": "RUNNING",
+                      "Next": "WaitForInsertCompletion"
+                    }
+                  ],
+                  "Default": "Pass"
                 }
-              ],
-              "Default": "Pass"
-            }
+              }
+            },
+            "MaxConcurrency": 30,
+            "End": true
           }
-        },
-        "MaxConcurrency": 20,
-        "Next": "StartStageCrawler"
+        }
       },
-      "StartStageCrawler": {
-        "Type": "Task",
-        "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+      "Next": "StartStageCrawler",
+      "Label": "ProcessProductFamily",
+      "MaxConcurrency": 1000,
+      "ToleratedFailurePercentage": 50,
+      "ResultWriter": {
+        "Resource": "arn:aws:states:::s3:putObject",
         "Parameters": {
-          "Name": "${GlueCrawlerStageName}"
-        },
-        "Next": "MonitorStageCrawlerStatus"
-      },
-      "MonitorStageCrawlerStatus": {
-        "Type": "Task",
-        "Resource": "arn:aws:states:::aws-sdk:glue:getCrawler",
-        "Parameters": {
-          "Name": "${GlueCrawlerStageName}"
-        },
-        "ResultPath": "$.crawlerStageStatus",
-        "Next": "CheckStageCrawlerStatus"
-      },
-      "CheckStageCrawlerStatus": {
-        "Type": "Choice",
-        "Choices": [
-          {
-            "Variable": "$.crawlerStageStatus.Crawler.State",
-            "StringEquals": "READY",
-            "Next": "StageCrawlerFinished"
-          },
-          {
-            "Variable": "$.crawlerStageStatus.Crawler.State",
-            "StringEquals": "RUNNING",
-            "Next": "WaitForStageCrawler"
-          },
-          {
-            "Variable": "$.crawlerStageStatus.Crawler.State",
-            "StringEquals": "STOPPING",
-            "Next": "WaitForStageCrawler"
-          },
-          {
-            "Variable": "$.crawlerStageStatus.Crawler.State",
-            "StringEquals": "STARTED",
-            "Next": "WaitForStageCrawler"
-          }
-        ],
-        "Default": "CrawlerFailed"
-      },
-      "WaitForStageCrawler": {
-        "Type": "Wait",
-        "Seconds": 30,
-        "Next": "MonitorStageCrawlerStatus"
-      },
-      "StageCrawlerFinished": {
-        "Type": "Pass",
-        "End": true
-      },
-      "CrawlerFailed": {
-        "Type": "Fail",
-        "Error": "CrawlerFailed",
-        "Cause": "The Glue crawler execution failed."
+          "Bucket": "${StateMachineResultsBucket}",
+          "Prefix": "txma"
+        }
       }
+    },
+    "StartStageCrawler": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+      "Parameters": {
+        "Name": "${GlueCrawlerStageName}"
+      },
+      "Next": "MonitorStageCrawlerStatus"
+    },
+    "MonitorStageCrawlerStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:glue:getCrawler",
+      "Parameters": {
+        "Name": "${GlueCrawlerStageName}"
+      },
+      "ResultPath": "$.crawlerStageStatus",
+      "Next": "CheckStageCrawlerStatus"
+    },
+    "CheckStageCrawlerStatus": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.crawlerStageStatus.Crawler.State",
+          "StringEquals": "READY",
+          "Next": "StageCrawlerFinished"
+        },
+        {
+          "Or": [
+            {
+              "Variable": "$.crawlerStageStatus.Crawler.State",
+              "StringEquals": "RUNNING"
+            },
+            {
+              "Variable": "$.crawlerStageStatus.Crawler.State",
+              "StringEquals": "STOPPING"
+            },
+            {
+              "Variable": "$.crawlerStageStatus.Crawler.State",
+              "StringEquals": "STARTED"
+            }
+          ],
+          "Next": "WaitForStageCrawler"
+        }
+      ],
+      "Default": "CrawlerFailed"
+    },
+    "WaitForStageCrawler": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "MonitorStageCrawlerStatus"
+    },
+    "StageCrawlerFinished": {
+      "Type": "Pass",
+      "End": true
+    },
+    "CrawlerFailed": {
+      "Type": "Fail",
+      "Error": "CrawlerFailed",
+      "Cause": "The Glue crawler execution failed."
     }
   }
+}

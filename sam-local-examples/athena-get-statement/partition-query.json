@@ -1,0 +1,10 @@
+{
+  "datasource": "txma",
+  "S3MetaDataBucketName": "dev-dap-elt-metadata",
+  "action": "GetPartitionQuery",
+  "configObject": {
+    "event_name": "AUTH_AUTHORISATION_INITIATED",
+    "product_family": "RELYING_PARTY",
+    "enabled": true
+  }
+}

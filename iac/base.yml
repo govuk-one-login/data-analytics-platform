@@ -47,10 +47,11 @@ Conditions:
   IsTest: !Equals [!Ref Environment, test]
   IsDev: !Equals [!Ref Environment, dev]
   IsBuild: !Equals [!Ref Environment, build]
+  IsStaging: !Equals [!Ref Environment, staging]
   UsePlaceholderTxMAQueue: !Or
     - !Condition IsTest
-    # todo uncomment when txma queue has been moved from dev to staging
-    # - !Condition IsDev
+    # todo replace line below with `- !Condition IsDev` when txma queue has been moved from dev to staging
+    - !Condition IsStaging
     - !Condition IsBuild
 
 Globals:
