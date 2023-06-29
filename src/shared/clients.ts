@@ -5,6 +5,9 @@ import { LambdaClient } from '@aws-sdk/client-lambda';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { FirehoseClient } from '@aws-sdk/client-firehose';
 import { ConfiguredRetryStrategy } from '@aws-sdk/util-retry';
+import { AthenaClient } from '@aws-sdk/client-athena';
+
+export const athenaClient = new AthenaClient(AWS_CLIENT_BASE_CONFIG);
 
 export const cloudwatchClient = new CloudWatchLogsClient(AWS_CLIENT_BASE_CONFIG);
 
