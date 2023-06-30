@@ -206,7 +206,79 @@ test('athena success', async () => {
   expect(mockAthenaClient.calls()).toHaveLength(7);
 });
 
+// todo use fake timers to avoid 1s test delay
+test('athena wait', async () => {
+  const queryExecutionId = '1234';
+  const timeoutMs = 1000;
+  const runningResponse = { QueryExecution: { Status: { State: 'RUNNING' } } };
+
+  mockAthenaClient.resolvesOnce({ QueryExecutionId: queryExecutionId }).resolves(runningResponse);
+
+  const event = getEvent({
+    command: 'ATHENA_RUN_QUERY',
+    input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
+  });
+  await expect(handler(event)).rejects.toThrow(
+    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
+      runningResponse.QueryExecution.Status
+    )}`
+  );
+
+  expect(mockAthenaClient.calls().length).toBeGreaterThanOrEqual(5);
+});
+
+test('athena wait cancellation', async () => {
+  const queryExecutionId = '1234';
+  const timeoutMs = 5000;
+  const cancelledResponse = { QueryExecution: { Status: { State: 'CANCELLED' } } };
+
+  mockAthenaClient
+    .resolvesOnce({ QueryExecutionId: queryExecutionId })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce(cancelledResponse);
+
+  const event = getEvent({
+    command: 'ATHENA_RUN_QUERY',
+    input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
+  });
+  await expect(handler(event)).rejects.toThrow(
+    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
+      cancelledResponse.QueryExecution.Status
+    )}`
+  );
+
+  expect(mockAthenaClient.calls()).toHaveLength(5);
+});
+
+// todo use fake timers to avoid 1s test delay
 test('athena wait failure', async () => {
+  const queryExecutionId = '1234';
+  const timeoutMs = 1000;
+  const failedResponse = { QueryExecution: { Status: { State: 'FAILED', StateChangeReason: 'athena error' } } };
+
+  mockAthenaClient
+    .resolvesOnce({ QueryExecutionId: queryExecutionId })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolves(failedResponse);
+
+  const event = getEvent({
+    command: 'ATHENA_RUN_QUERY',
+    input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
+  });
+  await expect(handler(event)).rejects.toThrow(
+    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
+      failedResponse.QueryExecution.Status
+    )}`
+  );
+
+  expect(mockAthenaClient.calls().length).toBeGreaterThanOrEqual(5);
+});
+
+test('athena wait failure retry', async () => {
   const queryExecutionId = '1234';
   const timeoutMs = 5000;
 
@@ -216,6 +288,9 @@ test('athena wait failure', async () => {
     .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
     .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
     .resolvesOnce({ QueryExecution: { Status: { State: 'FAILED', StateChangeReason: 'athena error' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'QUEUED' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
     .resolvesOnce({ QueryExecution: { Status: { State: 'SUCCEEDED' } } })
     .resolvesOnce(ATHENA_QUERY_RESULTS);
 
@@ -223,9 +298,12 @@ test('athena wait failure', async () => {
     command: 'ATHENA_RUN_QUERY',
     input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
   });
-  await expect(handler(event)).rejects.toThrow(`Query failed with reason: athena error`);
+  const response = (await handler(event)) as GetQueryResultsOutput;
 
-  expect(mockAthenaClient.calls()).toHaveLength(5);
+  expect(response).toBeDefined();
+  expect(response?.ResultSet?.Rows?.at(1)?.Data?.at(0)?.VarCharValue).toEqual('39.51307483542592');
+
+  expect(mockAthenaClient.calls()).toHaveLength(10);
 });
 
 const getEvent = (overrides: { environment?: string; command?: string; input?: object }): TestSupportEvent => {

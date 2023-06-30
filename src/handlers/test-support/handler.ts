@@ -1,5 +1,5 @@
 import { AWS_ENVIRONMENTS } from '../../shared/constants';
-import { decodeObject, getRequiredParams } from '../../shared/utils/utils';
+import { decodeObject, getRequiredParams, sleep } from '../../shared/utils/utils';
 import { DescribeLogStreamsCommand, GetLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
 import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 import { InvokeCommand } from '@aws-sdk/client-lambda';
@@ -9,8 +9,7 @@ import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { athenaClient, cloudwatchClient, lambdaClient, s3Client, sqsClient } from '../../shared/clients';
 import * as zlib from 'zlib';
 import { GetQueryExecutionCommand, GetQueryResultsCommand, StartQueryExecutionCommand } from '@aws-sdk/client-athena';
-import type { GetQueryResultsOutput } from '@aws-sdk/client-athena';
-import type { QueryExecutionState } from '@aws-sdk/client-athena/dist-types/models/models_0';
+import type { GetQueryResultsOutput, QueryExecutionStatus } from '@aws-sdk/client-athena';
 
 const TEST_SUPPORT_COMMANDS = [
   'ATHENA_RUN_QUERY',
@@ -143,8 +142,8 @@ const runAthenaQuery = async (event: TestSupportEvent): Promise<unknown> => {
     const queryExecutionId = await startAthenaQuery(event);
     await waitForAthenaQueryToSucceed(queryExecutionId, event.input.timeoutMs ?? 5000);
     return await getAthenaResults(queryExecutionId);
-  } catch (e: any) {
-    console.error(`Error executing athena query with input ${JSON.stringify(event.input)}`, e?.message);
+  } catch (e) {
+    console.error(`Error executing athena query with input ${JSON.stringify(event.input)}`, e);
     throw e;
   }
 };
@@ -157,30 +156,25 @@ const startAthenaQuery = async (event: TestSupportEvent): Promise<string | undef
 };
 
 const waitForAthenaQueryToSucceed = async (QueryExecutionId: string | undefined, timeoutMs: number): Promise<void> => {
-  let querySuccess = false;
-  let state: QueryExecutionState | string = '';
+  let status: QueryExecutionStatus | undefined;
   let timeRemaining = timeoutMs;
-  while (!querySuccess && timeRemaining > 0) {
-    const response = await athenaClient.send(new GetQueryExecutionCommand({ QueryExecutionId }));
-    state = response.QueryExecution?.Status?.State ?? '(missing state)';
-    if (state === 'FAILED') {
-      throw new Error(`Query failed with reason: ${response.QueryExecution?.Status?.StateChangeReason ?? '(missing reason)'}`);
-    } else if (state === 'CANCELLED') {
-      throw new Error('Query cancelled');
-    } else if (state === 'SUCCEEDED') {
-      querySuccess = true;
-    } else {
-      timeRemaining -= 200;
-      await sleep(200);
+  while (timeRemaining > 0) {
+    status = await athenaClient
+      .send(new GetQueryExecutionCommand({ QueryExecutionId }))
+      .then(response => response.QueryExecution?.Status);
+
+    // return if SUCCEEDED to stop waiting, break if CANCELLED to allow error to be thrown
+    // don't break if FAILED as athena may retry and put back in QUEUED
+    if (status?.State === 'SUCCEEDED') {
+      return;
+    } else if (status?.State === 'CANCELLED') {
+      break;
     }
+    timeRemaining -= 200;
+    await sleep(200);
   }
-
-  if (!querySuccess) {
-    throw new Error(`Query did not complete in ${timeoutMs}ms - final state was ${state}`);
-  }
+  throw new Error(`Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(status)}`);
 };
-
-const sleep = async (ms: number): Promise<unknown> => await new Promise(resolve => setTimeout(resolve, ms));
 
 const getAthenaResults = async (QueryExecutionId: string | undefined): Promise<GetQueryResultsOutput> => {
   const resultsRequest = new GetQueryResultsCommand({ QueryExecutionId });
