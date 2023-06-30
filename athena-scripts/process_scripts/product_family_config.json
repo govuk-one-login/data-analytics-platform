@@ -8,10 +8,6 @@
         "enabled": true
     },
     {
-        "product_family": "dcmaw_app_journey",
-        "enabled": true
-    },
-    {
         "product_family": "dcmaw_cri",
         "enabled": true
     },
