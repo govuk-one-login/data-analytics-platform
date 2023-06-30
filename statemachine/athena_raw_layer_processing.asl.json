@@ -23,7 +23,7 @@
           "Next": "RunningInstanceDetected"
         }
       ],
-      "Default": "GetProductFamilyConfig"
+      "Default": "StartStageCrawler"
     },
     "RunningInstanceDetected": {
       "Type": "Fail",
@@ -376,7 +376,7 @@
       "Next": "StartStageCrawler",
       "Label": "ProcessProductFamily",
       "MaxConcurrency": 1000,
-      "ToleratedFailurePercentage": 50,
+      "ToleratedFailurePercentage": 100,
       "ResultWriter": {
         "Resource": "arn:aws:states:::s3:putObject",
         "Parameters": {
@@ -391,7 +391,8 @@
       "Parameters": {
         "Name": "${GlueCrawlerStageName}"
       },
-      "Next": "MonitorStageCrawlerStatus"
+      "Next": "MonitorStageCrawlerStatus",
+      "ResultPath": "$.stageCrawlerResult"
     },
     "MonitorStageCrawlerStatus": {
       "Type": "Task",
@@ -436,6 +437,23 @@
       "Next": "MonitorStageCrawlerStatus"
     },
     "StageCrawlerFinished": {
+      "Type": "Pass",
+      "Next": "NextProcess"
+    },
+    "NextProcess": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Not": {
+            "Variable": "$.MapRunArn",
+            "IsPresent": true
+          },
+          "Next": "GetProductFamilyConfig"
+        }
+      ],
+      "Default": "StopProcessing"
+    },
+    "StopProcessing": {
       "Type": "Pass",
       "End": true
     },
