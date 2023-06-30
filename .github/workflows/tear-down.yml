@@ -7,10 +7,6 @@ on:
         type: string
         required: true
 
-# env:
-#   AWS_REGION: eu-west-2
-#   ENV_NAME: pr-${{ github.event.pull_request.number }}
-
 jobs:
   tear-down-cf-stack:
     permissions:
@@ -28,6 +24,8 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_{0}', inputs.environment)] }}
-      - name: Tear down Cloudformation stack
-        run: npm run sam:teardown
+          role-to-assume: ${{ secrets.INTEGRATION_TEST_STACKS_ROLE }} 
+      - name: Empty S3 buckets in the stack
+        run: npm run s3:empty-buckets
+      - name: Delete CF stack
+        run: sam delete --stack-name dap --no-prompts --region eu-west-2
