@@ -391,7 +391,8 @@
       "Parameters": {
         "Name": "${GlueCrawlerStageName}"
       },
-      "Next": "MonitorStageCrawlerStatus"
+      "Next": "MonitorStageCrawlerStatus",
+      "ResultPath": "$.stageCrawlerResult"
     },
     "MonitorStageCrawlerStatus": {
       "Type": "Task",
