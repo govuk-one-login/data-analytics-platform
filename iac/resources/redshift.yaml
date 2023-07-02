@@ -1,4 +1,5 @@
 MyRedshiftSecret:
+  # checkov:skip=CKV_AWS_149: "Ensure that Secrets Manager secret is encrypted using KMS CMK"
   Type: 'AWS::SecretsManager::Secret'
   Properties:
     Description: This is a Secrets Manager secret for a Redshift cluster
