@@ -1,4 +1,4 @@
-  MyRedshiftSecret:
+MyRedshiftSecret:
     Type: 'AWS::SecretsManager::Secret'
     Properties:
       Description: This is a Secrets Manager secret for a Redshift cluster
@@ -8,58 +8,67 @@
         PasswordLength: 16
         ExcludeCharacters: '"''@/\'
              
-  VPCForDAP:
+VPCForDAP:
     Type: AWS::EC2::VPC
     Properties: 
      CidrBlock: 10.0.0.0/16
      Tags:
-        Environment: !Ref Environment
-  SubnetForDAP1:   
+      - Key: Environment
+        Value: !Ref Environment
+SubnetForDAP1:   
     Type: AWS::EC2::Subnet
     Properties: 
      VpcId: !Ref VPCForDAP
-     AvailabilityZone: eu-west-2a     
+     AvailabilityZone: 
+      Fn::GetAZs: eu-west-2    
      CidrBlock: 10.0.1.0/24
-     Tags: 
-        Environment: !Ref Environment
-  SubnetForDAP2:   
+     Tags:
+      - Key: Environment
+        Value: !Ref Environment
+SubnetForDAP2:   
     Type: AWS::EC2::Subnet
     Properties: 
      VpcId: !Ref VPCForDAP
-     AvailabilityZone: eu-west-2b
+     AvailabilityZone: 
+      Fn::GetAZs: eu-west-2
      CidrBlock: 10.0.2.0/24
-     Tags: 
-        Environment: !Ref Environment   
-  SubnetForDAP3:   
+     Tags:
+      - Key: Environment
+        Value: !Ref Environment
+SubnetForDAP3:   
     Type: AWS::EC2::Subnet
     Properties: 
      VpcId: !Ref VPCForDAP
-     AvailabilityZone: eu-west-2c
+     AvailabilityZone: 
+      Fn::GetAZs: eu-west-2
      CidrBlock: 10.0.3.0/24
-     Tags: 
-        Environment: !Ref Environment 
-  RouteTableForDAP:
+     Tags:
+      - Key: Environment
+        Value: !Ref Environment
+RouteTableForDAP:
     Type: AWS::EC2::RouteTable
     Properties: 
-     Tags: 
-        Environment: !Ref Environment 
-     VpcId: !Ref VPCForDAP    
-  SubnetRouteTableAssocDAP1:
+     Tags:
+      - Key: Environment
+        Value: !Ref Environment
+     VpcId: !Ref VPCForDAP            
+    
+SubnetRouteTableAssocDAP1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties: 
      RouteTableId: !Ref RouteTableForDAP
      SubnetId: !Ref SubnetForDAP1
-  SubnetRouteTableAssocDAP2:
+SubnetRouteTableAssocDAP2:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties: 
      RouteTableId: !Ref RouteTableForDAP
      SubnetId: !Ref SubnetForDAP2
-  SubnetRouteTableAssocDAP3:
+SubnetRouteTableAssocDAP3:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties: 
      RouteTableId: !Ref RouteTableForDAP
      SubnetId: !Ref SubnetForDAP3      
-  RedshiftServerlessNamespace:
+RedshiftServerlessNamespace:
     Type: 'AWS::RedshiftServerless::Namespace'
     Properties:
       AdminUsername:
@@ -75,7 +84,7 @@
       LogExports:
         - useractivitylog
       NamespaceName: !Sub '${Environment}-redshift-serverless-namespace'
-  RedshiftServerlessWorkgroup:
+RedshiftServerlessWorkgroup:
     Type: 'AWS::RedshiftServerless::Workgroup'
     Properties:
       BaseCapacity: 128
