@@ -2,21 +2,21 @@ module.exports = async () => {
   return {
     verbose: true,
     transform: {
-      "^.+\\.tsx?$": "esbuild-jest"
+      '^.+\\.tsx?$': 'esbuild-jest',
     },
     collectCoverage: true,
-    testResultsProcessor: "./node_modules/jest-stare",
+    testResultsProcessor: './node_modules/jest-stare',
     reporters: [
-      "default",
+      'default',
       [
-        "jest-stare",
+        'jest-stare',
         {
-          "resultDir": "test-report",
-          "reportTitle": "DAP",
-          "reportHeadline": "DAP",
-          "coverageLink": "../../coverage/lcov-report/index.html"
-        }
-      ]
-    ]
+          resultDir: 'test-report',
+          reportTitle: 'DAP',
+          reportHeadline: 'DAP',
+          coverageLink: '../../coverage/lcov-report/index.html',
+        },
+      ],
+    ],
   };
 };

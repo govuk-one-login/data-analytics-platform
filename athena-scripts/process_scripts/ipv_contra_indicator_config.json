@@ -1,7 +1,7 @@
 [
-    {
-        "event_name": "ipv_cri_auth_response_received",
-        "product_family": "ipv_contra_indicator",
-        "enabled": true
-    }
+  {
+    "event_name": "ipv_cri_auth_response_received",
+    "product_family": "ipv_contra_indicator",
+    "enabled": true
+  }
 ]

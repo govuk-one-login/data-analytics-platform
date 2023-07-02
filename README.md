@@ -11,15 +11,15 @@ The GDS recommendation is to use `nvm` to manage Node versions - installation in
 
 ###### Core
 
-* [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) - for running SAM commands
-* [Node](https://nodejs.org/en) - for lambda development and running `npm` commands
-* [Docker](https://docs.docker.com/desktop/install/mac-install) - for running `sam local`
-* [Checkov](https://www.checkov.io) - for validating IaC code. Install on GDS Macs in the terminal by running `pip3 install checkov`
+- [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) - for running SAM commands
+- [Node](https://nodejs.org/en) - for lambda development and running `npm` commands
+- [Docker](https://docs.docker.com/desktop/install/mac-install) - for running `sam local`
+- [Checkov](https://www.checkov.io) - for validating IaC code. Install on GDS Macs in the terminal by running `pip3 install checkov`
 
 ###### Optional
 
-* [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) - for interacting with AWS on the command line
-* [GitHub CLI](https://cli.github.com) - for interacting with GitHub on the command line. Can do some things not possible via the GUI, such as running workflows that have not been merged to `main`
+- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) - for interacting with AWS on the command line
+- [GitHub CLI](https://cli.github.com) - for interacting with GitHub on the command line. Can do some things not possible via the GUI, such as running workflows that have not been merged to `main`
 
 #### Set up commit signing
 
@@ -54,7 +54,7 @@ The [AWS SAM](https://aws.amazon.com/serverless/sam) config is at [samconfig.tom
 Below is a list of workflows:
 
 | Name                              | File                    | Triggers                                                                                                                                                                                                                                                                                                                                                                        | Purpose                                                                                            |
-|-----------------------------------|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+| --------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | Deploy to an AWS environment      | deploy-to-aws.yml       | <ul><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li></ul>                                                                                                                                                                                                                                             | Deploys to a deployable AWS environment (dev, build, test)                                         |
 | Deploy to the test environment    | deploy-to-test.yml      | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Deploys IaC and lambda code to the test AWS                                                        |
 | Deploy to the dev environment     | deploy-to-dev.yml       | <ul><li>[merge to main](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push)</li><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                   | Deploys IaC and lambda code to the dev AWS                                                         |
@@ -68,9 +68,9 @@ Below is a list of workflows:
 
 Unit testing is done with [Jest](https://jestjs.io) and the lambdas should all have associated unit tests (`*.spec.ts`).
 
-* `npm run test` - run all tests under `src/`
-* `jest consumer` - run a specific test or tests
-    * anything after `jest` is used as a regex match - so in this example `consumer` causes jest to match all tests under the `src/handlers/txma-event-consumer/` directory (and any other directory that might have `consumer` in its name)
+- `npm run test` - run all tests under `src/`
+- `jest consumer` - run a specific test or tests
+  - anything after `jest` is used as a regex match - so in this example `consumer` causes jest to match all tests under the `src/handlers/txma-event-consumer/` directory (and any other directory that might have `consumer` in its name)
 
 #### Integration tests
 
@@ -89,40 +89,41 @@ Linting and formatting are handled by [ESLint](https://eslint.org) and [Prettier
 [typescript-eslint](https://typescript-eslint.io) is used to allow these tools to work with TypeScript. The formatting
 rules of ESLint are disabled by the [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier) NPM package so as not to conflict with Prettier.
 
-* `npm run check` - run linting and formatting checks
-* `npm run lint:check` - run linting checks and print warnings
-* `npm run lint:fix` - run linting checks and (attempt to) automatically fix issues
-* `npm run format:check` - run formatting checks and print warnings
-* `npm run format:fix` - run formatting checks and automatically fix issues
+- `npm run check` - run linting and formatting checks
+- `npm run lint:check` - run linting checks and print warnings
+- `npm run lint:fix` - run linting checks and (attempt to) automatically fix issues
+- `npm run format:check` - run formatting checks and print warnings
+- `npm run format:fix` - run formatting checks and automatically fix issues
 
 #### IaC
 
 AWS SAM can perform [validation and linting](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/validate-cfn-lint.html) of CloudFormation files.
 In addition, [checkov](https://www.checkov.io) can find misconfigurations. Prettier can also check (or fix) the formatting of the YAML of the SAM template.
 
-* `npm run iac:lint` - run validation and linting checks and print warnings
-* `npm run iac:scan` - run checkov scan and print warnings
-* `npm run iac:format:check` - run formatting checks and print warnings
-* `npm run iac:format:fix` - run formatting checks and automatically fix issues
+- `npm run iac:lint` - run validation and linting checks and print warnings
+- `npm run iac:scan` - run checkov scan and print warnings
+- `npm run iac:format:check` - run formatting checks and print warnings
+- `npm run iac:format:fix` - run formatting checks and automatically fix issues
 
 ## Building and running
 
 #### Lambdas
 
-* `npm run build` - build (transpile, bundle, etc.) lambdas into the [dist](dist) directory
+- `npm run build` - build (transpile, bundle, etc.) lambdas into the [dist](dist) directory
 
 Lambdas can be run locally with [sam local invoke](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-invoke.html). A few prerequisites:
 
-* Docker is running
-* Lambda you wish to run has been built into a `.js` file (`npm run build`)
-* Lambda you wish to run is defined in CloudFormation and has been built into the top-level `template.yml` file (`npm run iac:build`)
-  * You can use the CloudFormation resource name (e.g. `AthenaGetConfigLambda` or `EventConsumerLambda`) to refer to the lambda in the invoke command
-* SAM application has been built (`sam build`)
-    * **Order matters here** - this command copies the lambda JS into `.aws-sam/`, so make sure `npm run build` has been run beforehand
-* You have defined a JSON file (ideally [here](sam-local-examples)) containing the event you wish to be the input event of the lambda (unless you don't need an input event)
-* You have added any environment variables you need the lambda to take to [env.json](sam-local-examples/env.json)
+- Docker is running
+- Lambda you wish to run has been built into a `.js` file (`npm run build`)
+- Lambda you wish to run is defined in CloudFormation and has been built into the top-level `template.yml` file (`npm run iac:build`)
+  - You can use the CloudFormation resource name (e.g. `AthenaGetConfigLambda` or `EventConsumerLambda`) to refer to the lambda in the invoke command
+- SAM application has been built (`sam build`)
+  - **Order matters here** - this command copies the lambda JS into `.aws-sam/`, so make sure `npm run build` has been run beforehand
+- You have defined a JSON file (ideally [here](sam-local-examples)) containing the event you wish to be the input event of the lambda (unless you don't need an input event)
+- You have added any environment variables you need the lambda to take to [env.json](sam-local-examples/env.json)
 
 An example invocation might be
+
 ```shell
 npm run build
 npm run iac:build
@@ -137,9 +138,9 @@ sam local invoke EventConsumerLambda --env-vars sam-local-examples/env.json --ev
 
 ###### A note on args
 
-* The `--env-vars` arg takes the path to a JSON file with any environment vars you want the lambda to have access to (via node `process.env`). Find these (and define more) in per-function objects within the main object in `sam-local-examples/env.json`
-* The `--event` arg takes the path to a JSON file with the input event you want the lambda to have. Find these (and define more) in per-function subdirectories under `sam-local-examples/`
-* A different template file path can be specified with the `--template-file` flag
+- The `--env-vars` arg takes the path to a JSON file with any environment vars you want the lambda to have access to (via node `process.env`). Find these (and define more) in per-function objects within the main object in `sam-local-examples/env.json`
+- The `--event` arg takes the path to a JSON file with the input event you want the lambda to have. Find these (and define more) in per-function subdirectories under `sam-local-examples/`
+- A different template file path can be specified with the `--template-file` flag
 
 SAM local can also be used to [generate events](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/using-sam-cli-local-generate-event.html).
 An example invocation might be `sam local generate-event sqs receive-message` or `sam local generate-event s3 put`.
@@ -150,9 +151,11 @@ You can run `sam local generate` with no args for a list of supported services.
 AWS SAM can [build the YAML template](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/using-sam-cli-build.html).
 Artifacts will be placed into `.aws-sam/`. If you wish the lambda code to be included, it must first have been built into a `.js` file (`npm run build`).
 An example invocation might be
+
 ```shell
 sam build
 ```
+
 which will build `template.yaml` and use the lambda code in `dist/`.
 A different template file path can be specified with the `--template-file` flag and a different lambda code directory by changing the `CodeUri` global property in `template.yaml`.
 
@@ -161,17 +164,17 @@ A different template file path can be specified with the `--template-file` flag 
 Deployment is done via [Secure Pipelines](https://govukverify.atlassian.net/wiki/spaces/DAP/pages/3535667315/Secure+Pipelines).
 
 From a Secure Pipelines point-of-view, environments can be split into two types: 'higher' and 'lower' environments.
-The lower environments are _test_, _dev_ and _build_&ast;. The higher environments are _staging_, _integration_ and _production_.
+The lower environments are _test_, _dev_ and _build_\*. The higher environments are _staging_, _integration_ and _production_.
 More information can be found using the Secure Pipelines link above, but the key differences are that the lower environments are the only ones
 that can be deployed to directly from GitHub. Deployment to the higher environments relies on 'promotion' from a lower environment, specifically
-the _build_ environment. In addition, the higher environment lambdas are triggered by real TxMA event queues&ast;&ast;, whereas lower environments use a
+the _build_ environment. In addition, the higher environment lambdas are triggered by real TxMA event queues\*\*, whereas lower environments use a
 placeholder one that we create and must put our own test events onto.
 
-&ast; Strictly speaking, `test` and `dev` do not form part of the Secure Pipelines build system which takes an application
+\* Strictly speaking, `test` and `dev` do not form part of the Secure Pipelines build system which takes an application
 that is deployed to `build` all the way to `production` via the other higher environments. Our `test` and `dev` environments are
-disconnected sandboxes; however they still use Secure Pipelines to deploy directly from GitHub 
+disconnected sandboxes; however they still use Secure Pipelines to deploy directly from GitHub
 
-&ast;&ast; An important exception is that _dev_ is connected to the real TxMA staging queue. This is intended to be temporary
+\*\* An important exception is that _dev_ is connected to the real TxMA staging queue. This is intended to be temporary
 since at time of writing we do not have the higher environments set up. Once our own _staging_ account is ready, it will receive
 the real TxMA staging queue and _dev_ will get a placeholder queue
 
@@ -203,12 +206,12 @@ The action cannot be invoked manually like the one for dev, only by merging into
 ###### Higher environment config
 
 Because they use real TxMA event queues (from external AWS accounts and not in our IaC code),
-deployment to higher environments&ast; relies on the following AWS System Manager Parameters being available in the target account:
+deployment to higher environments\* relies on the following AWS System Manager Parameters being available in the target account:
 
-&ast; These parameters are also required in the _dev_ account for the reasons mentioned above (_dev_ currently having the real TxMA staging queue)
+\* These parameters are also required in the _dev_ account for the reasons mentioned above (_dev_ currently having the real TxMA staging queue)
 
 | Name              | Description                                                                 |
-|-------------------|-----------------------------------------------------------------------------|
+| ----------------- | --------------------------------------------------------------------------- |
 | TxMAEventQueueARN | ARN of the TxMA event queue which triggers the `txma-event-consumer` lambda |
 | TxMAKMSKeyARN     | ARN of the TxMA KMS key needed for the `txma-event-consumer` lambda         |
 

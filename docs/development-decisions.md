@@ -3,8 +3,8 @@
 Development decisions in this repository were based primarily on existing practices within our [Data Pod](https://govukverify.atlassian.net/wiki/spaces/DID/pages/3453387679/Data+Pod+Teams)
 (composed of us, TxMA and BTM). The repositories these practices were takes from are:
 
-* [di-billing-transaction-monitoring](https://github.com/alphagov/di-billing-transaction-monitoring) (BTM)
-* [di-txma-event-processing](https://github.com/alphagov/di-txma-event-processing) (TxMA)
+- [di-billing-transaction-monitoring](https://github.com/alphagov/di-billing-transaction-monitoring) (BTM)
+- [di-txma-event-processing](https://github.com/alphagov/di-txma-event-processing) (TxMA)
 
 Both repositories are very similar to ours in the sense they have TypeScript lambdas deployed with an AWS SAM application,
 using the [Platform & SRE Pod's](https://govukverify.atlassian.net/wiki/spaces/PLAT/overview) Secure Pipelines.
@@ -30,7 +30,7 @@ Prettier uses the rules in the EditorConfig [to add to its configuration](https:
 
 [TypeScript itself is configured](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) with the [tsconfig.json](../tsconfig.json) file at the top-level.
 The BTM and TxMA `tsconfig.json` files didn't seem especially consistent, so it was decided to instead use a [TSConfig base configuration](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html#tsconfig-bases)
-instead (specifically [the one for Node 18](https://www.npmjs.com/package/@tsconfig/node18)) to adhere to best practices. 
+instead (specifically [the one for Node 18](https://www.npmjs.com/package/@tsconfig/node18)) to adhere to best practices.
 
 ## TypeScript Building
 
