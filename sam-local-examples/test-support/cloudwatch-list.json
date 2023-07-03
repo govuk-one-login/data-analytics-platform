@@ -1,0 +1,7 @@
+{
+  "environment": "dev",
+  "command": "CLOUDWATCH_LIST",
+  "input": {
+    "logGroupName": "/aws/lambda/test-support-dev"
+  }
+}

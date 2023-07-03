@@ -61,6 +61,8 @@ export const getEnvironmentVariable = (key: string): string => {
   return value;
 };
 
+export const sleep = async (ms: number): Promise<unknown> => await new Promise(resolve => setTimeout(resolve, ms));
+
 // see https://stackoverflow.com/a/65666402
 const throwExpression = (message: string): never => {
   throw new Error(message);

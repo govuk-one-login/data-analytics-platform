@@ -1,0 +1,11 @@
+{
+  "environment": "dev",
+  "command": "ATHENA_RUN_QUERY",
+  "input": {
+    "QueryString": "SELECT AVG(age) FROM testtable WHERE salary > 60000;",
+    "QueryExecutionContext": {
+      "Database": "testdatabase"
+    },
+    "WorkGroup": "test-workgroup"
+  }
+}
