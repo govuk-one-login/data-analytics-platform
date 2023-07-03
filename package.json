@@ -20,7 +20,7 @@
     "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
-    "aws-sdk-client-mock": "^2.2.0",
+    "aws-sdk-client-mock": "^3.0.0",
     "esbuild": "^0.18.10",
     "esbuild-jest": "^0.5.0",
     "eslint": "^8.43.0",
