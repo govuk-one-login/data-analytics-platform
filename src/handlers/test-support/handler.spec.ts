@@ -4,10 +4,14 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { LambdaClient } from '@aws-sdk/client-lambda';
 import { S3Client } from '@aws-sdk/client-s3';
 import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
+import { Uint8ArrayBlobAdapter } from '@aws-sdk/util-stream';
+import { AthenaClient } from '@aws-sdk/client-athena';
+import type { GetQueryResultsOutput } from '@aws-sdk/client-athena';
 
 jest.spyOn(console, 'log').mockImplementation(() => undefined);
 jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
+const mockAthenaClient = mockClient(AthenaClient);
 const mockLambdaClient = mockClient(LambdaClient);
 const mockS3Client = mockClient(S3Client);
 
@@ -26,7 +30,14 @@ const EXPECTED_S3_BODY = {
   },
 };
 
+let ATHENA_QUERY_RESULTS: GetQueryResultsOutput;
+
+beforeAll(async () => {
+  ATHENA_QUERY_RESULTS = JSON.parse(await getTestResource('athena-query-results.json'));
+});
+
 beforeEach(() => {
+  mockAthenaClient.reset();
   mockLambdaClient.reset();
   mockS3Client.reset();
 });
@@ -73,7 +84,7 @@ test('lambda invoke custom response', async () => {
     LogResult:
       'U1RBUlQgUmVxdWVzdElkOiAyMzA5ZDEwNC1iYTkyLTRmOWEtYWFlNy1jYWFkYjY2MzE4MjUgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiAyMzA5ZDEwNC1iYTkyLTRmOWEtYWFlNy1jYWFkYjY2MzE4MjUKUkVQT1JUIFJlcXVlc3RJZDogMjMwOWQxMDQtYmE5Mi00ZjlhLWFhZTctY2FhZGI2NjMxODI1CUR1cmF0aW9uOiAxOC41MCBtcwlCaWxsZWQgRHVyYXRpb246IDE5IG1zCU1lbW9yeSBTaXplOiAxMjggTUIJTWF4IE1lbW9yeSBVc2VkOiA2NyBNQgkK',
     ExecutedVersion: '$LATEST',
-    Payload: new Uint8Array([
+    Payload: new Uint8ArrayBlobAdapter([
       123, 34, 115, 116, 97, 116, 117, 115, 67, 111, 100, 101, 34, 58, 50, 48, 48, 44, 34, 98, 111, 100, 121, 34, 58,
       34, 92, 34, 72, 101, 108, 108, 111, 32, 102, 114, 111, 109, 32, 76, 97, 109, 98, 100, 97, 33, 32, 45, 32, 123, 92,
       92, 92, 34, 104, 101, 108, 108, 111, 92, 92, 92, 34, 58, 92, 92, 92, 34, 119, 111, 114, 108, 100, 92, 92, 92, 34,
@@ -106,7 +117,7 @@ test('lambda invoke custom response error', async () => {
     LogResult:
       'U1RBUlQgUmVxdWVzdElkOiA4ODNlYjdiYy05NmRiLTRjODMtOGE4YS02OGFkMzM3NmJjOTAgVmVyc2lvbjogJExBVEVTVAoyMDIzLTA1LTMwVDEyOjMzOjQwLjE0OVoJODgzZWI3YmMtOTZkYi00YzgzLThhOGEtNjhhZDMzNzZiYzkwCUVSUk9SCUludm9rZSBFcnJvciAJeyJlcnJvclR5cGUiOiJFcnJvciIsImVycm9yTWVzc2FnZSI6IkhlbGxvIHdvcmxkIGVycm9yIiwic3RhY2siOlsiRXJyb3I6IEhlbGxvIHdvcmxkIGVycm9yIiwiICAgIGF0IFJ1bnRpbWUuaGFuZGxlciAoZmlsZTovLy92YXIvdGFzay9pbmRleC5tanM6ODoxMSkiLCIgICAgYXQgUnVudGltZS5oYW5kbGVPbmNlTm9uU3RyZWFtaW5nIChmaWxlOi8vL3Zhci9ydW50aW1lL2luZGV4Lm1qczoxMDg2OjI5KSJdfQpFTkQgUmVxdWVzdElkOiA4ODNlYjdiYy05NmRiLTRjODMtOGE4YS02OGFkMzM3NmJjOTAKUkVQT1JUIFJlcXVlc3RJZDogODgzZWI3YmMtOTZkYi00YzgzLThhOGEtNjhhZDMzNzZiYzkwCUR1cmF0aW9uOiAyNy45NCBtcwlCaWxsZWQgRHVyYXRpb246IDI4IG1zCU1lbW9yeSBTaXplOiAxMjggTUIJTWF4IE1lbW9yeSBVc2VkOiA2NiBNQglJbml0IER1cmF0aW9uOiAxNDMuNzYgbXMJCg==',
     ExecutedVersion: '$LATEST',
-    Payload: new Uint8Array([
+    Payload: new Uint8ArrayBlobAdapter([
       123, 34, 101, 114, 114, 111, 114, 84, 121, 112, 101, 34, 58, 34, 69, 114, 114, 111, 114, 34, 44, 34, 101, 114,
       114, 111, 114, 77, 101, 115, 115, 97, 103, 101, 34, 58, 34, 72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100,
       32, 101, 114, 114, 111, 114, 34, 44, 34, 116, 114, 97, 99, 101, 34, 58, 91, 34, 69, 114, 114, 111, 114, 58, 32,
@@ -169,6 +180,130 @@ test('s3 handle gzipped response', async () => {
   });
 
   await testS3Response(eTag, lastModified, 'gzip');
+});
+
+test('athena success', async () => {
+  const queryExecutionId = '1234';
+
+  mockAthenaClient
+    .resolvesOnce({ QueryExecutionId: queryExecutionId })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'SUCCEEDED' } } })
+    .resolvesOnce(ATHENA_QUERY_RESULTS);
+
+  const event = getEvent({
+    command: 'ATHENA_RUN_QUERY',
+    input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '' },
+  });
+  const response = (await handler(event)) as GetQueryResultsOutput;
+
+  expect(response).toBeDefined();
+  expect(response?.ResultSet?.Rows?.at(1)?.Data?.at(0)?.VarCharValue).toEqual('39.51307483542592');
+
+  expect(mockAthenaClient.calls()).toHaveLength(7);
+});
+
+// todo use fake timers to avoid 1s test delay
+test('athena wait', async () => {
+  const queryExecutionId = '1234';
+  const timeoutMs = 1000;
+  const runningResponse = { QueryExecution: { Status: { State: 'RUNNING' } } };
+
+  mockAthenaClient.resolvesOnce({ QueryExecutionId: queryExecutionId }).resolves(runningResponse);
+
+  const event = getEvent({
+    command: 'ATHENA_RUN_QUERY',
+    input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
+  });
+  await expect(handler(event)).rejects.toThrow(
+    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
+      runningResponse.QueryExecution.Status
+    )}`
+  );
+
+  expect(mockAthenaClient.calls().length).toBeGreaterThanOrEqual(5);
+});
+
+test('athena wait cancellation', async () => {
+  const queryExecutionId = '1234';
+  const timeoutMs = 5000;
+  const cancelledResponse = { QueryExecution: { Status: { State: 'CANCELLED' } } };
+
+  mockAthenaClient
+    .resolvesOnce({ QueryExecutionId: queryExecutionId })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce(cancelledResponse);
+
+  const event = getEvent({
+    command: 'ATHENA_RUN_QUERY',
+    input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
+  });
+  await expect(handler(event)).rejects.toThrow(
+    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
+      cancelledResponse.QueryExecution.Status
+    )}`
+  );
+
+  expect(mockAthenaClient.calls()).toHaveLength(5);
+});
+
+// todo use fake timers to avoid 1s test delay
+test('athena wait failure', async () => {
+  const queryExecutionId = '1234';
+  const timeoutMs = 1000;
+  const failedResponse = { QueryExecution: { Status: { State: 'FAILED', StateChangeReason: 'athena error' } } };
+
+  mockAthenaClient
+    .resolvesOnce({ QueryExecutionId: queryExecutionId })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolves(failedResponse);
+
+  const event = getEvent({
+    command: 'ATHENA_RUN_QUERY',
+    input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
+  });
+  await expect(handler(event)).rejects.toThrow(
+    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
+      failedResponse.QueryExecution.Status
+    )}`
+  );
+
+  expect(mockAthenaClient.calls().length).toBeGreaterThanOrEqual(5);
+});
+
+test('athena wait failure retry', async () => {
+  const queryExecutionId = '1234';
+  const timeoutMs = 5000;
+
+  mockAthenaClient
+    .resolvesOnce({ QueryExecutionId: queryExecutionId })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'FAILED', StateChangeReason: 'athena error' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'QUEUED' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
+    .resolvesOnce({ QueryExecution: { Status: { State: 'SUCCEEDED' } } })
+    .resolvesOnce(ATHENA_QUERY_RESULTS);
+
+  const event = getEvent({
+    command: 'ATHENA_RUN_QUERY',
+    input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
+  });
+  const response = (await handler(event)) as GetQueryResultsOutput;
+
+  expect(response).toBeDefined();
+  expect(response?.ResultSet?.Rows?.at(1)?.Data?.at(0)?.VarCharValue).toEqual('39.51307483542592');
+
+  expect(mockAthenaClient.calls()).toHaveLength(10);
 });
 
 const getEvent = (overrides: { environment?: string; command?: string; input?: object }): TestSupportEvent => {

@@ -1,0 +1,30 @@
+{
+  "$metadata": {
+    "httpStatusCode": 200,
+    "requestId": "6cb8c6b6-0f83-4d56-87b4-6fffb7215316",
+    "attempts": 1,
+    "totalRetryDelay": 0
+  },
+  "ResultSet": {
+    "ColumnInfos": [],
+    "ResultRows": [],
+    "ResultSetMetadata": {
+      "ColumnInfo": [
+        {
+          "CaseSensitive": false,
+          "CatalogName": "hive",
+          "Label": "_col0",
+          "Name": "_col0",
+          "Nullable": "UNKNOWN",
+          "Precision": 17,
+          "Scale": 0,
+          "SchemaName": "",
+          "TableName": "",
+          "Type": "double"
+        }
+      ]
+    },
+    "Rows": [{ "Data": [{ "VarCharValue": "_col0" }] }, { "Data": [{ "VarCharValue": "39.51307483542592" }] }]
+  },
+  "UpdateCount": 0
+}
