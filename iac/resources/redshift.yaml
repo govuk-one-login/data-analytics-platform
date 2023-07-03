@@ -20,8 +20,10 @@ SubnetForDAP1:
   Type: AWS::EC2::Subnet
   Properties:
     VpcId: !Ref VPCForDAP
-    AvailabilityZone:
-      Fn::GetAZs: eu-west-2
+    AvailabilityZone: !Select
+      - 0
+      - !GetAZs
+        Ref: 'AWS::Region'
     CidrBlock: 10.0.1.0/24
     Tags:
       - Key: Environment
@@ -30,8 +32,10 @@ SubnetForDAP2:
   Type: AWS::EC2::Subnet
   Properties:
     VpcId: !Ref VPCForDAP
-    AvailabilityZone:
-      Fn::GetAZs: eu-west-2
+    AvailabilityZone: !Select
+      - 1
+      - !GetAZs
+        Ref: 'AWS::Region'
     CidrBlock: 10.0.2.0/24
     Tags:
       - Key: Environment
@@ -40,8 +44,10 @@ SubnetForDAP3:
   Type: AWS::EC2::Subnet
   Properties:
     VpcId: !Ref VPCForDAP
-    AvailabilityZone:
-      Fn::GetAZs: eu-west-2
+    AvailabilityZone: !Select
+      - 2
+      - !GetAZs
+        Ref: 'AWS::Region'
     CidrBlock: 10.0.3.0/24
     Tags:
       - Key: Environment
