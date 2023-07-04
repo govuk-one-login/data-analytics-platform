@@ -32,7 +32,7 @@
     {
         "event_name": "dcmaw_cri_vc_issued",
         "product_family": "dcmaw_cri",
-        "enabled": true
+        "enabled": false
     },
     {
         "event_name": "dcmaw_driving_licence_selected",
