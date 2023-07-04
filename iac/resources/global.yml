@@ -1,5 +1,4 @@
 GlobalLogBucket:
-  # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
   # checkov:skip=CKV_AWS_18: This is the log bucket for all other buckets - no need for a log bucket of the log bucket
   Type: 'AWS::S3::Bucket'
   Properties:
@@ -12,6 +11,27 @@ GlobalLogBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
+
+GlobalLogBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref GlobalLogBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${GlobalLogBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+          Resource: !Sub ${GlobalLogBucket.Arn}/*
+          Principal: '*'
 
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration

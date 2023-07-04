@@ -1,5 +1,4 @@
 AthenaWorkgroupBucket:
-  # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
@@ -14,6 +13,34 @@ AthenaWorkgroupBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
+
+AthenaWorkgroupBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref AthenaWorkgroupBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${AthenaWorkgroupBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - 's3:Get*'
+            - 's3:Put*'
+            - 's3:List*'
+            - 's3:ListBucketMultipartUploads'
+            - 's3:AbortMultipartUpload'
+            - 's3:CreateBucket'
+            - 's3:ListBucket'
+            - 's3:GetBucketLocation'
+            - 's3:ListMultipartUploadParts'
+          Resource: !Sub ${AthenaWorkgroupBucket.Arn}/*
+          Principal: '*'
 
 AthenaWorkGroup:
   Type: AWS::Athena::WorkGroup

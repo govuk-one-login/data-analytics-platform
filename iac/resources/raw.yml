@@ -1,5 +1,4 @@
 RawLayerBucket:
-  # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
@@ -14,6 +13,28 @@ RawLayerBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
+
+RawLayerBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref RawLayerBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${RawLayerBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+            - 's3:ListObject'
+          Resource: !Sub ${RawLayerBucket.Arn}/*
+          Principal: '*'
 
 AuthAccountUserLoginCrawler:
   Type: AWS::Glue::Crawler
