@@ -1,0 +1,7 @@
+[
+    {
+        "event_name": "auth_code_verified",
+        "product_family": "auth_account_mfa",
+        "enabled": true
+    }
+]

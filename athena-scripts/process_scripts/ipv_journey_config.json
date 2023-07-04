@@ -1,0 +1,32 @@
+[
+    {
+        "event_name": "ipv_identity_reuse_complete",
+        "product_family": "ipv_journey",
+        "enabled": true
+    },
+    {
+        "event_name": "ipv_identity_reuse_reset",
+        "product_family": "ipv_journey",
+        "enabled": true
+    },
+    {
+        "event_name": "ipv_journey_end",
+        "product_family": "ipv_journey",
+        "enabled": true
+    },
+    {
+        "event_name": "ipv_journey_start",
+        "product_family": "ipv_journey",
+        "enabled": true
+    },
+    {
+        "event_name": "ipv_spot_response_approved",
+        "product_family": "ipv_journey",
+        "enabled": true
+    },
+    {
+        "event_name": "ipv_spot_response_rejected",
+        "product_family": "ipv_journey",
+        "enabled": true
+    }
+]
