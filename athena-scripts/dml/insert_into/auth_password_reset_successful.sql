@@ -1,4 +1,4 @@
-INSERT INTO "environment-txma-stage"."ipv_cri_passport" (
+INSERT INTO "environment-txma-stage"."auth_account_management" (
 	event_id,
 	client_id,
 	component_id,
@@ -6,8 +6,6 @@ INSERT INTO "environment-txma-stage"."ipv_cri_passport" (
 	user_user_id,
 	timestamp,
 	timestamp_formatted,
-	extensions_evidence,
-	extensions_iss,
 	year,
 	month,
 	day,
@@ -16,21 +14,19 @@ INSERT INTO "environment-txma-stage"."ipv_cri_passport" (
 )
 SELECT
 	event_id as event_id,
-	'' as client_id,
+	client_id as client_id,
 	component_id as component_id,
 	user.govuk_signin_journey_id as user_govuk_signin_journey_id,
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	'' as extensions_evidence,
-	format('%s',cast(extensions.iss as JSON)) as extensions_iss,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
 	CAST(date_format(now(), '%Y%m%d') as VARCHAR) AS processed_date,
 	event_name as event_name
 FROM 
-	"environment-txma-raw"."ipv_passport_cri_request_sent"
+	"environment-txma-raw"."auth_password_reset_successful"
 WHERE
 	CAST(concat(year, month, day) AS INT) > filter_value AND
 	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)

@@ -1,5 +1,10 @@
 [
     {
+        "event_name": "auth_check_user_no_account_with_email",
+        "product_family": "auth_account_creation",
+        "enabled": true
+    },
+    {
         "event_name": "auth_create_account",
         "product_family": "auth_account_creation",
         "enabled": true

@@ -1,26 +1,16 @@
 [
     {
-        "event_name": "dcmaw_brp_selected",
+        "event_name": "dcmaw_app_end",
         "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "dcmaw_cri_4xxerror",
+        "event_name": "dcmaw_app_handoff_start",
         "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "dcmaw_cri_5xxerror",
-        "product_family": "dcmaw_cri",
-        "enabled": true
-    },
-    {
-        "event_name": "dcmaw_cri_abort",
-        "product_family": "dcmaw_cri",
-        "enabled": true
-    },
-    {
-        "event_name": "dcmaw_cri_end",
+        "event_name": "dcmaw_app_start",
         "product_family": "dcmaw_cri",
         "enabled": true
     },
@@ -40,22 +30,12 @@
         "enabled": true
     },
     {
-        "event_name": "dcmaw_hybrid_billing_started",
-        "product_family": "dcmaw_cri",
-        "enabled": true
-    },
-    {
-        "event_name": "dcmaw_iproov_billing_started",
-        "product_family": "dcmaw_cri",
-        "enabled": true
-    },
-    {
         "event_name": "dcmaw_passport_selected",
         "product_family": "dcmaw_cri",
         "enabled": true
     },
     {
-        "event_name": "dcmaw_readid_nfc_billing_started",
+        "event_name": "dcmaw_web_end",
         "product_family": "dcmaw_cri",
         "enabled": true
     }

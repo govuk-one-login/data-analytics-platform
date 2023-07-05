@@ -1,15 +1,5 @@
 [
     {
-        "event_name": "ipv_address_cri_end",
-        "product_family": "ipv_cri_address",
-        "enabled": true
-    },
-    {
-        "event_name": "ipv_address_cri_request_sent",
-        "product_family": "ipv_cri_address",
-        "enabled": true
-    },
-    {
         "event_name": "ipv_address_cri_start",
         "product_family": "ipv_cri_address",
         "enabled": true
