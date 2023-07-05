@@ -7,6 +7,6 @@
     {
         "event_name": "ipv_fraud_cri_vc_issued",
         "product_family": "ipv_cri_fraud",
-        "enabled": true
+        "enabled": false
     }
 ]
