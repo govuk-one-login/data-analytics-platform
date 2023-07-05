@@ -1,12 +1,12 @@
 [
     {
         "event_name": "auth_check_user_known_email",
-        "product_family": "auht_account_user_login",
+        "product_family": "auth_account_user_login",
         "enabled": true
     },
     {
         "event_name": "auth_log_in_success",
-        "product_family": "auht_account_user_login",
+        "product_family": "auth_account_user_login",
         "enabled": true
     }
 ]
