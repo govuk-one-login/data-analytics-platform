@@ -4,7 +4,7 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { LambdaClient } from '@aws-sdk/client-lambda';
 import { S3Client } from '@aws-sdk/client-s3';
 import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
-import { Uint8ArrayBlobAdapter } from '@aws-sdk/util-stream';
+import { Uint8ArrayBlobAdapter } from '@smithy/util-stream';
 import { AthenaClient } from '@aws-sdk/client-athena';
 import type { GetQueryResultsOutput } from '@aws-sdk/client-athena';
 
