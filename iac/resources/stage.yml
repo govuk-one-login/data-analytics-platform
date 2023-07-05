@@ -98,16 +98,16 @@ AuthAccountUserLoginGlueTable:
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
-          - { Name: event_id , Type: string }
-          - { Name: client_id , Type: string }
-          - { Name: component_id , Type: string }
-          - { Name: user_govuk_signin_journey_id , Type: string }
-          - { Name: user_user_id , Type: string }
-          - { Name: timestamp , Type: int }
-          - { Name: timestamp_formatted , Type: string }
-          - { Name: year , Type: int }
-          - { Name: month , Type: int }
-          - { Name: day , Type: int }
+          - { Name: event_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user_govuk_signin_journey_id, Type: string }
+          - { Name: user_user_id, Type: string }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: year, Type: int }
+          - { Name: month, Type: int }
+          - { Name: day, Type: int }
         InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
         Location: !Sub s3://${StageLayerBucket}/txma/AUTH_ACCOUNT_USER_LOGIN/
         OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
@@ -129,19 +129,19 @@ AuthAccountMfaGlueTable:
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
-          - { Name: event_id , Type: string }
-          - { Name: client_id , Type: string }
-          - { Name: component_id , Type: string }
-          - { Name: user_govuk_signin_journey_id , Type: string }
-          - { Name: user_user_id , Type: string }
-          - { Name: timestamp , Type: int }
-          - { Name: timestamp_formatted , Type: string }
-          - { Name: extensions_accountRecovery , Type: string }
-          - { Name: extensions_mfaType , Type: string }
-          - { Name: extensions_notificationType , Type: string }
-          - { Name: year , Type: int }
-          - { Name: month , Type: int }
-          - { Name: day , Type: int }
+          - { Name: event_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user_govuk_signin_journey_id, Type: string }
+          - { Name: user_user_id, Type: string }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: extensions_accountRecovery, Type: string }
+          - { Name: extensions_mfaType, Type: string }
+          - { Name: extensions_notificationType, Type: string }
+          - { Name: year, Type: int }
+          - { Name: month, Type: int }
+          - { Name: day, Type: int }
         InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
         Location: !Sub s3://${StageLayerBucket}/txma/AUTH_ACCOUNT_MFA/
         OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
@@ -163,16 +163,16 @@ AuthAccountManagementGlueTable:
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
-          - { Name: event_id , Type: string }
-          - { Name: client_id , Type: string }
-          - { Name: component_id , Type: string }
-          - { Name: user_govuk_signin_journey_id , Type: string }
-          - { Name: user_user_id , Type: string }
-          - { Name: timestamp , Type: int }
-          - { Name: timestamp_formatted , Type: string }
-          - { Name: year , Type: int }
-          - { Name: month , Type: int }
-          - { Name: day , Type: int }
+          - { Name: event_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user_govuk_signin_journey_id, Type: string }
+          - { Name: user_user_id, Type: string }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: year, Type: int }
+          - { Name: month, Type: int }
+          - { Name: day, Type: int }
         InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
         Location: !Sub s3://${StageLayerBucket}/txma/AUTH_ACCOUNT_MANAGEMENT/
         OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
@@ -226,18 +226,18 @@ IpvCriDrivingLicenseGlueTable:
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
-          - { Name: event_id , Type: string }
-          - { Name: client_id , Type: string }
-          - { Name: component_id , Type: string }
-          - { Name: user_govuk_signin_journey_id , Type: string }
-          - { Name: user_user_id , Type: string }
-          - { Name: timestamp , Type: int }
-          - { Name: timestamp_formatted , Type: string }
-          - { Name: extensions_evidence , Type: string }
-          - { Name: extensions_iss , Type: string }
-          - { Name: year , Type: int }
-          - { Name: month , Type: int }
-          - { Name: day , Type: int }
+          - { Name: event_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user_govuk_signin_journey_id, Type: string }
+          - { Name: user_user_id, Type: string }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: extensions_evidence, Type: string }
+          - { Name: extensions_iss, Type: string }
+          - { Name: year, Type: int }
+          - { Name: month, Type: int }
+          - { Name: day, Type: int }
         InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
         Location: !Sub s3://${StageLayerBucket}/txma/IPV_CRI_DRIVING_LICENSE/
         OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
@@ -267,7 +267,7 @@ IpvCriAddressGlueTable:
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
           - { Name: extensions_addressesEntered, Type: string }
-          - { Name: extensions_iss , Type: string }
+          - { Name: extensions_iss, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
@@ -325,18 +325,18 @@ IpvJourneyGlueTable:
         - { Name: event_name, Type: string }
       StorageDescriptor:
         Columns:
-          - { Name: event_id , Type: string }
-          - { Name: client_id , Type: string }
-          - { Name: component_id , Type: string }
-          - { Name: user_govuk_signin_journey_id , Type: string }
-          - { Name: user_user_id , Type: string }
-          - { Name: timestamp , Type: int }
-          - { Name: timestamp_formatted , Type: string }
-          - { Name: extensions_reason , Type: string }
-          - { Name: extensions_rejectionReason , Type: string }
-          - { Name: year , Type: int }
-          - { Name: month , Type: int }
-          - { Name: day , Type: int }
+          - { Name: event_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user_govuk_signin_journey_id, Type: string }
+          - { Name: user_user_id, Type: string }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: extensions_reason, Type: string }
+          - { Name: extensions_rejectionReason, Type: string }
+          - { Name: year, Type: int }
+          - { Name: month, Type: int }
+          - { Name: day, Type: int }
         InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
         Location: !Sub s3://${StageLayerBucket}/txma/IPV_JOURNEY/
         OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
