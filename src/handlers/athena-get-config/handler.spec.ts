@@ -4,9 +4,6 @@ import { mockClient } from 'aws-sdk-client-mock';
 import type { AthenaGetConfigEvent } from '../../shared/types/raw-layer-processing';
 import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
 
-jest.spyOn(console, 'log').mockImplementation(() => undefined);
-jest.spyOn(console, 'error').mockImplementation(() => undefined);
-
 const mockS3Client = mockClient(S3Client);
 
 let TEST_EVENT: AthenaGetConfigEvent;

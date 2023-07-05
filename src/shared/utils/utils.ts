@@ -1,4 +1,5 @@
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
+import { AWS_ENVIRONMENTS } from '../constants';
 
 /**
  * Requires that an object has the specified properties (and they are not null or undefined), throwing an error if not.
@@ -62,6 +63,14 @@ export const getEnvironmentVariable = (key: string): string => {
 };
 
 export const sleep = async (ms: number): Promise<unknown> => await new Promise(resolve => setTimeout(resolve, ms));
+
+export const getAWSEnvironment = (): (typeof AWS_ENVIRONMENTS)[number] => {
+  const environment = getEnvironmentVariable('ENVIRONMENT');
+  if (AWS_ENVIRONMENTS.map(e => e.toString()).includes(environment)) {
+    return environment as (typeof AWS_ENVIRONMENTS)[number];
+  }
+  throw new Error(`Invalid environment "${environment}"`);
+};
 
 // see https://stackoverflow.com/a/65666402
 const throwExpression = (message: string): never => {

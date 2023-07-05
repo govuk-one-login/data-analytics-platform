@@ -1,6 +1,8 @@
 import {
   decodeObject,
   encodeObject,
+  getAWSEnvironment,
+  getEnvironmentVariable,
   getRequiredParams,
   parseS3ResponseAsObject,
   parseS3ResponseAsString,
@@ -83,6 +85,37 @@ test('parse s3 response as object', async () => {
   await expect(parseS3ResponseAsObject(mockS3Response('{"a":"b","c":true,"d":42}'))).resolves.toEqual(testObject);
   await expect(parseS3ResponseAsObject(mockS3Response(null))).rejects.toThrow('S3 response body was undefined');
   await expect(parseS3ResponseAsObject(mockS3Response(undefined))).rejects.toThrow('S3 response body was undefined');
+});
+
+test('get environment variable', () => {
+  process.env.ENV_VAR = 'hello';
+  expect(getEnvironmentVariable('ENV_VAR')).toEqual('hello');
+
+  process.env.ENV_VAR = '';
+  expect(() => getEnvironmentVariable('ENV_VAR')).toThrow('ENV_VAR is not defined in this environment');
+
+  delete process.env.ENV_VAR;
+  expect(() => getEnvironmentVariable('ENV_VAR')).toThrow('ENV_VAR is not defined in this environment');
+
+  expect(() => getEnvironmentVariable('MISSING_ENV_VAR')).toThrow('MISSING_ENV_VAR is not defined in this environment');
+});
+
+test('get aws environment', () => {
+  const oldEnvironment = process.env.ENVIRONMENT;
+
+  process.env.ENVIRONMENT = 'integration';
+  expect(getAWSEnvironment()).toEqual('integration');
+
+  process.env.ENVIRONMENT = '';
+  expect(() => getAWSEnvironment()).toThrow('ENVIRONMENT is not defined in this environment');
+
+  delete process.env.ENV_VAR;
+  expect(() => getAWSEnvironment()).toThrow('ENVIRONMENT is not defined in this environment');
+
+  process.env.ENVIRONMENT = 'invalid';
+  expect(() => getAWSEnvironment()).toThrow('Invalid environment "invalid"');
+
+  process.env.ENVIRONMENT = oldEnvironment;
 });
 
 const mockS3Response = (body: unknown): GetObjectCommandOutput => {

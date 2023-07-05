@@ -17,6 +17,7 @@ module.exports = async () => {
           "coverageLink": "../../coverage/lcov-report/index.html"
         }
       ]
-    ]
+    ],
+    setupFiles: ['<rootDir>/jest.setup.js']
   };
 };
