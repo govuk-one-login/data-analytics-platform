@@ -15,6 +15,68 @@ ELTMetadataBucket:
     VersioningConfiguration:
       Status: Enabled
 
+ELTMetadataUploadRole:
+  Condition: IsBuild
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: dap-elt-metadata-upload-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+          Action: 'sts:AssumeRoleWithWebIdentity'
+          Condition:
+            StringLike:
+              'token.actions.githubusercontent.com:sub':
+                - repo:alphagov/di-data-analytics-platform:ref:refs/heads/*
+                - repo:alphagov/di-data-analytics-platform:environment:*
+    Policies:
+      - PolicyName: dap-elt-metadata-upload-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - 's3:GetObject'
+                - 's3:GetObjectVersion'
+                - 's3:ListBucket'
+                - 's3:ListBucketVersions'
+                - 's3:PutObject'
+              Resource:
+                - arn:aws:s3:::*-dap-elt-metadata
+                - arn:aws:s3:::*-dap-elt-metadata/*
+
+ELTMetadataBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref ELTMetadataBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Principal: '*'
+          Resource:
+            - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata
+            - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Principal:
+            AWS: !Sub arn:aws:iam::${BuildAccountId}:role/dap-elt-metadata-upload-role
+          Action:
+            - 's3:GetObject'
+            - 's3:GetObjectVersion'
+            - 's3:ListBucket'
+            - 's3:ListBucketVersions'
+            - 's3:PutObject'
+          Resource:
+            - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata
+            - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
+
 StateMachineResultsBucket:
   # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
   Type: 'AWS::S3::Bucket'
