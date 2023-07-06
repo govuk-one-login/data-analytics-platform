@@ -1,38 +1,50 @@
 [
-  {
-    "product_family": "auth_account_creation",
-    "enabled": true
-  },
-  {
-    "product_family": "auth_orchestration",
-    "enabled": true
-  },
-  {
-    "product_family": "dcmaw_cri",
-    "enabled": true
-  },
-  {
-    "product_family": "ipv_cri_address",
-    "enabled": true
-  },
-  {
-    "product_family": "ipv_contra_indicator",
-    "enabled": true
-  },
-  {
-    "product_family": "ipv_cri_fraud",
-    "enabled": true
-  },
-  {
-    "product_family": "ipv_journey",
-    "enabled": true
-  },
-  {
-    "product_family": "ipv_cri_kbv",
-    "enabled": true
-  },
-  {
-    "product_family": "ipv_cri_passport",
-    "enabled": true
-  }
+    {
+        "product_family": "auth_account_creation",
+        "enabled": true
+    },
+    {
+        "product_family": "auth_orchestration",
+        "enabled": true
+    },
+    {
+        "product_family": "auth_account_user_login",
+        "enabled": true
+    },
+    {
+        "product_family": "auth_account_mfa",
+        "enabled": true
+    },
+    {
+        "product_family": "auth_account_management",
+        "enabled": true
+    },
+    {
+        "product_family": "dcmaw_cri",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_cri_driving_license",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_cri_address",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_cri_fraud",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_journey",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_cri_kbv",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_cri_passport",
+        "enabled": true
+    }
 ]
