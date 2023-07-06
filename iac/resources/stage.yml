@@ -478,3 +478,6 @@ StageGlueCrawlerRole:
               Resource:
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}'
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'
+            - Effect: Allow
+              Action: 'logs:AssociateKmsKey'
+              Resource: 'arn:aws:logs:*:*:/aws-glue/*'

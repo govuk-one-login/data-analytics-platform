@@ -274,6 +274,9 @@ RawGlueCrawlerRole:
               Resource:
                 - !Sub 'arn:aws:s3:::${RawLayerBucket}'
                 - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
+            - Effect: Allow
+              Action: 'logs:AssociateKmsKey'
+              Resource: 'arn:aws:logs:*:*:/aws-glue/*'
 
 RawGlueDatabase:
   Type: AWS::Glue::Database
