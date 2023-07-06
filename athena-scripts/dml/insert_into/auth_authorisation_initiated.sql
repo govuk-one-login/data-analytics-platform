@@ -6,11 +6,10 @@ INSERT INTO "environment-txma-stage"."auth_orchestration" (
 	user_user_id,
 	timestamp,
 	timestamp_formatted,
-	extentions_clientname,
+	extensions_clientname,
 	year,
 	month,
 	day,
-	extensions_clientname,
 	processed_date,
 	event_name
 )
@@ -22,8 +21,7 @@ SELECT
 	'' as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	'' as extentions_clientname,
-	'' as extensions_clientname,
+	format('%s',cast("extensions"."client-name" as JSON)) as extensions_clientname,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,

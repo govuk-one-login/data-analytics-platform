@@ -49,7 +49,7 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_{0}', inputs.environment)] }}
       - name: Trigger secure pipeline deployment
-        uses: alphagov/di-devplatform-upload-action@v3.2
+        uses: alphagov/di-devplatform-upload-action@v3.3
         with:
           artifact-bucket-name: ${{ secrets[format('ARTIFACT_BUCKET_NAME_{0}', inputs.environment)] }}
           signing-profile-name: ${{ secrets[format('SIGNING_PROFILE_NAME_{0}', inputs.environment)] }}

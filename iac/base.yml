@@ -34,6 +34,12 @@ Parameters:
     Default: txma-stage
     Type: String
     Description: Name for the TxMA Stage Glue database
+  BuildAccountId:
+    Default: 991664831801
+    Type: String
+    Description: Account number of the build account used to grant it S3 access in other accounts
+    AllowedValues:
+      - 991664831801
 
 Conditions:
   UseCodeSigning: !Not

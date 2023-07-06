@@ -1,4 +1,4 @@
-INSERT INTO "environment-txma-stage"."ipv_cri_fraud" (
+INSERT INTO "environment-txma-stage"."ipv_cri_driving_license" (
 	event_id,
 	client_id,
 	component_id,
@@ -6,7 +6,6 @@ INSERT INTO "environment-txma-stage"."ipv_cri_fraud" (
 	user_user_id,
 	timestamp,
 	timestamp_formatted,
-	extensions_experiancrosscoreresponse,
 	extensions_evidence,
 	extensions_iss,
 	year,
@@ -23,7 +22,6 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	'' as extensions_experiancrosscoreresponse,
 	'' as extensions_evidence,
 	'' as extensions_iss,
 	CAST(year as INT) as year,
@@ -32,7 +30,7 @@ SELECT
 	CAST(date_format(now(), '%Y%m%d') as VARCHAR) AS processed_date,
 	event_name as event_name
 FROM 
-	"environment-txma-raw"."ipv_fraud_cri_request_sent"
+	"environment-txma-raw"."ipv_dl_cri_start"
 WHERE
 	CAST(concat(year, month, day) AS INT) > filter_value AND
 	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)
