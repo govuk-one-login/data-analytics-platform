@@ -87,6 +87,8 @@ KmsKey:
               - logs.amazonaws.com
               - logs.eu-west-2.amazonaws.com
               - glue.amazonaws.com
+              - redshift.amazonaws.com
+              - redshift-serverless.amazonaws.com              
             AWS:
               - !GetAtt RawGlueCrawlerRole.Arn
               - !GetAtt StageGlueCrawlerRole.Arn
