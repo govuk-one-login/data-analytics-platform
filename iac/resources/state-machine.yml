@@ -326,6 +326,7 @@ DataQualityPythonGlueJob:
       '--reconcilation_tbl': !Ref DataQualityMetricsGlueTable
       '--s3_path': !Sub s3://${DataQualityMetricsBucket}/data_quality_metrics/
       '--ignore_tables': !Ref DataQualityIgnoreTablesList
+      '--TempDir': !Sub s3://${DataQualityMetricsBucket}/temporary/
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0
