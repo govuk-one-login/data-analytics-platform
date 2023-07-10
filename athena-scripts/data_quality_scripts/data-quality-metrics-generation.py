@@ -12,8 +12,7 @@ ignore_tables = ['dcmaw_cri_vc_issued',
                  'ipv_kbv_cri_vc_issued',
                  'ipv_passport_cri_vc_issued',
                  'ipv_dl_cri_vc_issued',
-                 'ipv_fraud_cri_vc_issued'
-                 ]
+                 'ipv_fraud_cri_vc_issued']
 
 
 def athena_query(database, query):
