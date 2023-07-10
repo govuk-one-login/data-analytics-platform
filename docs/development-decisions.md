@@ -70,3 +70,7 @@ Commit signing, branch protection and mandatory pull requests are taken from the
 Some configuration properties needed for deployment are stored in the AWS System Manager Parameter Store.
 This enables them to be [dynamically referenced](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html#dynamic-references-ssm) in the template.
 This approach is used by both BTM and TxMA.
+
+## Checkov skips
+
+An explanation of the Checkov checks we skip can be found [here](https://govukverify.atlassian.net/wiki/spaces/DAP/pages/3535503483/Checkov+Rules).
