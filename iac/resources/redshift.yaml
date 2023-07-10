@@ -46,7 +46,7 @@ MyRedshiftSecret:
       GenerateStringKey: password
       PasswordLength: 16
       ExcludeCharacters: '"''@/\'
-    KmsKeyId: !Ref KmsKey 
+    KmsKeyId: !Ref KmsKey
 
 VPCForDAP:
   Type: AWS::EC2::VPC
@@ -56,7 +56,7 @@ VPCForDAP:
       - Key: Environment
         Value: !Ref Environment
       - Key: name
-        Value: dap-private-vpc 
+        Value: dap-private-vpc
 
 SubnetForDAP1:
   Type: AWS::EC2::Subnet
@@ -71,7 +71,7 @@ SubnetForDAP1:
       - Key: Environment
         Value: !Ref Environment
       - Key: name
-        Value: dap-private-sn1         
+        Value: dap-private-sn1
 
 SubnetForDAP2:
   Type: AWS::EC2::Subnet
@@ -86,7 +86,7 @@ SubnetForDAP2:
       - Key: Environment
         Value: !Ref Environment
       - Key: name
-        Value: dap-private-sn2           
+        Value: dap-private-sn2
 
 SubnetForDAP3:
   Type: AWS::EC2::Subnet
@@ -101,7 +101,7 @@ SubnetForDAP3:
       - Key: Environment
         Value: !Ref Environment
       - Key: name
-        Value: dap-private-sn3           
+        Value: dap-private-sn3
 
 RouteTableForDAP:
   Type: AWS::EC2::RouteTable
@@ -110,7 +110,7 @@ RouteTableForDAP:
       - Key: Environment
         Value: !Ref Environment
       - Key: name
-        Value: dap-private-rt           
+        Value: dap-private-rt
     VpcId: !Ref VPCForDAP
 
 SubnetRouteTableAssocDAP1:
@@ -134,10 +134,8 @@ SubnetRouteTableAssocDAP3:
 RedshiftServerlessNamespace:
   Type: 'AWS::RedshiftServerless::Namespace'
   Properties:
-    AdminUsername:
-      !Sub '{{resolve:secretsmanager:${MyRedshiftSecret}::username}}'
-    AdminUserPassword:
-      !Sub '{{resolve:secretsmanager:${MyRedshiftSecret}::password}}'
+    AdminUsername: !Sub '{{resolve:secretsmanager:${MyRedshiftSecret}::username}}'
+    AdminUserPassword: !Sub '{{resolve:secretsmanager:${MyRedshiftSecret}::password}}'
     DbName: !Sub '${Environment}-redshift'
     DefaultIamRoleArn: !GetAtt IAMRoleRedshiftServerless.Arn
     IamRoles:
