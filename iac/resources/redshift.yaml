@@ -1,3 +1,41 @@
+IAMRoleRedshiftServerless:
+  Type: 'AWS::IAM::Role'
+  Properties:
+    RoleName: !Sub ${Environment}-redshift-serverless-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: [firehose.amazonaws.com,redshift.amazonaws.com,glue.amazonaws.com,redshift-serverless.amazonaws.com]
+          Action: 'sts:AssumeRole'
+    MaxSessionDuration: 3600
+    Policies:
+      - PolicyName: !Sub ${Environment}-redshift-serverless-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - 's3:AbortMultipartUpload'
+                - 's3:GetBucketLocation'
+                - 's3:GetObject'
+                - 's3:ListBucket'
+                - 's3:ListBucketMultipartUploads'
+                - 's3:PutObject'
+              Resource:
+                - !Sub 'arn:aws:s3:::${RawLayerBucket}'
+                - !Sub 'arn:aws:s3:::${RawLayerBucket}/*',
+                - !Sub 'arn:aws:s3:::${StageLayerBucket}'
+                - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'                
+            - Effect: Allow
+              Resource: arn:aws:glue:eu-west-2:${AWS::AccountId}:*
+              Action:
+                - 'glue:GetTable'
+                - 'glue:GetTables'
+                - 'glue:GetDatabase'
+                - 'glue:GetDatabases'
+
 MyRedshiftSecret:
   # checkov:skip=CKV_AWS_149: "Ensure that Secrets Manager secret is encrypted using KMS CMK"
   Type: 'AWS::SecretsManager::Secret'
@@ -16,6 +54,7 @@ VPCForDAP:
     Tags:
       - Key: Environment
         Value: !Ref Environment
+
 SubnetForDAP1:
   Type: AWS::EC2::Subnet
   Properties:
@@ -28,6 +67,7 @@ SubnetForDAP1:
     Tags:
       - Key: Environment
         Value: !Ref Environment
+
 SubnetForDAP2:
   Type: AWS::EC2::Subnet
   Properties:
@@ -40,6 +80,7 @@ SubnetForDAP2:
     Tags:
       - Key: Environment
         Value: !Ref Environment
+
 SubnetForDAP3:
   Type: AWS::EC2::Subnet
   Properties:
@@ -52,6 +93,7 @@ SubnetForDAP3:
     Tags:
       - Key: Environment
         Value: !Ref Environment
+
 RouteTableForDAP:
   Type: AWS::EC2::RouteTable
   Properties:
@@ -65,16 +107,19 @@ SubnetRouteTableAssocDAP1:
   Properties:
     RouteTableId: !Ref RouteTableForDAP
     SubnetId: !Ref SubnetForDAP1
+
 SubnetRouteTableAssocDAP2:
   Type: AWS::EC2::SubnetRouteTableAssociation
   Properties:
     RouteTableId: !Ref RouteTableForDAP
     SubnetId: !Ref SubnetForDAP2
+    
 SubnetRouteTableAssocDAP3:
   Type: AWS::EC2::SubnetRouteTableAssociation
   Properties:
     RouteTableId: !Ref RouteTableForDAP
     SubnetId: !Ref SubnetForDAP3
+
 RedshiftServerlessNamespace:
   Type: 'AWS::RedshiftServerless::Namespace'
   Properties:
@@ -83,14 +128,15 @@ RedshiftServerlessNamespace:
     AdminUserPassword:
       'Fn::Sub': '{{resolve:secretsmanager:${MyRedshiftSecret}::password}}'
     DbName: !Sub '${Environment}-redshift'
-    DefaultIamRoleArn: !GetAtt IAMRoleKinesisFirehose.Arn
+    DefaultIamRoleArn: !GetAtt IAMRoleRedshiftServerless.Arn
     IamRoles:
-      - !GetAtt IAMRoleKinesisFirehose.Arn
+      - !GetAtt IAMRoleRedshiftServerless.Arn
     FinalSnapshotName: !Sub '${Environment}-redshift-snapshot'
     FinalSnapshotRetentionPeriod: 30
     LogExports:
       - useractivitylog
     NamespaceName: !Sub '${Environment}-redshift-serverless-namespace'
+
 RedshiftServerlessWorkgroup:
   Type: 'AWS::RedshiftServerless::Workgroup'
   Properties:
