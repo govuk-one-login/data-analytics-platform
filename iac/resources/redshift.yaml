@@ -38,7 +38,6 @@ IAMRoleRedshiftServerless:
                 - 'glue:GetDatabases'
 
 MyRedshiftSecret:
-  # checkov:skip=CKV_AWS_149: "Ensure that Secrets Manager secret is encrypted using KMS CMK"
   Type: 'AWS::SecretsManager::Secret'
   Properties:
     Description: This is a Secrets Manager secret for a Redshift cluster
@@ -47,6 +46,7 @@ MyRedshiftSecret:
       GenerateStringKey: password
       PasswordLength: 16
       ExcludeCharacters: '"''@/\'
+    KmsKeyId: !Ref KmsKey 
 
 VPCForDAP:
   Type: AWS::EC2::VPC
@@ -55,6 +55,8 @@ VPCForDAP:
     Tags:
       - Key: Environment
         Value: !Ref Environment
+      - Key: name
+        Value: dap-private-vpc 
 
 SubnetForDAP1:
   Type: AWS::EC2::Subnet
@@ -68,6 +70,8 @@ SubnetForDAP1:
     Tags:
       - Key: Environment
         Value: !Ref Environment
+      - Key: name
+        Value: dap-private-sn1         
 
 SubnetForDAP2:
   Type: AWS::EC2::Subnet
@@ -81,6 +85,8 @@ SubnetForDAP2:
     Tags:
       - Key: Environment
         Value: !Ref Environment
+      - Key: name
+        Value: dap-private-sn2           
 
 SubnetForDAP3:
   Type: AWS::EC2::Subnet
@@ -94,6 +100,8 @@ SubnetForDAP3:
     Tags:
       - Key: Environment
         Value: !Ref Environment
+      - Key: name
+        Value: dap-private-sn3           
 
 RouteTableForDAP:
   Type: AWS::EC2::RouteTable
@@ -101,6 +109,8 @@ RouteTableForDAP:
     Tags:
       - Key: Environment
         Value: !Ref Environment
+      - Key: name
+        Value: dap-private-rt           
     VpcId: !Ref VPCForDAP
 
 SubnetRouteTableAssocDAP1:
@@ -125,9 +135,9 @@ RedshiftServerlessNamespace:
   Type: 'AWS::RedshiftServerless::Namespace'
   Properties:
     AdminUsername:
-      'Fn::Sub': '{{resolve:secretsmanager:${MyRedshiftSecret}::username}}'
+      !Sub '{{resolve:secretsmanager:${MyRedshiftSecret}::username}}'
     AdminUserPassword:
-      'Fn::Sub': '{{resolve:secretsmanager:${MyRedshiftSecret}::password}}'
+      !Sub '{{resolve:secretsmanager:${MyRedshiftSecret}::password}}'
     DbName: !Sub '${Environment}-redshift'
     DefaultIamRoleArn: !GetAtt IAMRoleRedshiftServerless.Arn
     IamRoles:
