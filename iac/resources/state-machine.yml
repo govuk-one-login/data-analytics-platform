@@ -304,25 +304,24 @@ DataQualityMetricsGlueTable:
 DataQualityPythonGlueJob:
   Type: AWS::Glue::Job
   Properties:
-      Command:
-        Name: pythonshell
-        PythonVersion: 3.9
-        ScriptLocation: !Sub s3://${ELTMetadataBucket}/data_quality_metrics_script/data-quality-metrics-generation.py
-      DefaultArguments:
-        "--JOB_NAME": !Sub ${Environment}-dap-data-quality-metrics-generation
-        "--additional-python-modules": "awswrangler"
-        "--env": !Sub ${Environment}
-        "--raw_db": !Sub ${Environment}-txma-raw
-        "--reconcilation_db": !Ref DataQualityGlueDatabase
-        "--reconcilation_tbl": !Ref DataQualityMetricsGlueTable
-        "--s3_path": !Sub s3://${DataQualityMetricsBucket}/data_quality_metrics/
-        "--ignore_tables": !Ref DataQualityIgnoreTablesList
-      ExecutionProperty:
-        MaxConcurrentRuns: 1
-      MaxRetries: 0
-      Name: !Sub ${Environment}-dap-data-quality-metrics-generation
-      Role: !Ref GlueScriptsExecutionRole
-
+    Command:
+      Name: pythonshell
+      PythonVersion: 3.9
+      ScriptLocation: !Sub s3://${ELTMetadataBucket}/data_quality_metrics_script/data-quality-metrics-generation.py
+    DefaultArguments:
+      '--JOB_NAME': !Sub ${Environment}-dap-data-quality-metrics-generation
+      '--additional-python-modules': 'awswrangler'
+      '--env': !Sub ${Environment}
+      '--raw_db': !Sub ${Environment}-txma-raw
+      '--reconcilation_db': !Ref DataQualityGlueDatabase
+      '--reconcilation_tbl': !Ref DataQualityMetricsGlueTable
+      '--s3_path': !Sub s3://${DataQualityMetricsBucket}/data_quality_metrics/
+      '--ignore_tables': !Ref DataQualityIgnoreTablesList
+    ExecutionProperty:
+      MaxConcurrentRuns: 1
+    MaxRetries: 0
+    Name: !Sub ${Environment}-dap-data-quality-metrics-generation
+    Role: !Ref GlueScriptsExecutionRole
 
 GlueScriptsExecutionRole:
   Type: AWS::IAM::Role
