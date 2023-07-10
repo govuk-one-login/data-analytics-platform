@@ -21,7 +21,7 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
         console.error(`Error in TxMA Event Consumer for record with body "${JSON.stringify(record.body)}"`, e);
         batchItemFailures.push({ itemIdentifier: record.messageId });
       }
-    })
+    }),
   );
   return { batchItemFailures };
 };

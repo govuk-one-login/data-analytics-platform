@@ -74,6 +74,6 @@ describe('Happy path tests Publish valid TXMA Event to SQS and expect event id s
       const fileUploaded = await checkFileCreatedOnS3(prefix, event.event_id, 120000);
       expect(fileUploaded).toEqual(true);
     },
-    240000
+    240000,
   );
 });
