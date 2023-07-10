@@ -248,6 +248,15 @@ StepFunctionRole:
                 - glue:DeletePartition
                 - glue:BatchDeletePartition
 
+            - Effect: Allow
+              Resource: '*'
+              Action:
+                - glue:StartJobRun
+                - glue:GetJobRun
+                - glue:GetJobRuns
+                - glue:BatchStopJobRun
+
+
 DataQualityMetricsBucket:
   # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
   Type: 'AWS::S3::Bucket'
