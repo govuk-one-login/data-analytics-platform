@@ -29,7 +29,7 @@ IAMRoleRedshiftServerless:
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}'
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'                
             - Effect: Allow
-              Resource: arn:aws:glue:eu-west-2:${AWS::AccountId}:*
+              Resource: !Sub arn:aws:glue:eu-west-2:${AWS::AccountId}:*
               Action:
                 - 'glue:GetTable'
                 - 'glue:GetTables'
