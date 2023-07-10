@@ -256,7 +256,6 @@ StepFunctionRole:
                 - glue:GetJobRuns
                 - glue:BatchStopJobRun
 
-
 DataQualityMetricsBucket:
   # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
   Type: 'AWS::S3::Bucket'
