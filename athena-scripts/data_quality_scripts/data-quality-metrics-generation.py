@@ -5,6 +5,17 @@ import awswrangler as wr
 import pandas as pd
 
 
+# tables in error, so bypass until data issue fixed
+ignore_tables = ['dcmaw_cri_vc_issued',
+                 'ipv_address_cri_start',
+                 'ipv_address_cri_vc_issued',
+                 'ipv_kbv_cri_vc_issued',
+                 'ipv_passport_cri_vc_issued',
+                 'ipv_dl_cri_vc_issued',
+                 'ipv_fraud_cri_vc_issued'
+                 ]
+
+
 def athena_query(database, query):
     #query athena and return dataframe
 
@@ -126,10 +137,9 @@ def main():
                            'reconcilation_db',
                            'reconcilation_tbl',
                            's3_path',
-                           'env',
-                           'ignore_tables'])
-                
+                           'env'])
         
+
         # get list of tables from raw, stage data-layers
         sql=f'''select table_schema, table_name 
         from information_schema.tables 
@@ -144,7 +154,7 @@ def main():
         #generate sql for raw table rowcounts
         for row in df_tables.itertuples(index=False):
             print(f'processing: {row.table_name}')
-            if row.table_schema == f"{args['env']}-txma-raw" and row.table_name not in args['ignore_tables']:
+            if row.table_schema == f"{args['env']}-txma-raw" and row.table_name not in ignore_tables:
                 print(f'in DQ generation loop: {row.table_name}')
 
                 # generate row_count dq metric

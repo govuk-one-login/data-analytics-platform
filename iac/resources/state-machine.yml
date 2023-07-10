@@ -325,7 +325,6 @@ DataQualityPythonGlueJob:
       '--reconcilation_db': !Ref DataQualityGlueDatabase
       '--reconcilation_tbl': !Ref DataQualityMetricsGlueTable
       '--s3_path': !Sub s3://${DataQualityMetricsBucket}/data_quality_metrics/
-      '--ignore_tables': "['dcmaw_cri_vc_issued','ipv_address_cri_start','ipv_address_cri_vc_issued','ipv_kbv_cri_vc_issued','ipv_passport_cri_vc_issued','ipv_dl_cri_vc_issued','ipv_fraud_cri_vc_issued']"
       '--TempDir': !Sub s3://${DataQualityMetricsBucket}/temporary/
     ExecutionProperty:
       MaxConcurrentRuns: 1
