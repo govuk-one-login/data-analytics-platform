@@ -40,6 +40,15 @@ Parameters:
     Description: Account number of the build account used to grant it S3 access in other accounts
     AllowedValues:
       - 991664831801
+  DataQualityGlueDatabaseName:
+    Default: txma-data-quality-metrics
+    Type: String
+    Description: Name for the Data Quality Glue database
+  DataQualityIgnoreTablesList:
+    Default: "dcmaw_cri_vc_issued,ipv_address_cri_start,ipv_address_cri_vc_issued,ipv_kbv_cri_vc_issued,ipv_passport_cri_vc_issued,ipv_dl_cri_vc_issued,ipv_fraud_cri_vc_issued"
+    Type: CommaDelimitedList
+    Description: List of tables not to process for DQ metrics
+  
 
 Conditions:
   UseCodeSigning: !Not
