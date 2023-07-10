@@ -25,7 +25,7 @@ IAMRoleRedshiftServerless:
                 - 's3:PutObject'
               Resource:
                 - !Sub 'arn:aws:s3:::${RawLayerBucket}'
-                - !Sub 'arn:aws:s3:::${RawLayerBucket}/*',
+                - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}'
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'                
             - Effect: Allow
