@@ -330,6 +330,7 @@ DataQualityPythonGlueJob:
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0
+    SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-data-quality-metrics-generation
     Role: !Ref GlueScriptsExecutionRole
 
