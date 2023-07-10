@@ -7,7 +7,8 @@ IAMRoleRedshiftServerless:
       Statement:
         - Effect: Allow
           Principal:
-            Service: [firehose.amazonaws.com,redshift.amazonaws.com,glue.amazonaws.com,redshift-serverless.amazonaws.com]
+            Service:
+              [firehose.amazonaws.com, redshift.amazonaws.com, glue.amazonaws.com, redshift-serverless.amazonaws.com]
           Action: 'sts:AssumeRole'
     MaxSessionDuration: 3600
     Policies:
@@ -27,7 +28,7 @@ IAMRoleRedshiftServerless:
                 - !Sub 'arn:aws:s3:::${RawLayerBucket}'
                 - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}'
-                - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'                
+                - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'
             - Effect: Allow
               Resource: !Sub arn:aws:glue:eu-west-2:${AWS::AccountId}:*
               Action:
@@ -113,7 +114,7 @@ SubnetRouteTableAssocDAP2:
   Properties:
     RouteTableId: !Ref RouteTableForDAP
     SubnetId: !Ref SubnetForDAP2
-    
+
 SubnetRouteTableAssocDAP3:
   Type: AWS::EC2::SubnetRouteTableAssociation
   Properties:

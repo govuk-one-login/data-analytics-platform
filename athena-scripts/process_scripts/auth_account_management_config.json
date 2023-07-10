@@ -1,7 +1,7 @@
 [
-    {
-        "event_name": "auth_password_reset_successful",
-        "product_family": "auth_account_management",
-        "enabled": true
-    }
+  {
+    "event_name": "auth_password_reset_successful",
+    "product_family": "auth_account_management",
+    "enabled": true
+  }
 ]

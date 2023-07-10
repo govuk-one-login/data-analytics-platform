@@ -1,42 +1,42 @@
 [
-    {
-        "event_name": "dcmaw_app_end",
-        "product_family": "dcmaw_cri",
-        "enabled": true
-    },
-    {
-        "event_name": "dcmaw_app_handoff_start",
-        "product_family": "dcmaw_cri",
-        "enabled": true
-    },
-    {
-        "event_name": "dcmaw_app_start",
-        "product_family": "dcmaw_cri",
-        "enabled": true
-    },
-    {
-        "event_name": "dcmaw_cri_start",
-        "product_family": "dcmaw_cri",
-        "enabled": true
-    },
-    {
-        "event_name": "dcmaw_cri_vc_issued",
-        "product_family": "dcmaw_cri",
-        "enabled": false
-    },
-    {
-        "event_name": "dcmaw_driving_licence_selected",
-        "product_family": "dcmaw_cri",
-        "enabled": true
-    },
-    {
-        "event_name": "dcmaw_passport_selected",
-        "product_family": "dcmaw_cri",
-        "enabled": true
-    },
-    {
-        "event_name": "dcmaw_web_end",
-        "product_family": "dcmaw_cri",
-        "enabled": true
-    }
+  {
+    "event_name": "dcmaw_app_end",
+    "product_family": "dcmaw_cri",
+    "enabled": true
+  },
+  {
+    "event_name": "dcmaw_app_handoff_start",
+    "product_family": "dcmaw_cri",
+    "enabled": true
+  },
+  {
+    "event_name": "dcmaw_app_start",
+    "product_family": "dcmaw_cri",
+    "enabled": true
+  },
+  {
+    "event_name": "dcmaw_cri_start",
+    "product_family": "dcmaw_cri",
+    "enabled": true
+  },
+  {
+    "event_name": "dcmaw_cri_vc_issued",
+    "product_family": "dcmaw_cri",
+    "enabled": false
+  },
+  {
+    "event_name": "dcmaw_driving_licence_selected",
+    "product_family": "dcmaw_cri",
+    "enabled": true
+  },
+  {
+    "event_name": "dcmaw_passport_selected",
+    "product_family": "dcmaw_cri",
+    "enabled": true
+  },
+  {
+    "event_name": "dcmaw_web_end",
+    "product_family": "dcmaw_cri",
+    "enabled": true
+  }
 ]

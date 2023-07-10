@@ -1,12 +1,12 @@
 [
-    {
-        "event_name": "ipv_dl_cri_start",
-        "product_family": "ipv_cri_driving_license",
-        "enabled": true
-    },
-    {
-        "event_name": "ipv_dl_cri_vc_issued",
-        "product_family": "ipv_cri_driving_license",
-        "enabled": false
-    }
+  {
+    "event_name": "ipv_dl_cri_start",
+    "product_family": "ipv_cri_driving_license",
+    "enabled": true
+  },
+  {
+    "event_name": "ipv_dl_cri_vc_issued",
+    "product_family": "ipv_cri_driving_license",
+    "enabled": false
+  }
 ]
