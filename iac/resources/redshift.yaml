@@ -55,7 +55,7 @@ VPCForDAP:
     Tags:
       - Key: Environment
         Value: !Ref Environment
-      - Key: name
+      - Key: Name
         Value: dap-private-vpc
 
 SubnetForDAP1:
@@ -70,7 +70,7 @@ SubnetForDAP1:
     Tags:
       - Key: Environment
         Value: !Ref Environment
-      - Key: name
+      - Key: Name
         Value: dap-private-sn1
 
 SubnetForDAP2:
@@ -85,7 +85,7 @@ SubnetForDAP2:
     Tags:
       - Key: Environment
         Value: !Ref Environment
-      - Key: name
+      - Key: Name
         Value: dap-private-sn2
 
 SubnetForDAP3:
@@ -100,7 +100,7 @@ SubnetForDAP3:
     Tags:
       - Key: Environment
         Value: !Ref Environment
-      - Key: name
+      - Key: Name
         Value: dap-private-sn3
 
 RouteTableForDAP:
@@ -109,7 +109,7 @@ RouteTableForDAP:
     Tags:
       - Key: Environment
         Value: !Ref Environment
-      - Key: name
+      - Key: Name
         Value: dap-private-rt
     VpcId: !Ref VPCForDAP
 
