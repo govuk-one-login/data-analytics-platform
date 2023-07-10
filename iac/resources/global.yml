@@ -14,17 +14,19 @@ GlobalLogBucket:
       Status: Enabled
 
 GlueSecurityConfig:
-  # checkov:skip=CKV_AWS_99: Ensure Glue Security Configuration Encryption is enabled
   Type: AWS::Glue::SecurityConfiguration
   Properties:
-    Name: !Sub ${Environment}-dap-glue-security-config
+    Name: !Sub ${Environment}-dap-glue-security-configuration
     EncryptionConfiguration:
       CloudWatchEncryption:
-        CloudWatchEncryptionMode: DISABLED
+        CloudWatchEncryptionMode: SSE-KMS
+        KmsKeyArn: !GetAtt KmsKey.Arn
       JobBookmarksEncryption:
-        JobBookmarksEncryptionMode: DISABLED
+        JobBookmarksEncryptionMode: CSE-KMS
+        KmsKeyArn: !GetAtt KmsKey.Arn
       S3Encryptions:
-        - S3EncryptionMode: DISABLED
+        - S3EncryptionMode: SSE-KMS
+          KmsKeyArn: !GetAtt KmsKey.Arn
 
 TestSupportLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
@@ -83,10 +85,18 @@ KmsKey:
               - sns.amazonaws.com
               - sqs.amazonaws.com
               - logs.amazonaws.com
+              - logs.eu-west-2.amazonaws.com
+              - glue.amazonaws.com
+            AWS:
+              - !GetAtt RawGlueCrawlerRole.Arn
+              - !GetAtt StageGlueCrawlerRole.Arn
+              - !GetAtt StepFunctionRole.Arn
           Action:
-            - kms:Encrypt
-            - kms:Decrypt
+            - kms:Encrypt*
+            - kms:Decrypt*
+            - kms:ReEncrypt*
             - kms:GenerateDataKey*
+            - kms:Describe*
           Resource: '*'
 
 KmsKeyAlias:

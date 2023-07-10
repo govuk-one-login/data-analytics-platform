@@ -6,10 +6,10 @@
   "repository": "github:alphagov/di-data-analytics-platform",
   "devDependencies": {
     "@aws-sdk/client-athena": "^3.363.0",
-    "@aws-sdk/client-cloudwatch-logs": "^3.363.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.368.0",
     "@aws-sdk/client-firehose": "^3.363.0",
     "@aws-sdk/client-lambda": "^3.363.0",
-    "@aws-sdk/client-s3": "^3.363.0",
+    "@aws-sdk/client-s3": "^3.367.0",
     "@aws-sdk/client-sqs": "^3.363.0",
     "@aws-sdk/types": "^3.357.0",
     "@aws-sdk/util-retry": "^3.364.0",
@@ -26,9 +26,9 @@
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard-with-typescript": "^36.0.0",
-    "jest": "^29.5.0",
+    "jest": "^29.6.1",
     "jest-stare": "^2.5.0",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.0",
     "typescript": "^5.1.6"
   },
   "scripts": {
