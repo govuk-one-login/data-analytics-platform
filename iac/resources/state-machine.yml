@@ -110,7 +110,7 @@ AthenaRawLayerProcessingStateMachine:
       S3MetaDataBucketName: !Ref ELTMetadataBucket
       RawDatabaseName: !Ref RawGlueDatabase
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
-      DataQualityGlueJobname: !Sub ${Environment}-dap-data-quality-metrics-generation
+      DataQualityGlueJobname: !Ref DataQualityPythonGlueJob
     Events:
       DailySchedule:
         Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
