@@ -78,7 +78,7 @@ test('logs in dev', async () => {
   expect(mockFirehoseClient.calls()).toHaveLength(1);
   expect(consoleLogSpy).toHaveBeenCalledTimes(1);
   expect(consoleLogSpy).toHaveBeenCalledWith(
-    'Received record with message id 1 with event "{\\"hello\\":\\"world\\"}"'
+    'Received record with message id 1 with event "{\\"hello\\":\\"world\\"}"',
   );
 });
 

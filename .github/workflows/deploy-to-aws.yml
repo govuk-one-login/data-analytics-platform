@@ -16,8 +16,18 @@ jobs:
       - name: Validate input environment
         run: scripts/validate-environment.sh -d ${{ inputs.environment }}
 
+  validate-branch-ahead:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0    # check out full history
+      - name: Validate ahead of main
+        run: scripts/validate-branch-ahead.sh
+
   deploy-to-aws:
-    needs: [validate-environment]
+    needs: [ validate-environment, validate-branch-ahead ]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write

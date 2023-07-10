@@ -220,8 +220,8 @@ test('athena wait', async () => {
   });
   await expect(handler(event)).rejects.toThrow(
     `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
-      runningResponse.QueryExecution.Status
-    )}`
+      runningResponse.QueryExecution.Status,
+    )}`,
   );
 
   expect(mockAthenaClient.calls().length).toBeGreaterThanOrEqual(5);
@@ -245,8 +245,8 @@ test('athena wait cancellation', async () => {
   });
   await expect(handler(event)).rejects.toThrow(
     `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
-      cancelledResponse.QueryExecution.Status
-    )}`
+      cancelledResponse.QueryExecution.Status,
+    )}`,
   );
 
   expect(mockAthenaClient.calls()).toHaveLength(5);
@@ -271,8 +271,8 @@ test('athena wait failure', async () => {
   });
   await expect(handler(event)).rejects.toThrow(
     `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
-      failedResponse.QueryExecution.Status
-    )}`
+      failedResponse.QueryExecution.Status,
+    )}`,
   );
 
   expect(mockAthenaClient.calls().length).toBeGreaterThanOrEqual(5);
@@ -317,7 +317,7 @@ const getEvent = (overrides: { environment?: string; command?: string; input?: o
 const testS3Response = async (
   expectedETag: string,
   expectedLastModified: Date,
-  expectedContentEncoding: string | undefined
+  expectedContentEncoding: string | undefined,
 ): Promise<void> => {
   const event = getEvent({ command: 'S3_GET', input: { Bucket: 'bucket', Key: 'key' } });
   const response = (await handler(event)) as Record<string, unknown>;

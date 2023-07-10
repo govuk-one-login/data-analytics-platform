@@ -44,7 +44,7 @@ export const parseS3ResponseAsObject = async <T>(s3Response: GetObjectCommandOut
     return JSON.parse(body);
   } catch (error) {
     throw new Error(
-      `Error parsing JSON string "${body}"${error instanceof Error ? `. Original error: ${error.toString()}` : ''}`
+      `Error parsing JSON string "${body}"${error instanceof Error ? `. Original error: ${error.toString()}` : ''}`,
     );
   }
 };
