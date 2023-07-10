@@ -144,7 +144,7 @@ RedshiftServerlessNamespace:
     FinalSnapshotRetentionPeriod: 30
     LogExports:
       - useractivitylog
-    NamespaceName: !Sub '${Environment}-redshift-serverless-namespace'
+    NamespaceName: !Sub '${Environment}-redshift-serverless-ns'
 
 RedshiftServerlessWorkgroup:
   Type: 'AWS::RedshiftServerless::Workgroup'
