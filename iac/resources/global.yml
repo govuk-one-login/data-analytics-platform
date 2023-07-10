@@ -93,6 +93,7 @@ KmsKey:
               - !GetAtt RawGlueCrawlerRole.Arn
               - !GetAtt StageGlueCrawlerRole.Arn
               - !GetAtt StepFunctionRole.Arn
+              - !GetAtt GlueScriptsExecutionRole.Arn
           Action:
             - kms:Encrypt*
             - kms:Decrypt*
