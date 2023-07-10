@@ -25,7 +25,7 @@ test('missing required params', async () => {
     configFilePrefix: 'auth_account_creation',
   } as unknown as AthenaGetConfigEvent;
   await expect(handler(missingDatasource)).rejects.toThrow(
-    'Object is missing the following required fields: datasource'
+    'Object is missing the following required fields: datasource',
   );
 
   const missingBucket = {
@@ -33,7 +33,7 @@ test('missing required params', async () => {
     configFilePrefix: 'auth_account_creation',
   } as unknown as AthenaGetConfigEvent;
   await expect(handler(missingBucket)).rejects.toThrow(
-    'Object is missing the following required fields: S3MetaDataBucketName'
+    'Object is missing the following required fields: S3MetaDataBucketName',
   );
 
   const missingConfigFilePrefix = {
@@ -41,7 +41,7 @@ test('missing required params', async () => {
     S3MetaDataBucketName: 'elt-metadata',
   } as unknown as AthenaGetConfigEvent;
   await expect(handler(missingConfigFilePrefix)).rejects.toThrow(
-    'Object is missing the following required fields: configFilePrefix'
+    'Object is missing the following required fields: configFilePrefix',
   );
   expect(mockS3Client.calls()).toHaveLength(0);
 });
@@ -64,7 +64,7 @@ test('bad json', async () => {
   mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: 'hi' }) });
 
   await expect(handler(TEST_EVENT)).rejects.toThrow(
-    'Error parsing JSON string "hi". Original error: SyntaxError: Unexpected token h in JSON at position 0'
+    'Error parsing JSON string "hi". Original error: SyntaxError: Unexpected token h in JSON at position 0',
   );
   expect(mockS3Client.calls()).toHaveLength(1);
 });

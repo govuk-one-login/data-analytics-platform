@@ -5,14 +5,14 @@ const formatNumberInTwoDigits = (num: number): string => {
 export const getEventFilePrefix = (eventName: string): string => {
   const today = new Date();
   return `txma/${eventName}/year=${today.getFullYear()}/month=${formatNumberInTwoDigits(
-    today.getMonth() + 1
+    today.getMonth() + 1,
   )}/day=${formatNumberInTwoDigits(today.getDate())}`;
 };
 
 export const getErrorFilePrefix = (): string => {
   const today = new Date();
   return `kinesis-processing-errors-metadata-extraction-failed/${today.getFullYear()}/${formatNumberInTwoDigits(
-    today.getMonth() + 1
+    today.getMonth() + 1,
   )}/${formatNumberInTwoDigits(today.getDate())}`;
 };
 
@@ -23,7 +23,7 @@ export const poll = async <Resolution>(
     interval?: number;
     timeout?: number;
     nonCompleteErrorMessage?: string;
-  }
+  },
 ): Promise<Resolution> => {
   const {
     interval = 1_000,
@@ -70,7 +70,7 @@ export const poll = async <Resolution>(
           clearInterval(intervalHandle);
           clearTimeout(timeoutHandle);
           reject(error);
-        }
+        },
       );
     }, interval);
   });

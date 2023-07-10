@@ -22,7 +22,7 @@ const handleEvent = async (event: AthenaGetStatementEvent): Promise<string> => {
     case 'GetPartitionQuery': {
       const key = `${event.datasource}/utils/get_query_partition.sql`;
       return await getFileDetails(bucket, key).then(body =>
-        body.replaceAll('tablename', productFamily).replaceAll('"event_name"', `'${eventName?.toUpperCase()}'`)
+        body.replaceAll('tablename', productFamily).replaceAll('"event_name"', `'${eventName?.toUpperCase()}'`),
       );
     }
     case 'GetInsertQuery': {
@@ -39,7 +39,7 @@ const validateEvent = (event: AthenaGetStatementEvent): AthenaGetStatementEvent 
     'datasource',
     'S3MetaDataBucketName',
     'action',
-    'configObject'
+    'configObject',
   );
   if (!RawLayerProcessingActions.includes(action)) {
     throw new Error(`Unknown action "${action}"`);

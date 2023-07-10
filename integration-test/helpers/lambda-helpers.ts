@@ -40,7 +40,7 @@ export const getEventListS3 = async (prefix: string): Promise<Record<string, unk
 };
 
 export const invokeTestSupportLambda = async (
-  event: Omit<TestSupportEvent, 'environment'>
+  event: Omit<TestSupportEvent, 'environment'>,
 ): Promise<Record<string, unknown>> => {
   const environment = (process.env.AWS_ENVIRONMENT as TestSupportEnvironment) ?? 'test';
 
@@ -56,7 +56,7 @@ export const invokeTestSupportLambda = async (
         Payload: encodeObject(payload),
         LogType: 'Tail',
         InvocationType: 'RequestResponse',
-      })
+      }),
     );
     if (response.StatusCode !== 200 && response.Payload === undefined) {
       throw new Error(`TestSupportEvent Lambda Call failed with response ${JSON.stringify(response)}`);

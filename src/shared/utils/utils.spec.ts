@@ -19,21 +19,21 @@ test('get required params correctly errors', () => {
   expect(() => getRequiredParams({ a: 'b' }, 'a')).not.toThrow();
   expect(() => getRequiredParams({} as TestType, 'a')).toThrow('Object is missing the following required fields: a');
   expect(() => getRequiredParams({ aa: 'b' } as TestType, 'a')).toThrow(
-    'Object is missing the following required fields: a'
+    'Object is missing the following required fields: a',
   );
   expect(() => getRequiredParams({ a: 'b', c: 'd' } as TestType, 'e')).toThrow(
-    'Object is missing the following required fields: e'
+    'Object is missing the following required fields: e',
   );
 
   expect(() => getRequiredParams({ a: 'b', c: 'd', e: 'f' }, 'a', 'c', 'e')).not.toThrow();
   expect(() => getRequiredParams({ c: 'd' } as TestType, 'a', 'c', 'e')).toThrow(
-    'Object is missing the following required fields: a, e'
+    'Object is missing the following required fields: a, e',
   );
   expect(() => getRequiredParams({} as TestType, 'a', 'c', 'e')).toThrow(
-    'Object is missing the following required fields: a, c, e'
+    'Object is missing the following required fields: a, c, e',
   );
   expect(() => getRequiredParams({ ee: 'f' } as TestType, 'a', 'c', 'e')).toThrow(
-    'Object is missing the following required fields: a, c, e'
+    'Object is missing the following required fields: a, c, e',
   );
 });
 /* eslint-enable @typescript-eslint/consistent-type-assertions */
@@ -49,12 +49,12 @@ test('get required params preserves optional params', () => {
 test('get required params errors if field present but null or undefined', () => {
   const presentButNull = { Bucket: 'bucket-name', Prefix: null };
   expect(() => getRequiredParams(presentButNull, 'Bucket', 'Prefix')).toThrow(
-    'Object is missing the following required fields: Prefix'
+    'Object is missing the following required fields: Prefix',
   );
 
   const presentButUndefined = { Bucket: 'bucket-name', Prefix: undefined };
   expect(() => getRequiredParams(presentButUndefined, 'Bucket', 'Prefix')).toThrow(
-    'Object is missing the following required fields: Prefix'
+    'Object is missing the following required fields: Prefix',
   );
 });
 

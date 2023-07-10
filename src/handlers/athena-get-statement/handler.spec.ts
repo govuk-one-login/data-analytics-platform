@@ -44,25 +44,25 @@ test('missing required params', async () => {
   const missingDatasource = { ...TEST_EVENT } as unknown as Partial<AthenaGetStatementEvent>;
   delete missingDatasource.datasource;
   await expect(handler(missingDatasource as unknown as AthenaGetStatementEvent)).rejects.toThrow(
-    'Object is missing the following required fields: datasource'
+    'Object is missing the following required fields: datasource',
   );
 
   const missingBucket = { ...TEST_EVENT } as unknown as Partial<AthenaGetStatementEvent>;
   delete missingBucket.S3MetaDataBucketName;
   await expect(handler(missingBucket as unknown as AthenaGetStatementEvent)).rejects.toThrow(
-    'Object is missing the following required fields: S3MetaDataBucketName'
+    'Object is missing the following required fields: S3MetaDataBucketName',
   );
 
   const missingAction = { ...TEST_EVENT } as unknown as Partial<AthenaGetStatementEvent>;
   delete missingAction.action;
   await expect(handler(missingAction as unknown as AthenaGetStatementEvent)).rejects.toThrow(
-    'Object is missing the following required fields: action'
+    'Object is missing the following required fields: action',
   );
 
   const missingConfigObject = { ...TEST_EVENT } as unknown as Partial<AthenaGetStatementEvent>;
   delete missingConfigObject.configObject;
   await expect(handler(missingConfigObject as unknown as AthenaGetStatementEvent)).rejects.toThrow(
-    'Object is missing the following required fields: configObject'
+    'Object is missing the following required fields: configObject',
   );
   expect(mockS3Client.calls()).toHaveLength(0);
 });
@@ -154,7 +154,7 @@ test('getpartitionquery does not need valid row and data', async () => {
   await handler(eventWithBadConfigObject({ queryResult: { ResultSet: { Rows: [{ Data: {} }] } } }));
   await handler(eventWithBadConfigObject({ queryResult: { ResultSet: { Rows: [{ Data: { VarCharValue: null } }] } } }));
   await handler(
-    eventWithBadConfigObject({ queryResult: { ResultSet: { Rows: [{ Data: { VarCharValue: undefined } }] } } })
+    eventWithBadConfigObject({ queryResult: { ResultSet: { Rows: [{ Data: { VarCharValue: undefined } }] } } }),
   );
   expect(mockS3Client.calls()).toHaveLength(7);
 });
