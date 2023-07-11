@@ -54,7 +54,7 @@ def athena_insert(dataframe, database, table, s3_path):
         raise(e)
     
 
-def generate_tbl_sql(source_db,reconcilation_db,reconcilation_tbl,table_name, metric_name, data_layer):
+def generate_tbl_sql(source_db, reconcilation_db, reconcilation_tbl, table_name, metric_name, data_layer):
     """
     generate athena table partitions
     """
@@ -89,7 +89,7 @@ def generate_tbl_sql(source_db,reconcilation_db,reconcilation_tbl,table_name, me
 
     
 
-def process_dq_metric(raw_db, reconcilation_db, reconcilation_tbl, s3_path, df, metric_name):
+def process_dq_metric(source_db, reconcilation_db, reconcilation_tbl, s3_path, df, metric_name, data_layer):
     """
     generate dq metric and insert into dq table
     """
@@ -100,7 +100,7 @@ def process_dq_metric(raw_db, reconcilation_db, reconcilation_tbl, s3_path, df, 
             if metric_sql != '':
                 metric_sql = metric_sql + ' union '
 
-            if metric_name == 'row_count':
+            if metric_name == 'row_count' and data_layer == 'raw':
                 metric_sql = metric_sql + f'''select 'raw' as data_layer,
                                                     '{tbl_partition.table_name}' as table_name,
                                                     '{tbl_partition.table_name}' as event_name,
@@ -111,13 +111,13 @@ def process_dq_metric(raw_db, reconcilation_db, reconcilation_tbl, s3_path, df, 
                                                     'record count by partition' as metric_desc,
                                                     cast(current_time as varchar) as created_datetime,
                                                     count(*) as metric_value
-                                                    from \"{raw_db}\".\"{tbl_partition.table_name}\"
+                                                    from \"{source_db}\".\"{tbl_partition.table_name}\"
                                                     where year = '{tbl_partition.raw_year}'
                                                     and month = '{tbl_partition.raw_month}'
                                                     and day = '{tbl_partition.raw_day}'
                                                     group by 1,2,3,4,5,6,7,8,9'''
             
-            if metric_name == 'event_id_duplicate':
+            if metric_name == 'event_id_duplicate' and data_layer == 'raw':
                 metric_sql = metric_sql + f'''select 'raw' as data_layer,
                                                     '{tbl_partition.table_name}' as table_name,
                                                     '{tbl_partition.table_name}' as event_name,
@@ -129,12 +129,29 @@ def process_dq_metric(raw_db, reconcilation_db, reconcilation_tbl, s3_path, df, 
                                                     cast(current_time as varchar) as created_datetime,
                                                     count(*) as metric_value
                                                     from (select "event_id" as "event_id"
-                                                    from \"{raw_db}\".\"{tbl_partition.table_name}\"
+                                                    from \"{source_db}\".\"{tbl_partition.table_name}\"
                                                     where year = '{tbl_partition.raw_year}'
                                                     and month = '{tbl_partition.raw_month}'
                                                     and day = '{tbl_partition.raw_day}'
                                                     group by event_id
                                                     having count(*) > 1) as duplicates'''
+                
+            if metric_name == 'row_count' and data_layer == 'stage':
+                metric_sql = metric_sql + f'''select 'stage' as data_layer,
+                                                    '{tbl_partition.table_name}' as table_name,
+                                                    '{(tbl_partition.stg_event_name).lower()}' as event_name,
+                                                    '{tbl_partition.stg_processed_date}' as processed_dt,
+                                                    year as year,
+                                                    month as month,
+                                                    day as day,
+                                                    'row_count' as metric_name,
+                                                    'record count by partition' as metric_desc,
+                                                    cast(current_time as varchar) as created_datetime,
+                                                    count(*) as metric_value
+                                                    from \"{source_db}\".\"{tbl_partition.table_name}\"
+                                                    where processed_date = '{tbl_partition.stg_processed_date}'
+                                                    and event_name = '{tbl_partition.stg_event_name}'
+                                                    group by 1,2,3,4,5,6,7,8,9,10'''
         
         
         if metric_sql != '':
@@ -170,7 +187,7 @@ def main():
 
         for family in df_product_family.itertuples(index=False):
             if family.enabled == True:
-                print(f'processing product family: {family.product_family}')
+                print(f'processing raw events for product family: {family.product_family}')
                 event_df = read_config_file(f"{args['process_config']}process_config/{family.product_family}_config.json")
                 for row in event_df.itertuples(index=False):
                     if row.enabled == True:
@@ -178,28 +195,33 @@ def main():
                         # check if table exists
                         if wr.catalog.does_table_exist(database=args['raw_db'], table=row.event_name):
 
-                            print(f'processing event: {row.event_name}')
+                            print(f'processing raw event: {row.event_name}')
 
                             # generate row_count dq metric for raw layer
                             athena_rowcount = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'row_count', 'raw')
                             df_rowcounts = athena_query(args['reconcilation_db'], athena_rowcount)
                             if not df_rowcounts.empty:
                                 print(f"rowcounts: {df_rowcounts}")
-                                process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_rowcounts, 'row_count')
+                                process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_rowcounts, 'row_count', 'raw')
 
                             # generate event_id duplicate dq metric for raw layer
                             athena_duplicate = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'event_id_duplicate', 'raw')
                             df_duplicates = athena_query(args['reconcilation_db'], athena_duplicate)
                             if not df_duplicates.empty:
                                 print(f"duplicates: {df_duplicates}")
-                                process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_duplicates, 'event_id_duplicate')
+                                process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_duplicates, 'event_id_duplicate', 'raw')
 
                         else:
 
                             print(f'athena table for event: {row.event_name} does not exist')
 
                 # generate row_count dq metric for stg layer
-                athena_rowcount = generate_tbl_sql(args['stage_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'row_count', 'stage')
+                print(f'processing stage rowcounts for product family: {family.product_family}')
+                athena_stg_rowcount = generate_tbl_sql(args['stage_db'], args['reconcilation_db'], args['reconcilation_tbl'], family.product_family, 'row_count', 'stage')
+                df_stg_rowcounts = athena_query(args['reconcilation_db'], athena_stg_rowcount)
+                if not df_stg_rowcounts.empty:
+                    print(f"rowcounts: {df_stg_rowcounts}")
+                    process_dq_metric(args['stage_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_stg_rowcounts, 'row_count', 'stage')
 
                                 
                         
