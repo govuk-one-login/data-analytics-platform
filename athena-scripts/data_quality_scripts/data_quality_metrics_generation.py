@@ -5,19 +5,23 @@ import awswrangler as wr
 import pandas as pd
 
 
-# tables in error, so bypass until data issue fixed
-ignore_tables = ['dcmaw_cri_vc_issued',
-                 'ipv_address_cri_start',
-                 'ipv_address_cri_vc_issued',
-                 'ipv_kbv_cri_vc_issued',
-                 'ipv_passport_cri_vc_issued',
-                 'ipv_dl_cri_vc_issued',
-                 'ipv_fraud_cri_vc_issued']
+
+def read_config_file(path):
+    """
+    Returns TxMA config file
+    """
+    try:
+        return wr.s3.read_json(path)
+    
+    except Exception as e:
+        raise(e)
+
 
 
 def athena_query(database, query):
-    #query athena and return dataframe
-
+    """
+    query athena and return dataframe
+    """
     try:
         
         return wr.athena.read_sql_query(
@@ -31,8 +35,9 @@ def athena_query(database, query):
     
 
 def athena_insert(dataframe, database, table, s3_path):
-    #query athena and return dataframe
-
+    """
+    insert dataframe into athena table
+    """
     try:
         
         wr.s3.to_parquet(
@@ -50,7 +55,9 @@ def athena_insert(dataframe, database, table, s3_path):
     
 
 def generate_tbl_sql(raw_db,reconcilation_db,reconcilation_tbl,table_name, metric_name):
-
+    """
+    generate athena table partitions
+    """
     return  f'''select table_name, raw_year, raw_month, raw_day, dq_tablename from
                 (select distinct '{table_name}' as table_name,
                 raw.year as raw_year,
@@ -68,7 +75,9 @@ def generate_tbl_sql(raw_db,reconcilation_db,reconcilation_tbl,table_name, metri
     
 
 def process_dq_metric(raw_db, reconcilation_db, reconcilation_tbl, s3_path, df, metric_name):
-
+    """
+    generate dq metric and insert into dq table
+    """
     try:
     
         metric_sql = ''
@@ -140,36 +149,30 @@ def main():
                            'env'])
         
 
-        # get list of tables from raw, stage data-layers
-        sql=f'''select table_schema, table_name 
-        from information_schema.tables 
-        WHERE table_catalog = 'awsdatacatalog'
-        and table_schema in ('{args['env']}-txma-raw','{args['env']}-txma-stage')
-        and table_type = 'BASE TABLE'
-        and "table_name" != 'table_metadata' '''
+        #read process config
+        df_product_family = read_config_file(f"{args['process_config']}process_config/product_family_config.json")
 
-        df_tables = athena_query(args['raw_db'], sql)
+        for family in df_product_family.itertuples(index=False):
+            if family.enabled == True:
+                print(f'processing product family: {family.product_family}')
+                event_df = read_config_file(f"{args['process_config']}process_config/{family.product_family}_config.json")
+                for row in event_df.itertuples(index=False):
+                    if row.enabled == True:
+                        print(f'processing event: {row.event_name}')
 
-        #loop over the table results (pandas dataframe)
-        #generate sql for raw table rowcounts
-        for row in df_tables.itertuples(index=False):
-            print(f'processing: {row.table_name}')
-            if row.table_schema == f"{args['env']}-txma-raw" and row.table_name not in ignore_tables:
-                print(f'in DQ generation loop: {row.table_name}')
+                        # generate row_count dq metric
+                        athena_rowcount = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'row_count')
+                        df_rowcounts = athena_query(args['reconcilation_db'], athena_rowcount)
+                        if not df_rowcounts.empty:
+                            print(f"rowcounts: {df_rowcounts}")
+                            process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_rowcounts, 'row_count')
 
-                # generate row_count dq metric
-                athena_rowcount = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.table_name, 'row_count')
-                df_rowcounts = athena_query(args['reconcilation_db'], athena_rowcount)
-                if not df_rowcounts.empty:
-                    print(f"rowcounts: {df_rowcounts}")
-                    process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_rowcounts, 'row_count')
-
-                # generate event_id duplicate dq metric
-                athena_duplicate = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.table_name, 'event_id_duplicate')
-                df_duplicates = athena_query(args['reconcilation_db'], athena_duplicate)
-                if not df_duplicates.empty:
-                    print(f"duplicates: {df_duplicates}")
-                    process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_duplicates, 'event_id_duplicate')
+                        # generate event_id duplicate dq metric
+                        athena_duplicate = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'event_id_duplicate')
+                        df_duplicates = athena_query(args['reconcilation_db'], athena_duplicate)
+                        if not df_duplicates.empty:
+                            print(f"duplicates: {df_duplicates}")
+                            process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_duplicates, 'event_id_duplicate')
 
                                 
                         
