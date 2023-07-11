@@ -54,23 +54,38 @@ def athena_insert(dataframe, database, table, s3_path):
         raise(e)
     
 
-def generate_tbl_sql(raw_db,reconcilation_db,reconcilation_tbl,table_name, metric_name):
+def generate_tbl_sql(source_db,reconcilation_db,reconcilation_tbl,table_name, metric_name, data_layer):
     """
     generate athena table partitions
     """
-    return  f'''select table_name, raw_year, raw_month, raw_day, dq_tablename from
-                (select distinct '{table_name}' as table_name,
-                raw.year as raw_year,
-                raw.month as raw_month,
-                raw.day as raw_day,
-                dq."table_name" as dq_tablename
-                from \"{raw_db}\".\"{table_name}$partitions\" raw
-                left join "{reconcilation_db}"."{reconcilation_tbl}" dq on raw."year" = dq."year"
-                and raw."month" = dq."month"
-                and raw."day" = dq."day"
-                and dq."table_name" = '{table_name}'
-                and dq."metric_name" = '{metric_name}')
-                where dq_tablename is null;'''
+
+    if data_layer == 'raw':
+        return  f'''select table_name, raw_year, raw_month, raw_day, dq_tablename from
+                    (select distinct '{table_name}' as table_name,
+                    raw.year as raw_year,
+                    raw.month as raw_month,
+                    raw.day as raw_day,
+                    dq."table_name" as dq_tablename
+                    from \"{source_db}\".\"{table_name}$partitions\" raw
+                    left join "{reconcilation_db}"."{reconcilation_tbl}" dq on raw."year" = dq."year"
+                    and raw."month" = dq."month"
+                    and raw."day" = dq."day"
+                    and dq."table_name" = '{table_name}'
+                    and dq."metric_name" = '{metric_name}')
+                    where dq_tablename is null;'''
+    elif data_layer == 'stage':
+        return f'''select table_name,stg_processed_date,stg_event_name from 
+                    (select distinct '{table_name}' as table_name,
+                    stg.processed_date as stg_processed_date,
+                    stg.event_name as stg_event_name,
+                    dq."table_name" as dq_tablename
+                    from \"{source_db}\".\"{table_name}$partitions\" stg
+                    left join "{reconcilation_db}"."{reconcilation_tbl}" dq 
+                    on stg."processed_date" = dq."processed_dt"
+                    and stg."event_name" = dq."event_name"
+                    and dq."table_name" = '{table_name}'
+                    and dq."metric_name" = '{metric_name}')
+                    where dq_tablename is null;'''
 
     
 
@@ -142,6 +157,7 @@ def main():
         args = getResolvedOptions(sys.argv,
                           ['JOB_NAME',
                            'raw_db',
+                           'stage_db',
                            'reconcilation_db',
                            'reconcilation_tbl',
                            's3_path',
@@ -164,15 +180,15 @@ def main():
 
                             print(f'processing event: {row.event_name}')
 
-                            # generate row_count dq metric
-                            athena_rowcount = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'row_count')
+                            # generate row_count dq metric for raw layer
+                            athena_rowcount = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'row_count', 'raw')
                             df_rowcounts = athena_query(args['reconcilation_db'], athena_rowcount)
                             if not df_rowcounts.empty:
                                 print(f"rowcounts: {df_rowcounts}")
                                 process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_rowcounts, 'row_count')
 
-                            # generate event_id duplicate dq metric
-                            athena_duplicate = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'event_id_duplicate')
+                            # generate event_id duplicate dq metric for raw layer
+                            athena_duplicate = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'event_id_duplicate', 'raw')
                             df_duplicates = athena_query(args['reconcilation_db'], athena_duplicate)
                             if not df_duplicates.empty:
                                 print(f"duplicates: {df_duplicates}")
@@ -181,6 +197,9 @@ def main():
                         else:
 
                             print(f'athena table for event: {row.event_name} does not exist')
+
+                # generate row_count dq metric for stg layer
+                athena_rowcount = generate_tbl_sql(args['stage_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'row_count', 'stage')
 
                                 
                         

@@ -322,6 +322,7 @@ DataQualityPythonGlueJob:
       '--additional-python-modules': 'awswrangler'
       '--env': !Sub ${Environment}
       '--raw_db': !Sub ${Environment}-txma-raw
+      '--stage_db': !Sub ${Environment}-txma-stage
       '--reconcilation_db': !Ref DataQualityGlueDatabase
       '--reconcilation_tbl': !Ref DataQualityMetricsGlueTable
       '--s3_path': !Sub s3://${DataQualityMetricsBucket}/data_quality_metrics/
