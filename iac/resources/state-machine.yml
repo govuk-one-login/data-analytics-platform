@@ -110,6 +110,7 @@ AthenaRawLayerProcessingStateMachine:
       S3MetaDataBucketName: !Ref ELTMetadataBucket
       RawDatabaseName: !Ref RawGlueDatabase
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
+      DataQualityGlueJobname: !Ref DataQualityPythonGlueJob
     Events:
       DailySchedule:
         Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
@@ -200,6 +201,202 @@ StepFunctionRole:
             - Effect: Allow
               Resource:
                 - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${Environment}-dap-txma-processing'
+                - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:datacatalog/*'
+              Action:
+                - athena:CreatePreparedStatement
+                - athena:StartQueryExecution
+                - athena:GetQueryResultsStream
+                - athena:UpdatePreparedStatement
+                - athena:GetQueryResults
+                - athena:DeletePreparedStatement
+                - athena:DeleteNamedQuery
+                - athena:GetNamedQuery
+                - athena:GetPreparedStatement
+                - athena:ListQueryExecutions
+                - athena:ListNamedQueries
+                - athena:GetWorkGroup
+                - athena:CreateNamedQuery
+                - athena:StopQueryExecution
+                - athena:GetQueryExecution
+                - athena:BatchGetNamedQuery
+                - athena:ListPreparedStatements
+                - athena:BatchGetQueryExecution
+                - athena:getDataCatalog
+
+            - Effect: Allow
+              Resource:
+                - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:catalog'
+                - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:database/*'
+                - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:table/*'
+              Action:
+                - glue:CreateDatabase
+                - glue:GetDatabase
+                - glue:GetDatabases
+                - glue:UpdateDatabase
+                - glue:DeleteDatabase
+                - glue:CreateTable
+                - glue:UpdateTable
+                - glue:GetTable
+                - glue:GetTables
+                - glue:DeleteTable
+                - glue:BatchDeleteTable
+                - glue:BatchCreatePartition
+                - glue:CreatePartition
+                - glue:UpdatePartition
+                - glue:GetPartition
+                - glue:GetPartitions
+                - glue:BatchGetPartition
+                - glue:DeletePartition
+                - glue:BatchDeletePartition
+
+            - Effect: Allow
+              Resource: '*'
+              Action:
+                - glue:StartJobRun
+                - glue:GetJobRun
+                - glue:GetJobRuns
+                - glue:BatchStopJobRun
+
+DataQualityMetricsBucket:
+  # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub ${Environment}-dap-data-quality-metrics
+    LoggingConfiguration:
+      DestinationBucketName: !Ref GlobalLogBucket
+      LogFilePrefix: dap-data-quality-metrics/log
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+
+DataQualityGlueDatabase:
+  Type: AWS::Glue::Database
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseInput:
+      Name: !Sub ${Environment}-txma-data-quality-metrics
+
+DataQualityMetricsGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref DataQualityGlueDatabase
+    TableInput:
+      Name: data_quality_metrics
+      TableType: EXTERNAL_TABLE
+      StorageDescriptor:
+        Columns:
+          - { Name: data_layer, Type: string }
+          - { Name: table_name, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: year, Type: string }
+          - { Name: month, Type: string }
+          - { Name: day, Type: string }
+          - { Name: processed_dt, Type: string }
+          - { Name: metric_name, Type: string }
+          - { Name: metric_value, Type: string }
+          - { Name: metric_desc, Type: string }
+          - { Name: created_datetime, Type: string }
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        Location: !Sub s3://${DataQualityMetricsBucket}/data_quality_metrics/
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+
+DataQualityPythonGlueJob:
+  Type: AWS::Glue::Job
+  Properties:
+    Command:
+      Name: pythonshell
+      PythonVersion: '3.9'
+      ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/data_quality_metrics_script/data_quality_metrics_generation.py
+    DefaultArguments:
+      '--JOB_NAME': !Sub ${Environment}-dap-data-quality-metrics-generation
+      '--additional-python-modules': 'awswrangler'
+      '--env': !Sub ${Environment}
+      '--raw_db': !Sub ${Environment}-txma-raw
+      '--stage_db': !Sub ${Environment}-txma-stage
+      '--reconcilation_db': !Ref DataQualityGlueDatabase
+      '--reconcilation_tbl': !Ref DataQualityMetricsGlueTable
+      '--s3_path': !Sub s3://${DataQualityMetricsBucket}/data_quality_metrics/
+      '--TempDir': !Sub s3://${DataQualityMetricsBucket}/temporary/
+      '--process_config': !Sub s3://${ELTMetadataBucket}/txma/
+    ExecutionProperty:
+      MaxConcurrentRuns: 1
+    MaxRetries: 0
+    SecurityConfiguration: !Ref GlueSecurityConfig
+    Name: !Sub ${Environment}-dap-data-quality-metrics-generation
+    Role: !Ref GlueScriptsExecutionRole
+
+GlueScriptsExecutionRole:
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: !Sub ${Environment}-dap-glue-scripts-execution-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - glue.amazonaws.com
+          Action:
+            - sts:AssumeRole
+    Path: /
+    Policies:
+      - PolicyName: !Sub ${Environment}-dap-glue-scripts-execution-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Resource: arn:aws:s3:::*
+              Action:
+                - s3:Get*
+                - s3:Put*
+                - s3:List*
+                - s3:ListBucketMultipartUploads
+                - s3:AbortMultipartUpload
+                - s3:CreateBucket
+                - s3:ListBucket
+                - s3:GetBucketLocation
+                - s3:ListMultipartUploadParts
+
+            - Effect: Allow
+              Resource: arn:aws:logs:*:*:*
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+                - logs:CreateLogDelivery
+                - logs:GetLogDelivery
+                - logs:UpdateLogDelivery
+                - logs:DeleteLogDelivery
+                - logs:ListLogDeliveries
+                - logs:PutResourcePolicy
+                - logs:DescribeResourcePolicies
+                - logs:DescribeLogGroups
+
+            - Effect: Allow
+              Resource: '*'
+              Action:
+                - athena:GetTableMetadata
+                - athena:ListEngineVersions
+                - athena:ListDataCatalogs
+                - athena:ListDatabases
+                - athena:GetDatabase
+                - athena:ListTableMetadata
+                - athena:ListWorkGroups
+
+            - Effect: Allow
+              Resource:
+                - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${Environment}-dap-txma-processing'
+                - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary'
                 - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:datacatalog/*'
               Action:
                 - athena:CreatePreparedStatement

@@ -451,7 +451,15 @@
           "Next": "GetProductFamilyConfig"
         }
       ],
-      "Default": "StopProcessing"
+      "Default": "DataQualityGlueStartJobRun"
+    },
+    "DataQualityGlueStartJobRun": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "${DataQualityGlueJobname}"
+      },
+      "Next": "StopProcessing"
     },
     "StopProcessing": {
       "Type": "Pass",
