@@ -31,7 +31,8 @@ GlobalLogBucketPolicy:
             - 's3:GetObject'
             - 's3:PutObject'
           Resource: !Sub ${GlobalLogBucket.Arn}/*
-          Principal: '*'
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration

@@ -32,9 +32,12 @@ RawLayerBucketPolicy:
           Action:
             - 's3:GetObject'
             - 's3:PutObject'
-            - 's3:ListObject'
-          Resource: !Sub ${RawLayerBucket.Arn}/*
-          Principal: '*'
+            - 's3:ListBucket'
+          Resource:
+            - !Sub ${RawLayerBucket.Arn}
+            - !Sub ${RawLayerBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
 AuthAccountUserLoginCrawler:
   Type: AWS::Glue::Crawler

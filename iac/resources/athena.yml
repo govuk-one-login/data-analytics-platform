@@ -35,12 +35,14 @@ AthenaWorkgroupBucketPolicy:
             - 's3:List*'
             - 's3:ListBucketMultipartUploads'
             - 's3:AbortMultipartUpload'
-            - 's3:CreateBucket'
             - 's3:ListBucket'
             - 's3:GetBucketLocation'
             - 's3:ListMultipartUploadParts'
-          Resource: !Sub ${AthenaWorkgroupBucket.Arn}/*
-          Principal: '*'
+          Resource:
+            - !Sub ${AthenaWorkgroupBucket.Arn}
+            - !Sub ${AthenaWorkgroupBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
 AthenaWorkGroup:
   Type: AWS::Athena::WorkGroup

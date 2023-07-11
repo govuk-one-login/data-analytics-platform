@@ -32,9 +32,12 @@ StageLayerBucketPolicy:
           Action:
             - 's3:GetObject'
             - 's3:PutObject'
-            - 's3:ListObject'
-          Resource: !Sub ${StageLayerBucket.Arn}/*
-          Principal: '*'
+            - 's3:ListBucket'
+          Resource:
+            - !Sub ${StageLayerBucket.Arn}
+            - !Sub ${StageLayerBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
 StageGlueDatabase:
   Type: AWS::Glue::Database
