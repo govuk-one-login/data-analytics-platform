@@ -158,21 +158,29 @@ def main():
                 event_df = read_config_file(f"{args['process_config']}process_config/{family.product_family}_config.json")
                 for row in event_df.itertuples(index=False):
                     if row.enabled == True:
-                        print(f'processing event: {row.event_name}')
+                        
+                        # check if table exists
+                        if wr.catalog.does_table_exist(database=args['raw_db'], table=row.event_name):
 
-                        # generate row_count dq metric
-                        athena_rowcount = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'row_count')
-                        df_rowcounts = athena_query(args['reconcilation_db'], athena_rowcount)
-                        if not df_rowcounts.empty:
-                            print(f"rowcounts: {df_rowcounts}")
-                            process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_rowcounts, 'row_count')
+                            print(f'processing event: {row.event_name}')
 
-                        # generate event_id duplicate dq metric
-                        athena_duplicate = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'event_id_duplicate')
-                        df_duplicates = athena_query(args['reconcilation_db'], athena_duplicate)
-                        if not df_duplicates.empty:
-                            print(f"duplicates: {df_duplicates}")
-                            process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_duplicates, 'event_id_duplicate')
+                            # generate row_count dq metric
+                            athena_rowcount = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'row_count')
+                            df_rowcounts = athena_query(args['reconcilation_db'], athena_rowcount)
+                            if not df_rowcounts.empty:
+                                print(f"rowcounts: {df_rowcounts}")
+                                process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_rowcounts, 'row_count')
+
+                            # generate event_id duplicate dq metric
+                            athena_duplicate = generate_tbl_sql(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], row.event_name, 'event_id_duplicate')
+                            df_duplicates = athena_query(args['reconcilation_db'], athena_duplicate)
+                            if not df_duplicates.empty:
+                                print(f"duplicates: {df_duplicates}")
+                                process_dq_metric(args['raw_db'], args['reconcilation_db'], args['reconcilation_tbl'], args['s3_path'], df_duplicates, 'event_id_duplicate')
+
+                        else:
+
+                            print(f'athena table for event: {row.event_name} does not exist')
 
                                 
                         
