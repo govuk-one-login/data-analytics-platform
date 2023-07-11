@@ -316,7 +316,7 @@ DataQualityPythonGlueJob:
     Command:
       Name: pythonshell
       PythonVersion: '3.9'
-      ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/data_quality_metrics_script/data-quality-metrics-generation.py
+      ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/data_quality_metrics_script/data_quality_metrics_generation.py
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-data-quality-metrics-generation
       '--additional-python-modules': 'awswrangler'
@@ -326,6 +326,7 @@ DataQualityPythonGlueJob:
       '--reconcilation_tbl': !Ref DataQualityMetricsGlueTable
       '--s3_path': !Sub s3://${DataQualityMetricsBucket}/data_quality_metrics/
       '--TempDir': !Sub s3://${DataQualityMetricsBucket}/temporary/
+      '--process_config': !Sub s3://${ELTMetadataBucket}/txma/
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0

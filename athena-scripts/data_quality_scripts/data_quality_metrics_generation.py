@@ -136,6 +136,7 @@ def main():
                            'reconcilation_db',
                            'reconcilation_tbl',
                            's3_path',
+                           'process_config',
                            'env'])
         
 
