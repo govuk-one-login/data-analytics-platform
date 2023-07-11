@@ -1,6 +1,11 @@
 name: Upload Athena files to S3
 
 on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
   workflow_dispatch:
     inputs:
       environment:

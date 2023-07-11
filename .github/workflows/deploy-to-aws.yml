@@ -26,6 +26,13 @@ jobs:
       - name: Validate ahead of main
         run: scripts/validate-branch-ahead.sh
 
+  upload-athena-files:
+    needs: [ validate-environment, validate-branch-ahead ]
+    secrets: inherit
+    uses: ./.github/workflows/upload-athena-files.yml
+    with:
+      environment: ${{ inputs.environment }}
+
   deploy-to-aws:
     needs: [ validate-environment, validate-branch-ahead ]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
