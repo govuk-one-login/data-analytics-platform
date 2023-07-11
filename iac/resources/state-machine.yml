@@ -115,7 +115,7 @@ AthenaRawLayerProcessingStateMachine:
       DailySchedule:
         Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
         Properties:
-          Enabled: true # This schedule is disabled by default to avoid incurring charges.
+          Enabled: false # This schedule is disabled by default to avoid incurring charges.
           Schedule: cron(0 7 * * ? *)
 
 StepFunctionRole:
@@ -279,7 +279,7 @@ DataQualityGlueDatabase:
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseInput:
-      Name: !Sub ${Environment}-${DataQualityGlueDatabaseName}
+      Name: !Sub ${Environment}-txma-data-quality-metrics
 
 DataQualityMetricsGlueTable:
   Type: AWS::Glue::Table
