@@ -1,5 +1,4 @@
 ELTMetadataBucket:
-  # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
@@ -78,7 +77,6 @@ ELTMetadataBucketPolicy:
             - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
 
 StateMachineResultsBucket:
-  # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
@@ -93,6 +91,36 @@ StateMachineResultsBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
+
+StateMachineResultsBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref StateMachineResultsBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${StateMachineResultsBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - 's3:Get*'
+            - 's3:Put*'
+            - 's3:List*'
+            - 's3:ListBucketMultipartUploads'
+            - 's3:AbortMultipartUpload'
+            - 's3:ListBucket'
+            - 's3:GetBucketLocation'
+            - 's3:ListMultipartUploadParts'
+          Resource:
+            - !Sub ${StateMachineResultsBucket.Arn}
+            - !Sub ${StateMachineResultsBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
 AthenaRawLayerProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
@@ -258,7 +286,6 @@ StepFunctionRole:
                 - glue:BatchStopJobRun
 
 DataQualityMetricsBucket:
-  # checkov:skip=GDS_AWS_3: Check that all S3 buckets have corresponding bucket policies
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
@@ -273,6 +300,28 @@ DataQualityMetricsBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
+
+DataQualityMetricsBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref DataQualityMetricsBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${DataQualityMetricsBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+          Resource: !Sub ${DataQualityMetricsBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
 DataQualityGlueDatabase:
   Type: AWS::Glue::Database
