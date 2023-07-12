@@ -51,10 +51,6 @@ AthenaWorkGroup:
     Description: DAP project
     State: ENABLED
     WorkGroupConfiguration:
-      BytesScannedCutoffPerQuery: 200000000
-      EnforceWorkGroupConfiguration: true
-      PublishCloudWatchMetricsEnabled: false
-      RequesterPaysEnabled: true
       ResultConfiguration:
         OutputLocation: !Sub 's3://${AthenaWorkgroupBucket}/txma/'
 
