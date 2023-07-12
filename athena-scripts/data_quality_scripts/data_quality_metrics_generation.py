@@ -109,7 +109,7 @@ def process_dq_metric(source_db, reconcilation_db, reconcilation_tbl, s3_path, d
                                                     day as day,
                                                     'row_count' as metric_name,
                                                     'record count by partition' as metric_desc,
-                                                    cast(current_time as varchar) as created_datetime,
+                                                    cast(current_timestamp as varchar) as created_datetime,
                                                     count(*) as metric_value
                                                     from \"{source_db}\".\"{tbl_partition.table_name}\"
                                                     where year = '{tbl_partition.raw_year}'
@@ -126,7 +126,7 @@ def process_dq_metric(source_db, reconcilation_db, reconcilation_tbl, s3_path, d
                                                     '{tbl_partition.raw_day}' as day,
                                                     'event_id_duplicate' as metric_name,
                                                     'event_id duplicate records by partition' as metric_desc,
-                                                    cast(current_time as varchar) as created_datetime,
+                                                    cast(current_timestamp as varchar) as created_datetime,
                                                     count(*) as metric_value
                                                     from (select "event_id" as "event_id"
                                                     from \"{source_db}\".\"{tbl_partition.table_name}\"
@@ -146,7 +146,7 @@ def process_dq_metric(source_db, reconcilation_db, reconcilation_tbl, s3_path, d
                                                     CAST(LPAD(CAST(day AS varchar), 2, '0') AS varchar) as day,
                                                     'row_count' as metric_name,
                                                     'record count by partition' as metric_desc,
-                                                    cast(current_time as varchar) as created_datetime,
+                                                    cast(current_timestamp as varchar) as created_datetime,
                                                     count(*) as metric_value
                                                     from \"{source_db}\".\"{tbl_partition.table_name}\"
                                                     where processed_date = '{tbl_partition.stg_processed_date}'
