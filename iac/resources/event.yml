@@ -7,7 +7,6 @@ EventConsumerQueue:
 
 EventConsumerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
-  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: txma-event-consumer
@@ -43,6 +42,13 @@ EventConsumerLambda:
         ENVIRONMENT: !Ref Environment
     Tags:
       Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
 
 KinesisFirehose:
   Type: 'AWS::KinesisFirehose::DeliveryStream'
