@@ -36,6 +36,7 @@ IAMRoleRedshiftServerless:
                 - 'glue:GetTables'
                 - 'glue:GetDatabase'
                 - 'glue:GetDatabases'
+                - 'glue:GetPartitions'
 
 MyRedshiftSecret:
   Type: 'AWS::SecretsManager::Secret'
