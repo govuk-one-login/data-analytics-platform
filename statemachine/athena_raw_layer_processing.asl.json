@@ -285,6 +285,19 @@
                       "Variable": "$.queryExecutionStatus.QueryExecution.Status.State",
                       "StringEquals": "RUNNING",
                       "Next": "WaitForQueryCompletion"
+                    },
+                    {
+                      "Or": [
+                        {
+                          "Variable": "$.queryExecutionStatus.QueryExecution.Status.State",
+                          "StringEquals": "FAILED"
+                        },
+                        {
+                          "Variable": "$.queryExecutionStatus.QueryExecution.Status.State",
+                          "StringEquals": "CANCELLED"
+                        }
+                      ],
+                      "Next": "AthenaQueryFailed"
                     }
                   ],
                   "Default": "AthenaGetQueryResults"
@@ -362,9 +375,25 @@
                       "Variable": "$.insertExecutionStatus.QueryExecution.Status.State",
                       "StringEquals": "RUNNING",
                       "Next": "WaitForInsertCompletion"
+                    },
+                    {
+                      "Or": [
+                        {
+                          "Variable": "$.insertExecutionStatus.QueryExecution.Status.State",
+                          "StringEquals": "FAILED"
+                        },
+                        {
+                          "Variable": "$.insertExecutionStatus.QueryExecution.Status.State",
+                          "StringEquals": "CANCELLED"
+                        }
+                      ],
+                      "Next": "AthenaQueryFailed"
                     }
                   ],
                   "Default": "Pass"
+                },
+                "AthenaQueryFailed": {
+                  "Type": "Fail"
                 }
               }
             },
@@ -376,7 +405,6 @@
       "Next": "StartStageCrawler",
       "Label": "ProcessProductFamily",
       "MaxConcurrency": 1000,
-      "ToleratedFailurePercentage": 100,
       "ResultWriter": {
         "Resource": "arn:aws:states:::s3:putObject",
         "Parameters": {

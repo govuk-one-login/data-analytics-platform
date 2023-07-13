@@ -82,7 +82,7 @@ def generate_tbl_sql(source_db, reconcilation_db, reconcilation_tbl, table_name,
                     from \"{source_db}\".\"{table_name}$partitions\" stg
                     left join "{reconcilation_db}"."{reconcilation_tbl}" dq 
                     on stg."processed_date" = dq."processed_dt"
-                    and stg."event_name" = dq."event_name"
+                    and lower(stg."event_name") = dq."event_name"
                     and dq."table_name" = '{table_name}'
                     and dq."metric_name" = '{metric_name}')
                     where dq_tablename is null;'''
