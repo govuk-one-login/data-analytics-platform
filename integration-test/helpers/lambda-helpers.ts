@@ -2,6 +2,7 @@ import { InvokeCommand } from '@aws-sdk/client-lambda';
 import type { TestSupportEnvironment, TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { decodeObject, encodeObject } from '../../src/shared/utils/utils';
 import { lambdaClient } from '../../src/shared/clients';
+import { logger } from '../../src/shared/powertools';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const publishToTxmaQueue = async (payload: any): Promise<unknown> => {
@@ -63,7 +64,7 @@ export const invokeTestSupportLambda = async (
     }
     return decodeObject(response.Payload);
   } catch (error) {
-    console.error(`Error invoking test support lambda with event ${JSON.stringify(event)}`, error);
+    logger.error(`Error invoking test support lambda with event ${JSON.stringify(event)}`, { error });
     throw error;
   }
 };

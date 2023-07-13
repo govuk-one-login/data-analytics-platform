@@ -8,9 +8,6 @@ import { Uint8ArrayBlobAdapter } from '@smithy/util-stream';
 import { AthenaClient } from '@aws-sdk/client-athena';
 import type { GetQueryResultsOutput } from '@aws-sdk/client-athena';
 
-jest.spyOn(console, 'log').mockImplementation(() => undefined);
-jest.spyOn(console, 'error').mockImplementation(() => undefined);
-
 const mockAthenaClient = mockClient(AthenaClient);
 const mockLambdaClient = mockClient(LambdaClient);
 const mockS3Client = mockClient(S3Client);
