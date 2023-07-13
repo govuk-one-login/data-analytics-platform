@@ -72,10 +72,10 @@ def generate_tbl_sql(source_db, reconcilation_db, reconcilation_tbl, table_name,
                     and raw."day" = dq."day"
                     and dq."table_name" = '{table_name}'
                     and dq."metric_name" = '{metric_name}')
-                    where dq_tablename is null
-                    and raw_year != date_format(current_date, '%Y')
-                    and raw_month != date_format(current_date, '%m')
-                    and raw_day != date_format(current_date, '%d');'''
+                    where dq_tablename is null and
+                    CONCAT(CAST(raw_year AS varchar),
+                    CAST(LPAD(CAST(raw_month AS varchar), 2, '0') AS varchar),
+                    CAST(LPAD(CAST(raw_day AS varchar), 2, '0') AS varchar)) != date_format(now(), '%Y%m%d');'''
     elif data_layer == 'stage':
         return f'''select table_name,stg_processed_date,stg_event_name from 
                     (select distinct '{table_name}' as table_name,
