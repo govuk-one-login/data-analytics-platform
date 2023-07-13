@@ -60,7 +60,6 @@ AthenaWorkGroup:
 
 AthenaGetConfigLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
-  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: !Sub athena-get-config-${Environment}
@@ -76,10 +75,16 @@ AthenaGetConfigLambda:
     ReservedConcurrentExecutions: 10
     Tags:
       Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
 
 AthenaGetStatementLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
-  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: !Sub athena-get-statement-${Environment}
@@ -99,3 +104,10 @@ AthenaGetStatementLambda:
         ENVIRONMENT: !Ref Environment
     Tags:
       Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
