@@ -10,6 +10,9 @@ import { athenaClient, cloudwatchClient, lambdaClient, s3Client, sqsClient } fro
 import * as zlib from 'zlib';
 import { GetQueryExecutionCommand, GetQueryResultsCommand, StartQueryExecutionCommand } from '@aws-sdk/client-athena';
 import type { GetQueryResultsOutput, QueryExecutionStatus } from '@aws-sdk/client-athena';
+import { getLogger } from '../../shared/powertools';
+
+const logger = getLogger('lambda/test-support');
 
 const TEST_SUPPORT_COMMANDS = [
   'ATHENA_RUN_QUERY',
@@ -34,10 +37,10 @@ export interface TestSupportEvent {
 
 export const handler = async (event: TestSupportEvent): Promise<unknown> => {
   try {
-    console.log(`Test support lambda being called with event ${JSON.stringify(event)}`);
+    logger.info(`Test support lambda being called with event ${JSON.stringify(event)}`);
     return await handleEvent(validateEvent(event));
   } catch (error) {
-    console.error(`Error calling test support lambda`, error);
+    logger.error(`Error calling test support lambda`, { error });
     throw error;
   }
 };
@@ -143,7 +146,7 @@ const runAthenaQuery = async (event: TestSupportEvent): Promise<unknown> => {
     await waitForAthenaQueryToSucceed(queryExecutionId, event.input.timeoutMs ?? 5000);
     return await getAthenaResults(queryExecutionId);
   } catch (e) {
-    console.error(`Error executing athena query with input ${JSON.stringify(event.input)}`, e);
+    logger.error(`Error executing athena query with input ${JSON.stringify(event.input)}`, { e });
     throw e;
   }
 };

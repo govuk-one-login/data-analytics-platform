@@ -9,9 +9,6 @@ import type {
 } from '../../shared/types/raw-layer-processing';
 import type { AWS_ENVIRONMENTS } from '../../shared/constants';
 
-jest.spyOn(console, 'log').mockImplementation(() => undefined);
-jest.spyOn(console, 'error').mockImplementation(() => undefined);
-
 const mockS3Client = mockClient(S3Client);
 
 let TEST_EVENT: AthenaGetStatementEvent;

@@ -1,15 +1,18 @@
-import { getEnvironmentVariable, getRequiredParams, parseS3ResponseAsString } from '../../shared/utils/utils';
+import { getAWSEnvironment, getRequiredParams, parseS3ResponseAsString } from '../../shared/utils/utils';
 import { s3Client } from '../../shared/clients';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import type { AthenaGetStatementEvent } from '../../shared/types/raw-layer-processing';
 import { RawLayerProcessingActions } from '../../shared/types/raw-layer-processing';
+import { getLogger } from '../../shared/powertools';
+
+const logger = getLogger('lambda/athena-get-statement');
 
 export const handler = async (event: AthenaGetStatementEvent): Promise<string> => {
   try {
-    console.log(`Athena get statement lambda being called with event ${JSON.stringify(event)}`);
+    logger.info(`Athena get statement lambda being called with event ${JSON.stringify(event)}`);
     return await handleEvent(validateEvent(event));
   } catch (error) {
-    console.error('Error getting athena statement', error);
+    logger.error('Error getting athena statement', { error });
     throw error;
   }
 };
@@ -54,7 +57,7 @@ const validateEvent = (event: AthenaGetStatementEvent): AthenaGetStatementEvent 
 };
 
 const getFileDetails = async (bucket: string, key: string): Promise<string> => {
-  const environment = getEnvironmentVariable('ENVIRONMENT');
+  const environment = getAWSEnvironment();
   const request = new GetObjectCommand({
     Bucket: bucket,
     Key: key,

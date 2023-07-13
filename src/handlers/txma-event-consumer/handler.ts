@@ -1,7 +1,11 @@
 import type { SQSBatchItemFailure, SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import { PutRecordCommand } from '@aws-sdk/client-firehose';
 import { firehoseClient } from '../../shared/clients';
-import { getEnvironmentVariable } from '../../shared/utils/utils';
+import { getAWSEnvironment, getEnvironmentVariable } from '../../shared/utils/utils';
+import { getLoggerAndMetrics } from '../../shared/powertools';
+import { MetricUnits } from '@aws-lambda-powertools/metrics';
+
+export const { logger, metrics } = getLoggerAndMetrics('lambda/txma-event-consumer');
 
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   const batchItemFailures: SQSBatchItemFailure[] = [];
@@ -10,7 +14,7 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   await Promise.all(
     event.Records.map(async record => {
       if (shouldLog) {
-        console.log(`Received record with message id ${record.messageId} with event ${JSON.stringify(record.body)}`);
+        logger.info(`Received record with message id ${record.messageId} with event ${JSON.stringify(record.body)}`);
       }
 
       try {
@@ -18,11 +22,12 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
         const firehoseRequest = getFirehoseCommand(buffer);
         await sendMessageToKinesisFirehose(firehoseRequest);
       } catch (e) {
-        console.error(`Error in TxMA Event Consumer for record with body "${JSON.stringify(record.body)}"`, e);
+        logger.error(`Error in TxMA Event Consumer for record with body "${JSON.stringify(record.body)}"`, { e });
         batchItemFailures.push({ itemIdentifier: record.messageId });
       }
     }),
   );
+  addMetrics(event.Records, batchItemFailures);
   return { batchItemFailures };
 };
 
@@ -30,7 +35,7 @@ const sendMessageToKinesisFirehose = async (firehoseRequest: PutRecordCommand): 
   try {
     await firehoseClient.send(firehoseRequest);
   } catch (error) {
-    console.error("Error delivering data to DAP's Kinesis Firehose:", error);
+    logger.error("Error delivering data to DAP's Kinesis Firehose:", { error });
     throw error;
   }
 };
@@ -39,7 +44,7 @@ const getBodyAsBuffer = (record: SQSRecord): Uint8Array => {
   try {
     return Buffer.from(record.body);
   } catch (error) {
-    console.error('Unable to parse event body into Buffer', error);
+    logger.error('Unable to parse event body into Buffer', { error });
     throw error;
   }
 };
@@ -56,9 +61,21 @@ const getFirehoseCommand = (body: Uint8Array): PutRecordCommand => {
 
 const shouldLogEvents = (): boolean => {
   try {
-    const environment = getEnvironmentVariable('ENVIRONMENT');
+    const environment = getAWSEnvironment();
     return environment === 'dev' || environment === 'test';
   } catch (e) {
     return false;
   }
+};
+
+const addMetrics = (records: SQSRecord[], batchItemFailures: SQSBatchItemFailure[]): void => {
+  const total = records.length;
+  const failures = batchItemFailures.length;
+  const successes = total - failures;
+  metrics.addMetric('event-total', MetricUnits.Count, total);
+  metrics.addMetric('event-success', MetricUnits.Count, successes);
+  metrics.addMetric('event-failure', MetricUnits.Count, failures);
+  metrics.addMetric('event-success-percentage', MetricUnits.Percent, (100 * successes) / total);
+  metrics.addMetric('event-failure-percentage', MetricUnits.Percent, (100 * failures) / total);
+  metrics.publishStoredMetrics();
 };
