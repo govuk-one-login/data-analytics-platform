@@ -51,7 +51,6 @@ GlueSecurityConfig:
 
 TestSupportLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
-  # checkov:skip=CKV_AWS_117: VPC not needed for lambda
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: !Sub test-support-${Environment}
@@ -84,6 +83,13 @@ TestSupportLambda:
     ReservedConcurrentExecutions: 10
     Tags:
       Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
 
 KmsKey:
   Type: AWS::KMS::Key
@@ -128,3 +134,99 @@ KmsKeyAlias:
   Properties:
     AliasName: !Sub alias/${Environment}-dap-key
     TargetKeyId: !Ref KmsKey
+
+VPCForDAP:
+  Type: AWS::EC2::VPC
+  Properties:
+    CidrBlock: 10.0.0.0/16
+    Tags:
+      - Key: Environment
+        Value: !Ref Environment
+      - Key: Name
+        Value: dap-private-vpc
+
+SubnetForDAP1:
+  Type: AWS::EC2::Subnet
+  Properties:
+    VpcId: !Ref VPCForDAP
+    AvailabilityZone: !Select
+      - 0
+      - !GetAZs
+        Ref: 'AWS::Region'
+    CidrBlock: 10.0.1.0/24
+    Tags:
+      - Key: Environment
+        Value: !Ref Environment
+      - Key: Name
+        Value: dap-private-sn1
+
+SubnetForDAP2:
+  Type: AWS::EC2::Subnet
+  Properties:
+    VpcId: !Ref VPCForDAP
+    AvailabilityZone: !Select
+      - 1
+      - !GetAZs
+        Ref: 'AWS::Region'
+    CidrBlock: 10.0.2.0/24
+    Tags:
+      - Key: Environment
+        Value: !Ref Environment
+      - Key: Name
+        Value: dap-private-sn2
+
+SubnetForDAP3:
+  Type: AWS::EC2::Subnet
+  Properties:
+    VpcId: !Ref VPCForDAP
+    AvailabilityZone: !Select
+      - 2
+      - !GetAZs
+        Ref: 'AWS::Region'
+    CidrBlock: 10.0.3.0/24
+    Tags:
+      - Key: Environment
+        Value: !Ref Environment
+      - Key: Name
+        Value: dap-private-sn3
+
+RouteTableForDAP:
+  Type: AWS::EC2::RouteTable
+  Properties:
+    Tags:
+      - Key: Environment
+        Value: !Ref Environment
+      - Key: Name
+        Value: dap-private-rt
+    VpcId: !Ref VPCForDAP
+
+SubnetRouteTableAssocDAP1:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Properties:
+    RouteTableId: !Ref RouteTableForDAP
+    SubnetId: !Ref SubnetForDAP1
+
+SubnetRouteTableAssocDAP2:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Properties:
+    RouteTableId: !Ref RouteTableForDAP
+    SubnetId: !Ref SubnetForDAP2
+
+SubnetRouteTableAssocDAP3:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Properties:
+    RouteTableId: !Ref RouteTableForDAP
+    SubnetId: !Ref SubnetForDAP3
+
+LambdaSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupName: !Sub ${Environment}-dap-lambda-security-group
+    GroupDescription: Security group for DAP lambdas
+    VpcId: !Ref VPCForDAP
+    SecurityGroupIngress:
+      - IpProtocol: -1
+        FromPort: -1
+        ToPort: -1
+        CidrIp: 0.0.0.0/0
+        Description: Allow ingress from anywhere within the VPC
