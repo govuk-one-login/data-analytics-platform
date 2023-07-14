@@ -126,6 +126,7 @@ AthenaRawLayerProcessingLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
     LogGroupName: !Sub /aws/stepfunction/dap-process-raw-layer
+    KmsKeyId: !GetAtt KmsKey.Arn
 
 AthenaRawLayerProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
