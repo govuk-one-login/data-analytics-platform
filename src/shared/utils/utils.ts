@@ -72,6 +72,13 @@ export const getAWSEnvironment = (): (typeof AWS_ENVIRONMENTS)[number] => {
   throw new Error(`Invalid environment "${environment}"`);
 };
 
+export const isNullUndefinedOrEmpty = (obj: unknown): boolean => {
+  if (obj === null || obj === undefined) {
+    return true;
+  }
+  return Array.isArray(obj) && obj.length === 0;
+};
+
 // see https://stackoverflow.com/a/65666402
 const throwExpression = (message: string): never => {
   throw new Error(message);

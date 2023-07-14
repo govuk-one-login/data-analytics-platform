@@ -11,6 +11,16 @@ GlobalLogBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 365
+          Status: Enabled
+    NotificationConfiguration:
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+        - Event: s3:ObjectRemoved:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
 
 GlobalLogBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -34,6 +44,36 @@ GlobalLogBucketPolicy:
           Principal:
             AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
+S3NotificationsLoggerLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda just does logging
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub s3-notifications-logger-${Environment}
+    Handler: s3-notifications-logger.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+    Tags:
+      Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
+
+S3BucketNotificationLambdaPermission:
+  Type: AWS::Lambda::Permission
+  Properties:
+    FunctionName: !Ref S3NotificationsLoggerLambda
+    Action: lambda:InvokeFunction
+    Principal: s3.amazonaws.com
+
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration
   Properties:
@@ -50,7 +90,7 @@ GlueSecurityConfig:
           KmsKeyArn: !GetAtt KmsKey.Arn
 
 TestSupportLambda:
-  # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda is just for testing
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: !Sub test-support-${Environment}
