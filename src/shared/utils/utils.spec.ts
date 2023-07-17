@@ -4,6 +4,7 @@ import {
   getAWSEnvironment,
   getEnvironmentVariable,
   getRequiredParams,
+  isNullUndefinedOrEmpty,
   parseS3ResponseAsObject,
   parseS3ResponseAsString,
 } from './utils';
@@ -116,6 +117,17 @@ test('get aws environment', () => {
   expect(() => getAWSEnvironment()).toThrow('Invalid environment "invalid"');
 
   process.env.ENVIRONMENT = oldEnvironment;
+});
+
+test('null undefined or empty', () => {
+  expect(isNullUndefinedOrEmpty(null)).toEqual(true);
+  expect(isNullUndefinedOrEmpty(undefined)).toEqual(true);
+  expect(isNullUndefinedOrEmpty([])).toEqual(true);
+  expect(isNullUndefinedOrEmpty(({} as unknown as Record<string, string>).property)).toEqual(true);
+
+  expect(isNullUndefinedOrEmpty({})).toEqual(false);
+  expect(isNullUndefinedOrEmpty([null])).toEqual(false);
+  expect(isNullUndefinedOrEmpty(false)).toEqual(false);
 });
 
 const mockS3Response = (body: unknown): GetObjectCommandOutput => {

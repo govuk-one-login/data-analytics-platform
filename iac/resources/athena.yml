@@ -13,6 +13,16 @@ AthenaWorkgroupBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 365
+          Status: Enabled
+    NotificationConfiguration:
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+        - Event: s3:ObjectRemoved:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
 
 AthenaWorkgroupBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -58,7 +68,7 @@ AthenaWorkGroup:
         OutputLocation: !Sub 's3://${AthenaWorkgroupBucket}/txma/'
 
 AthenaGetConfigLambda:
-  # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: !Sub athena-get-config-${Environment}
@@ -87,7 +97,7 @@ AthenaGetConfigLambda:
         - !Ref SubnetForDAP3
 
 AthenaGetStatementLambda:
-  # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: !Sub athena-get-statement-${Environment}

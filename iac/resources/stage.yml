@@ -13,6 +13,16 @@ StageLayerBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 365
+          Status: Enabled
+    NotificationConfiguration:
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+        - Event: s3:ObjectRemoved:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
 
 StageLayerBucketPolicy:
   Type: AWS::S3::BucketPolicy
