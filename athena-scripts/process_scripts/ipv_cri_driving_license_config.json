@@ -7,6 +7,6 @@
     {
         "event_name": "ipv_dl_cri_vc_issued",
         "product_family": "ipv_cri_driving_license",
-        "enabled": false
+        "enabled": true
     }
 ]
