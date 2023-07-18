@@ -7,6 +7,6 @@
     {
         "event_name": "ipv_kbv_cri_vc_issued",
         "product_family": "ipv_cri_kbv",
-        "enabled": false
+        "enabled": true
     }
 ]
