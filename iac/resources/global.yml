@@ -88,7 +88,7 @@ GlobalNonEventBucketPolicy:
             - 's3:PutObject'
           Resource: !Sub ${GlobalNonEventBucket.Arn}/*
           Principal:
-            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root            
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
 S3NotificationsLoggerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda just does logging
