@@ -4,12 +4,19 @@ import { getEventFilePrefix} from '../helpers/common-helpers';
 import {checkFileCreatedOnS3} from '../helpers/s3-helpers';
 import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 
+
+
 // todo this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
-describe('Happy path tests Publish valid TXMA Event to SQS and expect event id stored in S3', () => {
+describe('IPV_JOURNEY GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
   test.concurrent.each`
-    eventName                    | event_id               | client_id              | journey_id
-    ${'DCMAW_PASSPORT_SELECTED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'IPV_FRAUD_CRI_START'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    eventName                           | event_id               | client_id              | journey_id
+    ${'IPV_SPOT_RESPONSE_APPROVED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_SPOT_RESPONSE_REJECTED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_IDENTITY_REUSE_COMPLETE'}    | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_IDENTITY_REUSE_RESET'}       | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_JOURNEY_END'}                | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_JOURNEY_START'}              | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
