@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { faker } from '@faker-js/faker';
-import { getEventFilePrefix} from '../helpers/common-helpers';
-import {checkFileCreatedOnS3} from '../helpers/s3-helpers';
+import { getEventFilePrefix, getErrorFilePrefix } from '../helpers/common-helpers';
+import { checkFileCreatedOnS3,checkFileCreatedOnS3kinesis } from '../helpers/s3-helpers';
 import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 
 
@@ -18,8 +18,6 @@ describe('DCMAW_CRI GROUP Test - valid TXMA Event to SQS and expect event id sto
     ${'DCMAW_DRIVING_LICENCE_SELECTED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'DCMAW_PASSPORT_SELECTED'}        | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'DCMAW_WEB_END'}                  | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-
-
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
@@ -45,6 +43,46 @@ describe('DCMAW_CRI GROUP Test - valid TXMA Event to SQS and expect event id sto
       // then
       const fileUploaded = await checkFileCreatedOnS3(prefix, event.event_id, 120000);
       expect(fileUploaded).toEqual(true);
+    },
+    240000,
+  );
+});
+
+describe('DCMAW_CRI GROUP Test - valid TXMA Event to SQS and expect event id not stored in S3', () => {
+  test.concurrent.each`
+    eventName                           | event_id               | client_id              | journey_id
+    ${'DCMAW_APP_END'}                  | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'DCMAW_APP_HANDOFF_START'}        | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'DCMAW_APP_START'}                | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'DCMAW_CRI_START'}                | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'DCMAW_CRI_VC_ISSUED'}            | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'DCMAW_DRIVING_LICENCE_SELECTED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'DCMAW_PASSPORT_SELECTED'}        | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'DCMAW_WEB_END'}                  | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    `(
+    'Should validate $eventName event content not stored on S3',
+    async ({ ...data }) => {
+      console.log("start")
+      // given
+      const errorCode = "DynamicPartitioning.MetadataExtractionFailed";
+      const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event-invalid.json', 'utf-8'));
+      console.log(event)
+      console.log(data)
+      console.log(data.client_id)
+      event.client_id = data.client_id;
+      event.user.govuk_signin_journey_id = data.journey_id;
+      event.event_name = data.eventName;
+      const pastDate = faker.date.past();
+      event.timestamp = Math.round(pastDate.getTime() / 1000);
+      const publishResult1 = await publishToTxmaQueue(event);
+      // then
+      expect(publishResult1).not.toBeNull();
+      // given
+      const prefix = getErrorFilePrefix();
+      console.log(prefix)
+      // then
+      const fileUploaded1 = await checkFileCreatedOnS3kinesis(prefix, errorCode, 120000);
+      expect(fileUploaded1).toEqual(true);
     },
     240000,
   );
