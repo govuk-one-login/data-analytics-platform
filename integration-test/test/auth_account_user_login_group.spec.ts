@@ -6,7 +6,7 @@ import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 
 
 
-// todo this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
+// this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
 describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
   test.concurrent.each`
     eventName                            | event_id               | client_id              | journey_id
