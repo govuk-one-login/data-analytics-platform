@@ -590,16 +590,33 @@ StepFunctionRedshiftProcessRole:
                 - s3:GetBucketLocation
 
             - Effect: Allow
-              Resource: '*'
+              Resource:
+                - !Sub 'arn:aws:redshift-serverless:${AWS::Region}:${AWS::AccountId}:workgroup/*'
+
               Action:
-                - logs:CreateLogGroup
-                - logs:CreateLogStream
-                - logs:PutLogEvents
-                - logs:CreateLogDelivery
-                - logs:GetLogDelivery
-                - logs:UpdateLogDelivery
-                - logs:DeleteLogDelivery
-                - logs:ListLogDeliveries
-                - logs:PutResourcePolicy
-                - logs:DescribeResourcePolicies
-                - logs:DescribeLogGroups
+                - redshift-data:BatchExecuteStatement
+                - redshift-data:ExecuteStatement
+                - redshift-serverless:GetCredentials
+
+            - Effect: Allow
+              Resource:
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-processing'
+
+              Action:
+                - states:ListExecutions
+
+            - Effect: Allow
+              Resource:
+                - '*'
+
+              Action:
+                - states:ListStateMachines
+
+            - Effect: Allow
+              Resource:
+                - '*'
+
+              Action:
+                - redshift-data:GetStatementResult
+                - redshift-data:DescribeStatement
+                - redshift-data:ListStatements
