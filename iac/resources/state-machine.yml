@@ -604,15 +604,6 @@ StepFunctionRedshiftProcessRole:
 
             - Effect: Allow
               Resource:
-                - !Sub 'arn:aws:redshift-serverless:${AWS::Region}:${AWS::AccountId}:workgroup/*'
-
-              Action:
-                - redshift-data:BatchExecuteStatement
-                - redshift-data:ExecuteStatement
-                - redshift-serverless:GetCredentials
-
-            - Effect: Allow
-              Resource:
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-processing'
 
               Action:
