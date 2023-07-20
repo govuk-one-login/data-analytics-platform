@@ -317,11 +317,18 @@ LambdaSecurityGroup:
     GroupDescription: Security group for DAP lambdas
     VpcId: !Ref VPCForDAP
     SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+        Description: Allow ingress from anywhere within the VPC on 443
+
+    SecurityGroupEgress:
       - IpProtocol: -1
         FromPort: -1
         ToPort: -1
         CidrIp: 0.0.0.0/0
-        Description: Allow ingress from anywhere within the VPC
+        Description: Allow egress to anywhere     
 
 VPCEndpointAthena:
   Type: AWS::EC2::VPCEndpoint
