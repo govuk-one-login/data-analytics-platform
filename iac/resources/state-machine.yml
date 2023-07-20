@@ -581,23 +581,23 @@ StepFunctionRedshiftProcessRole:
           Version: 2012-10-17
           Statement:
             - Effect: Allow
-              Resource:
-                - arn:aws:s3:::*
-
+              Resource: arn:aws:s3:::*
               Action:
-                - s3:GetObject
+                - s3:Get*
+                - s3:Put*
+                - s3:List*
+                - s3:ListBucketMultipartUploads
+                - s3:AbortMultipartUpload
+                - s3:CreateBucket
                 - s3:ListBucket
                 - s3:GetBucketLocation
+                - s3:ListMultipartUploadParts
 
             - Effect: Allow
-              Resource:
-                - 'arn:aws:logs:*:*:log-group:/aws/stepfunction/dap-redshift-processing-layer'
-
+              Resource: '*'
               Action:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
-                - logs:DescribeLogStreams
-                - logs:GetLogEvents
                 - logs:PutLogEvents
                 - logs:CreateLogDelivery
                 - logs:GetLogDelivery
