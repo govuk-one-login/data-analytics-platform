@@ -606,8 +606,7 @@ StepFunctionRedshiftProcessRole:
 
             - Effect: Allow
               Resource:
-                - !Sub arn:aws:redshift:${AWS::Region}:${AWS::AccountId}:cluster:*
-                - !Sub arn:aws:redshift-serverless:${AWS::Region}:${AWS::AccountId}:workgroup/*
+                - !GetAtt RedshiftServerlessWorkgroup.WorkgroupArn
 
               Action:
                 - redshift-data:BatchExecuteStatement
