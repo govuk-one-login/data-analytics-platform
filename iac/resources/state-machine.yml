@@ -600,9 +600,12 @@ StepFunctionRedshiftProcessRole:
                 - logs:UpdateLogDelivery
                 - logs:DeleteLogDelivery
                 - logs:ListLogDeliveries
-                - logs:PutResourcePolicy
                 - logs:DescribeResourcePolicies
                 - logs:DescribeLogGroups
+
+            - Effect: Allow
+              Resource: arn:aws:logs:*:*:*
+              Action: logs:PutResourcePolicy
 
             - Effect: Allow
               Resource:
