@@ -165,6 +165,7 @@ KmsKey:
               - !GetAtt StageGlueCrawlerRole.Arn
               - !GetAtt StepFunctionRole.Arn
               - !GetAtt GlueScriptsExecutionRole.Arn
+              - !GetAtt StepFunctionRedshiftProcessRole.Arn
           Action:
             - kms:Encrypt*
             - kms:Decrypt*
