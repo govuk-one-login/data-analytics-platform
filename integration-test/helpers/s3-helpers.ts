@@ -1,6 +1,7 @@
 import { poll } from '../helpers/common-helpers';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import  { invokeTestSupportLambda } from './lambda-helpers';
+import * as fs from 'fs';
 
 interface S3ListEntry {
     Key: string;
@@ -28,7 +29,7 @@ interface S3ListEntry {
     for (const val of contents) {
       const fileData = await getS3DataFileContent(val.Key);
       const body = fileData.body as string;
-      const fileContent = body.split('\n');
+      const fileContent = body.trim().split('\n');
       const parsedContent = fileContent.map(line => JSON.parse(line));
       const event = parsedContent.filter(line => line.errorCode === errorCode);
       if (event.length > 0) {

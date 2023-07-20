@@ -20,7 +20,7 @@ describe('Happy path tests Publish valid TXMA Event to SQS and expect event id s
       event.user.govuk_signin_journey_id = data.journey_id;
       event.event_name = data.eventName;
       const pastDate = faker.date.past();
-      event.timestamp = pastDate.getTime();
+      event.timestamp = Math.round(pastDate.getTime() / 1000);
       event.timestamp_formatted = JSON.stringify(pastDate);
 
       // when
@@ -53,9 +53,9 @@ describe('AUTH_ACCOUNT_CREATION GROUP Test - Invalid TXMA Event to SQS and expec
       const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event-invalid.json', 'utf-8'));
       event.client_id = data.client_id;
       event.user.govuk_signin_journey_id = data.journey_id;
-      event.event_name = data.eventName;
       const pastDate = faker.date.past();
       event.timestamp = Math.round(pastDate.getTime() / 1000);
+      event.timestamp_formatted = JSON.stringify(pastDate);
       const publishResult = await publishToTxmaQueue(event);
       // then
       expect(publishResult).not.toBeNull();
