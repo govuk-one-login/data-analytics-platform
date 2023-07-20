@@ -43,7 +43,7 @@ CREATE EXTERNAL SCHEMA IF NOT EXISTS dap_txma_stage
 FROM DATA CATALOG
 DATABASE '{env}-txma-stage'
 REGION 'eu-west-2'
-IAM_ROLE 'arn:aws:iam::{aws-account-d}:role/{env}-redshift-serverless-role';
+IAM_ROLE 'arn:aws:iam::{aws-account-id}:role/{env}-redshift-serverless-role';
 
 
 /*
