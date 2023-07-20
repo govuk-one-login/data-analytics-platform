@@ -588,3 +588,18 @@ StepFunctionRedshiftProcessRole:
                 - s3:GetObject
                 - s3:ListBucket
                 - s3:GetBucketLocation
+
+            - Effect: Allow
+              Resource: '*'
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+                - logs:CreateLogDelivery
+                - logs:GetLogDelivery
+                - logs:UpdateLogDelivery
+                - logs:DeleteLogDelivery
+                - logs:ListLogDeliveries
+                - logs:PutResourcePolicy
+                - logs:DescribeResourcePolicies
+                - logs:DescribeLogGroups
