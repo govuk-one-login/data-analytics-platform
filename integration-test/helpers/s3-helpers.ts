@@ -1,7 +1,6 @@
 import { poll } from '../helpers/common-helpers';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
-import * as fs from 'fs';
 
 interface S3ListEntry {
   Key: string;
@@ -30,8 +29,8 @@ async function checkFileUploadedKinesis(contents: S3ListEntry[], errorCode: stri
     const fileData = await getS3DataFileContent(val.Key);
     const body = fileData.body as string;
     const fileContent = body.split('\n');
-    var filtered = fileContent.filter(function (el) {
-      return el != '';
+    let filtered = fileContent.filter(function (el) {
+      return el !== '';
     });
     const parsedContent = filtered.map(line => JSON.parse(line));
     const event = parsedContent.filter(line => line.errorCode === errorCode);
