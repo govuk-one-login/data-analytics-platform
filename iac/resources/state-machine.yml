@@ -576,7 +576,7 @@ StepFunctionRedshiftProcessRole:
             - sts:AssumeRole
     Path: /
     Policies:
-      - PolicyName: dap-statemachine-athena-processing-policy
+      - PolicyName: dap-statemachine-redshift-processing-policy
         PolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -600,7 +600,6 @@ StepFunctionRedshiftProcessRole:
                 - logs:UpdateLogDelivery
                 - logs:DeleteLogDelivery
                 - logs:ListLogDeliveries
-                - logs:DescribeResourcePolicies
                 - logs:DescribeLogGroups
 
             - Effect: Allow
