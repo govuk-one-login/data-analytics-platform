@@ -29,8 +29,11 @@ interface S3ListEntry {
     for (const val of contents) {
       const fileData = await getS3DataFileContent(val.Key);
       const body = fileData.body as string;
-      const fileContent = body.trim().split('\n');
-      const parsedContent = fileContent.map(line => JSON.parse(line));
+      const fileContent = body.split('\n');
+      var filtered = fileContent.filter(function (el) {
+        return el != '';
+      });
+      const parsedContent = filtered.map(line => JSON.parse(line));
       const event = parsedContent.filter(line => line.errorCode === errorCode);
       if (event.length > 0) {
         return true;
