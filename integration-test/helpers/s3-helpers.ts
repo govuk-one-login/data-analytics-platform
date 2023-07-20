@@ -29,7 +29,7 @@ async function checkFileUploadedKinesis(contents: S3ListEntry[], errorCode: stri
     const fileData = await getS3DataFileContent(val.Key);
     const body = fileData.body as string;
     const fileContent = body.split('\n');
-    let filtered = fileContent.filter(function (el) {
+    const filtered = fileContent.filter(function (el) {
       return el !== '';
     });
     const parsedContent = filtered.map(line => JSON.parse(line));
