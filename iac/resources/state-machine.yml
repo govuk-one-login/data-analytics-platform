@@ -591,6 +591,21 @@ StepFunctionRedshiftProcessRole:
 
             - Effect: Allow
               Resource:
+                - '*'
+
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+                - logs:CreateLogDelivery
+                - logs:GetLogDelivery
+                - logs:UpdateLogDelivery
+                - logs:DeleteLogDelivery
+                - logs:ListLogDeliveries
+                - logs:DescribeLogGroups
+
+            - Effect: Allow
+              Resource:
                 - !Sub 'arn:aws:redshift-serverless:${AWS::Region}:${AWS::AccountId}:workgroup/*'
 
               Action:
