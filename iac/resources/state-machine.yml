@@ -536,3 +536,101 @@ GlueScriptsExecutionRole:
                 - glue:BatchGetPartition
                 - glue:DeletePartition
                 - glue:BatchDeletePartition
+
+RedshiftProcessingLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: !Sub /aws/stepfunction/dap-redshift-processing-layer
+
+RedshiftProcessingStateMachine:
+  Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+  Properties:
+    DefinitionUri: statemachine/redshift_elt_processing.asl.json
+    Name: !Sub ${Environment}-dap-redshift-processing
+    Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
+    Logging:
+      Destinations:
+        - CloudWatchLogsLogGroup:
+            LogGroupArn: !GetAtt RedshiftProcessingLogGroup.Arn
+      IncludeExecutionData: true
+      Level: ALL
+    DefinitionSubstitutions:
+      S3MetaDataBucketName: !Ref ELTMetadataBucket
+      RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
+      RedshiftDatabaseName: dap_txma_reporting_db
+
+StepFunctionRedshiftProcessRole:
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: !Sub ${Environment}-dap-redshift-processing-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - states.amazonaws.com
+          Action:
+            - sts:AssumeRole
+    Path: /
+    Policies:
+      - PolicyName: dap-statemachine-athena-processing-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Resource:
+                - arn:aws:s3:::*
+
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:GetBucketLocation
+
+            - Effect: Allow
+              Resource: '*'
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+                - logs:CreateLogDelivery
+                - logs:GetLogDelivery
+                - logs:UpdateLogDelivery
+                - logs:DeleteLogDelivery
+                - logs:ListLogDeliveries
+                - logs:PutResourcePolicy
+                - logs:DescribeResourcePolicies
+                - logs:DescribeLogGroups
+
+            - Effect: Allow
+              Resource:
+                - !Sub arn:aws:redshift:${AWS::Region}:${AWS::AccountId}:cluster:*
+                - !Sub arn:aws:redshift-serverless:${AWS::Region}:${AWS::AccountId}:workgroup/*
+
+              Action:
+                - redshift-data:BatchExecuteStatement
+                - redshift-data:ExecuteStatement
+                - redshift-serverless:GetCredentials
+
+            - Effect: Allow
+              Resource:
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-processing'
+
+              Action:
+                - states:ListExecutions
+
+            - Effect: Allow
+              Resource:
+                - '*'
+
+              Action:
+                - states:ListStateMachines
+
+            - Effect: Allow
+              Resource:
+                - '*'
+
+              Action:
+                - redshift-data:GetStatementResult
+                - redshift-data:DescribeStatement
+                - redshift-data:ListStatements
