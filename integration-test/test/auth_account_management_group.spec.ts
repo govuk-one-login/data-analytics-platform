@@ -48,27 +48,22 @@ describe('AUTH_ACCOUNT_MANAGEMENT GROUP Test - Invalid TXMA Event to SQS and exp
      `(
     'Should validate $eventName event content not stored on S3',
     async ({ ...data }) => {
-      console.log("start")
       // given
       const errorCode = "DynamicPartitioning.MetadataExtractionFailed";
       const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event-invalid.json', 'utf-8'));
-      console.log(event)
-      console.log(data)
-      console.log(data.client_id)
       event.client_id = data.client_id;
       event.user.govuk_signin_journey_id = data.journey_id;
       event.event_name = data.eventName;
       const pastDate = faker.date.past();
       event.timestamp = Math.round(pastDate.getTime() / 1000);
-      const publishResult1 = await publishToTxmaQueue(event);
+      const publishResult = await publishToTxmaQueue(event);
       // then
-      expect(publishResult1).not.toBeNull();
+      expect(publishResult).not.toBeNull();
       // given
       const prefix = getErrorFilePrefix();
-      console.log(prefix)
       // then
-      const fileUploaded1 = await checkFileCreatedOnS3kinesis(prefix, errorCode, 120000);
-      expect(fileUploaded1).toEqual(true);
+      const fileUploaded = await checkFileCreatedOnS3kinesis(prefix, errorCode, 120000);
+      expect(fileUploaded).toEqual(true);
     },
     240000,
   );
