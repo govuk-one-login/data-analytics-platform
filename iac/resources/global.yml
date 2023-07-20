@@ -44,6 +44,52 @@ GlobalLogBucketPolicy:
           Principal:
             AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
+GlobalNonEventBucket:
+  # checkov:skip=CKV_AWS_18: This is the log bucket for all other buckets - no need for a log bucket of the log bucket
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub '${Environment}-dap-s3-non-event'
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 365
+          Status: Enabled
+    NotificationConfiguration:
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+        - Event: s3:ObjectRemoved:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+
+GlobalNonEventBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref GlobalNonEventBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${GlobalNonEventBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+          Resource: !Sub ${GlobalNonEventBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+
 S3NotificationsLoggerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda just does logging
   Type: AWS::Serverless::Function
@@ -271,11 +317,18 @@ LambdaSecurityGroup:
     GroupDescription: Security group for DAP lambdas
     VpcId: !Ref VPCForDAP
     SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+        Description: Allow ingress from anywhere within the VPC on 443
+
+    SecurityGroupEgress:
       - IpProtocol: -1
         FromPort: -1
         ToPort: -1
         CidrIp: 0.0.0.0/0
-        Description: Allow ingress from anywhere within the VPC
+        Description: Allow egress to anywhere
 
 VPCEndpointAthena:
   Type: AWS::EC2::VPCEndpoint
