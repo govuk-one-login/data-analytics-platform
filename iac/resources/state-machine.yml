@@ -591,17 +591,21 @@ StepFunctionRedshiftProcessRole:
 
             - Effect: Allow
               Resource:
-                - '*'
+                - 'arn:aws:logs:*:*:log-group:/aws/stepfunction/*'
 
               Action:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
+                - logs:DescribeLogStreams
+                - logs:GetLogEvents
                 - logs:PutLogEvents
                 - logs:CreateLogDelivery
                 - logs:GetLogDelivery
                 - logs:UpdateLogDelivery
                 - logs:DeleteLogDelivery
                 - logs:ListLogDeliveries
+                - logs:PutResourcePolicy
+                - logs:DescribeResourcePolicies
                 - logs:DescribeLogGroups
 
             - Effect: Allow
