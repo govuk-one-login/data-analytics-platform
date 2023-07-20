@@ -41,9 +41,9 @@ ii. IAM_ROLE
 
 CREATE EXTERNAL SCHEMA IF NOT EXISTS dap_txma_stage
 FROM DATA CATALOG
-DATABASE 'test-txma-stage'
+DATABASE '{env}-txma-stage'
 REGION 'eu-west-2'
-IAM_ROLE 'arn:aws:iam::072886614474:role/test-redshift-serverless-role';
+IAM_ROLE 'arn:aws:iam::{aws-account-d}:role/{env}-redshift-serverless-role';
 
 
 /*
@@ -74,7 +74,7 @@ GRANT ALL ON SCHEMA "conformed" TO GROUP dap_elt_processing;
 6. Create IAM user (used by the Redshift Step Function)
 */
 
-CREATE USER "IAMR:<add redshift step function IAM role name>" PASSWORD DISABLE;
+CREATE USER "IAMR:{env}-dap-redshift-processing-role" PASSWORD DISABLE;
 
 /*
 7. User association to group
