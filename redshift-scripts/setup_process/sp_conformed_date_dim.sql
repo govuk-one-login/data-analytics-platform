@@ -1,4 +1,4 @@
-CREATE OR replace PROCEDURE dev_conformed.redshift_date_dim (v_start_date VARCHAR(20),v_end_date VARCHAR(20)) 
+CREATE OR replace PROCEDURE conformed.redshift_date_dim (v_start_date VARCHAR(20),v_end_date VARCHAR(20)) 
 AS $$
 BEGIN
 	DECLARE 
@@ -44,7 +44,7 @@ BEGIN
 
 		WHILE start_date <= end_date LOOP
 			--raise info 'date: %', start_date;
-			INSERT INTO dev_conformed.dim_date (
+			INSERT INTO conformed.dim_date (
 				date_key,
 				DATE,
 				day,
@@ -117,8 +117,8 @@ BEGIN
 				CURRENT_DATE,
 				9999;
 
-		count : = count + 1;
-		start_date : = start_date + interval '1 day';
+		count := count + 1;
+		start_date := start_date + interval '1 day';
 	    END
 
 	LOOP;

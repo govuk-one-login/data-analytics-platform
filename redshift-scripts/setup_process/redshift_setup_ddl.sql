@@ -17,6 +17,7 @@
 --      5. Database object privileges assigned to group
 --      6. Create IAM user (step function IAM role)
 --      7. User associated to group
+--      8. Date dimension table creation / population
 -------------------------------------------------------------------------------
 
 
@@ -81,3 +82,18 @@ CREATE USER "IAMR:{env}-dap-redshift-processing-role" PASSWORD DISABLE;
 */
 
 ALTER GROUP dap_elt_processing ADD USER "<add username created in step (6)>";
+
+/*
+8. Date dim table creation and population
+
+- copy the contents of the file: redshift-scripts/setup_process/redshift_setup_ddl.sql
+- paste into the redshift query editor
+*/
+
+-- click [Run] button to create the stored procedure: conformed.redshift_date_dim
+
+-- run the following cmd once confirmed SP has been created
+-- passing in the start, end dates for the date range to populate
+-- the date dim table. 
+
+CALL dap_txma_reporting_db.conformed.redshift_date_dim ('2022-01-01','2025-12-31')
