@@ -77,3 +77,39 @@ RedshiftServerlessWorkgroup:
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
     WorkgroupName: !Sub '${Environment}-redshift-serverless-workgroup'
+
+RedshiftAccessEC2:
+  Type: AWS::EC2::Instance
+  Properties:
+    ImageId: ami-0eb260c4d5475b901 # Ubuntu Server 22.04 LTS
+    InstanceType: t2.nano
+    SubnetId: !Ref SubnetForDAP1
+    IamInstanceProfile: !Ref RedshiftAccessEC2InstanceProfile
+    BlockDeviceMappings:
+      - DeviceName: /dev/sda1
+        Ebs:
+          VolumeSize: 64
+    Tags:
+      - Key: Name
+        Value: !Sub ${Environment}-dap-redshift-access-server
+
+RedshiftAccessEC2InstanceProfile:
+  Type: AWS::IAM::InstanceProfile
+  Properties:
+    InstanceProfileName: !Sub ${Environment}-dap-redshift-access-server-instance-profile
+    Roles:
+      - !Ref RedshiftAccessEC2Role
+
+RedshiftAccessEC2Role:
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: !Sub ${Environment}-dap-redshift-access-server-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: ec2.amazonaws.com
+          Action: sts:AssumeRole
+    ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
