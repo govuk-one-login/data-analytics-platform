@@ -145,9 +145,8 @@ BEGIN
 
     raise info 'Setup of conformed layer ran successfully';
 
-exception
-WHEN others THEN 
-    raise exception '[Error while setting up conformed layer] Exception: %',sqlerrm;
+EXCEPTION WHEN OTHERS THEN 
+    RAISE EXCEPTION'[Error while setting up conformed layer] Exception: %',sqlerrm;
 
 END;
 
