@@ -5,11 +5,11 @@ import { checkFileCreatedOnS3, checkFileCreatedOnS3kinesis } from '../helpers/s3
 import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 
 // todo this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
-describe('Happy path tests Publish valid TXMA Event to SQS and expect event id stored in S3', () => {
+describe('IPV_CRI_FRAUD GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
   test.concurrent.each`
-    eventName                    | event_id               | client_id              | journey_id
-    ${'DCMAW_PASSPORT_SELECTED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'IPV_FRAUD_CRI_START'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    eventName                        | event_id               | client_id              | journey_id
+    ${'IPV_FRAUD_CRI_START'}         | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_FRAUD_CRI_VC_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
@@ -40,11 +40,11 @@ describe('Happy path tests Publish valid TXMA Event to SQS and expect event id s
   );
 });
 
-describe('AUTH_ACCOUNT_CREATION GROUP Test - Invalid TXMA Event to SQS and expect event is not stored in S3', () => {
+describe('IPV_CRI_FRAUD GROUP Test - valid TXMA Event to SQS and expect event id not stored in S3', () => {
   test.concurrent.each`
-    eventName                                      | event_id               | client_id              | journey_id
-    ${'DCMAW_PASSPORT_SELECTED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'IPV_FRAUD_CRI_START'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    eventName                        | event_id               | client_id              | journey_id
+    ${'IPV_FRAUD_CRI_START'}         | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_FRAUD_CRI_VC_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content not stored on S3',
     async ({ ...data }) => {
