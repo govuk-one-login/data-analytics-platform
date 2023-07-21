@@ -24,7 +24,7 @@ async function checkFileUploaded(contents: S3ListEntry[], eventId: string): Prom
   return false;
 }
 
-async function checkFileUploadedKinesis(contents: S3ListEntry[], errorCode: string): Promise<boolean> {
+async function checkKinesisForErrorCode(contents: S3ListEntry[], errorCode: string): Promise<boolean> {
   for (const val of contents) {
     const fileData = await getS3DataFileContent(val.Key);
     const body = fileData.body as string;
@@ -91,7 +91,7 @@ export const checkFileCreatedOnS3kinesis = async (
     if (contents !== undefined) {
       if (contents.length > 0) {
         contents.sort((f1, f2) => Date.parse(f2.LastModified) - Date.parse(f1.LastModified));
-        return await checkFileUploadedKinesis(contents, errorCode);
+        return await checkKinesisForErrorCode(contents, errorCode);
       }
     }
     return false;
