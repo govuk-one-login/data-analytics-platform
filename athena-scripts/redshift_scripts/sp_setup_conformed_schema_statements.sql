@@ -22,32 +22,6 @@ BEGIN
         PRIMARY KEY (event_key)
     ) diststyle auto sortkey auto encode auto;
     --
-    CREATE TABLE IF NOT EXISTS conformed.dim_date (
-        date_key int,
-        date date,
-        DAY varchar(50),
-        day_suffix varchar(50),
-        weekday varchar(50),
-        weekday_name varchar(50),
-        weekday_name_short varchar(10),
-        day_of_week_in_month varchar(50),
-        day_of_year varchar(10),
-        week_of_year varchar(10),
-        MONTH varchar(50),
-        month_name varchar(50),
-        month_name_short varchar(10),
-        quarter varchar(50),
-        quarter_name varchar(50),
-        year varchar(10),
-        is_weekend char(1),
-        created_by varchar(100),
-        created_date date,
-        modified_by varchar(100),
-        modified_date date,
-        batch_id integer,
-        PRIMARY KEY (date_key)
-    ) diststyle auto sortkey auto encode auto;
-    --
     CREATE TABLE IF NOT EXISTS conformed.dim_journey_channel (
         journey_channel_key int identity (1, 1),
         channel_name varchar(100),
@@ -142,6 +116,50 @@ BEGIN
         created_by varchar(100),
         created_datetime date
     ) diststyle auto sortkey auto encode auto;
+    --
+    CREATE TABLE IF NOT EXISTS conformed.ref_events (
+        event_name varchar(1000),
+        product_family varchar(1000),
+        domain varchar(1000),
+        sub_domain varchar(1000),
+        other_sub_domain varchar(1000)
+    ) diststyle auto sortkey auto encode auto;  
+    --
+    DELETE FROM conformed.ref_events;
+    --
+    INSERT INTO conformed.ref_events (event_name, product_family, domain, sub_domain, other_sub_domain)
+    VALUES
+    ('AUTH_AUTHORISATION_INITIATED','AUTH_ORCHESTRATION','Authentication','Relying Parties Connect',' '),
+    ('AUTH_CHECK_USER_KNOWN_EMAIL','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login',' '),
+    ('AUTH_CHECK_USER_NO_ACCOUNT_WITH_EMAIL','AUTH_ACCOUNT_CREATION','Authentication','Account Creation',' '),
+    ('AUTH_CODE_VERIFIED','AUTH_ACCOUNT_MFA','Authentication','Account MFA',' '),
+    ('AUTH_CREATE_ACCOUNT','AUTH_ACCOUNT_CREATION','Authentication','Account Creation',' '),
+    ('AUTH_LOG_IN_SUCCESS','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login',' '),
+    ('AUTH_PASSWORD_RESET_SUCCESSFUL','AUTH_ACCOUNT_MANAGEMENT','Authentication','Account Management',' '),
+    ('DCMAW_APP_END','DCMAW_CRI','DCMAW','App Journey',' '),
+    ('DCMAW_APP_HANDOFF_START','DCMAW_CRI','DCMAW','App Journey',' '),
+    ('DCMAW_APP_START','DCMAW_CRI','DCMAW','App Journey',' '),
+    ('DCMAW_CRI_START','DCMAW_CRI','DCMAW','CRI',' '),
+    ('DCMAW_CRI_VC_ISSUED','DCMAW_CRI','DCMAW','CRI',' '),
+    ('DCMAW_DRIVING_LICENCE_SELECTED','DCMAW_CRI','DCMAW','CRI',' '),
+    ('DCMAW_PASSPORT_SELECTED','DCMAW_CRI','DCMAW','CRI',' '),
+    ('DCMAW_WEB_END','DCMAW_CRI','DCMAW','APP Journey',' '),
+    ('IPV_ADDRESS_CRI_START','IPV_CRI_ADDRESS','IPV','Address CRI',' '),
+    ('IPV_ADDRESS_CRI_VC_ISSUED','IPV_CRI_ADDRESS','IPV','Address CRI',' '),
+    ('IPV_DL_CRI_START','IPV_CRI_DRIVING_LICENSE ','IPV','Driving License',' '),
+    ('IPV_DL_CRI_VC_ISSUED','IPV_CRI_DRIVING_LICENSE ','IPV','Driving License',' '),
+    ('IPV_FRAUD_CRI_START','IPV_CRI_FRAUD','IPV','Fraud CRI',' '),
+    ('IPV_FRAUD_CRI_VC_ISSUED','IPV_CRI_FRAUD','IPV','Fraud CRI',' '),
+    ('IPV_IDENTITY_REUSE_COMPLETE','IPV_JOURNEY','IPV','IPV Journey',' '),
+    ('IPV_IDENTITY_REUSE_RESET','IPV_JOURNEY','IPV','IPV Journey',''),
+    ('IPV_JOURNEY_END','IPV_JOURNEY','IPV','IPV Journey',' '),
+    ('IPV_JOURNEY_START','IPV_JOURNEY','IPV','IPV Journey',' '),
+    ('IPV_KBV_CRI_START','IPV_CRI_KBV','IPV','KBV CRI',' '),
+    ('IPV_KBV_CRI_VC_ISSUED','IPV_CRI_KBV','IPV','KBV CRI',' '),
+    ('IPV_PASSPORT_CRI_START','IPV_CRI_PASSPORT','IPV','Passport CRI',' '),
+    ('IPV_PASSPORT_CRI_VC_ISSUED','IPV_CRI_PASSPORT','IPV','Passport CRI',' '),
+    ('IPV_SPOT_RESPONSE_APPROVED','IPV_JOURNEY','IPV','IPV Journey','SPOT'),
+    ('IPV_SPOT_RESPONSE_REJECTED','IPV_JOURNEY','IPV','IPV Journey','SPOT');
 
     raise info 'Setup of conformed layer ran successfully';
 
