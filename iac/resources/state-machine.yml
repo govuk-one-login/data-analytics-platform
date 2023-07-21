@@ -540,6 +540,7 @@ GlueScriptsExecutionRole:
 RedshiftProcessingLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
+    LogGroupName: /aws/stepfunction/dap-redshift-processing
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
@@ -562,6 +563,9 @@ RedshiftProcessingStateMachine:
 
 StepFunctionRedshiftProcessRole:
   Type: AWS::IAM::Role
+  # AWS issue identified enabling CW logs for Step Function as detailed in the following link
+  # https://repost.aws/questions/QURc2glxBETSe3Q6Y0UwcpQg/bug-with-loggingconfiguration
+  # checkov:skip=CKV_AWS_111:Ensure IAM policies does not allow write access without constraints
   Properties:
     RoleName: !Sub ${Environment}-dap-redshift-processing-role
     AssumeRolePolicyDocument:
@@ -590,7 +594,7 @@ StepFunctionRedshiftProcessRole:
 
             - Effect: Allow
               Resource:
-                - arn:aws:logs:*:*:*
+                - '*'
 
               Action:
                 - logs:CreateLogGroup
