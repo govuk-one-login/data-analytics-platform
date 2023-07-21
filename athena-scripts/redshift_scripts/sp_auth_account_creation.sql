@@ -580,8 +580,10 @@ BEGIN
 
 	raise info 'processing of product family: auth_account_creation ran successfully';
 
-	exception when others then raise exception '[error while processing product family: auth_account_creation] exception: %',
-		sqlerrm;
+	exception 
+    when others then 
+        raise exception '[error while processing product family: auth_account_creation] exception: %',sqlerrm;
+
 END;
 
 $$ LANGUAGE plpgsql;
