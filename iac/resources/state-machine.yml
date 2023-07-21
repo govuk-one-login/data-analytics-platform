@@ -540,7 +540,6 @@ GlueScriptsExecutionRole:
 RedshiftProcessingLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: !Sub /aws/vendedlogs/states/dap-redshift-processing-layer
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
