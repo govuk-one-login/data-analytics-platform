@@ -486,3 +486,15 @@ VPCEndpointEC2Messages:
       - !Ref SubnetForDAP1
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
+
+VPCEndpointEC2:
+  Type: AWS::EC2::VPCEndpoint
+  Properties:
+    VpcEndpointType: Interface
+    ServiceName: com.amazonaws.eu-west-2.ec2
+    VpcId: !Ref VPCForDAP
+    PrivateDnsEnabled: true
+    SubnetIds:
+      - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3

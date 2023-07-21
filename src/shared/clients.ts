@@ -7,10 +7,13 @@ import { FirehoseClient } from '@aws-sdk/client-firehose';
 import { ConfiguredRetryStrategy } from '@smithy/util-retry';
 import { AthenaClient } from '@aws-sdk/client-athena';
 import { SFNClient } from '@aws-sdk/client-sfn';
+import { EC2Client } from '@aws-sdk/client-ec2';
 
 export const athenaClient = new AthenaClient(AWS_CLIENT_BASE_CONFIG);
 
 export const cloudwatchClient = new CloudWatchLogsClient(AWS_CLIENT_BASE_CONFIG);
+
+export const ec2Client = new EC2Client(AWS_CLIENT_BASE_CONFIG);
 
 export const firehoseClient = new FirehoseClient({
   ...AWS_CLIENT_BASE_CONFIG,

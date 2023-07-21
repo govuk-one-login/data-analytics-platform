@@ -24,7 +24,7 @@ jobs:
         uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
-          version: 1.82.0
+          version: 1.93.0
       - name: IaC linting checks
         run: npm run iac:lint
       - name: Check out checkov hooks repository code

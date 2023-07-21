@@ -113,3 +113,80 @@ RedshiftAccessEC2Role:
           Action: sts:AssumeRole
     ManagedPolicyArns:
       - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+RedshiftAccessEC2SchedulingLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as replay is not desired
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub redshift-access-ec2-scheduler-${Environment}
+    Handler: redshift-access-ec2-scheduler.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - ec2:Start*
+              - ec2:Stop*
+            Resource: !Sub arn:aws:ec2:eu-west-2:563887642259:instance/${RedshiftAccessEC2}
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        INSTANCE_ID: !Ref RedshiftAccessEC2
+        ENVIRONMENT: !Ref Environment
+    Tags:
+      Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
+
+RedshiftAccessEC2ScheduleRole:
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: !Sub ${Environment}-redshift-access-ec2-scheduler-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - scheduler.amazonaws.com
+          Action: sts:AssumeRole
+    Policies:
+      - PolicyName: !Sub ${Environment}-redshift-access-ec2-scheduler-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action: lambda:InvokeFunction
+              Resource: !GetAtt RedshiftAccessEC2SchedulingLambda.Arn
+
+RedshiftAccessEC2ScheduleStart:
+  Type: AWS::Scheduler::Schedule
+  Properties:
+    Name: redshift-access-server-start
+    KmsKeyArn: !GetAtt KmsKey.Arn
+    ScheduleExpression: cron(0 8 ? * MON-FRI *)
+    FlexibleTimeWindow:
+      Mode: 'OFF'
+    Target:
+      Arn: !GetAtt RedshiftAccessEC2SchedulingLambda.Arn
+      RoleArn: !GetAtt RedshiftAccessEC2ScheduleRole.Arn
+      Input: '{ "action": "start" }'
+
+RedshiftAccessEC2ScheduleStop:
+  Type: AWS::Scheduler::Schedule
+  Properties:
+    Name: redshift-access-server-stop
+    KmsKeyArn: !GetAtt KmsKey.Arn
+    ScheduleExpression: cron(0 18 ? * MON-FRI *)
+    FlexibleTimeWindow:
+      Mode: 'OFF'
+    Target:
+      Arn: !GetAtt RedshiftAccessEC2SchedulingLambda.Arn
+      RoleArn: !GetAtt RedshiftAccessEC2ScheduleRole.Arn
+      Input: '{ "action": "stop" }'
