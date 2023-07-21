@@ -4,9 +4,6 @@ GlobalLogBucket:
   Properties:
     AccessControl: Private
     BucketName: !Sub '${Environment}-dap-s3-logs'
-    LoggingConfiguration:
-      DestinationBucketName: !Ref GlobalLogBucket
-      LogFilePrefix: dap-s3-non-event/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
@@ -52,6 +49,9 @@ GlobalNonEventBucket:
   Properties:
     AccessControl: Private
     BucketName: !Sub '${Environment}-dap-s3-non-event'
+    LoggingConfiguration:
+      DestinationBucketName: !Ref GlobalLogBucket
+      LogFilePrefix: dap-s3-non-event/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
