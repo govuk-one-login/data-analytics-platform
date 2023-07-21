@@ -420,6 +420,8 @@ VPCEndpointSSM:
     PrivateDnsEnabled: true
     SubnetIds:
       - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3
 
 VPCEndpointSSMMessages:
   Type: AWS::EC2::VPCEndpoint
@@ -430,6 +432,8 @@ VPCEndpointSSMMessages:
     PrivateDnsEnabled: true
     SubnetIds:
       - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3
 
 VPCEndpointEC2Messages:
   Type: AWS::EC2::VPCEndpoint
@@ -440,3 +444,5 @@ VPCEndpointEC2Messages:
     PrivateDnsEnabled: true
     SubnetIds:
       - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3
