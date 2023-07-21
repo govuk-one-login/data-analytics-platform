@@ -1,4 +1,4 @@
-import { poll } from '../helpers/common-helpers';
+import { poll } from './common-helpers';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
 

@@ -41,12 +41,15 @@
     "lint:check": "eslint src integration-test",
     "lint:fix": "eslint --fix src integration-test",
     "test": "jest --silent src",
-    "integration-test": "scripts/integration-test-check.sh && jest --silent ./integration-test",
+    "integration-test": "scripts/integration-test-check.sh && jest --silent ./integration-tests",
     "iac:build": "scripts/build-sam-template.sh",
     "s3:empty-buckets": "scripts/s3-empty.sh",
     "iac:lint": "npm run iac:build && sam validate --lint --region eu-west-2",
     "iac:scan": "npm run iac:build && checkov --config-file .checkov.local.yml --file template.yaml --quiet",
     "iac:format:check": "prettier --check iac",
-    "iac:format:fix": "prettier --write iac"
+    "iac:format:fix": "prettier --write iac",
+    "test:integration": "jest --config jest.integration.config.ts --maxWorkers=4 $JEST_ARGS; RET=$? ; npm run test:cleanup:reports ; exit $RET",
+    "test:end2end": "jest --config jest.e2e.config.ts",
+    "test:integration:local": "scripts/integration-test-check.sh && jest --silent ./integration-test"
   }
 }
