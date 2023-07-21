@@ -4,6 +4,7 @@ import type { Context } from 'aws-lambda';
 
 /**
  * Requires that an object has the specified properties (and they are not null or undefined), throwing an error if not.
+ * An error is also thrown if the object itself is null or undefined.
  * The returned object is guaranteed to have the required properties, and TypeScript is aware of this due to the return type.
  * @see Pick
  * @see Required
@@ -20,6 +21,9 @@ export const getRequiredParams = <T extends Record<string, any>, K extends keyof
   t: T,
   ...requiredParams: K[]
 ): Required<Pick<T, K>> => {
+  if (t === null || t === undefined) {
+    throw new Error('Object is null or undefined');
+  }
   const missingFields = requiredParams.filter(field => !(field in t) || t[field] === null || t[field] === undefined);
   if (missingFields.length !== 0) {
     throw new Error(`Object is missing the following required fields: ${missingFields.join(', ')}`);

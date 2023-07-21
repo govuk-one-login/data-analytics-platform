@@ -63,6 +63,15 @@ test('get required params errors if field present but null or undefined', () => 
   );
 });
 
+test('get required params errors if object is null or undefined', () => {
+  expect(() => getRequiredParams(null as unknown as Record<string, unknown>, 'Bucket', 'Prefix')).toThrow(
+    'Object is null or undefined',
+  );
+  expect(() => getRequiredParams(undefined as unknown as Record<string, unknown>, 'Bucket', 'Prefix')).toThrow(
+    'Object is null or undefined',
+  );
+});
+
 test('encode and decode', () => {
   const testObject = { a: 'b', c: true, d: 42 };
 
