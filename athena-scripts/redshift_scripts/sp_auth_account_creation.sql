@@ -582,6 +582,6 @@ BEGIN
 
 	exception when others then raise exception '[error while processing product family: auth_account_creation] exception: %',
 		sqlerrm;
-END;$$
+END;
 
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
