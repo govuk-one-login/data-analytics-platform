@@ -17,29 +17,6 @@ export const publishToTxmaQueue = async (payload: any): Promise<unknown> => {
   return await invokeTestSupportLambda(event);
 };
 
-export const getS3DataFileContent = async (key: string | undefined): Promise<Record<string, unknown>> => {
-  const event: Omit<TestSupportEvent, 'environment'> = {
-    command: 'S3_GET',
-    input: {
-      Bucket: process.env.TXMA_BUCKET,
-      Key: key,
-    },
-  };
-
-  return await invokeTestSupportLambda(event);
-};
-
-export const getEventListS3 = async (prefix: string): Promise<Record<string, unknown>> => {
-  const event: Omit<TestSupportEvent, 'environment'> = {
-    command: 'S3_LIST',
-    input: {
-      Bucket: process.env.TXMA_BUCKET,
-      Prefix: prefix,
-    },
-  };
-  return await invokeTestSupportLambda(event);
-};
-
 export const invokeTestSupportLambda = async (
   event: Omit<TestSupportEvent, 'environment'>,
 ): Promise<Record<string, unknown>> => {
