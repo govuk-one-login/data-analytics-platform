@@ -125,7 +125,7 @@ BEGIN
         other_sub_domain varchar(1000)
     ) diststyle auto sortkey auto encode auto;  
     --
-    DELETE FROM conformed.ref_events;
+    TRUNCATE conformed.ref_events;
     --
     INSERT INTO conformed.ref_events (event_name, product_family, domain, sub_domain, other_sub_domain)
     VALUES

@@ -13,7 +13,8 @@
 --      1. Database
 --      2. External schema
 --      3. Conformed schema
---      4. Date dimension table creation / population
+--      4a. Date dimension table creation / population
+--      4b. Batch control table creation / population
 --      5. Group
 --      6. Database object privileges assigned to group
 --      7. Create IAM user (step function IAM role)
@@ -56,7 +57,7 @@ IAM_ROLE 'arn:aws:iam::{aws-account-id}:role/{env}-redshift-serverless-role';
 CREATE SCHEMA IF NOT EXISTS conformed;
 
 /*
-4. Date dim table creation and population
+4a. Date dim table creation and population
 
 - copy the contents of the file: redshift-scripts/setup_process/sp_conformed_date_dim.sql
 - paste into the redshift query editor
@@ -69,6 +70,21 @@ CREATE SCHEMA IF NOT EXISTS conformed;
 -- the date dim table. 
 
 CALL dap_txma_reporting_db.conformed.redshift_date_dim ('2022-01-01','2025-12-31')
+
+
+/*
+4b. Batch control table creation and population
+*/
+
+CREATE TABLE IF NOT EXISTS conformed.batchcontrol (
+    product_family varchar(100) NOT NULL,
+    maxrundate datetime
+) diststyle auto sortkey auto encode auto;
+
+
+INSERT INTO conformed.batchcontrol (product_family, maxrundate)
+VALUES
+('auth_account_creation','1999-01-01 00:00:00');
 
 
 /*

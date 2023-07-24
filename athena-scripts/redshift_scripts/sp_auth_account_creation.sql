@@ -2,17 +2,7 @@ CREATE OR replace PROCEDURE conformed.sp_auth_account_creation ()
 AS $$
 BEGIN
 
-	INSERT INTO conformed.batchcontrol (
-		product_family,
-		maxrundate
-		)
-	VALUES (
-		'auth_account_creation',
-		'1999-01-01 00:00:00'
-		);
-
-    --
-
+	
 	CREATE OR replace VIEW conformed.v_stg_auth_account_creation AS
 
         SELECT DISTINCT 
