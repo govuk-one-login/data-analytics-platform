@@ -1,4 +1,4 @@
-CREATE OR replace PROCEDURE conformed.sp_setup_conformed_schema () 
+CREATE OR replace PROCEDURE conformed.sp_auth_account_creation () 
 AS $$
 BEGIN
 
