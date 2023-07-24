@@ -560,6 +560,7 @@ RedshiftProcessingStateMachine:
       S3MetaDataBucketName: !Ref ELTMetadataBucket
       RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
       RedshiftDatabaseName: dap_txma_reporting_db
+      StateMachineResultsBucket: !Ref StateMachineResultsBucket
 
 StepFunctionRedshiftProcessRole:
   Type: AWS::IAM::Role
