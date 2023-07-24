@@ -588,9 +588,15 @@ StepFunctionRedshiftProcessRole:
                 - arn:aws:s3:::*
 
               Action:
-                - s3:GetObject
+                - s3:Get*
+                - s3:Put*
+                - s3:List*
+                - s3:ListBucketMultipartUploads
+                - s3:AbortMultipartUpload
+                - s3:CreateBucket
                 - s3:ListBucket
                 - s3:GetBucketLocation
+                - s3:ListMultipartUploadParts
 
             - Effect: Allow
               Resource:
@@ -626,6 +632,7 @@ StepFunctionRedshiftProcessRole:
 
               Action:
                 - states:ListExecutions
+                - states:StartExecution
 
             - Effect: Allow
               Resource:

@@ -136,20 +136,22 @@
       "Type": "Task",
       "Parameters": {
         "Bucket": "${S3MetaDataBucketName}",
-        "Key": "txma/redshift_scripts/sp_setup_conformed_schema_statements.sql"
+        "Key": "txma/redshift_scripts/reporting_model_product_family_config.json"
       },
-      "ResultPath": "$.config_output",
+      "ResultPath": "$",
       "ResultSelector": {
-        "config_output.$": "$.Body"
+        "prod_familiy_config.$": "States.StringToJson($.Body)"
       },
       "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
-      "Next": "Map"
+      "Next": "ProcessProductFamily"
     },
-    "Map": {
+    "ProcessProductFamily": {
       "Type": "Map",
+      "ItemsPath": "$.prod_familiy_config",
       "ItemProcessor": {
         "ProcessorConfig": {
-          "Mode": "INLINE"
+          "Mode": "DISTRIBUTED",
+          "ExecutionType": "STANDARD"
         },
         "StartAt": "CheckForEventEnabledStatus",
         "States": {
@@ -174,7 +176,7 @@
             "Type": "Task",
             "Parameters": {
               "Bucket": "${S3MetaDataBucketName}",
-              "Key": "txma/redshift_scripts/sp_setup_conformed_schema_statements.sql"
+              "Key.$": "States.Format('txma/redshift_scripts/sp_{}.sql', $.product_family)"
             },
             "ResultPath": "$.sql_output",
             "ResultSelector": {
@@ -243,7 +245,7 @@
             "Parameters": {
               "WorkgroupName": "${RedshiftWorkgroup}",
               "Database": "${RedshiftDatabaseName}",
-              "Sql": "call conformed.sp_setup_conformed_schema()"
+              "Sql.$": "States.Format('call conformed.sp_{}()', $.product_family)"
             },
             "Next": "wait_on_product_family_processing"
           },
