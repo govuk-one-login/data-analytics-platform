@@ -58,7 +58,7 @@ CREATE SCHEMA IF NOT EXISTS conformed;
 /*
 4. Date dim table creation and population
 
-- copy the contents of the file: redshift-scripts/setup_process/redshift_setup_ddl.sql
+- copy the contents of the file: redshift-scripts/setup_process/sp_conformed_date_dim.sql
 - paste into the redshift query editor
 */
 
