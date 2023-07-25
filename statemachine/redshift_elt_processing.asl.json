@@ -1,0 +1,309 @@
+{
+  "Comment": "Redshit ELT processing workflow for loading dimension and fact tables",
+  "StartAt": "ListExecutions",
+  "States": {
+    "ListExecutions": {
+      "Type": "Task",
+      "Next": "ValidateRunningInstances",
+      "Parameters": {
+        "StateMachineArn.$": "$$.StateMachine.Id",
+        "StatusFilter": "RUNNING"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:sfn:listExecutions",
+      "ResultSelector": {
+        "runningExecutionsCount.$": "States.ArrayLength($.Executions)"
+      }
+    },
+    "ValidateRunningInstances": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.runningExecutionsCount",
+          "NumericGreaterThan": 1,
+          "Next": "RunningInstanceDetected"
+        }
+      ],
+      "Default": "read_conformed_sp_statement"
+    },
+    "RunningInstanceDetected": {
+      "Type": "Fail",
+      "Error": "RunningInstanceDetected"
+    },
+    "read_conformed_sp_statement": {
+      "Type": "Task",
+      "Parameters": {
+        "Bucket": "${S3MetaDataBucketName}",
+        "Key": "txma/redshift_scripts/sp_setup_conformed_schema_statements.sql"
+      },
+      "ResultPath": "$.sql_output",
+      "ResultSelector": {
+        "sql_output.$": "$.Body"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Next": "run_conformed_sp_deploy_redshift"
+    },
+    "run_conformed_sp_deploy_redshift": {
+      "Comment": "Deploy SP on Redshift cluster",
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:redshiftdata:batchExecuteStatement",
+      "ResultPath": "$.sql_output",
+      "Parameters": {
+        "WorkgroupName": "${RedshiftWorkgroup}",
+        "Database": "${RedshiftDatabaseName}",
+        "Sqls.$": "States.Array($.sql_output.sql_output)"
+      },
+      "Next": "wait_on_conformed_sp_deploy_redshift"
+    },
+    "wait_on_conformed_sp_deploy_redshift": {
+      "Comment": "Wait before status check",
+      "Type": "Wait",
+      "Seconds": 5,
+      "Next": "run_sp_conformed_deploy_redshift_status_check"
+    },
+    "run_sp_conformed_deploy_redshift_status_check": {
+      "Comment": "Check Task Status",
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
+      "ResultPath": "$.sql_output",
+      "Parameters": {
+        "Id.$": "$.sql_output.Id"
+      },
+      "Next": "is_run_conformed_sp_deploy_complete"
+    },
+    "is_run_conformed_sp_deploy_complete": {
+      "Comment": "check if run_sp_deploy step is complete",
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.sql_output.Status",
+          "StringEquals": "FAILED",
+          "Next": "elt_data_pipeline_failure"
+        },
+        {
+          "Variable": "$.sql_output.Status",
+          "StringEquals": "FINISHED",
+          "Next": "setup_conformed_data_objects"
+        }
+      ],
+      "Default": "wait_on_conformed_sp_deploy_redshift"
+    },
+    "setup_conformed_data_objects": {
+      "Comment": "Invoke redshift batch execute",
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
+      "ResultPath": "$.sql_output",
+      "Parameters": {
+        "WorkgroupName": "${RedshiftWorkgroup}",
+        "Database": "${RedshiftDatabaseName}",
+        "Sql": "call conformed.sp_setup_conformed_schema()"
+      },
+      "Next": "wait_on_setup_conformed_data_objects"
+    },
+    "wait_on_setup_conformed_data_objects": {
+      "Comment": "Wait before status check",
+      "Type": "Wait",
+      "Seconds": 5,
+      "Next": "setup_conformed_data_objects_status_check"
+    },
+    "setup_conformed_data_objects_status_check": {
+      "Comment": "Check Task Status",
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
+      "ResultPath": "$.sql_output",
+      "Parameters": {
+        "Id.$": "$.sql_output.Id"
+      },
+      "Next": "is_setup_conformed_data_objects_complete"
+    },
+    "is_setup_conformed_data_objects_complete": {
+      "Comment": "check if setup conformed data objects step is complete",
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.sql_output.Status",
+          "StringEquals": "FAILED",
+          "Next": "elt_data_pipeline_failure"
+        },
+        {
+          "Variable": "$.sql_output.Status",
+          "StringEquals": "FINISHED",
+          "Next": "read_product_family_process_config"
+        }
+      ],
+      "Default": "wait_on_setup_conformed_data_objects"
+    },
+    "read_product_family_process_config": {
+      "Type": "Task",
+      "Parameters": {
+        "Bucket": "${S3MetaDataBucketName}",
+        "Key": "txma/redshift_scripts/reporting_model_product_family_config.json"
+      },
+      "ResultPath": "$",
+      "ResultSelector": {
+        "prod_familiy_config.$": "States.StringToJson($.Body)"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Next": "ProcessProductFamily"
+    },
+    "ProcessProductFamily": {
+      "Type": "Map",
+      "ItemsPath": "$.prod_familiy_config",
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "DISTRIBUTED",
+          "ExecutionType": "STANDARD"
+        },
+        "StartAt": "CheckForEventEnabledStatus",
+        "States": {
+          "CheckForEventEnabledStatus": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Not": {
+                  "Variable": "$.enabled",
+                  "BooleanEquals": true
+                },
+                "Next": "DoNotProcessProductFamily"
+              }
+            ],
+            "Default": "read_product_family_sp_statement"
+          },
+          "DoNotProcessProductFamily": {
+            "Type": "Pass",
+            "End": true
+          },
+          "read_product_family_sp_statement": {
+            "Type": "Task",
+            "Parameters": {
+              "Bucket": "${S3MetaDataBucketName}",
+              "Key.$": "States.Format('txma/redshift_scripts/sp_{}.sql', $.product_family)"
+            },
+            "ResultPath": "$.sql_output",
+            "ResultSelector": {
+              "sql_output.$": "$.Body"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+            "Next": "run_product_family_sp_deploy_redshift"
+          },
+          "run_product_family_sp_deploy_redshift": {
+            "Comment": "Deploy SP on Redshift cluster",
+            "Type": "Task",
+            "Resource": "arn:aws:states:::aws-sdk:redshiftdata:batchExecuteStatement",
+            "ResultPath": "$.sql_output",
+            "Parameters": {
+              "WorkgroupName": "${RedshiftWorkgroup}",
+              "Database": "${RedshiftDatabaseName}",
+              "Sqls.$": "States.Array($.sql_output.sql_output)"
+            },
+            "Next": "wait_on_product_family_sp_deploy_redshift"
+          },
+          "wait_on_product_family_sp_deploy_redshift": {
+            "Comment": "Wait before status check",
+            "Type": "Wait",
+            "Seconds": 5,
+            "Next": "run_sp_product_family_deploy_redshift_status_check"
+          },
+          "run_sp_product_family_deploy_redshift_status_check": {
+            "Comment": "Check Task Status",
+            "Type": "Task",
+            "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
+            "ResultPath": "$.sql_output",
+            "Parameters": {
+              "Id.$": "$.sql_output.Id"
+            },
+            "Next": "is_run_product_family_sp_deploy_complete"
+          },
+          "is_run_product_family_sp_deploy_complete": {
+            "Comment": "check if run_sp_deploy step is complete",
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.sql_output.Status",
+                "StringEquals": "FAILED",
+                "Next": "product_family_failure"
+              },
+              {
+                "Variable": "$.sql_output.Status",
+                "StringEquals": "FINISHED",
+                "Next": "process_product_family_data_objects"
+              }
+            ],
+            "Default": "wait_on_product_family_sp_deploy_redshift"
+          },
+          "product_family_failure": {
+            "Type": "Fail"
+          },
+          "ProductFamilyProcessingComplete": {
+            "Type": "Pass",
+            "End": true
+          },
+          "process_product_family_data_objects": {
+            "Comment": "Invoke redshift batch execute",
+            "Type": "Task",
+            "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
+            "ResultPath": "$.sql_output",
+            "Parameters": {
+              "WorkgroupName": "${RedshiftWorkgroup}",
+              "Database": "${RedshiftDatabaseName}",
+              "Sql.$": "States.Format('call conformed.sp_{}()', $.product_family)"
+            },
+            "Next": "wait_on_product_family_processing"
+          },
+          "wait_on_product_family_processing": {
+            "Comment": "Wait before status check",
+            "Type": "Wait",
+            "Seconds": 5,
+            "Next": "product_family_processing_status_check"
+          },
+          "product_family_processing_status_check": {
+            "Comment": "Check Task Status",
+            "Type": "Task",
+            "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
+            "ResultPath": "$.sql_output",
+            "Parameters": {
+              "Id.$": "$.sql_output.Id"
+            },
+            "Next": "is_product_family_processing_status_complete"
+          },
+          "is_product_family_processing_status_complete": {
+            "Comment": "check if product family processing step is complete",
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.sql_output.Status",
+                "StringEquals": "FAILED",
+                "Next": "product_family_failure"
+              },
+              {
+                "Variable": "$.sql_output.Status",
+                "StringEquals": "FINISHED",
+                "Next": "ProductFamilyProcessingComplete"
+              }
+            ],
+            "Default": "wait_on_product_family_processing"
+        }
+      }
+      },
+      "Next": "StopProcessing",
+      "Label": "ProcessProductFamily",
+      "MaxConcurrency": 1000,
+      "ResultWriter": {
+        "Resource": "arn:aws:states:::s3:putObject",
+        "Parameters": {
+          "Bucket": "${StateMachineResultsBucket}",
+          "Prefix": "txma"
+        }
+      }
+    },
+    "elt_data_pipeline_failure": {
+      "Type": "Fail",
+      "Cause": "Failure on ELT Pipeline",
+      "Error": "Error"
+    },
+    "StopProcessing": {
+      "Type": "Pass",
+      "Result": "pass",
+      "End": true
+    }
+  }
+}
