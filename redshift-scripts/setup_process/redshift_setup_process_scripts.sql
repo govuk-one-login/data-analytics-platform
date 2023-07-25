@@ -19,6 +19,7 @@
 --      6. Database object privileges assigned to group
 --      7. Create IAM user (step function IAM role)
 --      8. User associated to group
+--      9. Alter table ownership to enable deletes/truncates
 -------------------------------------------------------------------------------
 
 
@@ -120,3 +121,9 @@ CREATE USER "IAMR:{env}-dap-redshift-processing-role" PASSWORD DISABLE;
 
 ALTER GROUP dap_elt_processing ADD USER "<add username created in step (6)>";
 
+
+/*
+9. Alter table ownership
+*/
+
+ALTER TABLE dap_txma_reporting_db.conformed.ref_events OWNER TO "IAMR:dev-dap-redshift-processing-role";
