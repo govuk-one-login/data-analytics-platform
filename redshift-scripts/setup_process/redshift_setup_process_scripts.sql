@@ -14,7 +14,7 @@
 --      2. External schema
 --      3. Conformed schema
 --      4a. Date dimension table creation / population
---      4b. Batch control table creation / population
+--      4b. Conformed data objects creation / population
 --      5. Group
 --      6. Database object privileges assigned to group
 --      7. Create IAM user (step function IAM role)
@@ -76,15 +76,16 @@ CALL dap_txma_reporting_db.conformed.redshift_date_dim ('2022-01-01','2025-12-31
 4b. Batch control table creation and population
 */
 
-CREATE TABLE IF NOT EXISTS conformed.batchcontrol (
-    product_family varchar(100) NOT NULL,
-    maxrundate datetime
-) diststyle auto sortkey auto encode auto;
+-- copy the contents of the file: redshift-scripts/setup_process/sp_conformed_data_objects.sql
+-- paste into the redshift query editor
 
+-- click [Run] button to create the stored procedure: conformed.sp_conformed_data_objects
 
-INSERT INTO conformed.batchcontrol (product_family, maxrundate)
-VALUES
-('auth_account_creation','1999-01-01 00:00:00');
+-- run the following cmd once confirmed SP has been created
+-- passing in the start, end dates for the date range to populate
+-- the date dim table. 
+
+CALL dap_txma_reporting_db.conformed.sp_conformed_data_objects()
 
 
 /*
