@@ -5,7 +5,7 @@
 --              incorporating data object security privileges
 -- Run          This script should be run manually as "admin" user
 -------------------------------------------------------------------------------
--- Modification History
+-- Modification History:
 --
 -- 2023-07-20  Sarnjit Beesla  
 --      Setup scripts to support the creation of the reporting datawarehouse
