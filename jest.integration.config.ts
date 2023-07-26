@@ -25,7 +25,7 @@ const config: Config.InitialOptions = {
         filename: "index.html",
         expand: true,
         openReport: true,
-        pageTitle: "BTM INTEGRATION TEST REPORT",
+        pageTitle: "DAP Integration Test Report",
       },
     ],
   ],
