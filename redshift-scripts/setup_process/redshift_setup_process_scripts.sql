@@ -41,7 +41,8 @@ ii. IAM_ROLE
 */
 
 --**ENSURE DATBASE CREATED IN STEP(1) IS SELECTED**
-
+--**REPLACE {env}**
+--**REPLACE {aws-account-id}**
 CREATE EXTERNAL SCHEMA IF NOT EXISTS dap_txma_stage
 FROM DATA CATALOG
 DATABASE '{env}-txma-stage'
@@ -83,8 +84,6 @@ CALL dap_txma_reporting_db.conformed.redshift_date_dim ('2022-01-01','2025-12-31
 -- click [Run] button to create the stored procedure: conformed.sp_conformed_data_objects
 
 -- run the following cmd once confirmed SP has been created
--- passing in the start, end dates for the date range to populate
--- the date dim table. 
 
 CALL dap_txma_reporting_db.conformed.sp_conformed_data_objects()
 
@@ -110,17 +109,20 @@ GRANT USAGE ON SCHEMA "dap_txma_stage" TO GROUP dap_elt_processing;
 7. Create IAM user (used by the Redshift Step Function)
 */
 
+--**REPLACE {env}**
 CREATE USER "IAMR:{env}-dap-redshift-processing-role" PASSWORD DISABLE;
 
 /*
 8. User association to group
 */
 
-ALTER GROUP dap_elt_processing ADD USER "<add username created in step (6)>";
+--**REPLACE {env}**
+ALTER GROUP dap_elt_processing ADD USER "IAMR:{env}-dap-redshift-processing-role";
 
 
 /*
 9. Alter table ownership
 */
 
-ALTER TABLE dap_txma_reporting_db.conformed.ref_events OWNER TO "IAMR:dev-dap-redshift-processing-role";
+--**REPLACE {env}**
+ALTER TABLE dap_txma_reporting_db.conformed.ref_events OWNER TO "IAMR:{env}-dap-redshift-processing-role";
