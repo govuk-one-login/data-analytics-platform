@@ -568,6 +568,34 @@ BEGIN
 		) AS subquery
 	WHERE batc.product_family = subquery.product_family;
 
+	--
+
+    INSERT into conformed.err_duplicate_event_id (event_count,product_family,event_id,timestamp_formatted,processed_date,created_by,created_datetime)
+    SELECT event_count,Product_family,event_id,timestamp_formatted,processed_date,'DUMMY',GETDATE() AS Current_date
+    FROM
+        (
+            SELECT COUNT(*) AS event_count,auth.Product_family,event_id,timestamp_formatted,processed_date
+            FROM
+                (
+                    SELECT
+                        'auth_account_creation' AS Product_family,
+                        ROW_NUMBER() OVER (PARTITION BY event_id, timestamp_formatted ORDER BY timestamp_formatted) AS row_num,
+                        *
+                    FROM
+                        "dap_txma_reporting_db"."dap_txma_stage"."auth_account_creation" 
+                ) auth
+            JOIN "dap_txma_reporting_db"."conformed"."batchcontrol" batc ON auth.Product_family = batc.product_family
+                AND auth.processed_date > batc.maxrundate
+            WHERE row_num <> 1
+            AND (auth.product_family,event_name, processed_date) NOT IN (SELECT product_family ,event_name, processed_date 
+                                                                        FROM conformed.err_duplicate_event_id)
+            GROUP BY
+                auth.Product_family,
+                event_id,
+                timestamp_formatted,
+                processed_date
+        ) subquery;
+
 	raise info 'processing of product family: auth_account_creation ran successfully';
 
 	EXCEPTION WHEN OTHERS THEN 
