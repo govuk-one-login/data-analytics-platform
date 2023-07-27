@@ -5,7 +5,7 @@
     },
     {
         "product_family": "auth_orchestration",
-        "enabled": false
+        "enabled": true
     },
     {
         "product_family": "auth_account_user_login",
