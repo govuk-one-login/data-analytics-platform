@@ -48,7 +48,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets.GH_ACTIONS_ROLE_ARN_DEV }}
+          role-to-assume: ${{ secrets.GH_ACTIONS_ROLE_ARN_TEST }}
       - name: SAM validate
         run: sam validate
       - name: SAM deploy
@@ -73,7 +73,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets.GH_ACTIONS_ROLE_ARN_DEV }}
+          role-to-assume: ${{ secrets.GH_ACTIONS_ROLE_ARN_TEST }}
       - name: Run integration tests
         run: npm run test:ephemeralEnvs
       - name: Deploy Jest HTML report to Github Pages
