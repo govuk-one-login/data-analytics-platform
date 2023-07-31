@@ -9,6 +9,13 @@ export const getEventFilePrefix = (eventName: string): string => {
   )}/day=${formatNumberInTwoDigits(today.getDate())}`;
 };
 
+export const getEventFilePrefixDayBefore = (eventName: string): string => {
+  const today = new Date();
+  return `txma/${eventName}/year=${today.getFullYear()}/month=${formatNumberInTwoDigits(
+    today.getMonth() + 1,
+  )}/day=${formatNumberInTwoDigits(today.getDate() - 1)}`;
+};
+
 export const getErrorFilePrefix = (): string => {
   const today = new Date();
   return `kinesis-processing-errors-metadata-extraction-failed/${today.getFullYear()}/${formatNumberInTwoDigits(
@@ -75,3 +82,11 @@ export const poll = async <Resolution>(
     }, interval);
   });
 };
+
+export const getTodayDateTime = () : string => {
+  var today = new Date();
+  var date = today.getFullYear()+''+(today.getMonth()+1)+''+today.getDate();
+  var time = today.getHours()+''+today.getMinutes()+''+today.getSeconds();
+  var TodaydateTime = date+'-'+time;
+  return TodaydateTime
+}

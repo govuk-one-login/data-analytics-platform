@@ -5,15 +5,16 @@ import { checkFileCreatedOnS3, checkFileCreatedOnS3kinesis } from '../helpers/s3
 import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 
 // todo this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
-describe('AUTH_ACCOUNT_MFA GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
+describe('IPV_CRI_DRIVING_LICENSE GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
   test.concurrent.each`
-    eventName                    | event_id               | client_id              | journey_id
-    ${'AUTH_CODE_VERIFIED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    eventName                     | event_id               | client_id              | journey_id
+    ${'IPV_DL_CRI_START'}         | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_DL_CRI_VC_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event.json', 'utf-8'));
+      const event = JSON.parse(fs.readFileSync('tests/fixtures/txma-event.json', 'utf-8'));
       event.event_id = data.event_id;
       event.client_id = data.client_id;
       event.user.govuk_signin_journey_id = data.journey_id;
@@ -21,6 +22,7 @@ describe('AUTH_ACCOUNT_MFA GROUP Test - valid TXMA Event to SQS and expect event
       const pastDate = faker.date.past();
       event.timestamp = Math.round(pastDate.getTime() / 1000);
       event.timestamp_formatted = JSON.stringify(pastDate);
+
       // when
       const publishResult = await publishToTxmaQueue(event);
       // then
@@ -38,16 +40,17 @@ describe('AUTH_ACCOUNT_MFA GROUP Test - valid TXMA Event to SQS and expect event
   );
 });
 
-describe('AUTH_ACCOUNT_MFA GROUP Test - valid TXMA Event to SQS and expect event id not stored in S3', () => {
+describe('IPV_CRI_DRIVING_LICENSE GROUP Test - valid TXMA Event to SQS and expect event id not stored in S3', () => {
   test.concurrent.each`
-    eventName                    | event_id               | client_id              | journey_id
-    ${'AUTH_CODE_VERIFIED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    eventName                     | event_id               | client_id              | journey_id
+    ${'IPV_DL_CRI_START'}         | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_DL_CRI_VC_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content not stored on S3',
     async ({ ...data }) => {
       // given
       const errorCode = 'DynamicPartitioning.MetadataExtractionFailed';
-      const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event-invalid.json', 'utf-8'));
+      const event = JSON.parse(fs.readFileSync('tests/fixtures/txma-event-invalid.json', 'utf-8'));
       event.client_id = data.client_id;
       event.user.govuk_signin_journey_id = data.journey_id;
       const pastDate = faker.date.past();
@@ -59,8 +62,8 @@ describe('AUTH_ACCOUNT_MFA GROUP Test - valid TXMA Event to SQS and expect event
       // given
       const prefix = getErrorFilePrefix();
       // then
-      const fileUploaded1 = await checkFileCreatedOnS3kinesis(prefix, errorCode, 120000);
-      expect(fileUploaded1).toEqual(true);
+      const fileUploaded = await checkFileCreatedOnS3kinesis(prefix, errorCode, 120000);
+      expect(fileUploaded).toEqual(true);
     },
     240000,
   );

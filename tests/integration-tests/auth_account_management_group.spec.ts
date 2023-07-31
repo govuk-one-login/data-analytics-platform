@@ -4,17 +4,16 @@ import { getEventFilePrefix, getErrorFilePrefix } from '../helpers/common-helper
 import { checkFileCreatedOnS3, checkFileCreatedOnS3kinesis } from '../helpers/s3-helpers';
 import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 
-// this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
-describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
+// todo this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
+describe('AUTH_ACCOUNT_MANAGEMENT GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
   test.concurrent.each`
-    eventName                            | event_id               | client_id              | journey_id
-    ${'AUTH_CHECK_USER_KNOWN_EMAIL'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'AUTH_LOG_IN_SUCCESS'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    eventName                               | event_id               | client_id              | journey_id
+    ${'AUTH_PASSWORD_RESET_SUCCESSFUL'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event.json', 'utf-8'));
+      const event = JSON.parse(fs.readFileSync('tests/fixtures/txma-event.json', 'utf-8'));
       event.event_id = data.event_id;
       event.client_id = data.client_id;
       event.user.govuk_signin_journey_id = data.journey_id;
@@ -40,17 +39,16 @@ describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expec
   );
 });
 
-describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expect event id not stored in S3', () => {
+describe('AUTH_ACCOUNT_MANAGEMENT GROUP Test - Invalid TXMA Event to SQS and expect event is not stored in S3', () => {
   test.concurrent.each`
-    eventName                            | event_id               | client_id              | journey_id
-    ${'AUTH_CHECK_USER_KNOWN_EMAIL'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'AUTH_LOG_IN_SUCCESS'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    `(
+    eventName                                      | event_id               | client_id              | journey_id
+    ${'AUTH_PASSWORD_RESET_SUCCESSFUL'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+     `(
     'Should validate $eventName event content not stored on S3',
     async ({ ...data }) => {
       // given
       const errorCode = 'DynamicPartitioning.MetadataExtractionFailed';
-      const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event-invalid.json', 'utf-8'));
+      const event = JSON.parse(fs.readFileSync('tests/fixtures/txma-event-invalid.json', 'utf-8'));
       event.client_id = data.client_id;
       event.user.govuk_signin_journey_id = data.journey_id;
       const pastDate = faker.date.past();
