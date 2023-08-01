@@ -53,6 +53,8 @@ jobs:
         run: sam validate
       - name: SAM deploy
         run: npm run sam:deploy
+        with:
+         environment: pr-${{ github.event.pull_request.number }}        
 
   run-integration-tests:
     needs: [build-and-deploy]
