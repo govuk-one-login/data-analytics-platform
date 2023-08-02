@@ -1,0 +1,18 @@
+{
+  "event_id": "6737978c-e91e-4a9e-be7e-31c311c8f78d",
+  "event_name": "AUTH_AUTHORISATION_INITIATED",
+  "client_id": "kvISvY2jahls9esQq8WNrvo1ovpoFzdI",
+  "component_id": "https://oidc.staging.account.gov.uk/",
+  "extensions": {
+    "client-name": "di-auth-stub-relying-party-staging-app"
+  },
+  "user": {
+    "govuk_signin_journey_id": "hnBm9BUvq3fxD7GfyHNW17XJ_UE",
+    "user_id": "integration-tests"
+  },
+  "timestamp": 1689942591,
+  "timestamp_formatted": "2023-07-21T12:29:51.000Z",
+  "txma": {
+    "config_version": "1.2.11"
+  }
+}

@@ -14,7 +14,7 @@ describe('IPV_CRI_PASSPORT GROUP Test - valid TXMA Event to SQS and expect event
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const event = JSON.parse(fs.readFileSync('tests/fixtures/txma-event.json', 'utf-8'));
+      const event = JSON.parse(fs.readFileSync('tests/fixtures/txma-event-ipv-cri-passport-group.json', 'utf-8'));
       event.event_id = data.event_id;
       event.client_id = data.client_id;
       event.user.govuk_signin_journey_id = data.journey_id;

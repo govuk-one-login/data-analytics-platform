@@ -42,7 +42,7 @@
     "lint:check": "eslint src tests/integration-tests",
     "lint:fix": "eslint --fix src tests/integration-tests",
     "test": "jest --silent src",
-    "integration-test": "scripts/integration-test-check.sh && jest --silent ./tests/integration-tests",
+    "integration-test": "scripts/integration-test-check.sh && jest --silent ./tests/integration-tests --maxWorkers=2",
     "iac:build": "scripts/build-sam-template.sh",
     "s3:empty-buckets": "scripts/s3-empty.sh",
     "iac:lint": "npm run iac:build && sam validate --lint --region eu-west-2",

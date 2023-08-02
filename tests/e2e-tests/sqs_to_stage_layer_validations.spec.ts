@@ -1,7 +1,7 @@
 import { DescribeExecutionCommand } from "@aws-sdk/client-sfn";
 import { getEventFilePrefixDayBefore, getTodayDateTime } from "../helpers/common-helpers";
 
-
+import { handler } from '../../src/handlers/test-support/handler';
 
 const AthenaExpress = require("athena-express"),
 	AWS = require("aws-sdk"),
@@ -110,6 +110,7 @@ describe("Verify Data from raw layer is processed to stage layer", () => {
     const myQueryExecutionId = result.QueryExecutionId;
     let results = await athenaExpress.query(myQueryExecutionId);
     expect(results.Count).not.toBeNull();
+
 
 
 	})

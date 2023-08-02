@@ -101,25 +101,3 @@ export const checkFileCreatedOnS3kinesis = async (
     nonCompleteErrorMessage: 'File never got to S3 within the timeout',
   });
 };
-
-// function uploadFile(file: { path: any; filename: any; }, bucketName: any) {
-//   const S3 = require("aws-sdk/clients/s3");
-
-// const fs = require("fs");
-
-//   const fileStream = fs.createReadStream(file.path);
-
-//   const uploadParams = {
-
-//     Bucket: bucketName,
-
-//     Body: fileStream,
-
-//     Key: file.filename,
-
-//   };
-
-// return S3.upload(uploadParams).promise(); // this will upload file to S3
-
-// }
-

@@ -8,8 +8,8 @@ import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 describe('Happy path tests Publish valid TXMA Event to SQS and expect event id stored in S3', () => {
   test.concurrent.each`
     eventName                    | event_id               | client_id              | journey_id
-    ${'DCMAW_PASSPORT_SELECTED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'IPV_FRAUD_CRI_START'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'AUTH_CHECK_USER_NO_ACCOUNT_WITH_EMAIL'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'AUTH_CHECK_USER_KNOWN_EMAIL'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
