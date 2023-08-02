@@ -6,11 +6,12 @@ import { InvokeCommand } from '@aws-sdk/client-lambda';
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
-import { athenaClient, cloudwatchClient, lambdaClient, s3Client, sqsClient } from '../../shared/clients';
+import { athenaClient, cloudwatchClient, lambdaClient, s3Client, sfnClient, sqsClient } from '../../shared/clients';
 import * as zlib from 'zlib';
 import { GetQueryExecutionCommand, GetQueryResultsCommand, StartQueryExecutionCommand } from '@aws-sdk/client-athena';
 import type { GetQueryResultsOutput, QueryExecutionStatus } from '@aws-sdk/client-athena';
 import { getLogger } from '../../shared/powertools';
+import { DescribeExecutionCommand, StartExecutionCommand } from '@aws-sdk/client-sfn';
 
 const logger = getLogger('lambda/test-support');
 
@@ -23,6 +24,8 @@ const TEST_SUPPORT_COMMANDS = [
   'S3_LIST',
   'S3_PUT',
   'SQS_SEND',
+  'SFN_START_EXECUTION',
+  'SFN_DESCRIBE_EXECUTION',
 ] as const;
 
 export type TestSupportEnvironment = (typeof AWS_ENVIRONMENTS)[number];
@@ -103,6 +106,18 @@ const handleEvent = async (event: TestSupportEvent): Promise<unknown> => {
         ...getRequiredParams(event.input, 'QueueUrl', 'MessageBody'),
       });
       return await sqsClient.send(request);
+    }
+    case 'SFN_START_EXECUTION': {
+      const request = new StartExecutionCommand({
+        ...getRequiredParams(event.input, 'stateMachineArn'),
+      });
+      return await sfnClient.send(request);
+    }
+    case 'SFN_DESCRIBE_EXECUTION': {
+      const request = new DescribeExecutionCommand({
+        ...getRequiredParams(event.input, 'executionArn'),
+      });
+      return await sfnClient.send(request);
     }
   }
 };

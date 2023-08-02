@@ -169,6 +169,11 @@ TestSupportLambda:
               - kms:GenerateDataKey*
               - kms:Encrypt
             Resource: !GetAtt KmsKey.Arn
+          - Effect: Allow
+            Action:
+              - states:DescribeExecution
+              - states:StartExecution
+            Resource: '*'
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
