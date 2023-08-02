@@ -14,7 +14,7 @@ describe('AUTH_ACCOUNT_CREATION GROUP Test - valid TXMA Event to SQS and expect 
      `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
-      // given 
+      // given
       const event = JSON.parse(fs.readFileSync('tests/fixtures/txma-event-auth-account-creation-group.json', 'utf-8'));
       event.event_id = data.event_id;
       event.client_id = data.client_id;
