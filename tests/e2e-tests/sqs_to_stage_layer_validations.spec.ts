@@ -1,32 +1,6 @@
-import { DescribeExecutionCommand } from "@aws-sdk/client-sfn";
-import { getEventFilePrefixDayBefore, getTodayDateTime } from "../helpers/common-helpers";
-import * as fs from 'fs';
-import { handler } from '../../src/handlers/test-support/handler';
-import { athenaRunQuery } from "../helpers/lambda-helpers";
+import { athenaRunQuery } from "../helpers/athena-helpers";
 
-// const AthenaExpress = require("athena-express"),
-// 	AWS = require("aws-sdk"),
-// 	awsCredentials = {
-// 		region: "eu-west-2"
-// 	};
 
-// AWS.config.update(awsCredentials);
-// const AWS1 = require('aws-sdk');
-
-// //AthenaExpress config object
-// const athenaExpressConfig = {
-// 	aws: AWS, // required 
-// 	s3: "test-dap-stage-layer", // optional 
-// 	db: "test-txma-stage", // optional
-// 	workgroup: "test-dap-txma-processing", // optional
-// 	formatJson: true, // optional
-// 	retry: 200, // optional
-// 	getStats: true, // optional
-// 	ignoreEmpty: true, // optional
-// 	skipResults: false, // optional
-// 	waitForResults: false, // optional
-// 	catalog: "hive" //optional
-// };
 // const s3 = new AWS.S3();
 // const { SFNClient, StartExecutionCommand } = require("@aws-sdk/client-sfn");
 // const client = new SFNClient();

@@ -1,4 +1,4 @@
-import { poll } from '../helpers/common-helpers';
+import { getEventFilePrefixDayBefore, poll } from '../helpers/common-helpers';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
 
@@ -114,3 +114,41 @@ export const checkFileCreatedOnS3kinesis = async (
     nonCompleteErrorMessage: 'File never got to S3 within the timeout',
   });
 };
+
+export const copyFilesFromBucket = async (SourceBucket: string, DestinationBucket: string,timeoutMs: number)  => {
+  const pollS3BucketForEventIdString = async (): Promise<boolean> => {
+    const contents = await getEventListS3(SourceBucket).then(result => result.Contents as S3ListEntry[]);
+    console.log(contents)
+    console.log(contents.length)
+      for (let index = 0; index < contents.length; index++) {
+  			const filename = contents[index]['Key']
+        console.log(filename)
+  			if (filename.includes('.gz')) {
+  			const Bucket_Name = DestinationBucket+ getEventFilePrefixDayBefore(filename.split('/')[0]);
+        console.log(Bucket_Name)
+  			const Source = SourceBucket+ filename;
+        console.log(Source)
+  			const Key = filename.split('/')[1]
+        console.log(Key)
+        await putS3files(Key, Bucket_Name,filename);
+      }
+    }
+    return false;
+  };
+  return await poll(pollS3BucketForEventIdString, result => result, {
+    timeout: timeoutMs,
+    nonCompleteErrorMessage: 'File never got to S3 within the timeout',
+  });
+};
+
+  // for (let index = 0; index < data['Contents'].length; index++) {
+  // 			const filename = data['Contents'][index]['Key']
+  // 			if (filename.includes('.gz')) {
+  // 			const Bucket_Name = 'test-dap-raw-layer/'+ getEventFilePrefixDayBefore(filename.split('/')[0]);
+  // 			const Source = 'test-auto-raw-data/'+ filename;
+  // 			const Key = filename.split('/')[1]
+  // 					const input = {
+  // 			"Bucket": Bucket_Name,
+  // 			"CopySource": Source,
+  // 			"Key": Key
+  // 		  };
