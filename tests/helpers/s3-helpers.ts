@@ -53,6 +53,19 @@ export const getS3DataFileContent = async (key: string | undefined): Promise<Rec
   return await invokeTestSupportLambda(event);
 };
 
+export const putS3files = async (key: string | undefined,bucket: string,fileName: string ): Promise<Record<string, unknown>> => {
+  const event: Omit<TestSupportEvent, 'environment'> = {
+    command: 'S3_PUT',
+    input: {
+      Bucket: bucket,
+      Filename: fileName,
+      Key: key,
+    },
+  };
+
+  return await invokeTestSupportLambda(event);
+};
+
 export const getEventListS3 = async (prefix: string): Promise<Record<string, unknown>> => {
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'S3_LIST',
