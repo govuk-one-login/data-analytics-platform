@@ -2,7 +2,8 @@ import type { TestSupportCommand, TestSupportEnvironment, TestSupportEvent } fro
 import { handler } from './handler';
 import { mockClient } from 'aws-sdk-client-mock';
 import { LambdaClient } from '@aws-sdk/client-lambda';
-import { S3Client } from '@aws-sdk/client-s3';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import type { PutObjectCommandOutput } from '@aws-sdk/client-s3';
 import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
 import { Uint8ArrayBlobAdapter } from '@smithy/util-stream';
 import { AthenaClient } from '@aws-sdk/client-athena';
@@ -301,6 +302,42 @@ test('athena wait failure retry', async () => {
   expect(response?.ResultSet?.Rows?.at(1)?.Data?.at(0)?.VarCharValue).toEqual('39.51307483542592');
 
   expect(mockAthenaClient.calls()).toHaveLength(10);
+});
+
+test('s3 put with key', async () => {
+  const Bucket = 'some-bucket';
+  const Filename = 'file.json';
+
+  mockS3Client
+    .rejects()
+    .on(PutObjectCommand, { Bucket, Body: Filename, Key: 'renamed-file.json' })
+    .resolvesOnce({ ETag: 'with key' });
+
+  const event = getEvent({
+    command: 'S3_PUT',
+    input: { Bucket, Filename, Key: 'renamed-file.json' },
+  });
+  const response = (await handler(event)) as PutObjectCommandOutput;
+  expect(response).toBeDefined();
+  expect(response.ETag).toEqual('with key');
+});
+
+test('s3 put without key', async () => {
+  const Bucket = 'some-bucket';
+  const Filename = 'file.json';
+
+  mockS3Client
+    .rejects()
+    .on(PutObjectCommand, { Bucket, Body: Filename, Key: 'file.json' })
+    .resolvesOnce({ ETag: 'without key' });
+
+  const eventWithoutKey = getEvent({
+    command: 'S3_PUT',
+    input: { Bucket, Filename },
+  });
+  const response1 = (await handler(eventWithoutKey)) as PutObjectCommandOutput;
+  expect(response1).toBeDefined();
+  expect(response1.ETag).toEqual('without key');
 });
 
 const getEvent = (overrides: { environment?: string; command?: string; input?: object }): TestSupportEvent => {

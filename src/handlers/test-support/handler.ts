@@ -4,7 +4,7 @@ import { DescribeLogStreamsCommand, GetLogEventsCommand } from '@aws-sdk/client-
 import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 import { InvokeCommand } from '@aws-sdk/client-lambda';
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
-import { GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { athenaClient, cloudwatchClient, lambdaClient, s3Client, sqsClient } from '../../shared/clients';
 import * as zlib from 'zlib';
@@ -21,6 +21,7 @@ const TEST_SUPPORT_COMMANDS = [
   'LAMBDA_INVOKE',
   'S3_GET',
   'S3_LIST',
+  'S3_PUT',
   'SQS_SEND',
 ] as const;
 
@@ -91,6 +92,11 @@ const handleEvent = async (event: TestSupportEvent): Promise<unknown> => {
         ...getRequiredParams(event.input, 'Bucket', 'Key'),
       });
       return await s3Client.send(request).then(s3GetResponse);
+    }
+    case 'S3_PUT': {
+      const { Bucket, Filename } = getRequiredParams(event.input, 'Bucket', 'Filename');
+      const Key = event.input.Key ?? Filename;
+      return await s3Client.send(new PutObjectCommand({ Bucket, Key, Body: Filename }));
     }
     case 'SQS_SEND': {
       const request = new SendMessageCommand({
