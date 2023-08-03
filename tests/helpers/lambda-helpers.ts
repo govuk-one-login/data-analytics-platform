@@ -2,7 +2,8 @@ import { InvokeCommand } from '@aws-sdk/client-lambda';
 import type { TestSupportEnvironment, TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { decodeObject, encodeObject } from '../../src/shared/utils/utils';
 import { lambdaClient } from '../../src/shared/clients';
-import { logger } from '../../src/shared/powertools';
+import { getLogger } from '../../src/shared/powertools';
+const logger = getLogger('auth_account_creation_group');
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const publishToTxmaQueue = async (payload: any): Promise<unknown> => {
