@@ -6,12 +6,16 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import type { PutObjectCommandOutput } from '@aws-sdk/client-s3';
 import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
 import { Uint8ArrayBlobAdapter } from '@smithy/util-stream';
-import { AthenaClient } from '@aws-sdk/client-athena';
 import type { GetQueryResultsOutput } from '@aws-sdk/client-athena';
+import { AthenaClient } from '@aws-sdk/client-athena';
+import type { Context } from 'aws-lambda';
+import type { StartExecutionCommand, StartExecutionOutput } from '@aws-sdk/client-sfn';
+import { SFNClient } from '@aws-sdk/client-sfn';
 
 const mockAthenaClient = mockClient(AthenaClient);
 const mockLambdaClient = mockClient(LambdaClient);
 const mockS3Client = mockClient(S3Client);
+const mockSFNClient = mockClient(SFNClient);
 
 const EXPECTED_S3_BODY = {
   event_id: '8e9d3367-f943-411a-b83d-076ab5b96725',
@@ -30,6 +34,8 @@ const EXPECTED_S3_BODY = {
 
 let ATHENA_QUERY_RESULTS: GetQueryResultsOutput;
 
+const CONTEXT: Context = { invokedFunctionArn: '' } as unknown as Context;
+
 beforeAll(async () => {
   ATHENA_QUERY_RESULTS = JSON.parse(await getTestResource('athena-query-results.json'));
 });
@@ -42,19 +48,19 @@ beforeEach(() => {
 
 test('unknown environment', async () => {
   const event = getEvent({ environment: 'NotAnEnv' });
-  await expect(handler(event)).rejects.toThrow('Unknown environment "NotAnEnv"');
+  await expect(handler(event, CONTEXT)).rejects.toThrow('Unknown environment "NotAnEnv"');
 });
 
 test('unknown command', async () => {
   const event = getEvent({ command: 'NotACommand' });
-  await expect(handler(event)).rejects.toThrow('Unknown command "NotACommand"');
+  await expect(handler(event, CONTEXT)).rejects.toThrow('Unknown command "NotACommand"');
 });
 
 test('missing input parameter', async () => {
   mockLambdaClient.resolves({});
 
   const event = getEvent({ input: { FunctionName: 'my-lambda' } });
-  await expect(handler(event)).rejects.toThrow('Object is missing the following required fields: Payload');
+  await expect(handler(event, CONTEXT)).rejects.toThrow('Object is missing the following required fields: Payload');
 
   expect(mockLambdaClient.calls()).toHaveLength(0);
 });
@@ -63,7 +69,7 @@ test('client failure', async () => {
   mockLambdaClient.rejects('Lambda error');
 
   const event = getEvent({ input: { FunctionName: 'my-lambda', Payload: '{}' } });
-  await expect(handler(event)).rejects.toThrow('Lambda error');
+  await expect(handler(event, CONTEXT)).rejects.toThrow('Lambda error');
 
   expect(mockLambdaClient.calls()).toHaveLength(1);
 });
@@ -72,7 +78,7 @@ test('success', async () => {
   mockLambdaClient.resolves({});
 
   const event = getEvent({ input: { FunctionName: 'my-lambda', Payload: '{}' } });
-  await expect(handler(event)).resolves.toBeDefined();
+  await expect(handler(event, CONTEXT)).resolves.toBeDefined();
 
   expect(mockLambdaClient.calls()).toHaveLength(1);
 });
@@ -92,7 +98,7 @@ test('lambda invoke custom response', async () => {
   });
 
   const event = getEvent({ input: { FunctionName: 'my-lambda', Payload: '{}' } });
-  const response = (await handler(event)) as Record<string, unknown>;
+  const response = (await handler(event, CONTEXT)) as Record<string, unknown>;
 
   expect(response).toBeDefined();
   expect(response.executedVersion).toEqual('$LATEST');
@@ -132,7 +138,7 @@ test('lambda invoke custom response error', async () => {
   });
 
   const event = getEvent({ input: { FunctionName: 'my-lambda', Payload: '{}' } });
-  const response = (await handler(event)) as Record<string, unknown>;
+  const response = (await handler(event, CONTEXT)) as Record<string, unknown>;
 
   expect(response).toBeDefined();
   expect(response.executedVersion).toEqual('$LATEST');
@@ -196,7 +202,7 @@ test('athena success', async () => {
     command: 'ATHENA_RUN_QUERY',
     input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '' },
   });
-  const response = (await handler(event)) as GetQueryResultsOutput;
+  const response = (await handler(event, CONTEXT)) as GetQueryResultsOutput;
 
   expect(response).toBeDefined();
   expect(response?.ResultSet?.Rows?.at(1)?.Data?.at(0)?.VarCharValue).toEqual('39.51307483542592');
@@ -216,7 +222,7 @@ test('athena wait', async () => {
     command: 'ATHENA_RUN_QUERY',
     input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
   });
-  await expect(handler(event)).rejects.toThrow(
+  await expect(handler(event, CONTEXT)).rejects.toThrow(
     `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
       runningResponse.QueryExecution.Status,
     )}`,
@@ -241,7 +247,7 @@ test('athena wait cancellation', async () => {
     command: 'ATHENA_RUN_QUERY',
     input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
   });
-  await expect(handler(event)).rejects.toThrow(
+  await expect(handler(event, CONTEXT)).rejects.toThrow(
     `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
       cancelledResponse.QueryExecution.Status,
     )}`,
@@ -267,7 +273,7 @@ test('athena wait failure', async () => {
     command: 'ATHENA_RUN_QUERY',
     input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
   });
-  await expect(handler(event)).rejects.toThrow(
+  await expect(handler(event, CONTEXT)).rejects.toThrow(
     `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
       failedResponse.QueryExecution.Status,
     )}`,
@@ -296,7 +302,7 @@ test('athena wait failure retry', async () => {
     command: 'ATHENA_RUN_QUERY',
     input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
   });
-  const response = (await handler(event)) as GetQueryResultsOutput;
+  const response = (await handler(event, CONTEXT)) as GetQueryResultsOutput;
 
   expect(response).toBeDefined();
   expect(response?.ResultSet?.Rows?.at(1)?.Data?.at(0)?.VarCharValue).toEqual('39.51307483542592');
@@ -340,6 +346,30 @@ test('s3 put without key', async () => {
   expect(response1.ETag).toEqual('without key');
 });
 
+test('state machine arn from name', async () => {
+  const accountId = '123456789012';
+  const stateMachineName = 'dev-dap-raw-to-stage-process';
+
+  mockSFNClient.resolves({});
+
+  const event = getEvent({
+    command: 'SFN_START_EXECUTION',
+    input: { stateMachineName },
+  });
+  const context = {
+    ...CONTEXT,
+    invokedFunctionArn: `arn:aws:lambda:eu-west-2:${accountId}:function:LambdaFunctionName`,
+  };
+  const response = (await handler(event, context)) as StartExecutionOutput;
+  expect(response).toBeDefined();
+
+  expect(mockSFNClient.calls()).toHaveLength(1);
+  const command = mockSFNClient.call(0).firstArg as StartExecutionCommand;
+  expect(command.input.stateMachineArn).toEqual(
+    `arn:aws:states:eu-west-2:${accountId}:stateMachine:${stateMachineName}`,
+  );
+});
+
 const getEvent = (overrides: { environment?: string; command?: string; input?: object }): TestSupportEvent => {
   return {
     environment: (overrides.environment ?? 'dev') as TestSupportEnvironment,
@@ -354,7 +384,7 @@ const testS3Response = async (
   expectedContentEncoding: string | undefined,
 ): Promise<void> => {
   const event = getEvent({ command: 'S3_GET', input: { Bucket: 'bucket', Key: 'key' } });
-  const response = (await handler(event)) as Record<string, unknown>;
+  const response = (await handler(event, CONTEXT)) as Record<string, unknown>;
 
   expect(response).toBeDefined();
   expect(JSON.parse(response.body as string)).toEqual(EXPECTED_S3_BODY);

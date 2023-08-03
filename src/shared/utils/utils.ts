@@ -1,5 +1,6 @@
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { AWS_ENVIRONMENTS } from '../constants';
+import type { Context } from 'aws-lambda';
 
 /**
  * Requires that an object has the specified properties (and they are not null or undefined), throwing an error if not.
@@ -77,6 +78,13 @@ export const isNullUndefinedOrEmpty = (obj: unknown): boolean => {
     return true;
   }
   return Array.isArray(obj) && obj.length === 0;
+};
+
+export const getAccountId = (context: Context): string => {
+  return (
+    context?.invokedFunctionArn.match(/:(\d+):function/)?.at(1) ??
+    throwExpression('Error extracting account id from lambda ARN')
+  );
 };
 
 // see https://stackoverflow.com/a/65666402

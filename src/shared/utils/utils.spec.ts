@@ -1,6 +1,7 @@
 import {
   decodeObject,
   encodeObject,
+  getAccountId,
   getAWSEnvironment,
   getEnvironmentVariable,
   getRequiredParams,
@@ -10,6 +11,7 @@ import {
 } from './utils';
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { mockS3BodyStream } from './test-utils';
+import type { Context } from 'aws-lambda';
 
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 test('get required params correctly errors', () => {
@@ -130,9 +132,28 @@ test('null undefined or empty', () => {
   expect(isNullUndefinedOrEmpty(false)).toEqual(false);
 });
 
+test('get account id', () => {
+  const accountId = '123456789012';
+  const validArnValidAccountId = mockContext(`arn:aws:lambda:eu-west-2:${accountId}:function:LambdaFunctionName`);
+  expect(getAccountId(validArnValidAccountId)).toEqual(accountId);
+
+  const invalidArnValidAccountId = mockContext(`arn:aws:lambda:eu-west-2:ABCD1234:function:LambdaFunctionName`);
+  expect(() => getAccountId(invalidArnValidAccountId)).toThrow('Error extracting account id from lambda ARN');
+
+  const invalidArn = mockContext(`this is an invalid arn`);
+  expect(() => getAccountId(invalidArn)).toThrow('Error extracting account id from lambda ARN');
+
+  expect(() => getAccountId(null as unknown as Context)).toThrow('Error extracting account id from lambda ARN');
+  expect(() => getAccountId(undefined as unknown as Context)).toThrow('Error extracting account id from lambda ARN');
+});
+
 const mockS3Response = (body: unknown): GetObjectCommandOutput => {
   return {
     Body: mockS3BodyStream({ stringValue: body }),
     $metadata: {},
   };
+};
+
+const mockContext = (invokedFunctionArn: string): Context => {
+  return { invokedFunctionArn } as unknown as Context;
 };
