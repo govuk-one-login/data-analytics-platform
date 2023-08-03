@@ -346,7 +346,6 @@ test('s3 put without key', async () => {
   expect(response1.ETag).toEqual('without key');
 });
 
-<<<<<<< HEAD
 test('state machine arn from name', async () => {
   const accountId = '123456789012';
   const stateMachineName = 'dev-dap-raw-to-stage-process';
@@ -371,8 +370,6 @@ test('state machine arn from name', async () => {
   );
 });
 
-=======
->>>>>>> 761c585 (DAC-1302 Add S3 put support to test lambda (#171))
 const getEvent = (overrides: { environment?: string; command?: string; input?: object }): TestSupportEvent => {
   return {
     environment: (overrides.environment ?? 'dev') as TestSupportEnvironment,
