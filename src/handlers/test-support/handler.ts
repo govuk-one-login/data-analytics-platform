@@ -1,16 +1,18 @@
 import { AWS_ENVIRONMENTS } from '../../shared/constants';
-import { decodeObject, getRequiredParams, sleep } from '../../shared/utils/utils';
+import { decodeObject, getAccountId, getRequiredParams, sleep } from '../../shared/utils/utils';
 import { DescribeLogStreamsCommand, GetLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
 import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 import { InvokeCommand } from '@aws-sdk/client-lambda';
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
-import { athenaClient, cloudwatchClient, lambdaClient, s3Client, sqsClient } from '../../shared/clients';
+import { athenaClient, cloudwatchClient, lambdaClient, s3Client, sfnClient, sqsClient } from '../../shared/clients';
 import * as zlib from 'zlib';
 import { GetQueryExecutionCommand, GetQueryResultsCommand, StartQueryExecutionCommand } from '@aws-sdk/client-athena';
 import type { GetQueryResultsOutput, QueryExecutionStatus } from '@aws-sdk/client-athena';
 import { getLogger } from '../../shared/powertools';
+import { DescribeExecutionCommand, StartExecutionCommand } from '@aws-sdk/client-sfn';
+import type { Context } from 'aws-lambda';
 
 const logger = getLogger('lambda/test-support');
 
@@ -23,6 +25,8 @@ const TEST_SUPPORT_COMMANDS = [
   'S3_LIST',
   'S3_PUT',
   'SQS_SEND',
+  'SFN_START_EXECUTION',
+  'SFN_DESCRIBE_EXECUTION',
 ] as const;
 
 export type TestSupportEnvironment = (typeof AWS_ENVIRONMENTS)[number];
@@ -36,10 +40,10 @@ export interface TestSupportEvent {
   input: Record<string, any>;
 }
 
-export const handler = async (event: TestSupportEvent): Promise<unknown> => {
+export const handler = async (event: TestSupportEvent, context: Context): Promise<unknown> => {
   try {
     logger.info(`Test support lambda being called with event ${JSON.stringify(event)}`);
-    return await handleEvent(validateEvent(event));
+    return await handleEvent(validateEvent(event), context);
   } catch (error) {
     logger.error(`Error calling test support lambda`, { error });
     throw error;
@@ -56,7 +60,7 @@ const validateEvent = (event: TestSupportEvent): TestSupportEvent => {
   return event;
 };
 
-const handleEvent = async (event: TestSupportEvent): Promise<unknown> => {
+const handleEvent = async (event: TestSupportEvent, context: Context): Promise<unknown> => {
   switch (event.command) {
     case 'ATHENA_RUN_QUERY': {
       return await runAthenaQuery(event);
@@ -103,6 +107,18 @@ const handleEvent = async (event: TestSupportEvent): Promise<unknown> => {
         ...getRequiredParams(event.input, 'QueueUrl', 'MessageBody'),
       });
       return await sqsClient.send(request);
+    }
+    case 'SFN_START_EXECUTION': {
+      const stateMachineName: string = getRequiredParams(event.input, 'stateMachineName').stateMachineName;
+      const stateMachineArn = `arn:aws:states:eu-west-2:${getAccountId(context)}:stateMachine:${stateMachineName}`;
+      logger.info(`Starting execution of state machine with arn ${stateMachineArn}`);
+      return await sfnClient.send(new StartExecutionCommand({ stateMachineArn }));
+    }
+    case 'SFN_DESCRIBE_EXECUTION': {
+      const request = new DescribeExecutionCommand({
+        ...getRequiredParams(event.input, 'executionArn'),
+      });
+      return await sfnClient.send(request);
     }
   }
 };

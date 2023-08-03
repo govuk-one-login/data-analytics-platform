@@ -1,0 +1,7 @@
+{
+  "environment": "dev",
+  "command": "SFN_START_EXECUTION",
+  "input": {
+    "stateMachineName": "dev-dap-raw-to-stage-process"
+  }
+}

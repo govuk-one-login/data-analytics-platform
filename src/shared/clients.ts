@@ -6,6 +6,7 @@ import { SQSClient } from '@aws-sdk/client-sqs';
 import { FirehoseClient } from '@aws-sdk/client-firehose';
 import { ConfiguredRetryStrategy } from '@aws-sdk/util-retry';
 import { AthenaClient } from '@aws-sdk/client-athena';
+import { SFNClient } from '@aws-sdk/client-sfn';
 
 export const athenaClient = new AthenaClient(AWS_CLIENT_BASE_CONFIG);
 
@@ -21,3 +22,5 @@ export const lambdaClient = new LambdaClient(AWS_CLIENT_BASE_CONFIG);
 export const s3Client = new S3Client(AWS_CLIENT_BASE_CONFIG);
 
 export const sqsClient = new SQSClient(AWS_CLIENT_BASE_CONFIG);
+
+export const sfnClient = new SFNClient(AWS_CLIENT_BASE_CONFIG);
