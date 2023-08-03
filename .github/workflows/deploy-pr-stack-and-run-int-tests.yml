@@ -53,10 +53,24 @@ jobs:
           role-to-assume: ${{ secrets.DEV_ROLE_FOR_INTEGRATION_TESTING }}
       - name: SAM validate
         run: sam validate
-      - name: SAM deploy
-        run: npm run sam:deploy
-        # env:
-        #  environment: pr-${{ github.event.pull_request.number }}        
+      # - name: SAM deploy
+      #   run: npm run sam:deploy
+      #   # env:
+        #  environment: pr-${{ github.event.pull_request.number }}
+  test-and-validate:
+    secrets: inherit
+    uses: ./.github/workflows/test-and-validate.yml 
+               
+  deploy-to-test:
+    needs: [test-and-validate]
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/deploy-to-aws.yml
+    with:
+      environment: TEST
 
   run-integration-tests:
     needs: [build-and-deploy]
