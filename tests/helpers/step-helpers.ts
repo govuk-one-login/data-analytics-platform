@@ -6,16 +6,16 @@ export const startStepFunction = async (stateMachineName : string): Promise<Reco
     const event: Omit<TestSupportEvent, 'environment'> = {
       command: 'SFN_START_EXECUTION',
       input: {
-           stateMachineName: ,
+           stateMachineName: stateMachineName,
     },
     return await invokeTestSupportLambda(event);
   };
 
-export const describeExecution = async (stateMachineName : string): Promise<Record<string, unknown>> => {
+export const describeExecution = async (executionArn : string): Promise<Record<string, unknown>> => {
     const event: Omit<TestSupportEvent, 'environment'> = {
       command: 'SFN_DESCRIBE_EXECUTION',
       input: {
-           stateMachineName: ,
+           executionArn:executionArn ,
     },
     return await invokeTestSupportLambda(event);
   };
