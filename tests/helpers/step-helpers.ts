@@ -2,11 +2,20 @@ import { TestSupportEvent } from "../../src/handlers/test-support/handler";
 import { invokeTestSupportLambda } from "./lambda-helpers";
 
 
-export const executeStepFunction = async (functionName: string,stateMachineArn : string): Promise<Record<string, unknown>> => {
+export const startStepFunction = async (stateMachineName : string): Promise<Record<string, unknown>> => {
     const event: Omit<TestSupportEvent, 'environment'> = {
-      command: functionName,
+      command: 'SFN_START_EXECUTION',
       input: {
-           stateMachineArn: stateMachineArn,
+           stateMachineName: ,
+    },
+    return await invokeTestSupportLambda(event);
+  };
+
+export const describeExecution = async (stateMachineName : string): Promise<Record<string, unknown>> => {
+    const event: Omit<TestSupportEvent, 'environment'> = {
+      command: 'SFN_DESCRIBE_EXECUTION',
+      input: {
+           stateMachineName: ,
     },
     return await invokeTestSupportLambda(event);
   };
