@@ -2,8 +2,8 @@ import type { TestSupportCommand, TestSupportEnvironment, TestSupportEvent } fro
 import { handler } from './handler';
 import { mockClient } from 'aws-sdk-client-mock';
 import { LambdaClient } from '@aws-sdk/client-lambda';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import type { PutObjectCommandOutput } from '@aws-sdk/client-s3';
+import { CopyObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import type { CopyObjectCommandOutput, PutObjectCommandOutput } from '@aws-sdk/client-s3';
 import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
 import { Uint8ArrayBlobAdapter } from '@smithy/util-stream';
 import type { GetQueryResultsOutput } from '@aws-sdk/client-athena';
@@ -323,7 +323,7 @@ test('s3 put with key', async () => {
     command: 'S3_PUT',
     input: { Bucket, Filename, Key: 'renamed-file.json' },
   });
-  const response = (await handler(event)) as PutObjectCommandOutput;
+  const response = (await handler(event, CONTEXT)) as PutObjectCommandOutput;
   expect(response).toBeDefined();
   expect(response.ETag).toEqual('with key');
 });
@@ -341,9 +341,45 @@ test('s3 put without key', async () => {
     command: 'S3_PUT',
     input: { Bucket, Filename },
   });
-  const response1 = (await handler(eventWithoutKey)) as PutObjectCommandOutput;
+  const response1 = (await handler(eventWithoutKey, CONTEXT)) as PutObjectCommandOutput;
   expect(response1).toBeDefined();
   expect(response1.ETag).toEqual('without key');
+});
+
+test('s3 copy with key', async () => {
+  const Bucket = 'dest-bucket';
+  const CopySource = 'src-bucket/folder/file.json';
+
+  mockS3Client
+    .rejects()
+    .on(CopyObjectCommand, { Bucket, CopySource, Key: 'renamed-file.json' })
+    .resolvesOnce({ CopyObjectResult: { ETag: 'with key' } });
+
+  const event = getEvent({
+    command: 'S3_COPY',
+    input: { Bucket, CopySource, Key: 'renamed-file.json' },
+  });
+  const response = (await handler(event, CONTEXT)) as CopyObjectCommandOutput;
+  expect(response).toBeDefined();
+  expect(response.CopyObjectResult?.ETag).toEqual('with key');
+});
+
+test('s3 copy without key', async () => {
+  const Bucket = 'dest-bucket';
+  const CopySource = 'src-bucket/folder/file.json';
+
+  mockS3Client
+    .rejects()
+    .on(CopyObjectCommand, { Bucket, CopySource, Key: 'file.json' })
+    .resolvesOnce({ CopyObjectResult: { ETag: 'without key' } });
+
+  const event = getEvent({
+    command: 'S3_COPY',
+    input: { Bucket, CopySource },
+  });
+  const response = (await handler(event, CONTEXT)) as CopyObjectCommandOutput;
+  expect(response).toBeDefined();
+  expect(response.CopyObjectResult?.ETag).toEqual('without key');
 });
 
 test('state machine arn from name', async () => {
