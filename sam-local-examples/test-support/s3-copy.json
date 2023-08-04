@@ -1,0 +1,8 @@
+{
+  "environment": "dev",
+  "command": "S3_COPY",
+  "input": {
+    "Bucket": "txma-events-dev",
+    "CopySource": "dev-dap-raw-layer/txma/AUTH_CREATE_ACCOUNT/year=2023/month=06/day=19/dev-dap-txma-delivery-stream-47-2023-06-19-08-53-05-2fa5bc22-5552-30f5-a437-d9210ace7b27.gz"
+  }
+}

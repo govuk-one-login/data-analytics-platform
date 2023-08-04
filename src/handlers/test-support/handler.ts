@@ -4,7 +4,7 @@ import { DescribeLogStreamsCommand, GetLogEventsCommand } from '@aws-sdk/client-
 import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 import { InvokeCommand } from '@aws-sdk/client-lambda';
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
-import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
+import { CopyObjectCommand, GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { athenaClient, cloudwatchClient, lambdaClient, s3Client, sfnClient, sqsClient } from '../../shared/clients';
 import * as zlib from 'zlib';
@@ -21,6 +21,7 @@ const TEST_SUPPORT_COMMANDS = [
   'CLOUDWATCH_GET',
   'CLOUDWATCH_LIST',
   'LAMBDA_INVOKE',
+  'S3_COPY',
   'S3_GET',
   'S3_LIST',
   'S3_PUT',
@@ -84,6 +85,13 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
         InvocationType: 'RequestResponse',
       });
       return await lambdaClient.send(request).then(lambdaInvokeResponse);
+    }
+    case 'S3_COPY': {
+      const request = new CopyObjectCommand({
+        ...getRequiredParams(event.input, 'Bucket', 'CopySource'),
+        Key: getS3CopyKey(event),
+      });
+      return await s3Client.send(request);
     }
     case 'S3_LIST': {
       const request = new ListObjectsV2Command({
@@ -204,4 +212,12 @@ const waitForAthenaQueryToSucceed = async (QueryExecutionId: string | undefined,
 const getAthenaResults = async (QueryExecutionId: string | undefined): Promise<GetQueryResultsOutput> => {
   const resultsRequest = new GetQueryResultsCommand({ QueryExecutionId });
   return await athenaClient.send(resultsRequest);
+};
+
+const getS3CopyKey = (event: TestSupportEvent): string => {
+  if ('Key' in event.input && event.input.Key !== null && event.input.Key !== undefined) {
+    return event.input.Key;
+  }
+  const sourceFile: string = event.input.CopySource;
+  return sourceFile.substring(sourceFile.lastIndexOf('/') + 1);
 };
