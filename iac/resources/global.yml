@@ -153,13 +153,16 @@ TestSupportLambda:
             Action:
               - logs:FilterLogEvents
               - logs:GetLogEvents
+              - logs:DescribeLogGroups
+              - logs:DescribeLogStreams
             Resource: '*'
           - Effect: Allow
             Action:
               - s3:GetObject
+              - s3:GetBucketLocation
               - s3:ListBucket
               - s3:PutObject
-            Resource: !Sub arn:aws:s3:::${Environment}-dap*
+            Resource: arn:aws:s3:::*
           - Effect: Allow
             Action: sqs:SendMessage
             Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:*
@@ -173,6 +176,16 @@ TestSupportLambda:
             Action:
               - states:DescribeExecution
               - states:StartExecution
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - athena:GetQueryExecution
+              - athena:GetQueryResults
+              - athena:StartQueryExecution
+              - glue:GetDatabase
+              - glue:GetPartitions
+              - glue:GetTable
+              - glue:GetTables
             Resource: '*'
     ReservedConcurrentExecutions: 10
     Environment:
