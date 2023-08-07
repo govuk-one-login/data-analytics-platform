@@ -1,0 +1,7 @@
+{
+  "environment": "dev",
+  "command": "SFN_DESCRIBE_EXECUTION",
+  "input": {
+    "executionArn": "<paste here>"
+  }
+}

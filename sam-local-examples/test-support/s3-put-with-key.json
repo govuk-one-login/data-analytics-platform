@@ -1,0 +1,9 @@
+{
+  "environment": "dev",
+  "command": "S3_PUT",
+  "input": {
+    "Bucket": "txma-events-dev",
+    "Key": "hahaha.json",
+    "Filename": "tsconfig.json"
+  }
+}

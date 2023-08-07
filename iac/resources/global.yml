@@ -153,12 +153,16 @@ TestSupportLambda:
             Action:
               - logs:FilterLogEvents
               - logs:GetLogEvents
+              - logs:DescribeLogGroups
+              - logs:DescribeLogStreams
             Resource: '*'
           - Effect: Allow
             Action:
               - s3:GetObject
+              - s3:GetBucketLocation
               - s3:ListBucket
-            Resource: !Sub arn:aws:s3:::${Environment}-dap*
+              - s3:PutObject
+            Resource: arn:aws:s3:::*
           - Effect: Allow
             Action: sqs:SendMessage
             Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:*
@@ -168,6 +172,21 @@ TestSupportLambda:
               - kms:GenerateDataKey*
               - kms:Encrypt
             Resource: !GetAtt KmsKey.Arn
+          - Effect: Allow
+            Action:
+              - states:DescribeExecution
+              - states:StartExecution
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - athena:GetQueryExecution
+              - athena:GetQueryResults
+              - athena:StartQueryExecution
+              - glue:GetDatabase
+              - glue:GetPartitions
+              - glue:GetTable
+              - glue:GetTables
+            Resource: '*'
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
@@ -213,6 +232,7 @@ KmsKey:
               - !GetAtt StageGlueCrawlerRole.Arn
               - !GetAtt StepFunctionRole.Arn
               - !GetAtt GlueScriptsExecutionRole.Arn
+              - !GetAtt StepFunctionRedshiftProcessRole.Arn
           Action:
             - kms:Encrypt*
             - kms:Decrypt*
@@ -402,6 +422,20 @@ VPCEndpointSQS:
   Properties:
     VpcEndpointType: Interface
     ServiceName: com.amazonaws.eu-west-2.sqs
+    VpcId: !Ref VPCForDAP
+    PrivateDnsEnabled: true
+    SecurityGroupIds:
+      - !Ref LambdaSecurityGroup
+    SubnetIds:
+      - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3
+
+VPCEndpointStepFunctions:
+  Type: AWS::EC2::VPCEndpoint
+  Properties:
+    VpcEndpointType: Interface
+    ServiceName: com.amazonaws.eu-west-2.states
     VpcId: !Ref VPCForDAP
     PrivateDnsEnabled: true
     SecurityGroupIds:

@@ -11,7 +11,7 @@ The overall solution architecture covering the ingestion and raw -> stage data t
 - TxMA event
     * discrete TxMA event, consisting of a set of source data attributes requested via a TxMA configuration file.
 
-## Developed Solution Components
+## Developed Raw->Stage Solution Components
 
 #### The following table details the core solution components developed to support the delivery of this functional capability.  Thereby enabling any project team member to onboard new TxMA data-sets as and when required.
 
@@ -23,6 +23,15 @@ The overall solution architecture covering the ingestion and raw -> stage data t
 | Raw layer Glue Crawler | The 'raw' glue crawler discovers the metadata associated with the TxMA datasets landing in S3.  Metadata comprises of the tables and columns (+ datatypes) | To enable new events to be crawled via the 'raw' Glue crawler the S3 Target Path for the associated product family crawler needs to be updated with the new event path details. <br/><br/>`Targets:S3Targets:` | /iac/resources/raw.yml |
 | Stage layer Glue Crawler | The 'stage' glue crawler discovers the metadata associated with the transformed product family datasets generated after processing the 'raw' TxMA events associated with the product family.  Metadata comprises of the tables and columns (+ datatypes) | To enable new product families to be crawled via the 'stage' Glue crawler the Catalog Table for the associated product family needs to be added to the crawler configuration. <br/><br/>`Targets:CatalogTargets:` | /iac/resources/stage.yml |
 | Raw to Stage Insert DML | `SQL INSERT INTO` statements are run against each event to load transformed event datasets into the associated product family table.  | Create a new `INSERT INTO` statement for any new events or update existing statements if an change is required. | /athena-scripts/dml/insert_into <br/><br/>  The file is named as per the event it is processing e.g. `dcmaw_app_end.sql` |
+
+## Developed Redshift Solution Components
+
+#### The following table details the core solution components developed to support the delivery of this functional capability.  Thereby enabling any project team member to onboard new TxMA data-sets as and when required.
+
+| Component      | Description | Change Required | Repo Folder |
+| ----------- | ----------- | --------------- | ----------- |
+| Master Product Family configuration file  | One file exists for each data-source (e.g. TxMA).  This file outlines the Product Families that exists for this datasource.       | To add a new product family, add a new json object to this file e.g. `{"product_family": "dcmaw_cri","enabled": true}`. <br/><br/>The `enabled` attribute turns product families on/off for processing. | /athena-scripts/redshift_scripts/reporting_model_product_family_config.json  |
+| Product Family reporting model population scripts   | ***One*** Stored Procedure file per Product Family, detailing the process logic to be run for this Product Family. | To add a new Stored Procedure for a product family, add a new .sql file e.g. `sp_<product_family_name>`. <br/><br/>For example `sp_auth_account_creation.sql`. | /athena-scripts/redshift_scripts/ name of each file is the product family name prefixed with ***sp_***. Example: ***sp_auth_account_creation.sql*** |
 
 
 ## Orchestration
