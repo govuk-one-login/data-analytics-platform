@@ -151,6 +151,7 @@ DcmawCriCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_DRIVING_LICENCE_SELECTED'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_PASSPORT_SELECTED'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_WEB_END/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_BRP_SELECTED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:

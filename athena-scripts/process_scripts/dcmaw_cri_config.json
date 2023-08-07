@@ -38,5 +38,10 @@
         "event_name": "dcmaw_web_end",
         "product_family": "dcmaw_cri",
         "enabled": true
+    },
+    {
+        "event_name": "dcmaw_brp_selected",
+        "product_family": "dcmaw_cri",
+        "enabled": true
     }
 ]
