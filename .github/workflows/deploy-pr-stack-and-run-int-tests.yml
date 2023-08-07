@@ -61,7 +61,7 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/test-and-validate.yml 
                
-  deploy-to-test:
+  deploy-to-feature:
     needs: [test-and-validate]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
