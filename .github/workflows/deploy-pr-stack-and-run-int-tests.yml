@@ -50,7 +50,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets.DEV_ROLE_FOR_INTEGRATION_TESTING }}
+          role-to-assume: ${{ secrets.PR_TESTING_ROLE }}
       - name: SAM validate
         run: sam validate
       # - name: SAM deploy
@@ -70,7 +70,7 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/deploy-to-aws.yml
     with:
-      environment: TEST
+      environment: FEATURE
 
   run-integration-tests:
     needs: [build-and-deploy]
@@ -91,7 +91,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets.DEV_ROLE_FOR_INTEGRATION_TESTING }}
+          role-to-assume: ${{ secrets.PR_TESTING_ROLE }}
       - name: Run integration tests
         run: npm run test:ephemeralEnvs
       - name: Deploy Jest HTML report to Github Pages
