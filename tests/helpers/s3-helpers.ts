@@ -1,6 +1,7 @@
-import { getEventFilePrefixDayBefore, poll } from '../helpers/common-helpers';
+import { getEventFilePrefix, getEventFilePrefixDayBefore, poll } from '../helpers/common-helpers';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
+import { List } from 'aws-sdk/lib/model';
 
 interface S3ListEntry {
   Key: string;
@@ -53,13 +54,12 @@ export const getS3DataFileContent = async (key: string | undefined): Promise<Rec
   return await invokeTestSupportLambda(event);
 };
 
-export const putS3files = async (key: string | undefined,bucket: string,fileName: string ): Promise<Record<string, unknown>> => {
+export const cpS3files = async (bucket: string,fileName: string ): Promise<Record<string, unknown>> => {
   const event: Omit<TestSupportEvent, 'environment'> = {
-    command: 'S3_PUT',
+    command: 'S3_COPY',
     input: {
       Bucket: bucket,
       Filename: fileName,
-      Key: key,
     },
   };
 
@@ -72,6 +72,16 @@ export const getEventListS3 = async (prefix: string): Promise<Record<string, unk
     input: {
       Bucket: process.env.TXMA_BUCKET,
       Prefix: prefix,
+    },
+  };
+  return await invokeTestSupportLambda(event);
+};
+
+export const getListS3 = async (bucket: string): Promise<Record<string, unknown>> => {
+  const event: Omit<TestSupportEvent, 'environment'> = {
+    command: 'S3_LIST',
+    input: {
+      Bucket: bucket,
     },
   };
   return await invokeTestSupportLambda(event);
@@ -115,22 +125,19 @@ export const checkFileCreatedOnS3kinesis = async (
   });
 };
 
-export const copyFilesFromBucket = async (SourceBucket: string, DestinationBucket: string,timeoutMs: number)  => {
+export const copyFilesFromBucket = async (BucketName: string,eventList: List,timeoutMs: number)  => {
   const pollS3BucketForEventIdString = async (): Promise<boolean> => {
-    const contents = await getEventListS3(SourceBucket).then(result => result.Contents as S3ListEntry[]);
-    console.log(contents)
-    console.log(contents.length)
-      for (let index = 0; index < contents.length; index++) {
+    const contents = await getListS3(BucketName).then(result => result.Contents as S3ListEntry[]);
+      for (let index = 0; index < eventList.length; index++) {
+        const sourceFileName = getEventFilePrefix(JSON.stringify(eventList[index]))
   			const filename = contents[index]['Key']
-        console.log(filename)
+        const destinationFileName = getEventFilePrefixDayBefore(JSON.stringify(eventList[index]))
+        console.log("destinationFileName is "+destinationFileName)
   			if (filename.includes('.gz')) {
-  			const Bucket_Name = DestinationBucket+ getEventFilePrefixDayBefore(filename.split('/')[0]);
-        console.log(Bucket_Name)
-  			const Source = SourceBucket+ filename;
-        console.log(Source)
+  			const Bucket_Name = BucketName+'/'+getEventFilePrefixDayBefore(filename.split('/')[0]);
+  			const Source = BucketName+'/'+filename;
   			const Key = filename.split('/')[1]
-        console.log(Key)
-        await putS3files(Key, Bucket_Name,filename);
+        await cpS3files(sourceFileName, destinationFileName);
       }
     }
     return false;
@@ -140,15 +147,3 @@ export const copyFilesFromBucket = async (SourceBucket: string, DestinationBucke
     nonCompleteErrorMessage: 'File never got to S3 within the timeout',
   });
 };
-
-  // for (let index = 0; index < data['Contents'].length; index++) {
-  // 			const filename = data['Contents'][index]['Key']
-  // 			if (filename.includes('.gz')) {
-  // 			const Bucket_Name = 'test-dap-raw-layer/'+ getEventFilePrefixDayBefore(filename.split('/')[0]);
-  // 			const Source = 'test-auto-raw-data/'+ filename;
-  // 			const Key = filename.split('/')[1]
-  // 					const input = {
-  // 			"Bucket": Bucket_Name,
-  // 			"CopySource": Source,
-  // 			"Key": Key
-  // 		  };
