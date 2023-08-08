@@ -20,7 +20,7 @@ describe('DCMAW_CRI GROUP Test - valid TXMA Event to SQS and expect event id sto
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event.json', 'utf-8'));
+      const event = JSON.parse(fs.readFileSync('tests/fixtures/txma-event-dcmaw-cri-group.json', 'utf-8'));
       event.event_id = data.event_id;
       event.client_id = data.client_id;
       event.user.govuk_signin_journey_id = data.journey_id;
@@ -62,7 +62,7 @@ describe('DCMAW_CRI GROUP Test - valid TXMA Event to SQS and expect event id not
     async ({ ...data }) => {
       // given
       const errorCode = 'DynamicPartitioning.MetadataExtractionFailed';
-      const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event-invalid.json', 'utf-8'));
+      const event = JSON.parse(fs.readFileSync('tests/fixtures/txma-event-invalid.json', 'utf-8'));
       event.client_id = data.client_id;
       event.user.govuk_signin_journey_id = data.journey_id;
       const pastDate = faker.date.past();

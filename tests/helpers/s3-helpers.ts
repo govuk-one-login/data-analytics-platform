@@ -1,6 +1,7 @@
-import { poll } from '../helpers/common-helpers';
+import { getEventFilePrefix, getEventFilePrefixDayBefore, poll } from '../helpers/common-helpers';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
+import { List } from 'aws-sdk/lib/model';
 
 interface S3ListEntry {
   Key: string;
@@ -53,12 +54,34 @@ export const getS3DataFileContent = async (key: string | undefined): Promise<Rec
   return await invokeTestSupportLambda(event);
 };
 
+export const cpS3files = async (bucket: string,fileName: string ): Promise<Record<string, unknown>> => {
+  const event: Omit<TestSupportEvent, 'environment'> = {
+    command: 'S3_COPY',
+    input: {
+      Bucket: bucket,
+      Filename: fileName,
+    },
+  };
+
+  return await invokeTestSupportLambda(event);
+};
+
 export const getEventListS3 = async (prefix: string): Promise<Record<string, unknown>> => {
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'S3_LIST',
     input: {
       Bucket: process.env.TXMA_BUCKET,
       Prefix: prefix,
+    },
+  };
+  return await invokeTestSupportLambda(event);
+};
+
+export const getListS3 = async (bucket: string): Promise<Record<string, unknown>> => {
+  const event: Omit<TestSupportEvent, 'environment'> = {
+    command: 'S3_LIST',
+    input: {
+      Bucket: bucket,
     },
   };
   return await invokeTestSupportLambda(event);
@@ -92,6 +115,29 @@ export const checkFileCreatedOnS3kinesis = async (
       if (contents.length > 0) {
         contents.sort((f1, f2) => Date.parse(f2.LastModified) - Date.parse(f1.LastModified));
         return await checkKinesisForErrorCode(contents, errorCode);
+      }
+    }
+    return false;
+  };
+  return await poll(pollS3BucketForEventIdString, result => result, {
+    timeout: timeoutMs,
+    nonCompleteErrorMessage: 'File never got to S3 within the timeout',
+  });
+};
+
+export const copyFilesFromBucket = async (BucketName: string,eventList: List,timeoutMs: number)  => {
+  const pollS3BucketForEventIdString = async (): Promise<boolean> => {
+    const contents = await getListS3(BucketName).then(result => result.Contents as S3ListEntry[]);
+      for (let index = 0; index < eventList.length; index++) {
+        const sourceFileName = getEventFilePrefix(JSON.stringify(eventList[index]))
+  			const filename = contents[index]['Key']
+        const destinationFileName = getEventFilePrefixDayBefore(JSON.stringify(eventList[index]))
+        console.log("destinationFileName is "+destinationFileName)
+  			if (filename.includes('.gz')) {
+  			const Bucket_Name = BucketName+'/'+getEventFilePrefixDayBefore(filename.split('/')[0]);
+  			const Source = BucketName+'/'+filename;
+  			const Key = filename.split('/')[1]
+        await cpS3files(sourceFileName, destinationFileName);
       }
     }
     return false;

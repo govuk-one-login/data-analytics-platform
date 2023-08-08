@@ -5,16 +5,17 @@ import { checkFileCreatedOnS3, checkFileCreatedOnS3kinesis } from '../helpers/s3
 import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 
 // todo this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
-describe('IPV_CRI_KBV GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
+
+describe('AUTH_ACCOUNT_CREATION GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
   test.concurrent.each`
-    eventName                      | event_id               | client_id              | journey_id
-    ${'IPV_KBV_CRI_START'}         | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'IPV_KBV_CRI_VC_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    `(
+    eventName                                      | event_id               | client_id              | journey_id
+    ${'AUTH_CHECK_USER_NO_ACCOUNT_WITH_EMAIL'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'AUTH_CREATE_ACCOUNT'}                       | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event.json', 'utf-8'));
+      const event = JSON.parse(fs.readFileSync('tests/fixtures/txma-event-auth-account-creation-group.json', 'utf-8'));
       event.event_id = data.event_id;
       event.client_id = data.client_id;
       event.user.govuk_signin_journey_id = data.journey_id;
@@ -22,7 +23,6 @@ describe('IPV_CRI_KBV GROUP Test - valid TXMA Event to SQS and expect event id s
       const pastDate = faker.date.past();
       event.timestamp = Math.round(pastDate.getTime() / 1000);
       event.timestamp_formatted = JSON.stringify(pastDate);
-
       // when
       const publishResult = await publishToTxmaQueue(event);
       // then
@@ -40,17 +40,17 @@ describe('IPV_CRI_KBV GROUP Test - valid TXMA Event to SQS and expect event id s
   );
 });
 
-describe('IPV_CRI_KBV GROUP Test - valid TXMA Event to SQS and expect event id not stored in S3', () => {
+describe('AUTH_ACCOUNT_CREATION GROUP Test - Invalid TXMA Event to SQS and expect event is not stored in S3', () => {
   test.concurrent.each`
-    eventName                      | event_id               | client_id              | journey_id
-    ${'IPV_KBV_CRI_START'}         | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'IPV_KBV_CRI_VC_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    `(
+    eventName                                      | event_id               | client_id              | journey_id
+    ${'AUTH_CHECK_USER_NO_ACCOUNT_WITH_EMAIL'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'AUTH_CREATE_ACCOUNT'}                       | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+      `(
     'Should validate $eventName event content not stored on S3',
     async ({ ...data }) => {
       // given
       const errorCode = 'DynamicPartitioning.MetadataExtractionFailed';
-      const event = JSON.parse(fs.readFileSync('integration-test/fixtures/txma-event-invalid.json', 'utf-8'));
+      const event = JSON.parse(fs.readFileSync('tests/fixtures/txma-event-invalid.json', 'utf-8'));
       event.client_id = data.client_id;
       event.user.govuk_signin_journey_id = data.journey_id;
       const pastDate = faker.date.past();

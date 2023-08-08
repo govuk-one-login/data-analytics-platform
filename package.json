@@ -37,17 +37,25 @@
   "scripts": {
     "build": "scripts/build-lambdas.sh",
     "check": "npm run format:check && npm run lint:check",
-    "format:check": "prettier --check src integration-test",
-    "format:fix": "prettier --write src integration-test",
-    "lint:check": "eslint src integration-test",
-    "lint:fix": "eslint --fix src integration-test",
+    "format:check": "prettier --check src tests/integration-tests",
+    "format:fix": "prettier --write src tests/integration-tests",
+    "lint:check": "eslint src tests/integration-tests",
+    "lint:fix": "eslint --fix src tests/integration-tests",
     "test": "jest --silent src",
-    "integration-test": "scripts/integration-test-check.sh && jest --silent ./integration-test",
+    "integration-test": "scripts/integration-test-check.sh && jest --silent ./tests/integration-tests --maxWorkers=2",
     "iac:build": "scripts/build-sam-template.sh",
     "s3:empty-buckets": "scripts/s3-empty.sh",
     "iac:lint": "npm run iac:build && sam validate --lint --region eu-west-2",
     "iac:scan": "npm run iac:build && checkov --config-file .checkov.local.yml --file template.yaml --quiet",
     "iac:format:check": "prettier --check iac",
     "iac:format:fix": "prettier --write iac"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sfn": "^3.377.0",
+    "@aws-sdk/client-sns": "^3.377.0",
+    "athena-express": "^7.1.5",
+    "aws-cdk-lib": "^2.88.0",
+    "aws-sdk": "^2.1420.0",
+    "logger": "^0.0.1"
   }
 }
