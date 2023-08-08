@@ -8,6 +8,7 @@ export const startStepFunction = async (stateMachineName : string): Promise<Reco
       input: {
            stateMachineName: stateMachineName,
     },
+  };
     return await invokeTestSupportLambda(event);
   };
 
@@ -17,5 +18,6 @@ export const describeExecution = async (executionArn : string): Promise<Record<s
       input: {
            executionArn:executionArn ,
     },
+  };
     return await invokeTestSupportLambda(event);
   };
