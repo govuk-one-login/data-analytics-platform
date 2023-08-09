@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import { faker } from "@faker-js/faker";
-import { athenaRunQuery } from "../helpers/athena-helpers";
+import { athenaRunQuery, getQueryResults } from "../helpers/athena-helpers";
 import { getEventFilePrefix } from "../helpers/common-helpers";
 import { publishToTxmaQueue } from "../helpers/lambda-helpers";
 import { checkFileCreatedOnS3, copyFilesFromBucket } from "../helpers/s3-helpers";
-import { startStepFunction} from '../helpers/step-helpers';
+import { describeExecution, startStepFunction} from '../helpers/step-helpers';
 
 let eventList : string[] = []
 
@@ -49,71 +49,29 @@ describe("Verify Data from raw layer is processed to stage layer", () => {
             console.log(eventList[i]);
             }
 
-         copyFilesFromBucket('test-dap-raw-layer',eventList,10000)
+         copyFilesFromBucket(String(process.env.TXMA_BUCKET),eventList,10000)
 
 // 	    // ******************** Start raw to stage step function  ************************************
-        startStepFunction('test-dap-raw-to-stage-process')
+        const stepexecutionId = await startStepFunction('test-dap-raw-to-stage-process')
 
-// 		console.log('starting step execution')
+//         // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************         
 
-// 			const DateTime = getTodayDateTime()
-// 			console.log(DateTime)
-// 			let StepFunctionExecutionName = 'execution'+DateTime
-// 			console.log(await invoke(StepFunctionExecutionName,
-// 				'arn:aws:states:eu-west-2:072886614474:stateMachine:test-dap-raw-to-stage-process',
-// 				{fistName: 'test'},1000000));
-		
-
-//         // ******************** wait for  raw to stage step function to complete ************************************         
-// 	console.log('execution start ')
-// 	const StepFuntionArn = 'arn:aws:states:eu-west-2:072886614474:execution:test-dap-raw-to-stage-process:'+StepFunctionExecutionName
-// 	const input1 = { 
-// 		executionArn: StepFuntionArn // required
-// 		}
-	let StepExecutionStatus = null;
-// 	// const timeoutId = setTimeout(function callbackFunction() {}, delayMs)
+    let StepExecutionStatus = await describeExecution(String(stepexecutionId.executionArn))
 	let timer =1 
-	while( timer >=18) { 
-        
-		if ((StepExecutionStatus != ('Succeeded').toLowerCase)){
+	while( timer <= 18) { 
+		if ((StepExecutionStatus.status == ('SUCCEEDED'))){
 			console.log('execution status Succeeded')
 			break;
 		}timer++
-		const response = describeExecution('test-dap-raw-to-stage-process')
-		StepExecutionStatus = (response.status).toLowerCase
+        await setTimeout(() => { console.log("waiting for stepfunction to complete"); }, 60000);
+		StepExecutionStatus = await describeExecution(String(stepexecutionId.executionArn))
 	 } 
-
-
-// 	// const command = new DescribeExecutionCommand(input1);
-// 	// const response = await client.send(command);
-// 	// console.log('execution end ')
-// 	// console.log(response.status)
-// 	expect((StepExecutionStatus).toEqual(('Succeeded').toLowerCase));
+	expect(StepExecutionStatus.status).toEqual('SUCCEEDED');
 
 
 		// // ******************** Run Athena queries ************************************  
-
-	const athenaparams = JSON.parse(fs.readFileSync('sam-local-examples/test-support/athena-run-query.json', 'utf-8'));
-	// console.log(athenaparams)
-	athenaparams.env = 'test',
-	athenaparams.input.QueryExecutionContext = {Database:'test-txma-stage'},
-	athenaparams.input.WorkGroup = 'test-dap-txma-processing'
-	athenaparams.input.QueryString = "SELECT * from auth_account_creation"
-	const athenaQueryResults = athenaRunQuery("SELECT * from auth_account_creation");
+	const athenaQueryResults = await getQueryResults("SELECT event_id from auth_account_creation where event_name = 'AUTH_CREATE_ACCOUNT' and processed_date = '20230724'");
 	console.log(athenaQueryResults)
-
-
-	
-    //  const athenaExpress = new AthenaExpress(athenaExpressConfig);
-    // let query = {
-    // sql: "SELECT * from auth_account_creation"
-    // };
-    // let p1 = athenaExpress.query(query);
-    // let result = null;
-    // result = await p1;
-    // const myQueryExecutionId = result.QueryExecutionId;
-    // let results = await athenaExpress.query(myQueryExecutionId);
-    // expect(results.Count).not.toBeNull();
-
+    expect(JSON.stringify(athenaQueryResults)).not;
 })
 })
