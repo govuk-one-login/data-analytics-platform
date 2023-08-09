@@ -5,7 +5,7 @@ FROM node:16-alpine${ALPINE_VERSION} AS run-tests
 WORKDIR /test-app
 
 COPY package.json package-lock.json tsconfig.json jest.integration.config.ts ./
-COPY integration_tests ./integration_tests
+COPY integration_tests ./tests/integration_tests
 COPY src/handlers/int-test-support/ ./src/handlers/int-test-support/
 COPY src/shared/ ./src/shared/
 
@@ -22,6 +22,6 @@ RUN chmod +x /run-tests.sh
 #COPY test-helpers ./test-helpers
 #COPY src ./src
 
-ENV TEST_VIA_LAMBDA=true
+#ENV TEST_VIA_LAMBDA=true
 
 ENTRYPOINT ["/run-tests.sh"]

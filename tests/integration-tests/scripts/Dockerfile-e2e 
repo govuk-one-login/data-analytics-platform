@@ -4,17 +4,15 @@ FROM node:16-alpine${ALPINE_VERSION} AS run-tests
 WORKDIR /test-app
 
 COPY package.json package-lock.json tsconfig.json jest.e2e.config.ts ./
-COPY integration_tests ./integration_tests
+COPY e2e-tests ./tests/e2e-tests
 COPY src/handlers/int-test-support/ ./src/handlers/int-test-support/
 COPY src/shared/ ./src/shared/
 
 RUN npm ci
 
-WORKDIR /test-app/integration-tests
+WORKDIR /test-app/e2e-tests
 
-RUN mv ./run-e2e-tests.sh /run-tests.sh
-RUN chmod +x /run-tests.sh
-
-ENV TEST_VIA_LAMBDA=true
+RUN mv ./run-e2e-tests.sh /run-e2e-tests.sh
+RUN chmod +x /run-e2e-tests.sh
 
 ENTRYPOINT ["/run-e2e-tests.sh"]
