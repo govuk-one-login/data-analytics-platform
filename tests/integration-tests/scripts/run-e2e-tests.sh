@@ -13,7 +13,7 @@ cd /test-app || exit 1
 export ENV_NAME=$(echo $SAM_STACK_NAME | cut -d - -f 3-)
 export CONFIG_NAME=${ENV_NAME}
 
-npm run test:end2end
+npm run e2e-test
 
 TESTS_EXIT_CODE=$?
 
