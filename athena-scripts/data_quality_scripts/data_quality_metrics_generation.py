@@ -39,15 +39,16 @@ def athena_insert(dataframe, database, table, s3_path):
     insert dataframe into athena table
     """
     try:
-        
-        wr.s3.to_parquet(
-                        df=dataframe,
-                        path=s3_path,
-                        dataset=True,
-                        mode="append",
-                        database=database,
-                        table=table
-                    )
+
+        if not dataframe.empty:
+            wr.s3.to_parquet(
+                            df=dataframe,
+                            path=s3_path,
+                            dataset=True,
+                            mode="append",
+                            database=database,
+                            table=table
+                        )
         
         
     except Exception as e:
