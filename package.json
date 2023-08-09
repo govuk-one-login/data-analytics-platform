@@ -44,11 +44,12 @@
     "test": "jest --silent src",
     "integration-test": "scripts/integration-test-check.sh && jest --silent ./tests/integration-tests --maxWorkers=2",
     "iac:build": "scripts/build-sam-template.sh",
-    "s3:empty-buckets": "scripts/s3-empty.sh",
     "iac:lint": "npm run iac:build && sam validate --lint --region eu-west-2",
     "iac:scan": "npm run iac:build && checkov --config-file .checkov.local.yml --file template.yaml --quiet",
     "iac:format:check": "prettier --check iac",
-    "iac:format:fix": "prettier --write iac"
+    "iac:format:fix": "prettier --write iac",
+    "teardown:prepare": "scripts/teardown-prepare.sh",
+    "teardown:delete-stack": "sam delete --region eu-west-2 --stack-name dap --no-prompts --debug"
   },
   "dependencies": {
     "@aws-sdk/client-sfn": "^3.377.0",

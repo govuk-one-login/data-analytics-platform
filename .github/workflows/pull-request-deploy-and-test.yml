@@ -1,0 +1,35 @@
+name: Pull request deploy and test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    branches-ignore:
+      - 'dependabot/**'
+      - 'no-int-test/**'
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  deploy-to-feature:
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/deploy-to-aws.yml
+    with:
+      environment: FEATURE
+      skip-s3-upload: true
+
+  run-integration-tests:
+    needs: [deploy-to-feature]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Run tests
+        run: echo running tests for pr https://github.com/alphagov/di-data-analytics-platform/pull/${{ github.event.pull_request.number }}
