@@ -4,7 +4,7 @@ import { AWS_CLIENT_BASE_CONFIG } from './constants';
 import { LambdaClient } from '@aws-sdk/client-lambda';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { FirehoseClient } from '@aws-sdk/client-firehose';
-import { ConfiguredRetryStrategy } from '@aws-sdk/util-retry';
+import { ConfiguredRetryStrategy } from '@smithy/util-retry';
 import { AthenaClient } from '@aws-sdk/client-athena';
 import { SFNClient } from '@aws-sdk/client-sfn';
 
