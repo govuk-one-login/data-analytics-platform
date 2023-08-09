@@ -49,7 +49,7 @@ describe("Verify Data from raw layer is processed to stage layer", () => {
             console.log(eventList[i]);
             }
 
-         copyFilesFromBucket('test-dap-raw-layer',eventList,10000)
+         copyFilesFromBucket(String(process.env.TXMA_BUCKET),eventList,10000)
 
 // 	    // ******************** Start raw to stage step function  ************************************
         const stepexecutionId = await startStepFunction('test-dap-raw-to-stage-process')
