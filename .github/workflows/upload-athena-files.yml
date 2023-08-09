@@ -11,7 +11,7 @@ on:
       environment:
         type: string
         required: true
-        description: AWS environment - one of DEV, TEST, BUILD, STAGING, INTEGRATION or PRODUCTION
+        description: AWS environment - one of DEV, TEST, FEATURE, BUILD, STAGING, INTEGRATION or PRODUCTION
 
 jobs:
   validate-environment:
