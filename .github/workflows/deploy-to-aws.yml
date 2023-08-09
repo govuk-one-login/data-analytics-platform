@@ -6,6 +6,9 @@ on:
       environment:
         type: string
         required: true
+      skip-s3-upload:
+        type: boolean
+        required: false
 
 jobs:
   validate-environment:
@@ -22,19 +25,20 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0    # check out full history
+          fetch-depth: 0 # check out full history
       - name: Validate ahead of main
         run: scripts/validate-branch-ahead.sh
 
   upload-athena-files:
-    needs: [ validate-environment, validate-branch-ahead ]
+    if: inputs.skip-s3-upload == false
+    needs: [validate-environment, validate-branch-ahead]
     secrets: inherit
     uses: ./.github/workflows/upload-athena-files.yml
     with:
       environment: ${{ inputs.environment }}
 
   deploy-to-aws:
-    needs: [ validate-environment, validate-branch-ahead ]
+    needs: [validate-environment, validate-branch-ahead]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write

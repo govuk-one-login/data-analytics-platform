@@ -480,3 +480,26 @@ VPCEndpointEC2Messages:
       - !Ref SubnetForDAP1
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
+
+FeatureEnvironmentTearDownRole:
+  Condition: IsFeature
+  Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
+  Properties:
+    RoleName: dap-feature-tear-down-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+          Action: 'sts:AssumeRoleWithWebIdentity'
+          Condition:
+            StringLike:
+              'token.actions.githubusercontent.com:sub':
+                - repo:alphagov/di-data-analytics-platform:ref:refs/heads/*
+                - repo:alphagov/di-data-analytics-platform:environment:*
+    ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AdministratorAccess
+    PermissionsBoundary: !Ref AWS::NoValue
