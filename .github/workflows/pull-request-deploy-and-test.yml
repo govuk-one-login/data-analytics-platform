@@ -7,14 +7,24 @@ on:
       - opened
       - reopened
       - synchronize
-    branches-ignore:
-      - 'dependabot/**'
-      - 'no-int-test/**'
     paths-ignore:
       - '**.md'
 
 jobs:
+  validate-deployment-or-teardown:
+    runs-on: ubuntu-latest
+    outputs:
+      valid: ${{ steps.validate.outputs.valid }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - id: validate
+        name: Validate branch eligibility for deployment
+        run: scripts/validate-deployment-or-teardown.sh ${{ github.head_ref }} >> $GITHUB_OUTPUT
+
   deploy-to-feature:
+    needs: [validate-deployment-or-teardown]
+    if: needs.validate-deployment-or-teardown.outputs.valid == 'true'
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
