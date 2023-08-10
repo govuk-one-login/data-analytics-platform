@@ -5,6 +5,10 @@ import { lambdaClient } from '../../src/shared/clients';
 import { getLogger } from '../../src/shared/powertools';
 const logger = getLogger('auth_account_creation_group');
 
+export interface GetQueueUrlResult {
+  QueueUrl?: String;
+    }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const publishToTxmaQueue = async (payload: any): Promise<unknown> => {
   const event: Omit<TestSupportEvent, 'environment'> = {
@@ -15,6 +19,16 @@ export const publishToTxmaQueue = async (payload: any): Promise<unknown> => {
     },
   };
 
+  return await invokeTestSupportLambda(event);
+};
+
+export const getSQSQueueUrl = async (queneName: string): Promise<GetQueueUrlResult> => {
+  const event: Omit<TestSupportEvent, 'environment'> = {
+    command: 'SQS_GET_URL',
+    input: {
+      QueueName: queneName,
+    },
+  };
   return await invokeTestSupportLambda(event);
 };
 
