@@ -10,7 +10,6 @@
 # in the Dockerfile.
 cd /test-app || exit 1
 
-export CONFIG_NAME=${ENV_NAME}
 export TXMA_QUEUE_URL=$CFN_TXMAQueueURL
 export TXMA_BUCKET=$CFN_TXMABucket
 
