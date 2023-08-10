@@ -13,8 +13,8 @@
 #Env variables will be reviwed and added as and when we integrate with pipeline
 #export CONFIG_NAME=${ENV_NAME}
 export ENV_NAME=$(echo $SAM_STACK_NAME | cut -d - -f 3-)
-export TXMA_QUEUE_URL=$CFN_TXMA_QueueURL
-export TXMA_BUCKET=$CFN_TXMA_BUCKET
+export TXMA_QUEUE_URL=$CFN_TXMAQueueURL
+export TXMA_BUCKET=$CFN_TXMABucket
 
 npm run integration-test
 
