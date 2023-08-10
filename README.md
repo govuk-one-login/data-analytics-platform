@@ -193,8 +193,10 @@ This action can be manually invoked, but will also automatically run when a pull
 Unlike other environments, _feature_ has a second GitHub Action [Pull request tear down](.github/workflows/pull-request-tear-down.yml) which completely deletes the stack.
 Like the first action it can be manually invoked, but will also automatically run when a pull request is merged or otherwise closed.
 
-To perform the tear down a special role is required, `FeatureEnvironmentTearDownRole` in the IaC.
-It needs the `DeletionPolicy` and `UpdateReplacePolicy` it has otherwise the stack deletion fails part way through as the role gets deleted and then there are no longer the permissions to do the deletion.
+To perform the tear down we use a special role in the _feature_ environment called `dap-feature-tear-down-role`.
+It is not in the IaC because it causes one of the following issues:
+* Without a `DeletionPolicy`, it gets deleted while the stack is being deleted and so the deletion fails part way through as there are then no longer the permissions to do the deletion
+* With an appropriate `DeletionPolicy` this doesn't happen, but instead the next stack creation fails because the resource already exists
 
 ###### Dev
 
