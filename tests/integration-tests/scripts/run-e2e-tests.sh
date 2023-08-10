@@ -1,3 +1,7 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Data and Analytics Stack
+Transform: AWS::Serverless-2016-10-31
+
 Outputs:
   TXMA_QueueURL:
     Description: 'TxMA queue URL'
