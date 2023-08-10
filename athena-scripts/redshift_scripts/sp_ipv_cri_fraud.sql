@@ -1,8 +1,9 @@
-CREATE OR REPLACE PROCEDURE conformed.sp_auth_orchestration () 
-AS $$ 
-BEGIN 
+CREATE OR replace PROCEDURE conformed.sp_ipv_cri_fraud ()
+AS $$
+BEGIN
 
-    UPDATE conformed.DIM_EVENT
+	
+	UPDATE conformed.DIM_EVENT
     SET 
       EVENT_NAME = st.EVENT_NAME,
       EVENT_DESCRIPTION = st.EVENT_NAME,
@@ -14,7 +15,7 @@ BEGIN
       BATCH_ID=0000
     FROM (
       SELECT *
-      FROM conformed.v_stg_auth_orchestration
+      FROM conformed.v_stg_ipv_cri_fraud
       WHERE EVENT_NAME IN (
         SELECT EVENT_NAME
         FROM conformed.DIM_EVENT
@@ -23,11 +24,11 @@ BEGIN
     WHERE DIM_EVENT.EVENT_NAME = st.event_name;
     
     
+    
     INSERT INTO conformed.DIM_EVENT ( EVENT_NAME, EVENT_DESCRIPTION, PRODUCT_FAMILY ,EVENT_JOURNEY_TYPE, SERVICE_NAME, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE,BATCH_ID)
     SELECT DISTINCT EVENT_NAME, EVENT_NAME, REF_PRODUCT_FAMILY ,domain, sub_domain,current_user,CURRENT_DATE,current_user, CURRENT_DATE,9999
-    FROM conformed.v_stg_auth_orchestration
+    FROM conformed.v_stg_ipv_cri_fraud
     WHERE EVENT_NAME NOT IN (SELECT EVENT_NAME FROM conformed.DIM_EVENT);
-    
     
     
     
@@ -50,7 +51,7 @@ BEGIN
       BATCH_ID=0000
     FROM (
       SELECT DISTINCT EVENT_NAME
-      FROM conformed.v_stg_auth_orchestration
+      FROM conformed.v_stg_ipv_cri_fraud
     ) AS st
     WHERE (
       CASE 
@@ -87,7 +88,7 @@ BEGIN
         current_user,
         CURRENT_DATE,
         9999
-    FROM conformed.v_stg_auth_orchestration AS st
+    FROM conformed.v_stg_ipv_cri_fraud AS st
     WHERE (CASE 
             WHEN st.EVENT_NAME LIKE '%IPV%' THEN 'Web'
             WHEN st.EVENT_NAME LIKE '%DCMAW%' THEN 'App'
@@ -96,6 +97,8 @@ BEGIN
             SELECT CHANNEL_NAME
             FROM conformed.DIM_JOURNEY_CHANNEL
         );
+    
+    
     
     
     ----Insert and update for dim_relying_party 
@@ -119,7 +122,7 @@ BEGIN
             current_user,
             CURRENT_DATE,
             9999
-            FROM conformed.v_stg_auth_orchestration mn
+            FROM conformed.v_stg_ipv_cri_fraud mn
             left join  "dap_txma_reporting_db"."conformed"."ref_relying_parties" ref
             on mn.CLIENT_ID=ref.CLIENT_ID
     ) AS st
@@ -133,7 +136,7 @@ BEGIN
     
     INSERT INTO  conformed.DIM_RELYING_PARTY (CLIENT_ID, RELYING_PARTY_NAME, RELYING_PARTY_DESCRIPTION, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT  
-        NVL(st.CLIENT_ID,'-1')  ,
+        NVL(st.CLIENT_ID,'-1') ,
         st.CLIENT_NAME,
         st.CLIENT_NAME,
         current_user,
@@ -149,7 +152,7 @@ BEGIN
             current_user,
             CURRENT_DATE,
             9999
-            FROM conformed.v_stg_auth_orchestration mn
+            FROM conformed.v_stg_ipv_cri_fraud mn
             left join  "dap_txma_reporting_db"."conformed"."ref_relying_parties" ref
             on mn.CLIENT_ID=ref.CLIENT_ID) AS st
     WHERE   st.CLIENT_ID NOT IN (
@@ -172,7 +175,7 @@ BEGIN
         BATCH_ID=0000
     FROM (
         SELECT DISTINCT DOMAIN, sub_domain
-        FROM conformed.v_stg_auth_orchestration
+        FROM conformed.v_stg_ipv_cri_fraud
         WHERE sub_domain IN (
             SELECT VERIFICATION_ROUTE_NAME
             FROM conformed.DIM_VERIFICATION_ROUTE
@@ -183,13 +186,12 @@ BEGIN
     
     INSERT INTO conformed.DIM_VERIFICATION_ROUTE ( VERIFICATION_ROUTE_NAME, VERIFICATION_SHORT_NAME, ROUTE_DESCRIPTION, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE,BATCH_ID)
     SELECT DISTINCT sub_domain, sub_domain, domain,current_user,CURRENT_DATE,current_user, CURRENT_DATE,9999
-    FROM conformed.v_stg_auth_orchestration
+    FROM conformed.v_stg_ipv_cri_fraud
     WHERE sub_domain NOT IN (SELECT VERIFICATION_ROUTE_NAME  FROM conformed.DIM_VERIFICATION_ROUTE);
     
     
     
     —-Fact table insert/update 
-    
     
     UPDATE "dap_txma_reporting_db"."conformed"."fact_user_journey_event"
     SET 
@@ -198,27 +200,28 @@ BEGIN
       ,NOTIFICATION_TYPE=st.NOTIFICATION_TYPE
       ,MFA_TYPE=st.MFA_TYPE
       ,ACCOUNT_RECOVERY=st.ACCOUNT_RECOVERY
-      ,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL=st.FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL
-      ,CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL=st.CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL
+      ,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL=JSON_SERIALIZE(st.FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
+      ,CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL=JSON_SERIALIZE(st.CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
       ,ADDRESSES_ENTERED=st.ADDRESSES_ENTERED
       ,ACTIVITY_HISTORY_SCORE=st.ACTIVITY_HISTORY_SCORE
       ,IDENTITY_FRAUD_SCORE=st.IDENTITY_FRAUD_SCORE
       ,DECISION_SCORE=st.DECISION_SCORE
       ,FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE=st.FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE
-      ,FAILED_CHECK_DETAILS_CHECK_METHOD=st.FAILED_CHECK_DETAILS_CHECK_METHOD
+      ,FAILED_CHECK_DETAILS_CHECK_METHOD=JSON_SERIALIZE(st.FAILED_CHECK_DETAILS_CHECK_METHOD)
       ,CHECK_DETAILS_KBV_RESPONSE_MODEL=st.CHECK_DETAILS_KBV_RESPONSE_MODEL
       ,CHECK_DETAILS_KBV_QUALITY=st.CHECK_DETAILS_KBV_QUALITY
       ,VERIFICATION_SCORE=st.VERIFICATION_SCORE
-      ,CHECK_DETAILS_CHECK_METHOD=st.CHECK_DETAILS_CHECK_METHOD
+      ,CHECK_DETAILS_CHECK_METHOD=JSON_SERIALIZE(st.CHECK_DETAILS_CHECK_METHOD)
       ,Iss=st.Iss
       ,VALIDITY_SCORE=st.VALIDITY_SCORE
-      ,"TYPE"=st."TYPE"
+      ,STRENGTH_SCORE=st.STRENGTH_SCORE
+      ,"TYPE"=JSON_SERIALIZE(st."TYPE")
       ,PROCESSED_DATE=st.PROCESSED_DATE
       ,MODIFIED_BY=current_user
       ,MODIFIED_DATE=CURRENT_DATE
       ,BATCH_ID=0000
     FROM (SELECT *
-      FROM conformed.v_stg_auth_orchestration
+      FROM conformed.v_stg_ipv_cri_fraud
       WHERE EVENT_ID IN (
         SELECT EVENT_ID
         FROM "dap_txma_reporting_db"."conformed"."fact_user_journey_event"
@@ -231,7 +234,7 @@ BEGIN
                             REJECTION_REASON,REASON,NOTIFICATION_TYPE,MFA_TYPE,ACCOUNT_RECOVERY,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,
                             CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,ADDRESSES_ENTERED,ACTIVITY_HISTORY_SCORE,IDENTITY_FRAUD_SCORE,DECISION_SCORE,
                             FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODEL,CHECK_DETAILS_KBV_QUALITY,
-                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE", PROCESSED_DATE,
+                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,STRENGTH_SCORE,"TYPE", PROCESSED_DATE,
                             CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT NVL(DE.event_key,-1) AS event_key
           ,dd.date_key
@@ -249,22 +252,24 @@ BEGIN
            ,REJECTION_REASON
            ,REASON
            ,NOTIFICATION_TYPE
-           ,MFA_TYPE,ACCOUNT_RECOVERY
-           ,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL
-           ,CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL
+           ,MFA_TYPE
+           ,ACCOUNT_RECOVERY
+           ,JSON_SERIALIZE(FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
+           ,JSON_SERIALIZE(CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
            ,ADDRESSES_ENTERED
            ,ACTIVITY_HISTORY_SCORE
-           ,IDENTITY_FRAUD_SCORE
-           ,DECISION_SCORE
+           ,JSON_SERIALIZE(IDENTITY_FRAUD_SCORE)
+           ,JSON_SERIALIZE(DECISION_SCORE)
            ,FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE
-           ,FAILED_CHECK_DETAILS_CHECK_METHOD
+           ,JSON_SERIALIZE(FAILED_CHECK_DETAILS_CHECK_METHOD)
            ,CHECK_DETAILS_KBV_RESPONSE_MODEL
            ,CHECK_DETAILS_KBV_QUALITY
            ,VERIFICATION_SCORE
-           ,CHECK_DETAILS_CHECK_METHOD
+           ,JSON_SERIALIZE(CHECK_DETAILS_CHECK_METHOD)
            ,Iss
            ,VALIDITY_SCORE
-           ,"TYPE"
+           ,STRENGTH_SCORE
+           ,JSON_SERIALIZE("TYPE")
         ,PROCESSED_DATE
            ,current_user
            , CURRENT_DATE
@@ -272,7 +277,7 @@ BEGIN
            , CURRENT_DATE
            , 9999
     FROM (SELECT *
-      FROM conformed.v_stg_auth_orchestration
+      FROM conformed.v_stg_ipv_cri_fraud
       WHERE EVENT_ID NOT IN (
         SELECT EVENT_ID
         FROM conformed.FACT_USER_JOURNEY_EVENT))cnf
@@ -284,32 +289,27 @@ BEGIN
             WHEN cnf.EVENT_NAME LIKE '%DCMAW%' THEN 'App'
             ELSE 'General'
         END) = djc.channel_name
-    LEFT JOIN conformed.dim_relying_party drp 
-    ON cnf.CLIENT_ID = drp.CLIENT_ID
+    LEFT JOIN conformed.dim_relying_party drp ON 
+    cnf.CLIENT_ID = drp.CLIENT_ID
     LEFT JOIN conformed.dim_verification_route dvr 
          ON  cnf.sub_domain = dvr.verification_route_name;
          
-          
-           
-             
-    -- update config table
+    --update config table
     
-    UPDATE conformed.BatchControl BATC
+    UPDATE conformed.BatchControl 
     SET MaxRunDate = CAST(subquery.updated_value AS DATE)
     FROM (
       SELECT PRODUCT_FAMILY, MAX(PROCESSED_DATE) updated_value
-      FROM conformed.v_stg_auth_orchestration
+      FROM conformed.v_stg_ipv_cri_fraud
       GROUP BY PRODUCT_FAMILY
     ) AS subquery
-    WHERE BATC.Product_family =subquery.PRODUCT_FAMILY;
+    WHERE conformed.BatchControl.Product_family =subquery.PRODUCT_FAMILY;
 
-    --
-            
-    RAISE INFO ' processing of product family: auth_orchestration ran successfully '; 
-    
-    EXCEPTION WHEN OTHERS THEN
-        RAISE EXCEPTION ' [error while processing product family: auth_orchestration] exception: % ',sqlerrm; 
+	raise info 'processing of product family: ipv_cri_fraud ran successfully';
 
-END; 
+	EXCEPTION WHEN OTHERS THEN 
+        RAISE EXCEPTION '[error while processing product family: ipv_cri_fraud] exception: %',sqlerrm;
 
-$$ LANGUAGE PLPGSQL;
+END;
+
+$$ LANGUAGE plpgsql;

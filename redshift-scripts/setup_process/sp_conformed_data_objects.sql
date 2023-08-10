@@ -10,7 +10,14 @@ BEGIN
 	INSERT INTO conformed.batchcontrol (product_family, maxrundate)
 	VALUES
 	('auth_account_creation','1999-01-01 00:00:00'),
-    ('auth_orchestration','1999-01-01 00:00:00');
+    ('auth_orchestration','1999-01-01 00:00:00'),
+    ('auth_account_user_login','1999-01-01 00:00:00'),
+    ('auth_account_mfa','1999-01-01 00:00:00'),
+    ('auth_account_management','1999-01-01 00:00:00'),
+    ('dcmaw_cri','1999-01-01 00:00:00'),
+    ('ipv_cri_driving_license','1999-01-01 00:00:00'),
+    ('ipv_cri_address','1999-01-01 00:00:00'),
+    ('ipv_cri_fraud','1999-01-01 00:00:00');
     --
     CREATE TABLE IF NOT EXISTS conformed.dim_event (
         event_key int identity(1, 1),
