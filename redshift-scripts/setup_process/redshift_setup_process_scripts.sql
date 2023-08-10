@@ -15,6 +15,7 @@
 --      3. Conformed schema
 --      4a. Conformed data objects creation / population
 --      4b. Date dimension table population
+--      4c. Conformed stage view data objects creation
 --      5. Group
 --      6. Database object privileges assigned to group
 --      7. Create IAM user (step function IAM role)
@@ -86,6 +87,20 @@ CALL dap_txma_reporting_db.conformed.sp_conformed_data_objects()
 -- the date dim table. 
 
 CALL dap_txma_reporting_db.conformed.redshift_date_dim ('2022-01-01','2025-12-31')
+
+
+/*
+4c Conformed Stage view object creation
+*/
+
+-- copy the contents of the file: redshift-scripts/setup_process/sp_conformed_stage_view_data_objects.sql
+-- paste into the redshift query editor
+
+-- click [Run] button to create the stored procedure: conformed.sp_conformed_stage_view_data_objects
+
+-- run the following cmd once confirmed SP has been created
+
+CALL dap_txma_reporting_db.conformed.sp_conformed_stage_view_data_objects()
 
 
 /*
