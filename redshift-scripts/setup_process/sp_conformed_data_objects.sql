@@ -2,133 +2,177 @@ CREATE OR REPLACE PROCEDURE conformed.sp_conformed_data_objects()
 AS $$ 
 BEGIN 
 
-    CREATE TABLE IF NOT EXISTS conformed.batchcontrol (
-        product_family varchar(100) NOT NULL,
-        maxrundate datetime
-    ) diststyle auto sortkey auto encode auto;
-	--
-	INSERT INTO conformed.batchcontrol (product_family, maxrundate)
-	VALUES
-	('auth_account_creation','1999-01-01 00:00:00'),
-    ('auth_orchestration','1999-01-01 00:00:00');
+
+    CREATE TABLE conformed.BatchControl (
+      Product_family varchar(100),
+      MaxRunDate DATETIME
+    );
     --
-    CREATE TABLE IF NOT EXISTS conformed.dim_event (
-        event_key int identity(1, 1),
-        event_name varchar(500),
-        product_family varchar(1000),
-        event_description varchar(500),
-        event_journey_type varchar(100),
-        service_name varchar(100),
-        created_by varchar(100),
-        created_date date,
-        modified_by varchar(100),
-        modified_date date,
-        batch_id integer,
-        PRIMARY KEY (event_key)
-    ) diststyle auto sortkey auto encode auto;
+
+    insert into conformed.BatchControl (Product_family,MaxRunDate)
+    values 
+    ('auth_account_creation','1999-01-01 00:00:00'),
+    ('auth_orchestration','1999-01-01 00:00:00'), 
+    ('auth_account_user_login','1999-01-01 00:00:00'), 
+    ('dcmaw_cri','1999-01-01 00:00:00'), 
+    ('auth_account_mfa','1999-01-01 00:00:00'), 
+    ('auth_account_management','1999-01-01 00:00:00'),  
+    ('ipv_cri_address','1999-01-01 00:00:00'), 
+    ('ipv_cri_driving_license','1999-01-01 00:00:00'),
+    ('ipv_cri_fraud','1999-01-01 00:00:00'),
+    ('ipv_journey','1999-01-01 00:00:00'),
+    ('ipv_cri_kbv','1999-01-01 00:00:00'),
+    ('ipv_cri_passport','1999-01-01 00:00:00');
+
+
     --
-    CREATE TABLE IF NOT EXISTS conformed.dim_journey_channel (
-        journey_channel_key int identity (1, 1),
-        channel_name varchar(100),
-        channel_description varchar(100),
-        created_by varchar(100),
-        created_date date,
-        modified_by varchar(100),
-        modified_date date,
-        batch_id integer,
-        PRIMARY KEY (journey_channel_key)
-    ) diststyle auto sortkey auto encode auto;
-    --
-    CREATE TABLE IF NOT EXISTS conformed.dim_relying_party (
-        relying_party_key int identity (1, 1),
-        client_name varchar(1000),
-        relying_party_name varchar(50),
-        relying_party_description varchar(50),
-        created_by varchar(100),
-        created_date date,
-        modified_by varchar(100),
-        modified_date date,
-        batch_id integer,
-        PRIMARY KEY (relying_party_key)
-    ) diststyle auto sortkey auto encode auto;
-    --
-    CREATE TABLE IF NOT EXISTS conformed.dim_verification_route (
-        verification_route_key int identity(1, 1),
-        verification_route_name varchar(500),
-        verification_short_name varchar(50),
-        route_description varchar(500),
-        created_by varchar(100),
-        created_date date,
-        modified_by varchar(100),
-        modified_date date,
-        batch_id integer,
-        PRIMARY KEY (verification_route_key)
-    ) diststyle auto sortkey auto encode auto;
-    --
-    CREATE TABLE IF NOT EXISTS conformed.fact_user_journey_event (
-        user_journey_event_key int identity(1, 1),
-        event_key integer NOT NULL,
-        date_key integer NOT NULL,
-        verification_route_key integer NOT NULL,
-        journey_channel_key integer NOT NULL,
-        relying_party_key integer NOT NULL,
-        user_id varchar(100),
-        event_id varchar(100) UNIQUE,
-        event_time varchar(1000),
-        journey_id varchar(100),
-        component_id varchar(100),
-        event_count integer,
-        rejection_reason varchar(50),
-        reason varchar(50),
-        notification_type varchar(50),
-        mfa_type varchar(50),
-        account_recovery varchar(50),
-        failed_check_details_biometric_verification_process_level varchar(50),
-        check_details_biometric_verification_process_level varchar(50),
-        addresses_entered varchar(50),
-        activity_history_score varchar(50),
-        identity_fraud_score varchar(50),
-        decision_score varchar(50),
-        failed_check_details_kbv_response_mode varchar(50),
-        failed_check_details_check_method varchar(50),
-        check_details_kbv_response_model varchar(50),
-        check_details_kbv_quality varchar(50),
-        verification_score varchar(50),
-        check_details_check_method varchar(50),
-        iss varchar(50),
-        validity_score varchar(50),
-        TYPE varchar(50),
-        processed_date varchar(100),
-        created_by varchar(100),
-        created_date date,
-        modified_by varchar(100),
-        modified_date date,
-        batch_id integer,
-        PRIMARY KEY (user_journey_event_key),
-        FOREIGN KEY (event_key) REFERENCES conformed.dim_event (event_key),
-        FOREIGN KEY (date_key) REFERENCES conformed.dim_date (date_key),
-        FOREIGN KEY (verification_route_key) REFERENCES conformed.dim_verification_route (verification_route_key),
-        FOREIGN KEY (journey_channel_key) REFERENCES conformed.dim_journey_channel (journey_channel_key),
-        FOREIGN KEY (relying_party_key) REFERENCES conformed.dim_relying_party (relying_party_key)
-    ) diststyle auto sortkey auto encode auto;
-    --
-    CREATE TABLE IF NOT EXISTS conformed.err_duplicate_event_id (
-        product_family varchar(100),
-        event_count int,
-        event_id varchar(1000),
-        timestamp_formatted varchar(100),
-        processed_date varchar(100),
-        created_by varchar(100),
-        created_datetime date
-    ) diststyle auto sortkey auto encode auto;
-    --
-    CREATE TABLE IF NOT EXISTS conformed.ref_events (
-        event_name varchar(1000),
-        product_family varchar(1000),
-        domain varchar(1000),
-        sub_domain varchar(1000),
-        other_sub_domain varchar(1000)
-    ) diststyle auto sortkey auto encode auto;  
+    CREATE TABLE conformed.DIM_EVENT (
+    EVENT_KEY INT IDENTITY(1,1),
+    EVENT_NAME VARCHAR(500),
+    PRODUCT_FAMILY VARCHAR(1000),
+    EVENT_DESCRIPTION VARCHAR(500),
+    EVENT_JOURNEY_TYPE VARCHAR(100),
+    SERVICE_NAME VARCHAR(100),
+    CREATED_BY VARCHAR(100),
+    CREATED_DATE DATE,
+    MODIFIED_BY VARCHAR(100),
+    MODIFIED_DATE DATE,
+    BATCH_ID INTEGER,
+    PRIMARY KEY (EVENT_KEY)
+    ) ;
+
+    CREATE TABLE conformed.DIM_DATE (
+    DATE_KEY INT ,
+    DATE DATE ,
+    DAY VARCHAR(50),
+    DAY_SUFFIX VARCHAR(50),
+    WEEKDAY VARCHAR(50),
+    WEEKDAY_NAME VARCHAR(50),
+    WEEKDAY_NAME_SHORT VARCHAR(10),
+    DAY_OF_WEEK_IN_MONTH VARCHAR(50),
+    DAY_OF_YEAR VARCHAR(10),
+    WEEK_OF_YEAR VARCHAR(10),
+    MONTH VARCHAR(50),
+    MONTH_NAME VARCHAR(50),
+    MONTH_NAME_SHORT VARCHAR(10),
+    QUARTER VARCHAR(50),
+    QUARTER_NAME VARCHAR(50),
+    YEAR VARCHAR(10),
+    IS_WEEKEND CHAR(1),
+    CREATED_BY VARCHAR(100),
+    CREATED_DATE DATE,
+    MODIFIED_BY VARCHAR(100),
+    MODIFIED_DATE DATE,
+    BATCH_ID INTEGER,
+    PRIMARY KEY (DATE_KEY)
+    );
+
+
+    CREATE TABLE conformed.DIM_JOURNEY_CHANNEL(
+    JOURNEY_CHANNEL_KEY INT IDENTITY (1,1),
+    CHANNEL_NAME VARCHAR(100),
+    CHANNEL_DESCRIPTION VARCHAR(100),
+    CREATED_BY VARCHAR(100),
+    CREATED_DATE DATE,
+    MODIFIED_BY VARCHAR(100),
+    MODIFIED_DATE DATE,
+    BATCH_ID INTEGER,
+    PRIMARY KEY (JOURNEY_CHANNEL_KEY)
+    );
+
+
+    CREATE TABLE conformed.DIM_RELYING_PARTY (
+    RELYING_PARTY_KEY INT IDENTITY (1,1),
+    CLIENT_ID VARCHAR(1000),
+    RELYING_PARTY_NAME VARCHAR(1000),
+    RELYING_PARTY_DESCRIPTION VARCHAR(1000),
+    CREATED_BY VARCHAR(100),
+    CREATED_DATE DATE,
+    MODIFIED_BY VARCHAR(100),
+    MODIFIED_DATE DATE,
+    BATCH_ID INTEGER,
+    PRIMARY KEY (RELYING_PARTY_KEY)
+    );
+
+
+    CREATE TABLE conformed.DIM_VERIFICATION_ROUTE(
+    VERIFICATION_ROUTE_KEY INT IDENTITY(1,1),
+    VERIFICATION_ROUTE_NAME VARCHAR(500),
+    VERIFICATION_SHORT_NAME VARCHAR(50),
+    ROUTE_DESCRIPTION VARCHAR(500),
+    CREATED_BY VARCHAR(100),
+    CREATED_DATE DATE,
+    MODIFIED_BY VARCHAR(100),
+    MODIFIED_DATE DATE,
+    BATCH_ID INTEGER,
+    PRIMARY KEY (VERIFICATION_ROUTE_KEY)
+    );
+
+
+    CREATE TABLE conformed.FACT_USER_JOURNEY_EVENT(
+    USER_JOURNEY_EVENT_KEY INT IDENTITY(1,1),
+    EVENT_KEY INTEGER NOT NULL ,
+    DATE_KEY INTEGER NOT NULL ,
+    VERIFICATION_ROUTE_KEY INTEGER NOT NULL ,
+    JOURNEY_CHANNEL_KEY INTEGER NOT NULL ,
+    RELYING_PARTY_KEY INTEGER NOT NULL ,
+    USER_ID VARCHAR(100),
+    EVENT_ID VARCHAR(100) UNIQUE,
+    EVENT_TIME VARCHAR(1000),
+    JOURNEY_ID VARCHAR(100),
+    COMPONENT_ID VARCHAR(100),
+    EVENT_COUNT  INTEGER,
+    REJECTION_REASON  VARCHAR(50),
+    REASON  VARCHAR(50),
+    NOTIFICATION_TYPE  VARCHAR(50),
+    MFA_TYPE  VARCHAR(50),
+    ACCOUNT_RECOVERY  VARCHAR(50),
+    FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL  VARCHAR(50),
+    CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL  VARCHAR(50),
+    ADDRESSES_ENTERED  VARCHAR(50),
+    ACTIVITY_HISTORY_SCORE  VARCHAR(50),
+    IDENTITY_FRAUD_SCORE  VARCHAR(50),
+    DECISION_SCORE  VARCHAR(50),
+    FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE  VARCHAR(50),
+    FAILED_CHECK_DETAILS_CHECK_METHOD  VARCHAR(50),
+    CHECK_DETAILS_KBV_RESPONSE_MODEL  VARCHAR(50),
+    CHECK_DETAILS_KBV_QUALITY  VARCHAR(50),
+    VERIFICATION_SCORE  VARCHAR(50),
+    STRENGTH_SCORE VARCHAR(20),
+    CHECK_DETAILS_CHECK_METHOD  VARCHAR(50),
+    Iss  VARCHAR(50),
+    VALIDITY_SCORE   VARCHAR(50),
+    TYPE  VARCHAR(50),
+    PROCESSED_DATE VARCHAR(100),
+    CREATED_BY VARCHAR(100),
+    CREATED_DATE DATE,
+    MODIFIED_BY VARCHAR(100),
+    MODIFIED_DATE DATE,
+    BATCH_ID INTEGER,
+        PRIMARY KEY (USER_JOURNEY_EVENT_KEY),
+        FOREIGN KEY (EVENT_KEY) REFERENCES conformed.DIM_EVENT (EVENT_KEY),
+        FOREIGN KEY (DATE_KEY) REFERENCES conformed.DIM_DATE (DATE_KEY),
+        FOREIGN KEY (VERIFICATION_ROUTE_KEY) REFERENCES conformed.DIM_VERIFICATION_ROUTE (VERIFICATION_ROUTE_KEY),
+        FOREIGN KEY (JOURNEY_CHANNEL_KEY) REFERENCES conformed.DIM_JOURNEY_CHANNEL (JOURNEY_CHANNEL_KEY),
+        FOREIGN KEY (RELYING_PARTY_KEY) REFERENCES conformed.DIM_RELYING_PARTY (RELYING_PARTY_KEY)
+    );
+
+
+    CREATE TABLE conformed.REF_EVENTS (
+      EVENT_NAME varchar(1000),
+      PRODUCT_FAMILY varchar(1000),
+      DOMAIN varchar(1000),
+      SUB_DOMAIN varchar(1000),
+      OTHER_SUB_DOMAIN VARCHAR(1000)
+    );  
+
+    CREATE TABLE conformed.REF_RELYING_PARTIES (
+      REF_RELYING_PARTIE_KEY INT IDENTITY(1,1),
+      CLIENT_ID varchar(1000),
+      CLIENT_NAME varchar(1000),
+      DESCRIPTION varchar(1000)
+    );
+
 
     raise info 'Setup of conformed layer ran successfully';
 
