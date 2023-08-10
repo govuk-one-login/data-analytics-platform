@@ -4,11 +4,11 @@ Transform: AWS::Serverless-2016-10-31
 
 Outputs:
   TXMA_QueueURL:
-    Description: "TxMA queue URL"
+    Description: 'TxMA queue URL'
     Value: !Ref EventConsumerQueue
 
     TXMA_BUCKET:
-      Description: "Name of raw bucket"
+      Description: 'Name of raw bucket'
       Value: !Ref RawLayerBucket
 
 Parameters:

@@ -1,91 +1,26 @@
-AWSTemplateFormatVersion: 2010-09-09
-Description: Data and Analytics Stack
-Transform: AWS::Serverless-2016-10-31
+#!/bin/bash
 
-Outputs:
-  TXMA_QueueURL:
-    Description: 'TxMA queue URL'
-    Value: !Ref EventConsumerQueue
+# This script will only run in AWS Codepipeline. It has access to the following environment variables:
+# CFN_<OUTPUT-NAME> - Stack output value (replace <OUTPUT-NAME> with the name of the output)
+# TEST_REPORT_ABSOLUTE_DIR - Absolute path to where the test report file should be placed
+# TEST_REPORT_DIR - Relative path from current directory to where the test report file should be placed
+# TEST_ENVIRONMENT - The environment the pipeline is running the tests in
 
-    TXMA_BUCKET:
-      Description: 'Name of raw bucket'
-      Value: !Ref RawLayerBucket
+# This file needs to be located at the root when running in the container. The path /test-app is defined
+# in the Dockerfile.
+cd /test-app || exit 1
 
-Parameters:
-  Environment:
-    Description: Environment type
-    Type: String
-    Default: dev
-    AllowedValues:
-      - dev
-      - test
-      - feature
-      - build
-      - staging
-      - integration
-      - production
-  CodeSigningConfigArn:
-    Description: ARN of Code Signing Config from deployment pipeline
-    Type: String
-    Default: none
-  PermissionsBoundary:
-    Description: ARN of permissions boundary for new roles
-    Type: String
-    Default: none
-  DeliveryStreamName:
-    Description: Kinesis Firehose delivery stream name
-    Type: String
-    Default: dap-txma-delivery-stream
-  RawGlueDatabaseName:
-    Default: txma-raw
-    Type: String
-    Description: Name for the TxMA Raw Glue database
-  StageGlueDatabaseName:
-    Default: txma-stage
-    Type: String
-    Description: Name for the TxMA Stage Glue database
-  BuildAccountId:
-    Default: 991664831801
-    Type: String
-    Description: Account number of the build account used to grant it S3 access in other accounts
-    AllowedValues:
-      - 991664831801
+export ENV_NAME=$(echo $SAM_STACK_NAME | cut -d - -f 3-)
+export CONFIG_NAME=${ENV_NAME}
+export TXMA_BUCKET=$CFN_TXMA_QueueURL
+export TXMA_BUCKET=$CFN_TXMA_BUCKET
 
-Conditions:
-  UseCodeSigning: !Not
-    - !Equals
-      - !Ref CodeSigningConfigArn
-      - none
-  UsePermissionsBoundary: !Not
-    - !Equals
-      - !Ref PermissionsBoundary
-      - none
-  IsTest: !Equals [!Ref Environment, test]
-  IsFeature: !Equals [!Ref Environment, feature]
-  IsDev: !Equals [!Ref Environment, dev]
-  IsBuild: !Equals [!Ref Environment, build]
-  IsStaging: !Equals [!Ref Environment, staging]
-  IsProduction: !Equals [!Ref Environment, production]
-  UsePlaceholderTxMAQueue: !Or
-    - !Condition IsTest
-    - !Condition IsFeature
-    # todo replace line below with `- !Condition IsDev` when txma queue has been moved from dev to staging
-    - !Condition IsStaging
-    - !Condition IsBuild
+npm run e2e-test
 
-Globals:
-  Function:
-    CodeSigningConfigArn: !If
-      - UseCodeSigning
-      - !Ref CodeSigningConfigArn
-      - !Ref 'AWS::NoValue'
-    PermissionsBoundary: !If
-      - UsePermissionsBoundary
-      - !Ref PermissionsBoundary
-      - !Ref 'AWS::NoValue'
-    Runtime: nodejs18.x
-    Timeout: 30
-    CodeUri: dist/
-    Environment:
-      Variables:
-        NODE_OPTIONS: '--enable-source-maps'
+TESTS_EXIT_CODE=$?
+
+cp reports/testReport.xml $TEST_REPORT_ABSOLUTE_DIR/junit.xml
+
+if [ $TESTS_EXIT_CODE -ne 0 ]; then
+  exit 1
+fi
