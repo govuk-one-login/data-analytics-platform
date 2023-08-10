@@ -5,7 +5,7 @@ Transform: AWS::Serverless-2016-10-31
 Outputs:
   TXMA_QueueURL:
     Description: "TxMA queue URL"
-    Value: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
+    Value: !Ref EventConsumerQueue
 
     TXMA_BUCKET:
       Description: "Name of raw bucket"
