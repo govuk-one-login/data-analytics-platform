@@ -141,3 +141,4 @@ ALTER GROUP dap_elt_processing ADD USER "IAMR:{env}-dap-redshift-processing-role
 
 --**REPLACE {env}**
 ALTER TABLE dap_txma_reporting_db.conformed.ref_events OWNER TO "IAMR:{env}-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.conformed.ref_relying_parties OWNER TO "IAMR:{env}-dap-redshift-processing-role";
