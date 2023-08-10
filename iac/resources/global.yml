@@ -187,6 +187,12 @@ TestSupportLambda:
               - glue:GetTable
               - glue:GetTables
             Resource: '*'
+          - Effect: Allow
+            Action: sqs:GetQueueUrl
+            Resource: '*'
+          - Effect: Allow
+            Action: firehose:DescribeDeliveryStream
+            Resource: '*'
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
