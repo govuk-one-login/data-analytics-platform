@@ -3,9 +3,9 @@ Description: Data and Analytics Stack
 Transform: AWS::Serverless-2016-10-31
 
 Outputs:
-TXMAQueueURL:
-  Description: 'TxMA queue URL'
-  Value: !If [UsePlaceholderTxMAQueue, !Ref EventConsumerQueue, !Ref 'AWS::NoValue']
+  TXMAQueueURL:
+    Description: 'TxMA queue URL'
+    Value: !If [UsePlaceholderTxMAQueue, !Ref EventConsumerQueue, !Ref 'AWS::NoValue']
 
   TXMABucket:
     Description: 'Name of raw bucket'
