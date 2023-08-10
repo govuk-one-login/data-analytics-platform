@@ -1,0 +1,7 @@
+{
+  "environment": "dev",
+  "command": "SQS_GET_URL",
+  "input": {
+    "QueueName": "dev-test-queue"
+  }
+}
