@@ -5,14 +5,23 @@ import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 import { InvokeCommand } from '@aws-sdk/client-lambda';
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { CopyObjectCommand, GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
-import { SendMessageCommand } from '@aws-sdk/client-sqs';
-import { athenaClient, cloudwatchClient, lambdaClient, s3Client, sfnClient, sqsClient } from '../../shared/clients';
+import { GetQueueUrlCommand, SendMessageCommand } from '@aws-sdk/client-sqs';
+import {
+  athenaClient,
+  cloudwatchClient,
+  firehoseClient,
+  lambdaClient,
+  s3Client,
+  sfnClient,
+  sqsClient,
+} from '../../shared/clients';
 import * as zlib from 'zlib';
 import { GetQueryExecutionCommand, GetQueryResultsCommand, StartQueryExecutionCommand } from '@aws-sdk/client-athena';
 import type { GetQueryResultsOutput, QueryExecutionStatus } from '@aws-sdk/client-athena';
 import { getLogger } from '../../shared/powertools';
 import { DescribeExecutionCommand, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import type { Context } from 'aws-lambda';
+import { DescribeDeliveryStreamCommand } from '@aws-sdk/client-firehose';
 
 const logger = getLogger('lambda/test-support');
 
@@ -20,11 +29,13 @@ const TEST_SUPPORT_COMMANDS = [
   'ATHENA_RUN_QUERY',
   'CLOUDWATCH_GET',
   'CLOUDWATCH_LIST',
+  'FIREHOSE_DESCRIBE_STREAM',
   'LAMBDA_INVOKE',
   'S3_COPY',
   'S3_GET',
   'S3_LIST',
   'S3_PUT',
+  'SQS_GET_URL',
   'SQS_SEND',
   'SFN_START_EXECUTION',
   'SFN_DESCRIBE_EXECUTION',
@@ -78,6 +89,12 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
       });
       return await cloudwatchClient.send(request);
     }
+    case 'FIREHOSE_DESCRIBE_STREAM': {
+      const request = new DescribeDeliveryStreamCommand({
+        ...getRequiredParams(event.input, 'DeliveryStreamName'),
+      });
+      return await firehoseClient.send(request);
+    }
     case 'LAMBDA_INVOKE': {
       const request = new InvokeCommand({
         ...getRequiredParams(event.input, 'FunctionName', 'Payload'),
@@ -109,6 +126,12 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
       const { Bucket, Filename } = getRequiredParams(event.input, 'Bucket', 'Filename');
       const Key = event.input.Key ?? Filename;
       return await s3Client.send(new PutObjectCommand({ Bucket, Key, Body: Filename }));
+    }
+    case 'SQS_GET_URL': {
+      const request = new GetQueueUrlCommand({
+        ...getRequiredParams(event.input, 'QueueName'),
+      });
+      return await sqsClient.send(request);
     }
     case 'SQS_SEND': {
       const request = new SendMessageCommand({
