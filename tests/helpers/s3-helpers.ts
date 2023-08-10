@@ -77,6 +77,17 @@ export const getEventListS3 = async (prefix: string): Promise<Record<string, unk
   return await invokeTestSupportLambda(event);
 };
 
+export const getS3BucketStatus = async (bucket: string,prefix: string): Promise<Record<string, unknown>> => {
+  const event: Omit<TestSupportEvent, 'environment'> = {
+    command: 'S3_LIST',
+    input: {
+      Bucket: bucket,
+      Prefix: prefix,
+    },
+  };
+  return await invokeTestSupportLambda(event);
+};
+
 export const getListS3 = async (bucket: string): Promise<Record<string, unknown>> => {
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'S3_LIST',
