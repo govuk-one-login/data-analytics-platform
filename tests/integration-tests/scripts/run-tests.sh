@@ -11,9 +11,10 @@
 #cd /test-app || exit 1
 
 #Env variables will be reviwed and added as and when we integrate with pipeline
-#export ENV_NAME=$(echo $SAM_STACK_NAME | cut -d - -f 3-)
 #export CONFIG_NAME=${ENV_NAME}
-#export TXMA_BUCKET=${ENV_NAME}+'-dap-raw-layer'
+
+export TXMA_QUEUE_URL=$CFN_TXMAQueueURL
+export TXMA_BUCKET=$CFN_TXMABucket
 
 npm run integration-test
 

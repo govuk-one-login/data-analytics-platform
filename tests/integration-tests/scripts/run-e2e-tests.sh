@@ -10,8 +10,8 @@
 # in the Dockerfile.
 cd /test-app || exit 1
 
-export ENV_NAME=$(echo $SAM_STACK_NAME | cut -d - -f 3-)
-export CONFIG_NAME=${ENV_NAME}
+export TXMA_QUEUE_URL=$CFN_TXMAQueueURL
+export TXMA_BUCKET=$CFN_TXMABucket
 
 npm run e2e-test
 
