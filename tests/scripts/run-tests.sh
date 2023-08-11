@@ -7,13 +7,16 @@
 # TEST_ENVIRONMENT - The environment the pipeline is running the tests in
 
 # This file needs to be located at the root when running in the container. The path /test-app is defined
-# in the Dockerfile.
-cd /test-app || exit 1
+# in the Dockerfile. this can be commented later
+#cd /test-app || exit 1
 
-export ENV_NAME=$(echo $SAM_STACK_NAME | cut -d - -f 3-)
-export CONFIG_NAME=${ENV_NAME}
+#Env variables will be reviwed and added as and when we integrate with pipeline
+#export CONFIG_NAME=${ENV_NAME}
 
-npm run e2e-test
+export TXMA_QUEUE_URL=$CFN_TXMAQueueURL
+export TXMA_BUCKET=$CFN_TXMABucket
+
+npm run integration-test
 
 TESTS_EXIT_CODE=$?
 
