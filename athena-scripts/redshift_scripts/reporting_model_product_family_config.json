@@ -9,31 +9,31 @@
     },
     {
         "product_family": "auth_account_user_login",
-        "enabled": false
+        "enabled": true
     },
     {
         "product_family": "auth_account_mfa",
-        "enabled": false
+        "enabled": true
     },
     {
         "product_family": "auth_account_management",
-        "enabled": false
+        "enabled": true
     },
     {
         "product_family": "dcmaw_cri",
-        "enabled": false
+        "enabled": true
     },
     {
         "product_family": "ipv_cri_driving_license",
-        "enabled": false
+        "enabled": true
     },
     {
         "product_family": "ipv_cri_address",
-        "enabled": false
+        "enabled": true
     },
     {
         "product_family": "ipv_cri_fraud",
-        "enabled": false
+        "enabled": true
     },
     {
         "product_family": "ipv_journey",

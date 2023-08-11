@@ -1,9 +1,8 @@
-CREATE OR replace PROCEDURE conformed.sp_auth_account_creation () 
-AS $$
-BEGIN
+CREATE OR REPLACE PROCEDURE conformed.sp_auth_account_user_login () 
+AS $$ 
+BEGIN 
 
-	
-	UPDATE conformed.DIM_EVENT
+    UPDATE conformed.DIM_EVENT
     SET
       EVENT_NAME = st.EVENT_NAME,
       EVENT_DESCRIPTION = st.EVENT_NAME,
@@ -15,7 +14,7 @@ BEGIN
       BATCH_ID=0000
     FROM (
       SELECT *
-      FROM conformed.v_stg_auth_account_creation
+      FROM conformed.v_stg_auth_account_user_login
       WHERE EVENT_NAME IN (
         SELECT EVENT_NAME
         FROM conformed.DIM_EVENT
@@ -24,15 +23,16 @@ BEGIN
     WHERE DIM_EVENT.EVENT_NAME = st.event_name;
 
 
-    -- Insert new records into the dimension table
+
     INSERT INTO conformed.DIM_EVENT ( EVENT_NAME, EVENT_DESCRIPTION, PRODUCT_FAMILY ,EVENT_JOURNEY_TYPE, SERVICE_NAME, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE,BATCH_ID)
     SELECT DISTINCT EVENT_NAME, EVENT_NAME, REF_PRODUCT_FAMILY ,domain, sub_domain,current_user,CURRENT_DATE,current_user, CURRENT_DATE,9999
-    FROM conformed.v_stg_auth_account_creation
+    FROM conformed.v_stg_auth_account_user_login
     WHERE EVENT_NAME NOT IN (SELECT EVENT_NAME FROM conformed.DIM_EVENT);
 
 
-    --DIM_JOURNEY_CHANNEL insert/update
 
+
+    ----DIM_JOURNEY_CHANNEL insert/update
 
     UPDATE conformed.DIM_JOURNEY_CHANNEL
     SET
@@ -51,7 +51,7 @@ BEGIN
       BATCH_ID=0000
     FROM (
       SELECT DISTINCT EVENT_NAME
-      FROM conformed.v_stg_auth_account_creation
+      FROM conformed.v_stg_auth_account_user_login
     ) AS st
     WHERE (
       CASE
@@ -88,7 +88,7 @@ BEGIN
         current_user,
         CURRENT_DATE,
         9999
-    FROM conformed.v_stg_auth_account_creation AS st
+    FROM conformed.v_stg_auth_account_user_login AS st
     WHERE (CASE
             WHEN st.EVENT_NAME LIKE '%IPV%' THEN 'Web'
             WHEN st.EVENT_NAME LIKE '%DCMAW%' THEN 'App'
@@ -101,7 +101,6 @@ BEGIN
 
 
     ----Insert and update for dim_relying_party
-
 
 
     UPDATE conformed.DIM_RELYING_PARTY
@@ -121,7 +120,7 @@ BEGIN
             current_user,
             CURRENT_DATE,
             9999
-            FROM conformed.v_stg_auth_account_creation mn
+            FROM conformed.v_stg_auth_account_user_login mn
             left join  "dap_txma_reporting_db"."conformed"."ref_relying_parties" ref
             on mn.CLIENT_ID=ref.CLIENT_ID
     ) AS st
@@ -135,7 +134,7 @@ BEGIN
 
     INSERT INTO  conformed.DIM_RELYING_PARTY (CLIENT_ID, RELYING_PARTY_NAME, RELYING_PARTY_DESCRIPTION, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT
-        NVL(st.CLIENT_ID,'-1') ,
+        NVL(st.CLIENT_ID,'-1')  ,
         st.CLIENT_NAME,
         st.CLIENT_NAME,
         current_user,
@@ -144,21 +143,20 @@ BEGIN
         CURRENT_DATE,
         9999
     FROM ( select DISTINCT
-            mn.CLIENT_ID ,
+            mn.CLIENT_ID,
             ref.CLIENT_NAME,
             current_user,
             CURRENT_DATE,
             current_user,
             CURRENT_DATE,
             9999
-            FROM conformed.v_stg_auth_account_creation mn
+            FROM conformed.v_stg_auth_account_user_login mn
             left join  "dap_txma_reporting_db"."conformed"."ref_relying_parties" ref
             on mn.CLIENT_ID=ref.CLIENT_ID) AS st
     WHERE   st.CLIENT_ID NOT IN (
             SELECT CLIENT_ID
             FROM conformed.DIM_RELYING_PARTY
         );
-
 
 
 
@@ -172,7 +170,7 @@ BEGIN
         BATCH_ID=0000
     FROM (
         SELECT DISTINCT DOMAIN, sub_domain
-        FROM conformed.v_stg_auth_account_creation
+        FROM conformed.v_stg_auth_account_user_login
         WHERE sub_domain IN (
             SELECT VERIFICATION_ROUTE_NAME
             FROM conformed.DIM_VERIFICATION_ROUTE
@@ -183,7 +181,7 @@ BEGIN
 
     INSERT INTO conformed.DIM_VERIFICATION_ROUTE ( VERIFICATION_ROUTE_NAME, VERIFICATION_SHORT_NAME, ROUTE_DESCRIPTION, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE,BATCH_ID)
     SELECT DISTINCT sub_domain, sub_domain, domain,current_user,CURRENT_DATE,current_user, CURRENT_DATE,9999
-    FROM conformed.v_stg_auth_account_creation
+    FROM conformed.v_stg_auth_account_user_login
     WHERE sub_domain NOT IN (SELECT VERIFICATION_ROUTE_NAME  FROM conformed.DIM_VERIFICATION_ROUTE);
 
 
@@ -217,7 +215,7 @@ BEGIN
       ,MODIFIED_DATE=CURRENT_DATE
       ,BATCH_ID=0000
     FROM (SELECT *
-      FROM conformed.v_stg_auth_account_creation
+      FROM conformed.v_stg_auth_account_user_login
       WHERE EVENT_ID IN (
         SELECT EVENT_ID
         FROM "dap_txma_reporting_db"."conformed"."fact_user_journey_event"
@@ -225,20 +223,18 @@ BEGIN
     WHERE fact_user_journey_event.EVENT_ID = st.EVENT_ID;
 
 
-
-
     INSERT INTO conformed.FACT_USER_JOURNEY_EVENT (EVENT_KEY,DATE_KEY,verification_route_key,journey_channel_key,relying_party_key,USER_ID,
                             EVENT_ID,EVENT_TIME,JOURNEY_ID,COMPONENT_ID,EVENT_COUNT,
                             REJECTION_REASON,REASON,NOTIFICATION_TYPE,MFA_TYPE,ACCOUNT_RECOVERY,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,
                             CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,ADDRESSES_ENTERED,ACTIVITY_HISTORY_SCORE,IDENTITY_FRAUD_SCORE,DECISION_SCORE,
                             FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODEL,CHECK_DETAILS_KBV_QUALITY,
-                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE",PROCESSED_DATE,
+                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE", PROCESSED_DATE,
                             CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT NVL(DE.event_key,-1) AS event_key
           ,dd.date_key
-          ,NVL(dvr.verification_route_key,-1)  AS verification_route_key
-          ,NVL(djc.journey_channel_key,-1) AS journey_channel_key
-          ,NVL(drp.relying_party_key,-1)  AS relying_party_key
+          ,NVL(dvr.verification_route_key,-1) AS verification_route_key
+          , NVL(djc.journey_channel_key,-1) AS journey_channel_key
+          , NVL(drp.relying_party_key,-1) AS relying_party_key
           ,user_user_id AS USER_ID
           ,event_id AS EVENT_ID
           --,cnf.event_name
@@ -266,14 +262,14 @@ BEGIN
            ,Iss
            ,VALIDITY_SCORE
            ,"TYPE"
-           ,PROCESSED_DATE
+        ,PROCESSED_DATE
            ,current_user
            , CURRENT_DATE
            ,current_user
            , CURRENT_DATE
            , 9999
     FROM (SELECT *
-      FROM conformed.v_stg_auth_account_creation
+      FROM conformed.v_stg_auth_account_user_login
       WHERE EVENT_ID NOT IN (
         SELECT EVENT_ID
         FROM conformed.FACT_USER_JOURNEY_EVENT))cnf
@@ -286,28 +282,30 @@ BEGIN
             ELSE 'General'
         END) = djc.channel_name
     LEFT JOIN conformed.dim_relying_party drp ON
-       cnf.CLIENT_ID  = drp.CLIENT_ID
+    cnf.CLIENT_ID = drp.CLIENT_ID
     LEFT JOIN conformed.dim_verification_route dvr
          ON  cnf.sub_domain = dvr.verification_route_name;
 
 
-    -- update config table
+    --update config table
 
 
     UPDATE conformed.BatchControl BATC
     SET MaxRunDate = CAST(subquery.updated_value AS DATE)
     FROM (
       SELECT PRODUCT_FAMILY, MAX(PROCESSED_DATE) updated_value
-      FROM conformed.v_stg_auth_account_creation
+      FROM conformed.v_stg_auth_account_user_login
       GROUP BY PRODUCT_FAMILY
     ) AS subquery
     WHERE BATC.Product_family =subquery.PRODUCT_FAMILY;
 
-	raise info 'processing of product family: auth_account_creation ran successfully';
+    --
+            
+    RAISE INFO ' processing of product family: auth_account_user_login ran successfully '; 
+    
+    EXCEPTION WHEN OTHERS THEN
+        RAISE EXCEPTION ' [error while processing product family: auth_account_user_login] exception: % ',sqlerrm; 
 
-	EXCEPTION WHEN OTHERS THEN 
-        RAISE EXCEPTION '[error while processing product family: auth_account_creation] exception: %',sqlerrm;
+END; 
 
-END;
-
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE PLPGSQL;
