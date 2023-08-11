@@ -138,7 +138,7 @@ RedshiftAccessEC2SchedulingLambda:
       Environment: !Ref Environment
     VpcConfig:
       SecurityGroupIds:
-        - !Ref LambdaSecurityGroup
+        - !GetAtt VPCForDAP.DefaultSecurityGroup
       SubnetIds:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
