@@ -106,7 +106,7 @@ BEGIN
     
     UPDATE conformed.DIM_RELYING_PARTY
     SET
-      CLIENT_ID = st.CLIENT_ID,
+      CLIENT_ID = NVL(st.CLIENT_ID,'-1'),
       RELYING_PARTY_NAME = st.CLIENT_NAME,
       RELYING_PARTY_DESCRIPTION = st.CLIENT_NAME,
         MODIFIED_BY= current_user,
