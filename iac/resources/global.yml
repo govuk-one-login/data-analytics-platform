@@ -218,6 +218,13 @@ TestSupportLambda:
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
 
+TestSupportLambdaTestingContainerPermission:
+  Type: AWS::Lambda::Permission
+  Properties:
+    Action: lambda:InvokeFunction
+    FunctionName: !Ref TestSupportLambda
+    Principal: !Ref TestRoleArn
+
 KmsKey:
   Type: AWS::KMS::Key
   Properties:
