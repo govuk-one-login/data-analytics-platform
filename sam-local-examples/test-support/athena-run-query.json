@@ -2,10 +2,10 @@
   "environment": "dev",
   "command": "ATHENA_RUN_QUERY",
   "input": {
-    "QueryString": "SELECT AVG(age) FROM testtable WHERE salary > 60000;",
+    "QueryString": "SELECT COUNT(*) FROM \"dev-txma-raw\".\"auth_authorisation_initiated\"",
     "QueryExecutionContext": {
-      "Database": "testdatabase"
+      "Database": "dev-txma-raw"
     },
-    "WorkGroup": "test-workgroup"
+    "WorkGroup": "dev-dap-txma-processing"
   }
 }

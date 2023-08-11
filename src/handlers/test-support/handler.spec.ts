@@ -11,9 +11,12 @@ import { AthenaClient } from '@aws-sdk/client-athena';
 import type { Context } from 'aws-lambda';
 import type { StartExecutionCommand, StartExecutionOutput } from '@aws-sdk/client-sfn';
 import { SFNClient } from '@aws-sdk/client-sfn';
+import { RedshiftDataClient } from '@aws-sdk/client-redshift-data';
+import type { ExecuteStatementCommand, GetStatementResultCommandOutput } from '@aws-sdk/client-redshift-data';
 
 const mockAthenaClient = mockClient(AthenaClient);
 const mockLambdaClient = mockClient(LambdaClient);
+const mockRedshiftClient = mockClient(RedshiftDataClient);
 const mockS3Client = mockClient(S3Client);
 const mockSFNClient = mockClient(SFNClient);
 
@@ -33,17 +36,23 @@ const EXPECTED_S3_BODY = {
 };
 
 let ATHENA_QUERY_RESULTS: GetQueryResultsOutput;
+let REDSHIFT_QUERY_RESULTS: GetStatementResultCommandOutput;
 
 const CONTEXT: Context = { invokedFunctionArn: '' } as unknown as Context;
 
+const REDSHIFT_SECRET_ARN = (process.env.REDSHIFT_SECRET_ARN = 'secret-arn');
+
 beforeAll(async () => {
   ATHENA_QUERY_RESULTS = JSON.parse(await getTestResource('athena-query-results.json'));
+  REDSHIFT_QUERY_RESULTS = JSON.parse(await getTestResource('redshift-query-results.json'));
 });
 
 beforeEach(() => {
   mockAthenaClient.reset();
   mockLambdaClient.reset();
+  mockRedshiftClient.reset();
   mockS3Client.reset();
+  mockSFNClient.reset();
 });
 
 test('unknown environment', async () => {
@@ -223,9 +232,10 @@ test('athena wait', async () => {
     input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
   });
   await expect(handler(event, CONTEXT)).rejects.toThrow(
-    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
-      runningResponse.QueryExecution.Status,
-    )}`,
+    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify({
+      status: runningResponse.QueryExecution.Status.State,
+      extraInfo: {},
+    })}`,
   );
 
   expect(mockAthenaClient.calls().length).toBeGreaterThanOrEqual(5);
@@ -248,9 +258,10 @@ test('athena wait cancellation', async () => {
     input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
   });
   await expect(handler(event, CONTEXT)).rejects.toThrow(
-    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
-      cancelledResponse.QueryExecution.Status,
-    )}`,
+    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify({
+      status: cancelledResponse.QueryExecution.Status.State,
+      extraInfo: {},
+    })}`,
   );
 
   expect(mockAthenaClient.calls()).toHaveLength(5);
@@ -274,9 +285,10 @@ test('athena wait failure', async () => {
     input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
   });
   await expect(handler(event, CONTEXT)).rejects.toThrow(
-    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(
-      failedResponse.QueryExecution.Status,
-    )}`,
+    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify({
+      status: failedResponse.QueryExecution.Status.State,
+      extraInfo: { reason: failedResponse.QueryExecution.Status.StateChangeReason },
+    })}`,
   );
 
   expect(mockAthenaClient.calls().length).toBeGreaterThanOrEqual(5);
@@ -404,6 +416,86 @@ test('state machine arn from name', async () => {
   expect(command.input.stateMachineArn).toEqual(
     `arn:aws:states:eu-west-2:${accountId}:stateMachine:${stateMachineName}`,
   );
+});
+
+test('redshift success', async () => {
+  const queryId = '1234';
+
+  mockRedshiftClient
+    .resolvesOnce({ Id: queryId })
+    .resolvesOnce({ Id: queryId, Status: 'SUBMITTED' })
+    .resolvesOnce({ Id: queryId, Status: 'STARTED' })
+    .resolvesOnce({ Id: queryId, Status: 'STARTED' })
+    .resolvesOnce({ Id: queryId, Status: 'FINISHED' })
+    .resolvesOnce(REDSHIFT_QUERY_RESULTS);
+
+  const event = getEvent({
+    command: 'REDSHIFT_RUN_QUERY',
+    input: { Sql: '' },
+  });
+  const response = (await handler(event, CONTEXT)) as GetStatementResultCommandOutput;
+
+  expect(response).toBeDefined();
+  expect(response.Records?.at(0)?.at(0)?.longValue).toEqual(1517);
+
+  expect(mockRedshiftClient.calls()).toHaveLength(6);
+  const command = mockRedshiftClient.call(0).firstArg as ExecuteStatementCommand;
+  expect(command.input.SecretArn).toEqual(REDSHIFT_SECRET_ARN);
+});
+
+test('redshift cancellation', async () => {
+  const queryId = '1234';
+  const timeoutMs = 1000;
+  const cancelledResponse = { Id: queryId, Status: 'ABORTED' };
+
+  mockRedshiftClient
+    .resolvesOnce({ Id: queryId })
+    .resolvesOnce({ Id: queryId, Status: 'SUBMITTED' })
+    .resolvesOnce({ Id: queryId, Status: 'STARTED' })
+    .resolvesOnce({ Id: queryId, Status: 'STARTED' })
+    .resolvesOnce(cancelledResponse);
+
+  const event = getEvent({
+    command: 'REDSHIFT_RUN_QUERY',
+    input: { Sql: '', timeoutMs },
+  });
+  await expect(handler(event, CONTEXT)).rejects.toThrow(
+    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify({
+      status: cancelledResponse.Status,
+    })}`,
+  );
+
+  expect(mockRedshiftClient.calls()).toHaveLength(5);
+  const command = mockRedshiftClient.call(0).firstArg as ExecuteStatementCommand;
+  expect(command.input.SecretArn).toEqual(REDSHIFT_SECRET_ARN);
+});
+
+test('redshift failure', async () => {
+  const queryId = '1234';
+  const timeoutMs = 1000;
+  const failedResponse = { Id: queryId, Status: 'FAILED', Error: 'ERROR: permission denied for schema dev_txma_stage' };
+
+  mockRedshiftClient
+    .resolvesOnce({ Id: queryId })
+    .resolvesOnce({ Id: queryId, Status: 'SUBMITTED' })
+    .resolvesOnce({ Id: queryId, Status: 'STARTED' })
+    .resolvesOnce({ Id: queryId, Status: 'STARTED' })
+    .resolves(failedResponse);
+
+  const event = getEvent({
+    command: 'REDSHIFT_RUN_QUERY',
+    input: { Sql: '', timeoutMs },
+  });
+  await expect(handler(event, CONTEXT)).rejects.toThrow(
+    `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify({
+      status: failedResponse.Status,
+      extraInfo: failedResponse.Error,
+    })}`,
+  );
+
+  expect(mockRedshiftClient.calls().length).toBeGreaterThanOrEqual(5);
+  const command = mockRedshiftClient.call(0).firstArg as ExecuteStatementCommand;
+  expect(command.input.SecretArn).toEqual(REDSHIFT_SECRET_ARN);
 });
 
 const getEvent = (overrides: { environment?: string; command?: string; input?: object }): TestSupportEvent => {
