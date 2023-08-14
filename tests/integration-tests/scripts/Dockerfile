@@ -12,7 +12,6 @@ RUN apk add --no-cache \
 RUN git clone --single-branch --depth 1 -b ${AWS_CLI_VERSION} https://github.com/aws/aws-cli.git
 
 WORKDIR /aws-cli
-RUN echo $ls
 RUN sed -i 's/PyInstaller.*/PyInstaller==5.6.2/g' requirements-build.txt
 RUN python -m venv venv
 RUN . venv/bin/activate
