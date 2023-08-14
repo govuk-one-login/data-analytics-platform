@@ -1,6 +1,17 @@
-ARG ALPINE_VERSION=3.16
-
 FROM node:16-alpine${ALPINE_VERSION} AS run-tests
+ARG ALPINE_VERSION=3.16
+ARG AWS_CLI_VERSION=2.8.13
+
+RUN apk update
+RUN apk add --no-cache \
+      build-base \
+      cmake \
+      git \
+      groff \
+      libffi-dev
+RUN git clone --single-branch --depth 1 -b ${AWS_CLI_VERSION} https://github.com/aws/aws-cli.git
+
+WORKDIR /aws-cli
 
 WORKDIR /test-app
 
