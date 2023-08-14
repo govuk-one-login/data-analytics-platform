@@ -1,5 +1,5 @@
 ARG ALPINE_VERSION=3.16
-
+FROM python:alpine${ALPINE_VERSION} AS builder
 FROM node:16-alpine${ALPINE_VERSION} AS run-tests
 ARG ALPINE_VERSION=3.16
 ARG AWS_CLI_VERSION=2.8.13
@@ -14,6 +14,18 @@ RUN apk add --no-cache \
 RUN git clone --single-branch --depth 1 -b ${AWS_CLI_VERSION} https://github.com/aws/aws-cli.git
 
 WORKDIR /aws-cli
+RUN echo $ls
+RUN sed -i 's/PyInstaller.*/PyInstaller==5.6.2/g' requirements-build.txt
+RUN python -m venv venv
+RUN . venv/bin/activate
+RUN scripts/installers/make-exe
+RUN unzip -q dist/awscli-exe.zip
+RUN aws/install --bin-dir /aws-cli-bin
+RUN /aws-cli-bin/aws --version
+RUN rm -rf /usr/local/aws-cli/v2/current/dist/aws_completer /usr/local/aws-cli/v2/current/dist/awscli/data/ac.index /usr/local/aws-cli/v2/current/dist/awscli/examples
+RUN find /usr/local/aws-cli/v2/current/dist/awscli/botocore/data -name examples-1.json -delete
+
+FROM node:16-alpine${ALPINE_VERSION} AS run-tests
 
 WORKDIR /test-app
 
