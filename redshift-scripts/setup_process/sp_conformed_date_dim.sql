@@ -1,130 +1,70 @@
-CREATE OR replace PROCEDURE conformed.redshift_date_dim (v_start_date VARCHAR(20),v_end_date VARCHAR(20)) 
+CREATE OR REPLACE PROCEDURE conformed.redshift_date_dim(v_start_date character varying(20), v_end_date character varying(20))
+ LANGUAGE plpgsql
 AS $$
 BEGIN
-	DECLARE 
-        start_date DATE;
-	    end_date DATE;
-	    count INT;
+    DECLARE
+        start_date date;
+        end_date date;
+        count int;
+    BEGIN
 
-	BEGIN
-		
-        --
-        CREATE TABLE IF NOT EXISTS conformed.dim_date (
-            date_key int,
-            date date,
-            DAY varchar(50),
-            day_suffix varchar(50),
-            weekday varchar(50),
-            weekday_name varchar(50),
-            weekday_name_short varchar(10),
-            day_of_week_in_month varchar(50),
-            day_of_year varchar(10),
-            week_of_year varchar(10),
-            MONTH varchar(50),
-            month_name varchar(50),
-            month_name_short varchar(10),
-            quarter varchar(50),
-            quarter_name varchar(50),
-            year varchar(10),
-            is_weekend char(1),
-            created_by varchar(100),
-            created_date date,
-            modified_by varchar(100),
-            modified_date date,
-            batch_id integer,
-            PRIMARY KEY (date_key)
-        ) diststyle auto sortkey auto encode auto;
-        --
+    start_date := v_start_date;
+    end_date := v_end_date;
+        count := 0;
         
-        --start_date := '2022-08-01';
-		--end_date := '2024-12-31’;
-		start_date := v_start_date;
-		end_date := v_end_date;
-		count := 0;
-
-		WHILE start_date <= end_date LOOP
-			--raise info 'date: %', start_date;
-			INSERT INTO conformed.dim_date (
-				date_key,
-				DATE,
-				day,
-				day_suffix,
-				weekday,
-				weekday_name,
-				weekday_name_short,
-				day_of_week_in_month,
-				day_of_year,
-				week_of_year,
-				month,
-				month_name,
-				month_name_short,
-				quarter,
-				quarter_name,
-				year,
-				is_weekend,
-				created_by,
-				created_date,
-				modified_by,
-				modified_date,
-				batch_id
-				)
-			SELECT extract(year FROM start_date) * 10000 + extract(month FROM start_date) * 100 + extract(day FROM start_date) date_key,
-				start_date,
-				to_char(start_date, 'dd'),
-				CASE 
-					WHEN extract(day FROM start_date) = 1
-						OR extract(day FROM start_date) = 21
-						OR extract(day FROM start_date) = 31
-						THEN 'st'
-					WHEN extract(day FROM start_date) = 2
-						OR extract(day FROM start_date) = 22
-						THEN 'nd'
-					WHEN extract(day FROM start_date) = 3
-						OR extract(day FROM start_date) = 23
-						THEN 'rd'
-					ELSE 'th'
-					END AS day_suffix,
-				extract(dow FROM start_date) AS weekday,
-				to_char(start_date, 'day') AS weekday_name,
-				upper(to_char(start_date, 'dy')) AS weekday_name_short,
-				0 day_of_week_in_month,
-				extract(doy FROM start_date)::VARCHAR || ' - ' || extract(year FROM start_date)::VARCHAR AS day_of_year,
-				floor(datediff('week', date_trunc('year', start_date), start_date)) + 1 AS week_of_year,
-				extract(month FROM start_date) AS month,
-				to_char(start_date, 'month') AS month_name,
-				upper(substring(to_char(start_date, 'month'), 1, 3)) AS month_name_short,
-				(extract(month FROM start_date) + 2) / 3 AS quarter,
-				CASE 
-					WHEN extract(quarter FROM start_date) = 1
-						THEN 'first'
-					WHEN extract(quarter FROM start_date) = 2
-						THEN 'second'
-					WHEN extract(quarter FROM start_date) = 3
-						THEN 'third'
-					WHEN extract(quarter FROM start_date) = 4
-						THEN 'fourth'
-					END AS quarter_name,
-				extract(year FROM start_date) AS year,
-				CASE 
-					WHEN to_char(start_date, 'day') = 'sunday'
-						OR to_char(start_date, 'day') = 'saturday'
-						THEN 1
-					ELSE 0
-					END AS is_weekend,
-				'dummy user',
-				CURRENT_DATE,
-				'dummy user',
-				CURRENT_DATE,
-				9999;
-
-		count := count + 1;
-		start_date := start_date + interval '1 day';
-	    END
-
-	LOOP;
-
-	raise info 'total count: %',count;
+        WHILE start_date <= end_date LOOP
+            --RAISE INFO 'Date: %', start_date;
+            insert into conformed.DIM_DATE(DATE_KEY,DATE,DAY,DAY_SUFFIX,WEEKDAY,WEEKDAY_NAME,weekday_name_short,DAY_OF_WEEK_IN_MONTH,
+                                               day_of_year,week_of_year,month,month_name,month_name_short,quarter,quarter_name,year,is_weekend,
+                                               CREATED_BY,CREATED_DATE,MODIFIED_BY,MODIFIED_DATE,BATCH_ID)
+            SELECT   EXTRACT(YEAR FROM start_date) * 10000 + EXTRACT(MONTH FROM start_date) * 100 + EXTRACT(DAY FROM start_date) DATE_KEY,
+            start_date,
+            TO_CHAR(start_date, 'DD'),
+            CASE 
+                WHEN EXTRACT(DAY FROM start_date) = 1
+                    OR EXTRACT(DAY FROM start_date) = 21
+                    OR EXTRACT(DAY FROM start_date) = 31
+                    THEN 'st'
+                WHEN EXTRACT(DAY FROM start_date) = 2
+                    OR EXTRACT(DAY FROM start_date) = 22
+                    THEN 'nd'
+                WHEN EXTRACT(DAY FROM start_date) = 3
+                    OR EXTRACT(DAY FROM start_date) = 23
+                    THEN 'rd'
+                ELSE 'th'
+            END AS DAY_SUFFIX ,
+            EXTRACT(DOW FROM start_date) AS WEEKDAY,
+            TO_CHAR(start_date, 'Day') AS weekday_name,
+            UPPER(TO_CHAR(start_date, 'Dy')) AS weekday_name_short,
+            0 DAY_OF_WEEK_IN_MONTH,
+            EXTRACT(DOY FROM start_date)::VARCHAR || ' - ' || EXTRACT(YEAR FROM start_date)::VARCHAR AS day_of_year,
+            FLOOR(DATEDIFF('week', DATE_TRUNC('year', start_date), start_date)) + 1 AS week_of_year,
+            EXTRACT(MONTH FROM start_date) AS month,
+            TO_CHAR(start_date, 'Month') AS month_name,
+            UPPER(SUBSTRING(TO_CHAR(start_date, 'Month'), 1, 3)) AS month_name_short,
+            (EXTRACT(MONTH FROM start_date) + 2) / 3 AS quarter,
+            CASE
+                WHEN EXTRACT(QUARTER FROM start_date) = 1 THEN 'First'
+                WHEN EXTRACT(QUARTER FROM start_date) = 2 THEN 'Second'
+                WHEN EXTRACT(QUARTER FROM start_date) = 3 THEN 'Third'
+                WHEN EXTRACT(QUARTER FROM start_date) = 4 THEN 'Fourth'
+            END AS quarter_name,
+            EXTRACT(YEAR FROM start_date)  AS year,
+            CASE
+                WHEN TO_CHAR(start_date, 'Day') = 'Sunday' OR TO_CHAR(start_date, 'Day') = 'Saturday'
+                THEN 1
+                ELSE 0
+            END AS is_weekend,
+            'DUMMY USER',
+            CURRENT_DATE,
+            'DUMMY USER',
+            CURRENT_DATE,
+            9999 ;
+            count := count + 1;
+            start_date := start_date + INTERVAL '1 DAY';
+        END LOOP;
+        
+        RAISE INFO 'Total count: %', count;
     END;
 END;
-
-$$ LANGUAGE plpgsql;
+$$
