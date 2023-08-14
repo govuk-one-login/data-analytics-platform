@@ -27,6 +27,15 @@ RUN find /usr/local/aws-cli/v2/current/dist/awscli/botocore/data -name examples-
 
 FROM node:16-alpine${ALPINE_VERSION} AS run-tests
 
+COPY --from=builder /usr/local/bin/python /usr/local/bin/python
+COPY --from=builder /usr/local/lib/ /usr/local/lib/
+COPY --from=builder /usr/local/aws-cli/ /usr/local/aws-cli/
+COPY --from=builder /aws-cli-bin/ /usr/local/bin/
+
+RUN apk update && \
+      apk upgrade && \
+      apk add --no-cache \
+      bash
 WORKDIR /test-app
 
 COPY tests/e2e-tests ./tests/e2e-tests
