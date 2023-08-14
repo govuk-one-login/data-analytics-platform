@@ -1,5 +1,6 @@
-FROM node:16-alpine${ALPINE_VERSION} AS run-tests
+
 ARG ALPINE_VERSION=3.16
+FROM node:16-alpine${ALPINE_VERSION} AS run-tests
 ARG AWS_CLI_VERSION=2.8.13
 
 RUN apk update
