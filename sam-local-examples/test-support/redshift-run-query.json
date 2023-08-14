@@ -1,0 +1,7 @@
+{
+  "environment": "dev",
+  "command": "REDSHIFT_RUN_QUERY",
+  "input": {
+    "Sql": "SELECT COUNT(*) FROM \"dev-redshift\".\"dev_txma_stage\".\"auth_account_creation\""
+  }
+}

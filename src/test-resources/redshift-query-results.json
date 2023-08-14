@@ -1,0 +1,26 @@
+{
+  "$metadata": {
+    "httpStatusCode": 200,
+    "requestId": "6b19fda2-7734-41cc-ad96-4d2dfe4342b8",
+    "attempts": 1,
+    "totalRetryDelay": 0
+  },
+  "ColumnMetadata": [
+    {
+      "isCaseSensitive": false,
+      "isCurrency": false,
+      "isSigned": true,
+      "label": "count",
+      "length": 0,
+      "name": "count",
+      "nullable": 1,
+      "precision": 19,
+      "scale": 0,
+      "schemaName": "",
+      "tableName": "",
+      "typeName": "int8"
+    }
+  ],
+  "Records": [[{ "longValue": 1517 }]],
+  "TotalNumRows": 1
+}
