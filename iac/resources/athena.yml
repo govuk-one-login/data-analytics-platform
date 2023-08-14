@@ -64,8 +64,10 @@ AthenaWorkGroup:
       EnforceWorkGroupConfiguration: true
       PublishCloudWatchMetricsEnabled: false
       RequesterPaysEnabled: true
-      ResultConfiguration:
-        OutputLocation: !Sub 's3://${AthenaWorkgroupBucket}/txma/'
+      ResultConfigurationUpdates:
+          EncryptionConfiguration:
+            EncryptionOption: SSE_S3
+          OutputLocation: !Sub 's3://${AthenaWorkgroupBucket}/txma/'
 
 AthenaGetConfigLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
