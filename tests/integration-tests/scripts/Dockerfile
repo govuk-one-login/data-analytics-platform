@@ -52,7 +52,7 @@ RUN npm ci
 
 WORKDIR /test-app/tests/integration-tests/scripts
 
-RUN mv ./run-integration-tests.sh /run-integration-tests.sh
-RUN chmod +x /run-integration-tests.sh
+RUN mv ./run-integration-tests.sh /run-tests.sh
+RUN chmod +x /run-tests.sh
 
-ENTRYPOINT ["/run-integration-tests.sh"]
+ENTRYPOINT ["/run-tests.sh"]

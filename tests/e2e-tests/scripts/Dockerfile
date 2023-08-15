@@ -52,7 +52,7 @@ RUN npm ci
 
 WORKDIR /test-app/tests/e2e-tests/scripts
 
-RUN mv ./run-e2e-tests.sh /run-e2e-tests.sh
-RUN chmod +x /run-e2e-tests.sh
+RUN mv ./run-e2e-tests.sh /run-tests.sh
+RUN chmod +x /run-tests.sh
 
-ENTRYPOINT ["/run-e2e-tests.sh"]
+ENTRYPOINT ["/run-tests.sh"]
