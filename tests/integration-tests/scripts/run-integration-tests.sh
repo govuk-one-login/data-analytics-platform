@@ -7,20 +7,14 @@
 # TEST_ENVIRONMENT - The environment the pipeline is running the tests in
 
 # This file needs to be located at the root when running in the container. The path /test-app is defined
-# in the Dockerfile. this can be commented later
-#cd /test-app || exit 1
-
-#Env variables will be reviwed and added as and when we integrate with pipeline
-#export CONFIG_NAME=${ENV_NAME}
-
-export TXMA_QUEUE_URL=$CFN_TXMAQueueURL
-export TXMA_BUCKET=$CFN_TXMABucket
+# in the Dockerfile.
+cd /test-app || exit 1
 
 npm run integration-test
 
 TESTS_EXIT_CODE=$?
 
-cp reports/testReport.xml $TEST_REPORT_ABSOLUTE_DIR/junit.xml
+cp -a test-report $TEST_REPORT_ABSOLUTE_DIR
 
 if [ $TESTS_EXIT_CODE -ne 0 ]; then
   exit 1
