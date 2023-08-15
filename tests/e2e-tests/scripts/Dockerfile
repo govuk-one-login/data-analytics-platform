@@ -55,10 +55,4 @@ WORKDIR /test-app/tests/e2e-tests/scripts
 RUN mv ./run-e2e-tests.sh /run-e2e-tests.sh
 RUN chmod +x /run-e2e-tests.sh
 
-ENV TXMA_QUEUE_URL="some url"
-ENV CFN_TXMAQueueURL="some url"
-ENV TXMA_BUCKET="some bucket url"
-ENV CFN_TXMABucket="some bucket url"
-ENV TEST_REPORT_ABSOLUTE_DIR="/tmp"
-
 ENTRYPOINT ["/run-e2e-tests.sh"]
