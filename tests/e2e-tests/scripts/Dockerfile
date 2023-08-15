@@ -33,12 +33,18 @@ RUN apk update && \
       apk upgrade && \
       apk add --no-cache \
       bash
+
+RUN apk add --no-cache --upgrade grep
+
 WORKDIR /test-app
 
 RUN aws --version
 
-COPY tests/e2e-tests ./tests/e2e-tests
-COPY package.json package-lock.json tsconfig.json tests/e2e-tests/scripts/jest.e2e.config.ts ./
+COPY tests ./tests
+COPY scripts ./scripts
+COPY package.json package-lock.json tsconfig.json ./
+COPY tests/e2e-tests/scripts/jest.e2e.config.js ./jest.config.js
+COPY tests/e2e-tests/scripts/jest.e2e.setup.js ./jest.setup.js
 COPY src/handlers/test-support/ ./src/handlers/test-support/
 COPY src/shared/ ./src/shared/
 
@@ -46,7 +52,7 @@ RUN npm ci
 
 WORKDIR /test-app/tests/e2e-tests/scripts
 
-RUN mv ./run-e2e-tests.sh /run-e2e-tests.sh
-RUN chmod +x /run-e2e-tests.sh
+RUN mv ./run-e2e-tests.sh /run-tests.sh
+RUN chmod +x /run-tests.sh
 
-ENTRYPOINT ["/run-e2e-tests.sh"]
+ENTRYPOINT ["/run-tests.sh"]
