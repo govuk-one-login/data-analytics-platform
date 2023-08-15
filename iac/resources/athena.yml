@@ -64,7 +64,7 @@ AthenaWorkGroup:
       EnforceWorkGroupConfiguration: true
       PublishCloudWatchMetricsEnabled: false
       RequesterPaysEnabled: true
-      ResultConfigurationUpdates:
+      ResultConfiguration:
         EncryptionConfiguration:
           EncryptionOption: SSE_S3
         OutputLocation: !Sub 's3://${AthenaWorkgroupBucket}/txma/'
