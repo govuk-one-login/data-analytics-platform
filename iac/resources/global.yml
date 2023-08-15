@@ -183,6 +183,7 @@ TestSupportLambda:
               - athena:GetQueryResults
               - athena:StartQueryExecution
               - glue:GetDatabase
+              - glue:GetPartition
               - glue:GetPartitions
               - glue:GetTable
               - glue:GetTables
