@@ -1,7 +1,5 @@
 ARG ALPINE_VERSION=3.16
 FROM python:alpine${ALPINE_VERSION} AS builder
-FROM node:16-alpine${ALPINE_VERSION} AS run-tests
-ARG ALPINE_VERSION=3.16
 ARG AWS_CLI_VERSION=2.8.13
 
 RUN apk update
@@ -36,6 +34,8 @@ RUN apk update && \
       apk add --no-cache \
       bash
 WORKDIR /test-app
+
+RUN aws --version
 
 COPY tests/e2e-tests ./tests/e2e-tests
 COPY package.json package-lock.json tsconfig.json tests/e2e-tests/scripts/jest.e2e.config.ts ./
