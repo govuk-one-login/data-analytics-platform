@@ -54,12 +54,13 @@ export const getS3DataFileContent = async (key: string | undefined): Promise<Rec
   return await invokeTestSupportLambda(event);
 };
 
-export const cpS3files = async (bucket: string,fileName: string ): Promise<Record<string, unknown>> => {
+export const cpS3files = async (bucket: string,key:string, CopySource: string ): Promise<Record<string, unknown>> => {
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'S3_COPY',
     input: {
       Bucket: bucket,
-      Filename: fileName,
+      Key: key,
+      CopySource: CopySource,
     },
   };
 
@@ -136,25 +137,25 @@ export const checkFileCreatedOnS3kinesis = async (
   });
 };
 
-export const copyFilesFromBucket = async (BucketName: string,eventList: List,timeoutMs: number)  => {
-  const pollS3BucketForEventIdString = async (): Promise<boolean> => {
-    const contents = await getListS3(BucketName).then(result => result.Contents as S3ListEntry[]);
-      for (let index = 0; index < eventList.length; index++) {
-        const sourceFileName = getEventFilePrefix(JSON.stringify(eventList[index]))
-  			const filename = contents[index]['Key']
-        const destinationFileName = getEventFilePrefixDayBefore(JSON.stringify(eventList[index]))
-        console.log("destinationFileName is "+destinationFileName)
-  			if (filename.includes('.gz')) {
-  			const Bucket_Name = BucketName+'/'+getEventFilePrefixDayBefore(filename.split('/')[0]);
-  			const Source = BucketName+'/'+filename;
-  			const Key = filename.split('/')[1]
-        await cpS3files(sourceFileName, destinationFileName);
+export const copyFilesFromBucket = async (BucketName: string,eventList: List,timeoutMs: number) : Promise<boolean> => {
+  for (let index = 0; index < eventList.length; index++){
+    let sourceFilePath = getEventFilePrefix(eventList[index])
+    let fileName : string[] = []
+    let sourceFilename = ''
+    let contents = await getEventListS3(sourceFilePath).then(result => result.Contents as S3ListEntry[]);
+    if (contents !== undefined) {
+      if (contents.length > 0) {
+        contents.sort((f1, f2) => Date.parse(f2.LastModified) - Date.parse(f1.LastModified));
+      }}
+      for (let index1 = 0; index1 < contents.length; index1++) {
+        sourceFilename = contents[index1]['Key']
+        fileName = sourceFilename.split('/')
       }
-    }
-    return false;
-  };
-  return await poll(pollS3BucketForEventIdString, result => result, {
-    timeout: timeoutMs,
-    nonCompleteErrorMessage: 'File never got to S3 within the timeout',
-  });
+      let destinationFilePath = getEventFilePrefixDayBefore(eventList[index])
+      const key = destinationFilePath+'/'+fileName[fileName.length-1]
+      const copySource ='/'+BucketName+'/'+sourceFilename 
+     cpS3files(BucketName,key,copySource );
+     }
+  return false;
 };
+
