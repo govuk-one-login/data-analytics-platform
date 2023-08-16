@@ -2,15 +2,19 @@ import type { Datum, GetQueryResultsOutput } from '@aws-sdk/client-athena';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
 
-export const athenaRunQuery = async (QueryString: string): Promise<GetQueryResultsOutput> => {
+export const athenaRunQuery = async (
+  QueryString: string,
+  database: string,
+  workGroup: string,
+): Promise<GetQueryResultsOutput> => {
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'ATHENA_RUN_QUERY',
     input: {
       QueryString,
       QueryExecutionContext: {
-        Database: 'test-txma-stage',
+        Database: database,
       },
-      WorkGroup: 'test-dap-txma-processing',
+      WorkGroup: workGroup,
     },
   };
 
@@ -28,8 +32,12 @@ export const redshiftRunQuery = async (QueryString: string): Promise<GetQueryRes
   return await invokeTestSupportLambda(event);
 };
 
-export const getQueryResults = async <TResponse>(query: string): Promise<TResponse[]> => {
-  const queryResults = await athenaRunQuery(query);
+export const getQueryResults = async <TResponse>(
+  query: string,
+  database: string,
+  workGroup: string,
+): Promise<TResponse[]> => {
+  const queryResults = await athenaRunQuery(query, database, workGroup);
   if (queryResults?.ResultSet?.Rows?.[0]?.Data === undefined) throw new Error('Invalid query results');
   const columns = queryResults.ResultSet.Rows[0].Data;
   const rows = queryResults.ResultSet.Rows.slice(1).map(d => d.Data);
