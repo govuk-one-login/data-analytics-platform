@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { getQueryResults } from '../helpers/athena-helpers';
+import { getQueryResults } from '../helpers/db-helpers';
 import { delay } from '../helpers/common-helpers';
 import { copyFilesFromBucket } from '../helpers/s3-helpers';
 import { describeExecution, startStepFunction } from '../helpers/step-helpers';
@@ -10,10 +10,10 @@ describe('Verify Data from raw layer is processed to stage layer', () => {
   // 	    // ******************** Copy files to s3 raw bucket ************************************
 
   test('store files in s3 bucket in raw layer and process step function and validate using Athena queries ', async () => {
-    await copyFilesFromBucket(String(process.env.TXMA_BUCKET), data);
+    await copyFilesFromBucket(process.env.ENVIRONMENT+'-dap-raw-layer', data);
 
     // // 	    // ******************** Start raw to stage step function  ************************************
-    const stepexecutionId = await startStepFunction('test-dap-raw-to-stage-process');
+    const stepexecutionId = await startStepFunction(process.env.ENVIRONMENT+'-dap-raw-to-stage-process');
 
     // // //         // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************
 

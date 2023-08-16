@@ -1,11 +1,11 @@
-import { getQueryResults } from '../helpers/db-helpers';
+import { getQueryResults, redshiftRunQuery } from '../helpers/db-helpers';
 import { describeFirehoseDeliveryStream } from '../helpers/firehose-helpers';
 import { getSQSQueueUrl } from '../helpers/lambda-helpers';
 import { getS3BucketStatus } from '../helpers/s3-helpers';
 
-const sqsQueueName = 'test-placeholder-txma-event-queue';
-const deliveryStreamName = 'test-dap-txma-delivery-stream';
-const rawdataS3BucketName = 'test-dap-raw-layer';
+const sqsQueueName = process.env.ENVIRONMENT+'-placeholder-txma-event-queue';
+const deliveryStreamName = process.env.ENVIRONMENT+'-dap-txma-delivery-stream';
+const rawdataS3BucketName = process.env.ENVIRONMENT+'-dap-raw-layer';
 
 describe('smoke tests for DAP services', () => {
   // 	    // ******************** Smoke Tests  ************************************
@@ -31,6 +31,7 @@ describe('smoke tests for DAP services', () => {
   });
 
   test('Verify Redshift Database is reachable ', async () => {
-    // todo
+    const redShiftQueryResults = await redshiftRunQuery('select event_key from dap_txma_reporting_db.conformed.dim_event');
+    expect(JSON.stringify(redShiftQueryResults)).not.toBeNull();
   });
 });

@@ -46,7 +46,7 @@ export const getS3DataFileContent = async (key: string | undefined): Promise<Rec
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'S3_GET',
     input: {
-      Bucket: process.env.TXMA_BUCKET,
+      Bucket: process.env.ENVIRONMENT+'-dap-raw-layer',
       Key: key,
     },
   };
@@ -71,7 +71,7 @@ export const getEventListS3 = async (prefix: string): Promise<Record<string, unk
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'S3_LIST',
     input: {
-      Bucket: process.env.TXMA_BUCKET,
+      Bucket: process.env.ENVIRONMENT+'-dap-raw-layer',
       Prefix: prefix,
     },
   };
