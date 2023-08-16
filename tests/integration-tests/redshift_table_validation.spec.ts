@@ -9,14 +9,14 @@ import {
 
 describe('Redshift Data Model Validations', () => {
 
-  test('Verify Redshift Database => DIM event table metadata', async () => {
+  test('Verify Redshift Database => DIM_DATE table metadata', async () => {
     const redShiftQueryResults = await redshiftRunQuery(
       DIM_EVENT_COLUMNS,
     );
     console.log("Data:" + JSON.stringify(redShiftQueryResults))
     expect(JSON.stringify(redShiftQueryResults)).not.toBeNull();
   });
-  test('Verify Redshift Database => DIM event table metadata', async () => {
+  test('Verify Redshift Database => DIM_DATE table metadata', async () => {
     const redShiftQueryResults = await redshiftRunQuery(
       DIM_DATE_COLUMNS,
     );
