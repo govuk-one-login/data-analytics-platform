@@ -1,13 +1,13 @@
 import { InvokeCommand } from '@aws-sdk/client-lambda';
-import type { TestSupportEnvironment, TestSupportEvent } from '../../src/handlers/test-support/handler';
-import { decodeObject, encodeObject } from '../../src/shared/utils/utils';
+import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
+import { decodeObject, encodeObject, getAWSEnvironment } from '../../src/shared/utils/utils';
 import { lambdaClient } from '../../src/shared/clients';
 import { getLogger } from '../../src/shared/powertools';
 const logger = getLogger('auth_account_creation_group');
 
 export interface GetQueueUrlResult {
-  QueueUrl?: String;
-    }
+  QueueUrl?: string;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const publishToTxmaQueue = async (payload: any): Promise<unknown> => {
@@ -35,7 +35,7 @@ export const getSQSQueueUrl = async (queneName: string): Promise<GetQueueUrlResu
 export const invokeTestSupportLambda = async (
   event: Omit<TestSupportEvent, 'environment'>,
 ): Promise<Record<string, unknown>> => {
-  const environment = (process.env.AWS_ENVIRONMENT as TestSupportEnvironment) ?? 'test';
+  const environment = getAWSEnvironment();
 
   const payload: TestSupportEvent = {
     environment,
