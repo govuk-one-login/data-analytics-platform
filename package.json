@@ -45,7 +45,7 @@
     "test": "jest --silent src",
     "integration-test": "scripts/integration-test-check.sh && jest --silent ./tests/integration-tests --maxWorkers=4",
     "e2e-test": "scripts/integration-test-check.sh && jest --silent ./tests/e2e-tests --maxWorkers=4",
-    "smoke-test": "scripts/integration-test-check.sh && jest --silent ./tests/smoke-tests --maxWorkers=4",
+    "smoke-test": "jest ./tests/smoke-tests --silent --maxWorkers=4",
     "iac:build": "scripts/build-sam-template.sh",
     "iac:lint": "npm run iac:build && sam validate --lint --region eu-west-2",
     "iac:scan": "npm run iac:build && checkov --config-file .checkov.local.yml --file template.yaml --quiet",
