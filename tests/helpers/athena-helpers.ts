@@ -9,9 +9,9 @@ export const athenaRunQuery = async (QueryString: string): Promise<GetQueryResul
       input: {
         QueryString: QueryString,
         QueryExecutionContext: {
-          Database: process.env.ATHENA_DB// "test-txma-stage"
+          Database: "test-txma-stage"
         },
-        WorkGroup:process.env.ATHENA_WORK_GROUP //"test-dap-txma-processing"
+        WorkGroup:"test-dap-txma-processing"
       },
     };
   

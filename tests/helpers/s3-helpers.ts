@@ -1,7 +1,7 @@
 import { getEventFilePrefix, getEventFilePrefixDayBefore, poll } from '../helpers/common-helpers';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
-import { List } from 'aws-sdk/lib/model';
+import { ListObjectsV2CommandOutput } from '@aws-sdk/client-s3';
 
 interface S3ListEntry {
   Key: string;
@@ -78,7 +78,7 @@ export const getEventListS3 = async (prefix: string): Promise<Record<string, unk
   return await invokeTestSupportLambda(event);
 };
 
-export const getS3BucketStatus = async (bucket: string,prefix: string): Promise<Record<string, unknown>> => {
+export const getS3BucketStatus = async (bucket: string,prefix: string): Promise<ListObjectsV2CommandOutput> => {
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'S3_LIST',
     input: {
@@ -86,7 +86,7 @@ export const getS3BucketStatus = async (bucket: string,prefix: string): Promise<
       Prefix: prefix,
     },
   };
-  return await invokeTestSupportLambda(event);
+  return await invokeTestSupportLambda(event) as unknown as ListObjectsV2CommandOutput;
 };
 
 export const getListS3 = async (bucket: string): Promise<Record<string, unknown>> => {
@@ -137,7 +137,7 @@ export const checkFileCreatedOnS3kinesis = async (
   });
 };
 
-export const copyFilesFromBucket = async (BucketName: string,eventList: List,timeoutMs: number) : Promise<boolean> => {
+export const copyFilesFromBucket = async (BucketName: string,eventList: string[]) : Promise<boolean> => {
   for (let index = 0; index < eventList.length; index++){
     let sourceFilePath = getEventFilePrefix(eventList[index])
     let fileName : string[] = []
@@ -146,7 +146,7 @@ export const copyFilesFromBucket = async (BucketName: string,eventList: List,tim
     if (contents !== undefined) {
       if (contents.length > 0) {
         contents.sort((f1, f2) => Date.parse(f2.LastModified) - Date.parse(f1.LastModified));
-      }}
+
       for (let index1 = 0; index1 < contents.length; index1++) {
         sourceFilename = contents[index1]['Key']
         fileName = sourceFilename.split('/')
@@ -155,6 +155,7 @@ export const copyFilesFromBucket = async (BucketName: string,eventList: List,tim
       const key = destinationFilePath+'/'+fileName[fileName.length-1]
       const copySource ='/'+BucketName+'/'+sourceFilename 
      cpS3files(BucketName,key,copySource );
+    }}
      }
   return false;
 };
