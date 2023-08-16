@@ -1,4 +1,4 @@
-import { getQueryResults } from "../helpers/athena-helpers";
+import { getQueryResults } from "../helpers/db-helpers";
 import { describeFirehoseDeliveryStream } from "../helpers/firehose-helpers";
 import { getSQSQueueUrl } from "../helpers/lambda-helpers";
 import { getS3BucketStatus } from "../helpers/s3-helpers"

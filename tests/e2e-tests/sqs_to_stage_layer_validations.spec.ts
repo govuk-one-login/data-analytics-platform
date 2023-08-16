@@ -18,11 +18,11 @@ describe("Verify Data from raw layer is processed to stage layer", () => {
 // // 	    // ******************** Start raw to stage step function  ************************************
         const stepexecutionId = await startStepFunction('test-dap-raw-to-stage-process')
 
-// // //         // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************         
+// // //         // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************
 
     let StepExecutionStatus = await describeExecution(String(stepexecutionId.executionArn))
 	let timer =1 
-	while( timer <= 20) { 
+	while( timer <= 20) {
 		if ((StepExecutionStatus.status !== ('RUNNING'))){
 			break;
 		}timer++
@@ -32,7 +32,7 @@ describe("Verify Data from raw layer is processed to stage layer", () => {
 	expect(StepExecutionStatus.status).toEqual('SUCCEEDED');
 
 
-// 		// // ******************** Run Athena queries ************************************  
+// 		// // ******************** Run Athena queries ************************************
 	const athenaQueryResults = await getQueryResults("SELECT count(*) As row_count from auth_account_creation where event_name = 'AUTH_CREATE_ACCOUNT' and processed_date = '20230816'");
 	console.log(athenaQueryResults)
     expect(JSON.stringify(athenaQueryResults)).not.toContain('row_count: "0"')

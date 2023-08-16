@@ -18,6 +18,17 @@ export const athenaRunQuery = async (QueryString: string): Promise<GetQueryResul
     return await invokeTestSupportLambda(event);
   };
 
+export const redshiftRunQuery = async (QueryString: string): Promise<GetQueryResultsOutput> => {
+  const event: Omit<TestSupportEvent, 'environment'> = {
+    command: 'REDSHIFT_RUN_QUERY',
+    input: {
+      Sql: QueryString,
+    },
+  };
+
+  return await invokeTestSupportLambda(event);
+};
+
   export const getQueryResults = async <TResponse>(
     query: string
   ): Promise<TResponse[]> => {
