@@ -425,6 +425,20 @@ VPCEndpointLambda:
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
 
+VPCEndpointRedshiftData:
+  Type: AWS::EC2::VPCEndpoint
+  Properties:
+    VpcEndpointType: Interface
+    ServiceName: com.amazonaws.eu-west-2.redshift-data
+    VpcId: !Ref VPCForDAP
+    PrivateDnsEnabled: true
+    SecurityGroupIds:
+      - !Ref LambdaSecurityGroup
+    SubnetIds:
+      - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3
+
 VPCEndpointS3:
   Type: AWS::EC2::VPCEndpoint
   Properties:
