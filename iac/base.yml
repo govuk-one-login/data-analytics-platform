@@ -72,6 +72,8 @@ Conditions:
     # todo replace line below with `- !Condition IsDev` when txma queue has been moved from dev to staging
     - !Condition IsStaging
     - !Condition IsBuild
+    # todo remove line below when txma queue has been reenabled in production
+    - !Condition IsProduction
 
 Globals:
   Function:
