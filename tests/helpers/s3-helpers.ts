@@ -2,6 +2,7 @@ import { getEventFilePrefix, getEventFilePrefixDayBefore, poll } from './common-
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
 import type { ListObjectsV2CommandOutput } from '@aws-sdk/client-s3';
+import { rawdataS3BucketName } from './envHelper';
 
 interface S3ListEntry {
   Key: string;
@@ -46,7 +47,7 @@ export const getS3DataFileContent = async (key: string | undefined): Promise<Rec
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'S3_GET',
     input: {
-      Bucket: process.env.TXMA_BUCKET,
+      Bucket: rawdataS3BucketName(),
       Key: key,
     },
   };
@@ -71,7 +72,7 @@ export const getEventListS3 = async (prefix: string): Promise<Record<string, unk
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'S3_LIST',
     input: {
-      Bucket: process.env.TXMA_BUCKET,
+      Bucket: rawdataS3BucketName(),
       Prefix: prefix,
     },
   };
