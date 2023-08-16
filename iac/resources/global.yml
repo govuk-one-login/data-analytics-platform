@@ -183,6 +183,7 @@ TestSupportLambda:
               - athena:GetQueryResults
               - athena:StartQueryExecution
               - glue:GetDatabase
+              - glue:GetPartition
               - glue:GetPartitions
               - glue:GetTable
               - glue:GetTables
@@ -415,6 +416,20 @@ VPCEndpointLambda:
   Properties:
     VpcEndpointType: Interface
     ServiceName: com.amazonaws.eu-west-2.lambda
+    VpcId: !Ref VPCForDAP
+    PrivateDnsEnabled: true
+    SecurityGroupIds:
+      - !Ref LambdaSecurityGroup
+    SubnetIds:
+      - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3
+
+VPCEndpointRedshiftData:
+  Type: AWS::EC2::VPCEndpoint
+  Properties:
+    VpcEndpointType: Interface
+    ServiceName: com.amazonaws.eu-west-2.redshift-data
     VpcId: !Ref VPCForDAP
     PrivateDnsEnabled: true
     SecurityGroupIds:

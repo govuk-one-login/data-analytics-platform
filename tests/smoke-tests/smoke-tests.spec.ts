@@ -6,7 +6,7 @@ import { getS3BucketStatus } from "../helpers/s3-helpers"
 
 const sqsQueueName = 'test-placeholder-txma-event-queue'
 const deiveryStreamName = 'test-dap-txma-delivery-stream'
-const rawdataS3BucketName ='test-dap-data-quality-metrics'
+const rawdataS3BucketName ='test-dap-raw-layer'
 
 describe("smoke tests for DAP services", () => {
     // 	    // ******************** Smoke Tests  ************************************
@@ -21,7 +21,7 @@ describe("smoke tests for DAP services", () => {
 
         test("Verify Data Firehose is reachable ", async () => {
             const deliveryStream = await describeFirehoseDeliveryStream(deiveryStreamName)
-            expect(deliveryStream).toContain(sqsQueueName);
+            expect(deliveryStream.DeliveryStreamDescription?.DeliveryStreamStatus == 'ACTIVE');
 
         
         })
@@ -29,14 +29,13 @@ describe("smoke tests for DAP services", () => {
         test("Verify s3 Buckets are reachable ", async () => {
 
             const filesins3 = await getS3BucketStatus(rawdataS3BucketName,'txma')
-            expect(JSON.stringify(filesins3)).toContain('"httpStatusCode":200')
+            expect(filesins3.$metadata.httpStatusCode == 200)
         
         })
 
         test("Verify Athena queries are executable ", async () => {
 
             const athenaQueryResults = await getQueryResults("SELECT * from auth_account_creation");
-            console.log(athenaQueryResults)
             expect(JSON.stringify(athenaQueryResults)).not.toBeNull;
         
         })

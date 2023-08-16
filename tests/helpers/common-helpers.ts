@@ -90,3 +90,19 @@ export const getTodayDateTime = () : string => {
   var TodaydateTime = date+'-'+time;
   return TodaydateTime
 }
+
+export function delay(min: number) {
+  const ms = min*60*1000
+  return new Promise( resolve => setTimeout(resolve, ms) );
+}
+
+export const productFamily = (eventName: string): string => {
+  let productFamilyName = ''
+  for (let index = 0; index < eventName.length; index++){
+  if (eventName[index] == ('AUTH_AUTHORISATION_INITIATED'  || 'AUTH_AUTHORISATION_INITIATED')) {
+    productFamilyName = 'auth_account_creation'
+  }
+  }
+
+  return productFamilyName
+}
