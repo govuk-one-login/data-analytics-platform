@@ -13,11 +13,11 @@ cd /test-app || exit 1
 export TXMA_QUEUE_URL=$CFN_TXMAQueueURL
 export TXMA_BUCKET=$CFN_TXMABucket
 
-npm run e2e-test
+npm run integration-test
 
 TESTS_EXIT_CODE=$?
 
-cp reports/testReport.xml $TEST_REPORT_ABSOLUTE_DIR/junit.xml
+cp -a test-report $TEST_REPORT_ABSOLUTE_DIR
 
 if [ $TESTS_EXIT_CODE -ne 0 ]; then
   exit 1

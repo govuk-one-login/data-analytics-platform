@@ -1,29 +1,20 @@
 import { AWS_ENVIRONMENTS } from '../../shared/constants';
-import { decodeObject, getAccountId, getRequiredParams, sleep } from '../../shared/utils/utils';
+import { decodeObject, getAccountId, getRequiredParams } from '../../shared/utils/utils';
 import { DescribeLogStreamsCommand, GetLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
 import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 import { InvokeCommand } from '@aws-sdk/client-lambda';
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { CopyObjectCommand, GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
 import { GetQueueUrlCommand, SendMessageCommand } from '@aws-sdk/client-sqs';
-import {
-  athenaClient,
-  cloudwatchClient,
-  firehoseClient,
-  lambdaClient,
-  s3Client,
-  sfnClient,
-  sqsClient,
-} from '../../shared/clients';
+import { cloudwatchClient, firehoseClient, lambdaClient, s3Client, sfnClient, sqsClient } from '../../shared/clients';
 import * as zlib from 'zlib';
-import { GetQueryExecutionCommand, GetQueryResultsCommand, StartQueryExecutionCommand } from '@aws-sdk/client-athena';
-import type { GetQueryResultsOutput, QueryExecutionStatus } from '@aws-sdk/client-athena';
 import { getLogger } from '../../shared/powertools';
 import { DescribeExecutionCommand, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import type { Context } from 'aws-lambda';
 import { DescribeDeliveryStreamCommand } from '@aws-sdk/client-firehose';
+import { QueryRunner } from './query-runner';
 
-const logger = getLogger('lambda/test-support');
+export const logger = getLogger('lambda/test-support');
 
 const TEST_SUPPORT_COMMANDS = [
   'ATHENA_RUN_QUERY',
@@ -31,6 +22,7 @@ const TEST_SUPPORT_COMMANDS = [
   'CLOUDWATCH_LIST',
   'FIREHOSE_DESCRIBE_STREAM',
   'LAMBDA_INVOKE',
+  'REDSHIFT_RUN_QUERY',
   'S3_COPY',
   'S3_GET',
   'S3_LIST',
@@ -75,7 +67,7 @@ const validateEvent = (event: TestSupportEvent): TestSupportEvent => {
 const handleEvent = async (event: TestSupportEvent, context: Context): Promise<unknown> => {
   switch (event.command) {
     case 'ATHENA_RUN_QUERY': {
-      return await runAthenaQuery(event);
+      return await new QueryRunner('athena').runQuery(event);
     }
     case 'CLOUDWATCH_GET': {
       const request = new GetLogEventsCommand({
@@ -102,6 +94,9 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
         InvocationType: 'RequestResponse',
       });
       return await lambdaClient.send(request).then(lambdaInvokeResponse);
+    }
+    case 'REDSHIFT_RUN_QUERY': {
+      return await new QueryRunner('redshift').runQuery(event);
     }
     case 'S3_COPY': {
       const request = new CopyObjectCommand({
@@ -191,50 +186,6 @@ const gzipToString = async (response: GetObjectCommandOutput): Promise<string> =
       }
     });
   });
-};
-
-const runAthenaQuery = async (event: TestSupportEvent): Promise<unknown> => {
-  try {
-    const queryExecutionId = await startAthenaQuery(event);
-    await waitForAthenaQueryToSucceed(queryExecutionId, event.input.timeoutMs ?? 5000);
-    return await getAthenaResults(queryExecutionId);
-  } catch (e) {
-    logger.error(`Error executing athena query with input ${JSON.stringify(event.input)}`, { e });
-    throw e;
-  }
-};
-
-const startAthenaQuery = async (event: TestSupportEvent): Promise<string | undefined> => {
-  const request = new StartQueryExecutionCommand({
-    ...getRequiredParams(event.input, 'QueryString', 'QueryExecutionContext', 'WorkGroup'),
-  });
-  return await athenaClient.send(request).then(response => response.QueryExecutionId);
-};
-
-const waitForAthenaQueryToSucceed = async (QueryExecutionId: string | undefined, timeoutMs: number): Promise<void> => {
-  let status: QueryExecutionStatus | undefined;
-  let timeRemaining = timeoutMs;
-  while (timeRemaining > 0) {
-    status = await athenaClient
-      .send(new GetQueryExecutionCommand({ QueryExecutionId }))
-      .then(response => response.QueryExecution?.Status);
-
-    // return if SUCCEEDED to stop waiting, break if CANCELLED to allow error to be thrown
-    // don't break if FAILED as athena may retry and put back in QUEUED
-    if (status?.State === 'SUCCEEDED') {
-      return;
-    } else if (status?.State === 'CANCELLED') {
-      break;
-    }
-    timeRemaining -= 200;
-    await sleep(200);
-  }
-  throw new Error(`Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify(status)}`);
-};
-
-const getAthenaResults = async (QueryExecutionId: string | undefined): Promise<GetQueryResultsOutput> => {
-  const resultsRequest = new GetQueryResultsCommand({ QueryExecutionId });
-  return await athenaClient.send(resultsRequest);
 };
 
 const getS3CopyKey = (event: TestSupportEvent): string => {

@@ -183,6 +183,7 @@ TestSupportLambda:
               - athena:GetQueryResults
               - athena:StartQueryExecution
               - glue:GetDatabase
+              - glue:GetPartition
               - glue:GetPartitions
               - glue:GetTable
               - glue:GetTables
@@ -193,11 +194,21 @@ TestSupportLambda:
           - Effect: Allow
             Action: firehose:DescribeDeliveryStream
             Resource: '*'
+          - Effect: Allow
+            Action:
+              - redshift-data:DescribeStatement
+              - redshift-data:ExecuteStatement
+              - redshift-data:GetStatementResult
+            Resource: '*'
+          - Effect: Allow
+            Action: secretsmanager:GetSecretValue
+            Resource: !Ref MyRedshiftSecret
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
         ENVIRONMENT: !Ref Environment
+        REDSHIFT_SECRET_ARN: !Ref MyRedshiftSecret
     Tags:
       Environment: !Ref Environment
     VpcConfig:
