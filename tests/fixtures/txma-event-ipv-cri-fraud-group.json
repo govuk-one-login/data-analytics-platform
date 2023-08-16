@@ -1,28 +1,28 @@
 {
-    "event_id": "85c3cc93-52a7-4b35-a9d8-b1909a8e062c",
-    "event_name": "IPV_FRAUD_CRI_VC_ISSUED",
-    "component_id": "https://www.review-b.staging.account.gov.uk",
-    "timestamp": 1686662159,
-    "timestamp_formatted": "2023-06-13T13:15:58.944Z",
-    "extensions": {
-      "iss": "Androgynous",
-      "evidence": {
-        "decisionScore": "PCI",
-        "identityFraudScore": "Orchestrator",
-        "type": "finally",
-        "checkDetails": {
-          "checkMethod": "method"
-        },
-        "failedCheckDetails": {
-          "checkMethod": "Personal"
-        }
+  "event_id": "85c3cc93-52a7-4b35-a9d8-b1909a8e062c",
+  "event_name": "IPV_FRAUD_CRI_VC_ISSUED",
+  "component_id": "https://www.review-b.staging.account.gov.uk",
+  "timestamp": 1686662159,
+  "timestamp_formatted": "2023-06-13T13:15:58.944Z",
+  "extensions": {
+    "iss": "Androgynous",
+    "evidence": {
+      "decisionScore": "PCI",
+      "identityFraudScore": "Orchestrator",
+      "type": "finally",
+      "checkDetails": {
+        "checkMethod": "method"
+      },
+      "failedCheckDetails": {
+        "checkMethod": "Personal"
       }
-    },
-    "user": {
-      "govuk_signin_journey_id": "798337b6-8011-4a29-9265-f54c79d8845b",
-      "user_id": "integration-tests"
-    },
-    "txma": {
-      "config_version": "1.2.2"
     }
+  },
+  "user": {
+    "govuk_signin_journey_id": "798337b6-8011-4a29-9265-f54c79d8845b",
+    "user_id": "integration-tests"
+  },
+  "txma": {
+    "config_version": "1.2.2"
+  }
 }

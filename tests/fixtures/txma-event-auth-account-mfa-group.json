@@ -7,7 +7,6 @@
     "account-recovery": "email",
     "mfa-type": "phone",
     "notification-type": "email"
-
   },
   "user": {
     "govuk_signin_journey_id": "63dba1a7-253c-4698-a228-0e3844ddf0f6",

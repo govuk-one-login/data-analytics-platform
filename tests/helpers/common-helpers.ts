@@ -83,26 +83,25 @@ export const poll = async <Resolution>(
   });
 };
 
-export const getTodayDateTime = () : string => {
-  var today = new Date();
-  var date = today.getFullYear()+''+(today.getMonth()+1)+''+today.getDate();
-  var time = today.getHours()+''+today.getMinutes()+''+today.getSeconds();
-  var TodaydateTime = date+'-'+time;
-  return TodaydateTime
-}
+export const getTodayDateTime = (): string => {
+  const today = new Date();
+  const date = `${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`;
+  const time = `${today.getHours()}${today.getMinutes()}${today.getSeconds()}`;
+  return date + '-' + time;
+};
 
-export function delay(min: number) {
-  const ms = min*60*1000
-  return new Promise( resolve => setTimeout(resolve, ms) );
+export async function delay(min: number): Promise<unknown> {
+  const ms = min * 60 * 1000;
+  return await new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export const productFamily = (eventName: string): string => {
-  let productFamilyName = ''
-  for (let index = 0; index < eventName.length; index++){
-  if (eventName[index] == ('AUTH_AUTHORISATION_INITIATED'  || 'AUTH_AUTHORISATION_INITIATED')) {
-    productFamilyName = 'auth_account_creation'
-  }
+  let productFamilyName = '';
+  for (let index = 0; index < eventName.length; index++) {
+    if (eventName[index] === 'AUTH_AUTHORISATION_INITIATED' || eventName[index] === 'AUTH_AUTHORISATION_INITIATED') {
+      productFamilyName = 'auth_account_creation';
+    }
   }
 
-  return productFamilyName
-}
+  return productFamilyName;
+};
