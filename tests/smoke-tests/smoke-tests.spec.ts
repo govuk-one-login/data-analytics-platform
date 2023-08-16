@@ -1,14 +1,15 @@
-import { getQueryResults, redshiftRunQuery } from '../helpers/db-helpers';
+import {getQueryResults, redshiftRunQuery} from '../helpers/db-helpers';
 import {
   deliveryStreamName,
-  rawdataS3BucketName,
-  sqsQueueName,
+  rawdataS3BucketName, redshiftProcessStepFucntionName,
+  sqsQueueName, stageProcessStepFucntionName,
   txmaProcessingWorkGroupName,
   txmaStageDatabaseName,
 } from '../helpers/envHelper';
-import { describeFirehoseDeliveryStream } from '../helpers/firehose-helpers';
-import { getSQSQueueUrl } from '../helpers/lambda-helpers';
-import { getS3BucketStatus } from '../helpers/s3-helpers';
+import {describeFirehoseDeliveryStream} from '../helpers/firehose-helpers';
+import {getSQSQueueUrl} from '../helpers/lambda-helpers';
+import {getS3BucketStatus} from '../helpers/s3-helpers';
+import {startStepFunction} from "../helpers/step-helpers";
 
 describe('smoke tests for DAP services', () => {
   // 	    // ******************** Smoke Tests  ************************************
@@ -42,5 +43,15 @@ describe('smoke tests for DAP services', () => {
       'select event_key from dap_txma_reporting_db.conformed.dim_event',
     );
     expect(JSON.stringify(redShiftQueryResults)).not.toBeNull();
+  });
+  test('Verify dap-raw-to-stage-process StepFunction is returning success', async () => {
+    const stepexecutionId = await startStepFunction(stageProcessStepFucntionName());
+    console.log("dap-raw-to-stage-process started :" + JSON.stringify(stepexecutionId))
+    expect(stepexecutionId).not.toBeNull();
+  });
+  test('Verify dap-redshift-processing StepFunction is returning success', async () => {
+    const stepexecutionId = await startStepFunction(redshiftProcessStepFucntionName());
+    console.log("dap-redshift-processing started :" + JSON.stringify(stepexecutionId))
+    expect(stepexecutionId).not.toBeNull();
   });
 });
