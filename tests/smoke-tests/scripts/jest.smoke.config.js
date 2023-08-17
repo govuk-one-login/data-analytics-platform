@@ -18,6 +18,7 @@ module.exports = async () => {
         {
           suiteName: 'Test report',
           outputDirectory: '<rootDir>/reports',
+          outputName: "testReport.xml",
           ancestorSeparator: ',',
           includeConsoleOutput: true
         }
