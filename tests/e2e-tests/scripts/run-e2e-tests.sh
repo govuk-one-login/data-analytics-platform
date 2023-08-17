@@ -17,7 +17,7 @@ npm run e2e-test
 
 TESTS_EXIT_CODE=$?
 
-cp -a test-report $TEST_REPORT_ABSOLUTE_DIR
+cp reports/testReport.xml $TEST_REPORT_ABSOLUTE_DIR/junit.xml
 
 if [ $TESTS_EXIT_CODE -ne 0 ]; then
   exit 1
