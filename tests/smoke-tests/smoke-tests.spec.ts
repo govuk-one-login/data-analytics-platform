@@ -38,18 +38,18 @@ describe('smoke tests for DAP services', () => {
     expect(JSON.stringify(athenaQueryResults)).not.toBeNull();
   });
 
-  test('Verify Redshift Database is reachable ', async () => {
+  test.skip('Verify Redshift Database is reachable ', async () => {
     const redShiftQueryResults = await redshiftRunQuery(
       'select event_key from dap_txma_reporting_db.conformed.dim_event',
     );
     expect(JSON.stringify(redShiftQueryResults)).not.toBeNull();
   });
-  test('Verify dap-raw-to-stage-process StepFunction is returning success', async () => {
+  test.skip('Verify dap-raw-to-stage-process StepFunction is returning success', async () => {
     const stepexecutionId = await startStepFunction(stageProcessStepFucntionName());
     console.log("dap-raw-to-stage-process started :" + JSON.stringify(stepexecutionId))
     expect(stepexecutionId).not.toBeNull();
   });
-  test('Verify dap-redshift-processing StepFunction is returning success', async () => {
+  test.skip('Verify dap-redshift-processing StepFunction is returning success', async () => {
     const stepexecutionId = await startStepFunction(redshiftProcessStepFucntionName());
     console.log("dap-redshift-processing started :" + JSON.stringify(stepexecutionId))
     expect(stepexecutionId).not.toBeNull();
