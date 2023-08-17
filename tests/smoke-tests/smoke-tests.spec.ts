@@ -48,12 +48,10 @@ describe('smoke tests for DAP services', () => {
   });
   test.skip('Verify dap-raw-to-stage-process StepFunction is returning success', async () => {
     const stepexecutionId = await startStepFunction(stageProcessStepFucntionName());
-    console.log('dap-raw-to-stage-process started :' + JSON.stringify(stepexecutionId));
     expect(stepexecutionId).not.toBeNull();
   });
   test.skip('Verify dap-redshift-processing StepFunction is returning success', async () => {
     const stepexecutionId = await startStepFunction(redshiftProcessStepFucntionName());
-    console.log('dap-redshift-processing started :' + JSON.stringify(stepexecutionId));
     expect(stepexecutionId).not.toBeNull();
   });
 });
