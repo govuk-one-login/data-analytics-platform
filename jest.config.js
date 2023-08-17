@@ -5,17 +5,16 @@ module.exports = async () => {
       "^.+\\.tsx?$": "esbuild-jest"
     },
     collectCoverage: true,
-    testResultsProcessor: "jest-junit",
+    testResultsProcessor: "./node_modules/jest-stare",
     reporters: [
       "default",
       [
-        "jest-junit",
+        "jest-stare",
         {
-          suiteName: 'Test report',
-          outputDirectory: '<rootDir>/reports',
-          outputName: "testReport.xml",
-          ancestorSeparator: ',',
-          includeConsoleOutput: true
+          "resultDir": "test-report",
+          "reportTitle": "DAP",
+          "reportHeadline": "DAP",
+          "coverageLink": "../../coverage/lcov-report/index.html"
         }
       ]
     ],
