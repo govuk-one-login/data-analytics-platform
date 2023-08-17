@@ -1,0 +1,56 @@
+name: Upload testing images to ECR
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - tests/**
+  workflow_dispatch:
+    inputs:
+      integration:
+        type: boolean
+        required: false
+        default: true
+      e2e:
+        type: boolean
+        required: false
+        default: true
+      smoke:
+        type: boolean
+        required: false
+        default: true
+
+jobs:
+  upload-integration-testing-image:
+    if: inputs.integration
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/upload-testing-image.yml
+    with:
+      test-type: integration
+
+  upload-e2e-testing-image:
+    if: inputs.e2e
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/upload-testing-image.yml
+    with:
+      test-type: e2e
+
+  upload-smoke-testing-image:
+    if: inputs.smoke
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/upload-testing-image.yml
+    with:
+      test-type: smoke
