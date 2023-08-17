@@ -95,6 +95,21 @@ export async function delay(min: number): Promise<unknown> {
   return await new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// ***********************  yesterdayDate in YYYYMMDD format ***********************
+export const yesterdayDate = (): string => {
+  var date = new Date();
+  date.setDate(date.getDate() - 1);
+
+  // Get year, month, and day part from the date
+  var year = date.toLocaleString('default', { year: 'numeric' });
+  var month = date.toLocaleString('default', { month: '2-digit' });
+  var day = date.toLocaleString('default', { day: '2-digit' });
+
+  // Generate yyyy-mm-dd date string
+  var formattedDate = year + month + day;
+  return formattedDate;
+};
+
 export const productFamily = (eventName: string): string => {
   let productFamilyName = '';
   for (let index = 0; index < eventName.length; index++) {
