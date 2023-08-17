@@ -39,7 +39,7 @@ describe('Verify Data from raw layer is processed to stage layer', () => {
     for (let index = 0; index <= data.length - 1; index++) {
       const athenaQueryResults = await getQueryResults(
         "SELECT count(*) As row_count from auth_account_creation where event_name = '" +
-          data[index] +
+          String(data[index]) +
           "' and processed_date = '" +
           yesterdayDate() +
           "'",

@@ -97,16 +97,16 @@ export async function delay(min: number): Promise<unknown> {
 
 // ***********************  yesterdayDate in YYYYMMDD format ***********************
 export const yesterdayDate = (): string => {
-  var date = new Date();
+  const date = new Date();
   date.setDate(date.getDate() - 1);
 
   // Get year, month, and day part from the date
-  var year = date.toLocaleString('default', { year: 'numeric' });
-  var month = date.toLocaleString('default', { month: '2-digit' });
-  var day = date.toLocaleString('default', { day: '2-digit' });
+  const year = date.toLocaleString('default', { year: 'numeric' });
+  const month = date.toLocaleString('default', { month: '2-digit' });
+  const day = date.toLocaleString('default', { day: '2-digit' });
 
   // Generate yyyy-mm-dd date string
-  var formattedDate = year + month + day;
+  const formattedDate = year + month + day;
   return formattedDate;
 };
 
