@@ -14,15 +14,15 @@ module.exports = async () => {
     reporters: [
       'default',
       [
-        "jest-junit",
+        'jest-junit',
         {
           suiteName: 'Test report',
           outputDirectory: '<rootDir>/reports',
-          outputName: "testReport.xml",
+          outputName: 'testReport.xml',
           ancestorSeparator: ',',
-          includeConsoleOutput: true
-        }
-      ]
+          includeConsoleOutput: true,
+        },
+      ],
     ],
     setupFiles: ['<rootDir>/jest.setup.js'],
   };
