@@ -7,3 +7,4 @@ coverage/
 jest-stare/
 test-report/
 template.yaml
+reports

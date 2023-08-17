@@ -1,4 +1,4 @@
-import type { Datum, GetQueryResultsOutput } from '@aws-sdk/client-athena';
+import type { Datum, GetQueryResultsOutput, ResultSet, Row } from '@aws-sdk/client-athena';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
 
@@ -21,7 +21,18 @@ export const athenaRunQuery = async (
   return await invokeTestSupportLambda(event);
 };
 
-export const redshiftRunQuery = async (QueryString: string): Promise<GetQueryResultsOutput> => {
+export const redshiftRunQuery = async (QueryString: string): Promise<ResultSet> => {
+  const event: Omit<TestSupportEvent, 'environment'> = {
+    command: 'REDSHIFT_RUN_QUERY',
+    input: {
+      Sql: QueryString,
+    },
+  };
+
+  return await invokeTestSupportLambda(event);
+};
+
+export const redshiftGetRow = async (QueryString: string): Promise<Row> => {
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'REDSHIFT_RUN_QUERY',
     input: {
