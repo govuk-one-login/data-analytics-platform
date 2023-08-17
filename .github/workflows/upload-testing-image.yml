@@ -1,4 +1,4 @@
-name: Upload testing images to ECR
+name: Upload a testing image to ECR
 
 on:
   workflow_call:

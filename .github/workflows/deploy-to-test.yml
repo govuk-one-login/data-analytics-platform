@@ -1,4 +1,4 @@
-name: Deploy to the test environment
+name: ✳️ Deploy to the test environment
 
 on: workflow_dispatch
 

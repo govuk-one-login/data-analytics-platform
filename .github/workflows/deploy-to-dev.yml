@@ -1,4 +1,4 @@
-name: Deploy to the dev environment
+name: ✳️ Deploy to the dev environment
 
 on:
   push:

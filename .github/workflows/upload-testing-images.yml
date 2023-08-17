@@ -1,4 +1,4 @@
-name: Upload testing images to ECR
+name: ✳️ Upload testing images to ECR
 
 on:
   push:
