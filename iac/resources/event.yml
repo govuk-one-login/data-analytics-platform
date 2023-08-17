@@ -64,7 +64,7 @@ KinesisFirehose:
         LogGroupName: !Sub ${Environment}-${DeliveryStreamName}
         LogStreamName: !Sub ${Environment}-${DeliveryStreamName}
       BufferingHints:
-        IntervalInSeconds: !If [IsTest, 60, !If [IsDev, 60, 900]]
+        IntervalInSeconds: !If [IsDev, 60, !If [UsePlaceholderTxMAQueue, 60, 900]]
         SizeInMBs: 128
       RoleARN: !GetAtt IAMRoleKinesisFirehose.Arn
       Prefix: '!{partitionKeyFromQuery:datasource}/!{partitionKeyFromQuery:event_name}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
