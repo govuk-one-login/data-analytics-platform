@@ -1,15 +1,17 @@
-import {getQueryResults, redshiftRunQuery} from '../helpers/db-helpers';
+import { getQueryResults, redshiftRunQuery } from '../helpers/db-helpers';
 import {
   deliveryStreamName,
-  rawdataS3BucketName, redshiftProcessStepFucntionName,
-  sqsQueueName, stageProcessStepFucntionName,
+  rawdataS3BucketName,
+  redshiftProcessStepFucntionName,
+  sqsQueueName,
+  stageProcessStepFucntionName,
   txmaProcessingWorkGroupName,
   txmaStageDatabaseName,
 } from '../helpers/envHelper';
-import {describeFirehoseDeliveryStream} from '../helpers/firehose-helpers';
-import {getSQSQueueUrl} from '../helpers/lambda-helpers';
-import {getS3BucketStatus} from '../helpers/s3-helpers';
-import {startStepFunction} from "../helpers/step-helpers";
+import { describeFirehoseDeliveryStream } from '../helpers/firehose-helpers';
+import { getSQSQueueUrl } from '../helpers/lambda-helpers';
+import { getS3BucketStatus } from '../helpers/s3-helpers';
+import { startStepFunction } from '../helpers/step-helpers';
 
 describe('smoke tests for DAP services', () => {
   // 	    // ******************** Smoke Tests  ************************************
@@ -46,12 +48,12 @@ describe('smoke tests for DAP services', () => {
   });
   test.skip('Verify dap-raw-to-stage-process StepFunction is returning success', async () => {
     const stepexecutionId = await startStepFunction(stageProcessStepFucntionName());
-    console.log("dap-raw-to-stage-process started :" + JSON.stringify(stepexecutionId))
+    console.log('dap-raw-to-stage-process started :' + JSON.stringify(stepexecutionId));
     expect(stepexecutionId).not.toBeNull();
   });
   test.skip('Verify dap-redshift-processing StepFunction is returning success', async () => {
     const stepexecutionId = await startStepFunction(redshiftProcessStepFucntionName());
-    console.log("dap-redshift-processing started :" + JSON.stringify(stepexecutionId))
+    console.log('dap-redshift-processing started :' + JSON.stringify(stepexecutionId));
     expect(stepexecutionId).not.toBeNull();
   });
 });
