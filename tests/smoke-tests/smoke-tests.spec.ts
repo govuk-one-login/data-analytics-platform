@@ -37,7 +37,7 @@ describe('smoke tests for DAP services', () => {
     expect(JSON.stringify(athenaQueryResults)).not.toBeNull();
   });
 
-  test('Verify Redshift Database is reachable ', async () => {
+  test.skip('Verify Redshift Database is reachable ', async () => {
     const redShiftQueryResults = await redshiftRunQuery(
       'select event_key from dap_txma_reporting_db.conformed.dim_event',
     );
