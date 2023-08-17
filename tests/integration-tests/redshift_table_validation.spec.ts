@@ -1,4 +1,4 @@
-import { redshiftGetRow, redshiftRunQuery } from '../helpers/db-helpers';
+import { redshiftRunQuery } from '../helpers/db-helpers';
 import {
   DIM_DATE_COLUMNS,
   DIM_EVENT_COLUMNS,
