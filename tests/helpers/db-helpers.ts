@@ -43,7 +43,6 @@ export const redshiftGetRow = async (QueryString: string): Promise<Row> => {
   return await invokeTestSupportLambda(event);
 };
 
-
 export const getQueryResults = async <TResponse>(
   query: string,
   database: string,
