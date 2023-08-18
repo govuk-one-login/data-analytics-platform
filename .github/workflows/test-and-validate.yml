@@ -1,4 +1,4 @@
-name: Test and validate iac and lambdas
+name: ✳️ Test and validate iac and lambdas
 
 on:
   pull_request:

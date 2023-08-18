@@ -1,4 +1,4 @@
-name: Upload Athena files to S3
+name: ✳️ Upload Athena files to S3
 
 on:
   workflow_call:

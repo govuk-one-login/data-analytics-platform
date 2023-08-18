@@ -1,4 +1,4 @@
-name: Pull request tear down
+name: ✳️ Pull request tear down
 
 on:
   workflow_dispatch:
