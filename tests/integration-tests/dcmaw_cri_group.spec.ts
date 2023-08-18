@@ -11,6 +11,7 @@ describe('DCMAW_CRI GROUP Test - valid TXMA Event to SQS and expect event id sto
     ${'DCMAW_APP_END'}                  | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'DCMAW_APP_HANDOFF_START'}        | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'DCMAW_APP_START'}                | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'DCMAW_BRP_SELECTED'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'DCMAW_CRI_START'}                | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'DCMAW_CRI_VC_ISSUED'}            | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'DCMAW_DRIVING_LICENCE_SELECTED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
@@ -52,6 +53,7 @@ describe('DCMAW_CRI GROUP Test - valid TXMA Event to SQS and expect event id not
     ${'DCMAW_APP_END'}                  | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'DCMAW_APP_HANDOFF_START'}        | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'DCMAW_APP_START'}                | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'DCMAW_BRP_SELECTED'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'DCMAW_CRI_START'}                | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'DCMAW_CRI_VC_ISSUED'}            | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'DCMAW_DRIVING_LICENCE_SELECTED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
