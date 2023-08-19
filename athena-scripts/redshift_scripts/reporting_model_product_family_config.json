@@ -37,14 +37,14 @@
     },
     {
         "product_family": "ipv_journey",
-        "enabled": false
+        "enabled": true
     },
     {
         "product_family": "ipv_cri_kbv",
-        "enabled": false
+        "enabled": true
     },
     {
         "product_family": "ipv_cri_passport",
-        "enabled": false
+        "enabled": true
     }
 ]
