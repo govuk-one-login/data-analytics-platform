@@ -166,5 +166,5 @@ export const productFamily = (eventName: string): string => {
     productFamilyName = 'IPV_CRI_PASSPORT';
   }
 
-  return productFamilyName
+  return productFamilyName;
 };
