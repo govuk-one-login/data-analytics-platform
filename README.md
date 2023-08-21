@@ -27,6 +27,16 @@ Commits will be rejected by GitHub if they are not signed using an SSH or GPG ke
 Follow the instructions [here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#gpg-commit-signature-verification) to generate a key and set it up with GitHub.
 You may need to install `gpg` first - on a GDS Mac open the terminal and run `brew install gpg`.
 
+#### Set up husky hooks
+
+[Husky](https://typicode.github.io/husky) is used to run [githooks](https://git-scm.com/docs/githooks), specifically `pre-commit` and `pre-push`.
+To install the hooks run `npm run husky:install`. After this, the hooks defined under the [.husky](.husky) directory will automatically run when you commit or push.
+The [lint-staged](https://github.com/okonet/lint-staged) library is used to only run certain tasks if certain files are modified.
+
+Config can be found in the `lint-staged` block in [package.json](package.json). Note that `lint-staged` works by passing
+a list of the matched staged files to the command defined, which is why the commands in `package.json` are e.g. `prettier --write`, with no file, directory or glob arguments.
+(usually if you wanted to run prettier you would need such an argument, e.g.`prettier --write .` or `prettier --check src`. More information can be found [here](https://github.com/okonet/lint-staged#configuration).
+
 ## Repository structure
 
 #### Lambdas
