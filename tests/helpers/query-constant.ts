@@ -7,6 +7,11 @@ export const DIM_DATE_COLUMNS =
 export const DIM_EVENT_COLUMNS =
   'select event_name,product_family,event_description,event_journey_type, created_by,created_date,modified_by,batch_id from dap_txma_reporting_db.conformed.dim_event';
 
+export  const DIM_EVENT_BY_NAME='select\n' +
+  '    event_name,event_journey_type\n' +
+  'FROM\n' +
+  '    "dap_txma_reporting_db"."conformed"."dim_event" where product_family='
+
 export const DIM_RELYING_PARTY_COLUMNS =
   'select client_id, relying_party_name,relying_party_description ,created_by,created_date,modified_by,modified_date,batch_id,relying_party_key from dap_txma_reporting_db.conformed.dim_relying_party';
 
