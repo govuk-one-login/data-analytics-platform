@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import { getQueryResults, redshiftRunQuery } from '../helpers/db-helpers';
-import { delay, getEventFilePrefix, productFamily, waitForStepFunction, yesterdayDate } from '../helpers/common-helpers';
+import { getEventFilePrefix, productFamily, waitForStepFunction, yesterdayDate } from '../helpers/common-helpers';
 import { checkFileCreatedOnS3, copyFilesFromBucket } from '../helpers/s3-helpers';
-import { describeExecution, startStepFunction } from '../helpers/step-helpers';
+import { startStepFunction } from '../helpers/step-helpers';
 import {
   rawdataS3BucketName,
   redshiftProcessStepFucntionName,
@@ -80,7 +80,7 @@ describe('Verify Data from raw layer is processed to stage layer', () => {
 
     // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************
 
-    const stageToConformedStatus = await waitForStepFunction(String(stepexecutionId.executionArn), 5);
+    const stageToConformedStatus = await waitForStepFunction(String(RedshiftstepexecutionId.executionArn), 5);
 
     expect(stageToConformedStatus).toEqual('SUCCEEDED');
     // ******************** Run Redshift queries ************************************

@@ -1,4 +1,4 @@
-import { describeExecution } from "./step-helpers";
+import { describeExecution } from './step-helpers';
 
 const formatNumberInTwoDigits = (num: number): string => {
   return `0${num}`.slice(-2);
@@ -171,8 +171,7 @@ export const productFamily = (eventName: string): string => {
   return productFamilyName;
 };
 
-export const waitForStepFunction = async (executionArn: string, waitTime : number) : Promise<unknown>=> {
-
+export const waitForStepFunction = async (executionArn: string, waitTime: number): Promise<unknown> => {
   let StepExecutionStatus = await describeExecution(executionArn);
   let timer = 1;
   while (timer <= waitTime) {
@@ -183,5 +182,5 @@ export const waitForStepFunction = async (executionArn: string, waitTime : numbe
     await delay(1);
     StepExecutionStatus = await describeExecution(executionArn);
   }
-  return StepExecutionStatus.status
-}
+  return StepExecutionStatus.status;
+};
