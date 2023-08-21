@@ -112,10 +112,58 @@ export const yesterdayDate = (): string => {
 
 export const productFamily = (eventName: string): string => {
   let productFamilyName = '';
-  for (let index = 0; index < eventName.length; index++) {
-    if (eventName[index] === 'AUTH_AUTHORISATION_INITIATED' || eventName[index] === 'AUTH_AUTHORISATION_INITIATED') {
-      productFamilyName = 'auth_account_creation';
-    }
+  if (eventName === 'AUTH_CREATE_ACCOUNT' || eventName === 'AUTH_CHECK_USER_NO_ACCOUNT_WITH_EMAIL') {
+    productFamilyName = 'AUTH_ACCOUNT_CREATION';
+  }
+  if (eventName === 'AUTH_PASSWORD_RESET_SUCCESSFUL') {
+    productFamilyName = 'AUTH_ACCOUNT_MANAGEMENT';
+  }
+  if (eventName === 'AUTH_CODE_VERIFIED') {
+    productFamilyName = 'AUTH_ACCOUNT_MFA';
+  }
+  if (eventName === 'AUTH_LOG_IN_SUCCESS' || eventName === 'AUTH_CHECK_USER_KNOWN_EMAIL') {
+    productFamilyName = 'AUTH_ACCOUNT_USER_LOGIN';
+  }
+  if (eventName === 'AUTH_AUTHORISATION_INITIATED') {
+    productFamilyName = 'AUTH_ORCHESTRATION';
+  }
+  if (
+    eventName === 'DCMAW_APP_END' ||
+    eventName === 'DCMAW_APP_HANDOFF_START' ||
+    eventName === 'DCMAW_DRIVING_LICENCE_SELECTED' ||
+    eventName === 'DCMAW_CRI_START' ||
+    eventName === 'DCMAW_APP_START' ||
+    eventName === 'DCMAW_BRP_SELECTED' ||
+    eventName === 'DCMAW_CRI_VC_ISSUED' ||
+    eventName === 'DCMAW_PASSPORT_SELECTED' ||
+    eventName === 'DCMAW_WEB_END'
+  ) {
+    productFamilyName = 'DCMAW_CRI';
+  }
+  if (eventName === 'IPV_ADDRESS_CRI_START' || eventName === 'IPV_ADDRESS_CRI_VC_ISSUED') {
+    productFamilyName = 'IPV_CRI_ADDRESS';
+  }
+  if (eventName === 'IPV_DL_CRI_VC_ISSUED' || eventName === 'IPV_DL_CRI_START') {
+    productFamilyName = 'IPV_CRI_DRIVING_LICENSE';
+  }
+  if (eventName === 'IPV_FRAUD_CRI_START' || eventName === 'IPV_FRAUD_CRI_VC_ISSUED') {
+    productFamilyName = 'IPV_CRI_FRAUD';
+  }
+  if (
+    eventName === 'IPV_IDENTITY_REUSE_COMPLETE' ||
+    eventName === 'IPV_IDENTITY_REUSE_RESET' ||
+    eventName === 'IPV_JOURNEY_END' ||
+    eventName === 'IPV_JOURNEY_START' ||
+    eventName === 'IPV_SPOT_RESPONSE_APPROVED' ||
+    eventName === 'IPV_SPOT_RESPONSE_REJECTED'
+  ) {
+    productFamilyName = 'IPV_JOURNEY';
+  }
+  if (eventName === 'IPV_KBV_CRI_START' || eventName === 'IPV_KBV_CRI_VC_ISSUED') {
+    productFamilyName = 'IPV_CRI_KBV';
+  }
+  if (eventName === 'IPV_PASSPORT_CRI_VC_ISSUED' || eventName === 'IPV_PASSPORT_CRI_START') {
+    productFamilyName = 'IPV_CRI_PASSPORT';
   }
 
   return productFamilyName;
