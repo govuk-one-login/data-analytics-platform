@@ -42,16 +42,10 @@ describe('Verify Data from raw layer is processed to stage layer', () => {
       const prefix = getEventFilePrefix(event.event_name);
 
       // then
-      if (index == data.length - 1) {
+      if (index === data.length - 1) {
         const fileUploaded = await checkFileCreatedOnS3(prefix, event.event_id, 60000);
         expect(fileUploaded).toEqual(true);
       }
-    }
-    //   },
-    //   240000,
-    // );
-    for (let index = 0; index <= data.length - 1; index++) {
-      console.log(organization.get(data[index]));
     }
     await copyFilesFromBucket(rawdataS3BucketName(), data);
 
@@ -77,11 +71,11 @@ describe('Verify Data from raw layer is processed to stage layer', () => {
       const productFamilyGroupName = productFamily(data[index]).replaceAll('_', '-');
       const athenaQueryResults = await getQueryResults(
         "SELECT '" +
-          organization.get(data[index]) +
+          String(organization.get(data[index])) +
           "' As row_count from auth_account_creation where event_name = '" +
-          String(productFamilyGroupName) +
+          productFamilyGroupName +
           "' and processed_date = '" +
-          yesterdayDate() +
+          String(yesterdayDate()) +
           "'",
         txmaStageDatabaseName(),
         txmaProcessingWorkGroupName(),
