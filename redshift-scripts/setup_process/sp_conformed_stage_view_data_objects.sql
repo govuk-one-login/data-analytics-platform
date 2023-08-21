@@ -965,7 +965,7 @@ BEGIN
                'ipv_journey' Product_family
                 ,row_number() over (partition by event_id,timestamp_formatted order by cast (day as integer) desc) as row_num,*
         FROM
-        "dap_txma_reporting_db"."dap_txma_stage".."ipv_journey")
+        "dap_txma_reporting_db"."dap_txma_stage"."ipv_journey")
         where  row_num=1
         ) Auth
         join conformed.BatchControl BatC
@@ -1072,7 +1072,7 @@ BEGIN
                             )
                             else null end as valid_json_data
                         FROM
-                            "dap_txma_reporting_db"."dap_txma_stage".."ipv_cri_kbv"
+                            "dap_txma_reporting_db"."dap_txma_stage"."ipv_cri_kbv"
                             --where extensions_evidence != ''
                             --where  event_id='8bdd3134-c55f-44f8-a2d2-2df361695734'
                     )
@@ -1263,7 +1263,7 @@ BEGIN
                             )
                             else null end as valid_json_data
                         FROM
-                            "dap_txma_reporting_db"."dap_txma_stage".."ipv_cri_passport"
+                            "dap_txma_reporting_db"."dap_txma_stage"."ipv_cri_passport"
                             --where event_name='IPV_FRAUD_CRI_VC_ISSUED'
                             --where event_id='70c994eb-8fdd-4c9a-9b94-911a3b43cdbb'
                     ))
