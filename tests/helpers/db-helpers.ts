@@ -1,4 +1,4 @@
-import type { Datum, GetQueryResultsOutput, ResultSet, Row } from '@aws-sdk/client-athena';
+import type { Datum, GetQueryResultsOutput, Row } from '@aws-sdk/client-athena';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
 import type { GetStatementResultCommandOutput } from '@aws-sdk/client-redshift-data';

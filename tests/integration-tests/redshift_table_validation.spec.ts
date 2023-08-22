@@ -18,7 +18,7 @@ describe('Redshift Data Model Validations', () => {
     // expect(redShiftQueryResults.TotalNumRows).toEqual(expectedEvent.length);
     const actualEventNameList = [];
     for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
-      if (redShiftQueryResults.Records !=null) {
+      if (redShiftQueryResults.Records != null) {
         actualEventNameList.push(redShiftQueryResults.Records[index][0].stringValue);
       }
     }
