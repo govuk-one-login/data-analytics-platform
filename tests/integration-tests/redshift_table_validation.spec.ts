@@ -18,7 +18,7 @@ describe('Redshift Data Model Validations', () => {
     // expect(redShiftQueryResults.TotalNumRows).toEqual(expectedEvent.length);
     const actualEventNameList = [];
     for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
-      if (redShiftQueryResults.Records) {
+      if (null != redShiftQueryResults.Records) {
         actualEventNameList.push(redShiftQueryResults.Records[index][0].stringValue);
       }
     }
@@ -94,9 +94,9 @@ describe('Redshift Data Model Validations', () => {
     async ({ ...data }) => {
       // given
       const expectedEvent = JSON.parse(
-        fs.readFileSync('tests/data/event/' + (data.family_name as String) + '_family.json', 'utf-8'),
+        fs.readFileSync('tests/data/event/' + (data.family_name as string) + '_family.json', 'utf-8'),
       );
-      const query = DIM_EVENT_BY_NAME + "'" + (data.family_name as String) + "'";
+      const query = DIM_EVENT_BY_NAME + "'" + (data.family_name as string) + "'";
       const redShiftQueryResults = await redshiftRunQuery(query);
       const actualData = [];
       for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
