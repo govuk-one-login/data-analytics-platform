@@ -69,7 +69,7 @@ describe('Redshift Data Model Validations', () => {
         journeyChannel.push(redShiftQueryResults.Records[index][1].stringValue);
       }
     }
-    journeyChannel.sort();
+    journeyChannel.sort((a, b) => a.localeCompare(b));
     expect(journeyChannel[0]).toEqual('App');
     expect(journeyChannel[1]).toEqual('General');
     expect(journeyChannel[2]).toEqual('Web');
