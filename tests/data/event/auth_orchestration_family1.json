@@ -1,0 +1,6 @@
+[
+  {
+    "event_name": "AUTH_AUTHORISATION_INITIATED",
+    "journey_type": "Authentication"
+  }
+]

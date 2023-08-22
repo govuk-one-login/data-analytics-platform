@@ -1,19 +1,19 @@
 import { redshiftRunQuery } from '../helpers/db-helpers';
 import {
-  DIM_DATE_COLUMNS, DIM_EVENT_BY_NAME,
+  DIM_DATE_COLUMNS,
+  DIM_EVENT_BY_NAME,
   DIM_EVENT_COLUMNS,
   DIM_JOURNEY_CHANNEL,
   DIM_RELYING_PARTY_COLUMNS,
   DIM_VERIFICATION_ROUTE,
-  FACT_USER_JOURNEY_EVENT
+  FACT_USER_JOURNEY_EVENT,
 } from '../helpers/query-constant';
 import * as fs from 'fs';
 
 describe('Redshift Data Model Validations', () => {
-
   test('Verify Redshift Database event data => DIM_EVENT_COLUMNS table metadata and event names', async () => {
     const expectedEvent = JSON.parse(fs.readFileSync('tests/data/eventList.json', 'utf-8'));
-    const redShiftQueryResults = await redshiftRunQuery(DIM_EVENT_COLUMNS) as QueryResults;
+    const redShiftQueryResults = (await redshiftRunQuery(DIM_EVENT_COLUMNS)) as QueryResults;
     expect(redShiftQueryResults).not.toBeNull();
     expect(redShiftQueryResults.TotalNumRows).toEqual(expectedEvent.length);
     const actualEventNameList = [];
@@ -36,12 +36,12 @@ describe('Redshift Data Model Validations', () => {
     expect(redShiftQueryResults).not.toBeNull();
   });
   test('Verify Redshift Database => DIM_VERIFICATION_ROUTE table metadata', async () => {
-    const redShiftQueryResults = await redshiftRunQuery(DIM_VERIFICATION_ROUTE) as QueryResults;
+    const redShiftQueryResults = (await redshiftRunQuery(DIM_VERIFICATION_ROUTE)) as QueryResults;
     expect(redShiftQueryResults).not.toBeNull();
     // console.log('Data Results:' + JSON.stringify(redShiftQueryResults.Records));
   });
   test('Verify Redshift Database => DIM_JOURNEY_CHANNEL table metadata', async () => {
-    const redShiftQueryResults = await redshiftRunQuery(DIM_JOURNEY_CHANNEL) as QueryResults;
+    const redShiftQueryResults = (await redshiftRunQuery(DIM_JOURNEY_CHANNEL)) as QueryResults;
     // console.log('Data:' + JSON.stringify(redShiftQueryResults));
     expect(redShiftQueryResults).not.toBeNull();
     expect(redShiftQueryResults.TotalNumRows).toEqual(3);
@@ -52,7 +52,7 @@ describe('Redshift Data Model Validations', () => {
   });
 
   test('Verify Redshift Database => DIM_JOURNEY_CHANNEL table journey types', async () => {
-    const redShiftQueryResults = await redshiftRunQuery(DIM_JOURNEY_CHANNEL) as QueryResults;
+    const redShiftQueryResults = (await redshiftRunQuery(DIM_JOURNEY_CHANNEL)) as QueryResults;
     // console.log('Data:' + JSON.stringify(redShiftQueryResults));
     expect(redShiftQueryResults).not.toBeNull();
     // console.log('Data:' + JSON.stringify(redShiftQueryResults.Records[0][2].stringValue));
@@ -85,9 +85,11 @@ describe('Redshift Data Model Validations', () => {
     'Should validate DIM Events names as expected by product family $family_name',
     async ({ ...data }) => {
       // given
-      const expectedEvent = JSON.parse(fs.readFileSync('tests/data/event/' + data.family_name + '_family.json', 'utf-8'));
-      const query = DIM_EVENT_BY_NAME + '\'' + data.family_name + '\'';
-      const redShiftQueryResults = await redshiftRunQuery(query) as QueryResults;
+      const expectedEvent = JSON.parse(
+        fs.readFileSync('tests/data/event/' + data.family_name + '_family.json', 'utf-8'),
+      );
+      const query = DIM_EVENT_BY_NAME + "'" + data.family_name + "'";
+      const redShiftQueryResults = (await redshiftRunQuery(query)) as QueryResults;
       const actualData = [];
       for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
         actualData.push(redShiftQueryResults.Records[index][0].stringValue);
@@ -98,6 +100,6 @@ describe('Redshift Data Model Validations', () => {
       expect(JSON.stringify(actualData.sort()) == JSON.stringify(expectedEvent.sort())).toEqual(true);
       expect(redShiftQueryResults.TotalNumRows).toEqual(expectedEvent.length);
     },
-    240000
+    240000,
   );
 });
