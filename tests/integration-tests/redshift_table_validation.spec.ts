@@ -24,7 +24,9 @@ describe('Redshift Data Model Validations', () => {
     }
     // console.log('Array Results:' + JSON.stringify(actualEventNameList.sort()));
     // console.log('Expected Results:' + JSON.stringify(expectedEvent.sort()));
-    expect(JSON.stringify(actualEventNameList.sort()) === JSON.stringify(expectedEvent.sort())).toEqual(true);
+    actualEventNameList.sort((a, b) => a.localeCompare(b));
+    expectedEvent.sort((a, b) => a.localeCompare(b));
+    expect(JSON.stringify(actualEventNameList) === JSON.stringify(expectedEvent)).toEqual(true);
   });
   test('Verify Redshift Database => DIM_DATE table metadata', async () => {
     const redShiftQueryResults = await redshiftRunQuery(DIM_DATE_COLUMNS);
@@ -92,7 +94,7 @@ describe('Redshift Data Model Validations', () => {
     async ({ ...data }) => {
       // given
       const expectedEvent = JSON.parse(
-        fs.readFileSync('tests/data/event/' + data.family_name + '_family.json', 'utf-8'),
+        fs.readFileSync('tests/data/event/' + (data.family_name as String) + '_family.json', 'utf-8'),
       );
       const query = DIM_EVENT_BY_NAME + "'" + (data.family_name as String) + "'";
       const redShiftQueryResults = await redshiftRunQuery(query);
@@ -105,7 +107,9 @@ describe('Redshift Data Model Validations', () => {
       }
       // console.log('Array Results:' + JSON.stringify(actualData.sort()));
       // console.log('Expected Results:' + JSON.stringify(expectedEvent).sort());
-      expect(JSON.stringify(actualData.sort()) === JSON.stringify(expectedEvent.sort())).toEqual(true);
+      actualData.sort((a, b) => a.localeCompare(b));
+      expectedEvent.sort((a, b) => a.localeCompare(b));
+      expect(JSON.stringify(actualData) === JSON.stringify(expectedEvent)).toEqual(true);
       expect(redShiftQueryResults.TotalNumRows).toEqual(expectedEvent.length);
     },
     240000,
