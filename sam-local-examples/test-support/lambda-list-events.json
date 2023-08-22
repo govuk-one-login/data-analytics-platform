@@ -1,0 +1,7 @@
+{
+  "environment": "dev",
+  "command": "LAMBDA_LIST_EVENTS",
+  "input": {
+    "FunctionName": "hello-world"
+  }
+}

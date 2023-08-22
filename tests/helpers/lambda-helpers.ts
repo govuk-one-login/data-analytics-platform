@@ -1,4 +1,5 @@
 import { InvokeCommand } from '@aws-sdk/client-lambda';
+import type { ListEventSourceMappingsResponse } from '@aws-sdk/client-lambda';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { decodeObject, encodeObject, getAWSEnvironment } from '../../src/shared/utils/utils';
 import { lambdaClient } from '../../src/shared/clients';
@@ -27,6 +28,16 @@ export const getSQSQueueUrl = async (queneName: string): Promise<GetQueueUrlResu
     command: 'SQS_GET_URL',
     input: {
       QueueName: queneName,
+    },
+  };
+  return await invokeTestSupportLambda(event);
+};
+
+export const listLambdaEventMappings = async (functionName?: string): Promise<ListEventSourceMappingsResponse> => {
+  const event: Omit<TestSupportEvent, 'environment'> = {
+    command: 'LAMBDA_LIST_EVENTS',
+    input: {
+      FunctionName: functionName ?? 'txma-event-consumer',
     },
   };
   return await invokeTestSupportLambda(event);
