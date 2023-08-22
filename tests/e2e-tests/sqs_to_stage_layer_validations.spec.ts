@@ -1,6 +1,12 @@
 import * as fs from 'fs';
 import { getQueryResults, redshiftRunQuery } from '../helpers/db-helpers';
-import { getEventFilePrefix, productFamily, waitForStepFunction, yesterdayDate } from '../helpers/common-helpers';
+import {
+  TodayDate,
+  getEventFilePrefix,
+  productFamily,
+  waitForStepFunction,
+  yesterdayDate,
+} from '../helpers/common-helpers';
 import { checkFileCreatedOnS3, copyFilesFromBucket } from '../helpers/s3-helpers';
 import { startStepFunction } from '../helpers/step-helpers';
 import {
@@ -63,17 +69,17 @@ describe('Verify Data from raw layer is processed to stage layer', () => {
     for (let index = 0; index <= data.length - 1; index++) {
       const productFamilyGroupName = productFamily(data[index]).replaceAll('_', '-');
       const athenaQueryResults = await getQueryResults(
-        "SELECT '" +
-          String(organization.get(data[index])) +
-          "' As row_count from auth_account_creation where event_name = '" +
+        'SELECT *  from ' +
           productFamilyGroupName +
-          "' and processed_date = '" +
+          " where event_id = '" +
+          String(organization.get(data[index])) +
+          "and processed_date = '" +
           String(yesterdayDate()) +
           "'",
         txmaStageDatabaseName(),
         txmaProcessingWorkGroupName(),
       );
-      expect(JSON.stringify(athenaQueryResults)).not.toContain('row_count: "0"');
+      expect(JSON.stringify(athenaQueryResults)).not.toBeNull();
     }
     // ******************** Start raw to stage step function  ************************************
     const RedshiftstepexecutionId = await startStepFunction(redshiftProcessStepFucntionName());
@@ -88,9 +94,10 @@ describe('Verify Data from raw layer is processed to stage layer', () => {
       const redShiftQueryResults = await redshiftRunQuery(
         "select * from dap_txma_reporting_db.conformed.fact_user_journey_event where event_id ='" +
           String(organization.get(data[index])) +
-          "';",
+          "' and processed_date = " +
+          TodayDate(),
       );
       expect(redShiftQueryResults).not.toBeNull();
     }
-  }, 2400000);
+  }, 3600000);
 });

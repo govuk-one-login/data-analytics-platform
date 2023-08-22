@@ -97,6 +97,20 @@ export async function delay(min: number): Promise<unknown> {
   return await new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// ***********************  TodayDate in YYYYMMDD format ***********************
+export const TodayDate = (): string => {
+  const date = new Date();
+
+  // Get year, month, and day part from the date
+  const year = date.toLocaleString('default', { year: 'numeric' });
+  const month = date.toLocaleString('default', { month: '2-digit' });
+  const day = date.toLocaleString('default', { day: '2-digit' });
+
+  // Generate yyyy-mm-dd date string
+  const formattedDate = year + month + day;
+  return formattedDate;
+};
+
 // ***********************  yesterdayDate in YYYYMMDD format ***********************
 export const yesterdayDate = (): string => {
   const date = new Date();
