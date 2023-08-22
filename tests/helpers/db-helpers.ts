@@ -1,6 +1,7 @@
 import type { Datum, GetQueryResultsOutput, ResultSet, Row } from '@aws-sdk/client-athena';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
+import type { GetStatementResultCommandOutput } from '@aws-sdk/client-redshift-data';
 
 export const athenaRunQuery = async (
   QueryString: string,
@@ -21,7 +22,7 @@ export const athenaRunQuery = async (
   return await invokeTestSupportLambda(event);
 };
 
-export const redshiftRunQuery = async (QueryString: string): Promise<ResultSet> => {
+export const redshiftRunQuery = async (QueryString: string): Promise<GetStatementResultCommandOutput> => {
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'REDSHIFT_RUN_QUERY',
     input: {

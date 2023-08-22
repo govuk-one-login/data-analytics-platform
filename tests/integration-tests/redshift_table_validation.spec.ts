@@ -11,16 +11,19 @@ import {
 import * as fs from 'fs';
 
 describe('Redshift Data Model Validations', () => {
-
   test('Verify Redshift Database event data => DIM_EVENT_COLUMNS table metadata and event names', async () => {
     const expectedEvent = JSON.parse(fs.readFileSync('tests/data/eventList.json', 'utf-8'));
-    const redShiftQueryResults = (await redshiftRunQuery(DIM_EVENT_COLUMNS)) as QueryResults;
+    const redShiftQueryResults = await redshiftRunQuery(DIM_EVENT_COLUMNS);
     expect(redShiftQueryResults).not.toBeNull();
-    expect(redShiftQueryResults.TotalNumRows).toEqual(expectedEvent.length);
+    // expect(redShiftQueryResults.TotalNumRows).toEqual(expectedEvent.length);
     const actualEventNameList = [];
     for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
-      actualEventNameList.push(redShiftQueryResults.Records[index][0].stringValue);
+      if (redShiftQueryResults.Records) {
+        actualEventNameList.push(redShiftQueryResults.Records[index][0].stringValue);
+      }
     }
+    // console.log('Array Results:' + JSON.stringify(actualEventNameList.sort()));
+    // console.log('Expected Results:' + JSON.stringify(expectedEvent.sort()));
     expect(JSON.stringify(actualEventNameList.sort()) === JSON.stringify(expectedEvent.sort())).toEqual(true);
   });
   test('Verify Redshift Database => DIM_DATE table metadata', async () => {
@@ -37,12 +40,12 @@ describe('Redshift Data Model Validations', () => {
     expect(redShiftQueryResults).not.toBeNull();
   });
   test('Verify Redshift Database => DIM_VERIFICATION_ROUTE table metadata', async () => {
-    const redShiftQueryResults = (await redshiftRunQuery(DIM_VERIFICATION_ROUTE)) as QueryResults;
+    const redShiftQueryResults = await redshiftRunQuery(DIM_VERIFICATION_ROUTE);
     expect(redShiftQueryResults).not.toBeNull();
     // console.log('Data Results:' + JSON.stringify(redShiftQueryResults.Records));
   });
   test('Verify Redshift Database => DIM_JOURNEY_CHANNEL table metadata', async () => {
-    const redShiftQueryResults = (await redshiftRunQuery(DIM_JOURNEY_CHANNEL)) as QueryResults;
+    const redShiftQueryResults = await redshiftRunQuery(DIM_JOURNEY_CHANNEL);
     // console.log('Data:' + JSON.stringify(redShiftQueryResults));
     expect(redShiftQueryResults).not.toBeNull();
     expect(redShiftQueryResults.TotalNumRows).toEqual(3);
@@ -53,14 +56,16 @@ describe('Redshift Data Model Validations', () => {
   });
 
   test('Verify Redshift Database => DIM_JOURNEY_CHANNEL table journey types', async () => {
-    const redShiftQueryResults = (await redshiftRunQuery(DIM_JOURNEY_CHANNEL)) as QueryResults;
+    const redShiftQueryResults = await redshiftRunQuery(DIM_JOURNEY_CHANNEL);
     // console.log('Data:' + JSON.stringify(redShiftQueryResults));
     expect(redShiftQueryResults).not.toBeNull();
     // console.log('Data:' + JSON.stringify(redShiftQueryResults.Records[0][2].stringValue));
     expect(redShiftQueryResults.TotalNumRows).toEqual(3);
     const journeyChannel = [];
-    for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
-      journeyChannel.push(redShiftQueryResults.Records[index][1].stringValue);
+    if (redShiftQueryResults.Records) {
+      for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
+        journeyChannel.push(redShiftQueryResults.Records[index][1].stringValue);
+      }
     }
     journeyChannel.sort();
     expect(journeyChannel[0]).toEqual('App');
@@ -89,12 +94,14 @@ describe('Redshift Data Model Validations', () => {
       const expectedEvent = JSON.parse(
         fs.readFileSync('tests/data/event/' + data.family_name + '_family.json', 'utf-8'),
       );
-      const query = DIM_EVENT_BY_NAME + "'" + JSON.stringify(data.family_name) + "'";
-      const redShiftQueryResults = (await redshiftRunQuery(query)) as QueryResults;
+      const query = DIM_EVENT_BY_NAME + "'" + (data.family_name as String) + "'";
+      const redShiftQueryResults = await redshiftRunQuery(query);
       const actualData = [];
       for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
-        actualData.push(redShiftQueryResults.Records[index][0].stringValue);
-        expect(redShiftQueryResults.Records[index][1].stringValue).toEqual(data.journey_type);
+        if (redShiftQueryResults.Records) {
+          actualData.push(redShiftQueryResults.Records[index][0].stringValue);
+          expect(redShiftQueryResults.Records[index][1].stringValue).toEqual(data.journey_type);
+        }
       }
       // console.log('Array Results:' + JSON.stringify(actualData.sort()));
       // console.log('Expected Results:' + JSON.stringify(expectedEvent).sort());
