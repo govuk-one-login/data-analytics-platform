@@ -3,8 +3,14 @@ import { decodeObject, getAccountId, getRequiredParams } from '../../shared/util
 import { DescribeLogStreamsCommand, GetLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
 import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 import { InvokeCommand, ListEventSourceMappingsCommand } from '@aws-sdk/client-lambda';
-import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
-import { CopyObjectCommand, GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
+import type { CopyObjectCommandOutput, DeleteObjectCommandOutput, GetObjectCommandOutput } from '@aws-sdk/client-s3';
+import {
+  CopyObjectCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+} from '@aws-sdk/client-s3';
 import { GetQueueUrlCommand, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { cloudwatchClient, firehoseClient, lambdaClient, s3Client, sfnClient, sqsClient } from '../../shared/clients';
 import * as zlib from 'zlib';
@@ -43,6 +49,11 @@ export interface TestSupportEvent {
   command: TestSupportCommand;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   input: Record<string, any>;
+}
+
+export interface S3CopyCommandResult {
+  copy: CopyObjectCommandOutput;
+  delete?: DeleteObjectCommandOutput;
 }
 
 export const handler = async (event: TestSupportEvent, context: Context): Promise<unknown> => {
@@ -106,11 +117,7 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
       return await new QueryRunner('redshift').runQuery(event);
     }
     case 'S3_COPY': {
-      const request = new CopyObjectCommand({
-        ...getRequiredParams(event.input, 'Bucket', 'CopySource'),
-        Key: getS3CopyKey(event),
-      });
-      return await s3Client.send(request);
+      return await s3Copy(event);
     }
     case 'S3_LIST': {
       const request = new ListObjectsV2Command({
@@ -195,10 +202,32 @@ const gzipToString = async (response: GetObjectCommandOutput): Promise<string> =
   });
 };
 
+const s3Copy = async (event: TestSupportEvent): Promise<S3CopyCommandResult> => {
+  const copyRequest = new CopyObjectCommand({
+    ...getRequiredParams(event.input, 'Bucket', 'CopySource'),
+    Key: getS3CopyKey(event),
+  });
+  const result: S3CopyCommandResult = { copy: await s3Client.send(copyRequest) };
+
+  if (event.input.DeleteOriginal === true) {
+    const deleteRequest = new DeleteObjectCommand(getS3CopyBucketAndKey(event.input.CopySource));
+    result.delete = await s3Client.send(deleteRequest);
+  }
+  return result;
+};
+
 const getS3CopyKey = (event: TestSupportEvent): string => {
   if ('Key' in event.input && event.input.Key !== null && event.input.Key !== undefined) {
     return event.input.Key;
   }
   const sourceFile: string = event.input.CopySource;
   return sourceFile.substring(sourceFile.lastIndexOf('/') + 1);
+};
+
+const getS3CopyBucketAndKey = (CopySource: string): { Bucket: string; Key: string } => {
+  const Bucket = CopySource.split('/').find(s => s.length > 0);
+  if (Bucket === undefined) {
+    throw new Error(`Cannot get bucket name from given CopySource '${CopySource}'`);
+  }
+  return { Bucket, Key: CopySource.substring(CopySource.indexOf(Bucket) + Bucket.length + 1) };
 };

@@ -1,9 +1,9 @@
-import type { TestSupportCommand, TestSupportEnvironment, TestSupportEvent } from './handler';
+import type { S3CopyCommandResult, TestSupportCommand, TestSupportEnvironment, TestSupportEvent } from './handler';
 import { handler } from './handler';
 import { mockClient } from 'aws-sdk-client-mock';
 import { LambdaClient } from '@aws-sdk/client-lambda';
-import { CopyObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import type { CopyObjectCommandOutput, PutObjectCommandOutput } from '@aws-sdk/client-s3';
+import { CopyObjectCommand, DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import type { PutObjectCommandOutput } from '@aws-sdk/client-s3';
 import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
 import { Uint8ArrayBlobAdapter } from '@smithy/util-stream';
 import type { GetQueryResultsOutput } from '@aws-sdk/client-athena';
@@ -371,9 +371,11 @@ test('s3 copy with key', async () => {
     command: 'S3_COPY',
     input: { Bucket, CopySource, Key: 'renamed-file.json' },
   });
-  const response = (await handler(event, CONTEXT)) as CopyObjectCommandOutput;
+  const response = (await handler(event, CONTEXT)) as S3CopyCommandResult;
   expect(response).toBeDefined();
-  expect(response.CopyObjectResult?.ETag).toEqual('with key');
+  expect(response.copy).toBeDefined();
+  expect(response.copy.CopyObjectResult?.ETag).toEqual('with key');
+  expect(response.delete).not.toBeDefined();
 });
 
 test('s3 copy without key', async () => {
@@ -389,9 +391,35 @@ test('s3 copy without key', async () => {
     command: 'S3_COPY',
     input: { Bucket, CopySource },
   });
-  const response = (await handler(event, CONTEXT)) as CopyObjectCommandOutput;
+  const response = (await handler(event, CONTEXT)) as S3CopyCommandResult;
   expect(response).toBeDefined();
-  expect(response.CopyObjectResult?.ETag).toEqual('without key');
+  expect(response.copy).toBeDefined();
+  expect(response.copy.CopyObjectResult?.ETag).toEqual('without key');
+  expect(response.delete).not.toBeDefined();
+});
+
+test('s3 copy with delete', async () => {
+  const Bucket = 'dest-bucket';
+  const CopySource = 'src-bucket/folder/file.json';
+  const VersionId = '9_gKg5vG56F.TTEUdwkxGpJ3tNDlWlGq';
+
+  mockS3Client
+    .rejects()
+    .on(CopyObjectCommand, { Bucket, CopySource, Key: 'file.json' })
+    .resolvesOnce({ CopyObjectResult: { ETag: 'without key' } })
+    .on(DeleteObjectCommand, { Bucket: 'src-bucket', Key: 'folder/file.json' })
+    .resolvesOnce({ DeleteMarker: false, VersionId });
+
+  const event = getEvent({
+    command: 'S3_COPY',
+    input: { Bucket, CopySource, DeleteOriginal: true },
+  });
+  const response = (await handler(event, CONTEXT)) as S3CopyCommandResult;
+  expect(response).toBeDefined();
+  expect(response.copy).toBeDefined();
+  expect(response.copy.CopyObjectResult?.ETag).toEqual('without key');
+  expect(response.delete).toBeDefined();
+  expect(response.delete?.VersionId).toEqual(VersionId);
 });
 
 test('state machine arn from name', async () => {

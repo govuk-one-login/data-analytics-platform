@@ -1,5 +1,5 @@
 import { getEventFilePrefix, getEventFilePrefixDayBefore, poll } from './common-helpers';
-import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
+import type { S3CopyCommandResult, TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
 import type { ListObjectsV2CommandOutput } from '@aws-sdk/client-s3';
 import { rawdataS3BucketName } from './envHelper';
@@ -55,13 +55,19 @@ export const getS3DataFileContent = async (key: string | undefined): Promise<Rec
   return await invokeTestSupportLambda(event);
 };
 
-export const cpS3files = async (bucket: string, key: string, CopySource: string): Promise<Record<string, unknown>> => {
+export const cpS3files = async (
+  bucket: string,
+  key: string,
+  CopySource: string,
+  DeleteOriginal = false,
+): Promise<S3CopyCommandResult> => {
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'S3_COPY',
     input: {
       Bucket: bucket,
       Key: key,
       CopySource,
+      DeleteOriginal,
     },
   };
 
