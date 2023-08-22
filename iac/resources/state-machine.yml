@@ -243,7 +243,9 @@ StepFunctionRole:
               Action: lambda:InvokeFunction
 
             - Effect: Allow
-              Resource: !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-raw-to-stage-process'
+              Resource:
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-raw-to-stage-process'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-processing'
               Action:
                 - states:ListExecutions
                 - states:StartExecution
@@ -317,6 +319,13 @@ StepFunctionRole:
                 - glue:GetJobRun
                 - glue:GetJobRuns
                 - glue:BatchStopJobRun
+
+            - Effect: Allow
+              Resource: !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule'
+              Action:
+                - events:PutTargets
+                - events:PutRule
+                - events:DescribeRule
 
 DataQualityMetricsBucket:
   Type: 'AWS::S3::Bucket'
