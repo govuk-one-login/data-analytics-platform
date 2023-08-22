@@ -147,7 +147,9 @@ TestSupportLambda:
       - AWSLambdaBasicExecutionRole
       - Statement:
           - Effect: Allow
-            Action: lambda:InvokeFunction
+            Action:
+              - lambda:InvokeFunction
+              - lambda:ListEventSourceMappings
             Resource: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:*
           - Effect: Allow
             Action:

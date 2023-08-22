@@ -3,22 +3,27 @@ import {
   deliveryStreamName,
   rawdataS3BucketName,
   redshiftProcessStepFucntionName,
-  sqsQueueName,
   stageProcessStepFucntionName,
   txmaProcessingWorkGroupName,
   txmaStageDatabaseName,
 } from '../helpers/envHelper';
 import { describeFirehoseDeliveryStream } from '../helpers/firehose-helpers';
-import { getSQSQueueUrl } from '../helpers/lambda-helpers';
+import { listLambdaEventMappings } from '../helpers/lambda-helpers';
 import { getS3BucketStatus } from '../helpers/s3-helpers';
 import { startStepFunction } from '../helpers/step-helpers';
 
 describe('smoke tests for DAP services', () => {
   // 	    // ******************** Smoke Tests  ************************************
 
-  test('Verify SQS Queue is reachable ', async () => {
-    const sqsUrl = await getSQSQueueUrl(sqsQueueName());
-    expect(sqsUrl.QueueUrl).toContain(sqsQueueName());
+  test('Verify Lambda is connected to SQS ', async () => {
+    const lambdaEvents = await listLambdaEventMappings();
+    expect(lambdaEvents.EventSourceMappings).toHaveLength(1);
+
+    const txmaEvent = lambdaEvents.EventSourceMappings?.at(0);
+    expect(txmaEvent).toBeDefined();
+    // todo uncomment lines below when txma queues are correctly setup in staging, integration and production
+    // expect(txmaEvent?.EventSourceArn).toEqual(expect.stringContaining(`self-${envName()}-EC-SQS-Output-Queue-dataAnalyticsPlatform`));
+    // expect(txmaEvent?.State).toEqual('Enabled');
   });
 
   test('Verify Data Firehose is reachable ', async () => {
@@ -33,7 +38,7 @@ describe('smoke tests for DAP services', () => {
 
   test('Verify Athena queries are executable ', async () => {
     const athenaQueryResults = await getQueryResults(
-      'SELECT * from auth_account_creation',
+      'SELECT * from auth_account_creation limit 10',
       txmaStageDatabaseName(),
       txmaProcessingWorkGroupName(),
     );

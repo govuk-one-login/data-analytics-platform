@@ -2,7 +2,7 @@ import { AWS_ENVIRONMENTS } from '../../shared/constants';
 import { decodeObject, getAccountId, getRequiredParams } from '../../shared/utils/utils';
 import { DescribeLogStreamsCommand, GetLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
 import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
-import { InvokeCommand } from '@aws-sdk/client-lambda';
+import { InvokeCommand, ListEventSourceMappingsCommand } from '@aws-sdk/client-lambda';
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { CopyObjectCommand, GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
 import { GetQueueUrlCommand, SendMessageCommand } from '@aws-sdk/client-sqs';
@@ -22,6 +22,7 @@ const TEST_SUPPORT_COMMANDS = [
   'CLOUDWATCH_LIST',
   'FIREHOSE_DESCRIBE_STREAM',
   'LAMBDA_INVOKE',
+  'LAMBDA_LIST_EVENTS',
   'REDSHIFT_RUN_QUERY',
   'S3_COPY',
   'S3_GET',
@@ -94,6 +95,12 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
         InvocationType: 'RequestResponse',
       });
       return await lambdaClient.send(request).then(lambdaInvokeResponse);
+    }
+    case 'LAMBDA_LIST_EVENTS': {
+      const request = new ListEventSourceMappingsCommand({
+        ...getRequiredParams(event.input, 'FunctionName'),
+      });
+      return await lambdaClient.send(request);
     }
     case 'REDSHIFT_RUN_QUERY': {
       return await new QueryRunner('redshift').runQuery(event);
