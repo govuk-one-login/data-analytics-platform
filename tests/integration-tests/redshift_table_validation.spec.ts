@@ -11,6 +11,7 @@ import {
 import * as fs from 'fs';
 
 describe('Redshift Data Model Validations', () => {
+
   test('Verify Redshift Database event data => DIM_EVENT_COLUMNS table metadata and event names', async () => {
     const expectedEvent = JSON.parse(fs.readFileSync('tests/data/eventList.json', 'utf-8'));
     const redShiftQueryResults = (await redshiftRunQuery(DIM_EVENT_COLUMNS)) as QueryResults;
@@ -20,7 +21,7 @@ describe('Redshift Data Model Validations', () => {
     for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
       actualEventNameList.push(redShiftQueryResults.Records[index][0].stringValue);
     }
-    expect(JSON.stringify(actualEventNameList.sort()) == JSON.stringify(expectedEvent.sort())).toEqual(true);
+    expect(JSON.stringify(actualEventNameList.sort()) === JSON.stringify(expectedEvent.sort())).toEqual(true);
   });
   test('Verify Redshift Database => DIM_DATE table metadata', async () => {
     const redShiftQueryResults = await redshiftRunQuery(DIM_DATE_COLUMNS);
@@ -88,7 +89,7 @@ describe('Redshift Data Model Validations', () => {
       const expectedEvent = JSON.parse(
         fs.readFileSync('tests/data/event/' + data.family_name + '_family.json', 'utf-8'),
       );
-      const query = DIM_EVENT_BY_NAME + "'" + data.family_name + "'";
+      const query = DIM_EVENT_BY_NAME + "'" + JSON.stringify(data.family_name) + "'";
       const redShiftQueryResults = (await redshiftRunQuery(query)) as QueryResults;
       const actualData = [];
       for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
@@ -97,7 +98,7 @@ describe('Redshift Data Model Validations', () => {
       }
       // console.log('Array Results:' + JSON.stringify(actualData.sort()));
       // console.log('Expected Results:' + JSON.stringify(expectedEvent).sort());
-      expect(JSON.stringify(actualData.sort()) == JSON.stringify(expectedEvent.sort())).toEqual(true);
+      expect(JSON.stringify(actualData.sort()) === JSON.stringify(expectedEvent.sort())).toEqual(true);
       expect(redShiftQueryResults.TotalNumRows).toEqual(expectedEvent.length);
     },
     240000,
