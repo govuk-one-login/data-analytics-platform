@@ -64,7 +64,7 @@ describe('Redshift Data Model Validations', () => {
     // console.log('Data:' + JSON.stringify(redShiftQueryResults.Records[0][2].stringValue));
     expect(redShiftQueryResults.TotalNumRows).toEqual(3);
     const journeyChannel = [];
-    if (redShiftQueryResults.Records) {
+    if (redShiftQueryResults.Records != null) {
       for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
         journeyChannel.push(redShiftQueryResults.Records[index][1].stringValue);
       }
@@ -100,7 +100,7 @@ describe('Redshift Data Model Validations', () => {
       const redShiftQueryResults = await redshiftRunQuery(query);
       const actualData = [];
       for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
-        if (redShiftQueryResults.Records) {
+        if (redShiftQueryResults.Records != null) {
           actualData.push(redShiftQueryResults.Records[index][0].stringValue);
           expect(redShiftQueryResults.Records[index][1].stringValue).toEqual(data.journey_type);
         }
