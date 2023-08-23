@@ -1,0 +1,671 @@
+{
+  "$metadata": {
+    "httpStatusCode": 200,
+    "requestId": "437affe4-fd57-490c-8ada-1240b3d54d80",
+    "attempts": 1,
+    "totalRetryDelay": 0
+  },
+  "ColumnMetadata": [
+    {
+      "isCaseSensitive": true,
+      "isCurrency": false,
+      "isSigned": false,
+      "label": "event_name",
+      "length": 0,
+      "name": "event_name",
+      "nullable": 1,
+      "precision": 500,
+      "scale": 0,
+      "schemaName": "pg_temp_5",
+      "tableName": "t_rslocal_localhost@241363@1055@",
+      "typeName": "varchar"
+    },
+    {
+      "isCaseSensitive": true,
+      "isCurrency": false,
+      "isSigned": false,
+      "label": "product_family",
+      "length": 0,
+      "name": "product_family",
+      "nullable": 1,
+      "precision": 1000,
+      "scale": 0,
+      "schemaName": "pg_temp_5",
+      "tableName": "t_rslocal_localhost@241363@1055@",
+      "typeName": "varchar"
+    },
+    {
+      "isCaseSensitive": true,
+      "isCurrency": false,
+      "isSigned": false,
+      "label": "event_description",
+      "length": 0,
+      "name": "event_description",
+      "nullable": 1,
+      "precision": 500,
+      "scale": 0,
+      "schemaName": "pg_temp_5",
+      "tableName": "t_rslocal_localhost@241363@1055@",
+      "typeName": "varchar"
+    },
+    {
+      "isCaseSensitive": true,
+      "isCurrency": false,
+      "isSigned": false,
+      "label": "event_journey_type",
+      "length": 0,
+      "name": "event_journey_type",
+      "nullable": 1,
+      "precision": 100,
+      "scale": 0,
+      "schemaName": "pg_temp_5",
+      "tableName": "t_rslocal_localhost@241363@1055@",
+      "typeName": "varchar"
+    },
+    {
+      "isCaseSensitive": true,
+      "isCurrency": false,
+      "isSigned": false,
+      "label": "created_by",
+      "length": 0,
+      "name": "created_by",
+      "nullable": 1,
+      "precision": 100,
+      "scale": 0,
+      "schemaName": "pg_temp_5",
+      "tableName": "t_rslocal_localhost@241363@1055@",
+      "typeName": "varchar"
+    },
+    {
+      "isCaseSensitive": false,
+      "isCurrency": false,
+      "isSigned": false,
+      "label": "created_date",
+      "length": 0,
+      "name": "created_date",
+      "nullable": 1,
+      "precision": 13,
+      "scale": 0,
+      "schemaName": "pg_temp_5",
+      "tableName": "t_rslocal_localhost@241363@1055@",
+      "typeName": "date"
+    },
+    {
+      "isCaseSensitive": true,
+      "isCurrency": false,
+      "isSigned": false,
+      "label": "modified_by",
+      "length": 0,
+      "name": "modified_by",
+      "nullable": 1,
+      "precision": 100,
+      "scale": 0,
+      "schemaName": "pg_temp_5",
+      "tableName": "t_rslocal_localhost@241363@1055@",
+      "typeName": "varchar"
+    },
+    {
+      "isCaseSensitive": false,
+      "isCurrency": false,
+      "isSigned": true,
+      "label": "batch_id",
+      "length": 0,
+      "name": "batch_id",
+      "nullable": 1,
+      "precision": 10,
+      "scale": 0,
+      "schemaName": "pg_temp_5",
+      "tableName": "t_rslocal_localhost@241363@1055@",
+      "typeName": "int4"
+    }
+  ],
+  "Records": [
+    [
+      {
+        "stringValue": "AUTH_CHECK_USER_KNOWN_EMAIL"
+      },
+      {
+        "stringValue": "AUTH_ACCOUNT_USER_LOGIN"
+      },
+      {
+        "stringValue": "AUTH_CHECK_USER_KNOWN_EMAIL"
+      },
+      {
+        "stringValue": "Authentication"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "AUTH_PASSWORD_RESET_SUCCESSFUL"
+      },
+      {
+        "stringValue": "AUTH_ACCOUNT_MANAGEMENT"
+      },
+      {
+        "stringValue": "AUTH_PASSWORD_RESET_SUCCESSFUL"
+      },
+      {
+        "stringValue": "Authentication"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "DCMAW_WEB_END"
+      },
+      {
+        "stringValue": "DCMAW_CRI"
+      },
+      {
+        "stringValue": "DCMAW_WEB_END"
+      },
+      {
+        "stringValue": "DCMAW"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "AUTH_CHECK_USER_NO_ACCOUNT_WITH_EMAIL"
+      },
+      {
+        "stringValue": "AUTH_ACCOUNT_CREATION"
+      },
+      {
+        "stringValue": "AUTH_CHECK_USER_NO_ACCOUNT_WITH_EMAIL"
+      },
+      {
+        "stringValue": "Authentication"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "DCMAW_CRI_VC_ISSUED"
+      },
+      {
+        "stringValue": "DCMAW_CRI"
+      },
+      {
+        "stringValue": "DCMAW_CRI_VC_ISSUED"
+      },
+      {
+        "stringValue": "DCMAW"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "IPV_DL_CRI_VC_ISSUED"
+      },
+      {
+        "stringValue": "IPV_CRI_DRIVING_LICENSE "
+      },
+      {
+        "stringValue": "IPV_DL_CRI_VC_ISSUED"
+      },
+      {
+        "stringValue": "IPV"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "IPV_ADDRESS_CRI_VC_ISSUED"
+      },
+      {
+        "stringValue": "IPV_CRI_ADDRESS"
+      },
+      {
+        "stringValue": "IPV_ADDRESS_CRI_VC_ISSUED"
+      },
+      {
+        "stringValue": "IPV"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "DCMAW_DRIVING_LICENCE_SELECTED"
+      },
+      {
+        "stringValue": "DCMAW_CRI"
+      },
+      {
+        "stringValue": "DCMAW_DRIVING_LICENCE_SELECTED"
+      },
+      {
+        "stringValue": "DCMAW"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "DCMAW_APP_END"
+      },
+      {
+        "stringValue": "DCMAW_CRI"
+      },
+      {
+        "stringValue": "DCMAW_APP_END"
+      },
+      {
+        "stringValue": "DCMAW"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "AUTH_LOG_IN_SUCCESS"
+      },
+      {
+        "stringValue": "AUTH_ACCOUNT_USER_LOGIN"
+      },
+      {
+        "stringValue": "AUTH_LOG_IN_SUCCESS"
+      },
+      {
+        "stringValue": "Authentication"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "DCMAW_PASSPORT_SELECTED"
+      },
+      {
+        "stringValue": "DCMAW_CRI"
+      },
+      {
+        "stringValue": "DCMAW_PASSPORT_SELECTED"
+      },
+      {
+        "stringValue": "DCMAW"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "DCMAW_APP_START"
+      },
+      {
+        "stringValue": "DCMAW_CRI"
+      },
+      {
+        "stringValue": "DCMAW_APP_START"
+      },
+      {
+        "stringValue": "DCMAW"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "AUTH_CODE_VERIFIED"
+      },
+      {
+        "stringValue": "AUTH_ACCOUNT_MFA"
+      },
+      {
+        "stringValue": "AUTH_CODE_VERIFIED"
+      },
+      {
+        "stringValue": "Authentication"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "IPV_FRAUD_CRI_VC_ISSUED"
+      },
+      {
+        "stringValue": "IPV_CRI_FRAUD"
+      },
+      {
+        "stringValue": "IPV_FRAUD_CRI_VC_ISSUED"
+      },
+      {
+        "stringValue": "IPV"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "IPV_ADDRESS_CRI_START"
+      },
+      {
+        "stringValue": "IPV_CRI_ADDRESS"
+      },
+      {
+        "stringValue": "IPV_ADDRESS_CRI_START"
+      },
+      {
+        "stringValue": "IPV"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "IPV_FRAUD_CRI_START"
+      },
+      {
+        "stringValue": "IPV_CRI_FRAUD"
+      },
+      {
+        "stringValue": "IPV_FRAUD_CRI_START"
+      },
+      {
+        "stringValue": "IPV"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "DCMAW_CRI_START"
+      },
+      {
+        "stringValue": "DCMAW_CRI"
+      },
+      {
+        "stringValue": "DCMAW_CRI_START"
+      },
+      {
+        "stringValue": "DCMAW"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "IPV_DL_CRI_START"
+      },
+      {
+        "stringValue": "IPV_CRI_DRIVING_LICENSE "
+      },
+      {
+        "stringValue": "IPV_DL_CRI_START"
+      },
+      {
+        "stringValue": "IPV"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "DCMAW_APP_HANDOFF_START"
+      },
+      {
+        "stringValue": "DCMAW_CRI"
+      },
+      {
+        "stringValue": "DCMAW_APP_HANDOFF_START"
+      },
+      {
+        "stringValue": "DCMAW"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "AUTH_AUTHORISATION_INITIATED"
+      },
+      {
+        "stringValue": "AUTH_ORCHESTRATION"
+      },
+      {
+        "stringValue": "AUTH_AUTHORISATION_INITIATED"
+      },
+      {
+        "stringValue": "Authentication"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ],
+    [
+      {
+        "stringValue": "AUTH_CREATE_ACCOUNT"
+      },
+      {
+        "stringValue": "AUTH_ACCOUNT_CREATION"
+      },
+      {
+        "stringValue": "AUTH_CREATE_ACCOUNT"
+      },
+      {
+        "stringValue": "Authentication"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "stringValue": "2023-08-15"
+      },
+      {
+        "stringValue": "IAMR:test-dap-redshift-processing-role"
+      },
+      {
+        "longValue": 9999
+      }
+    ]
+  ],
+  "TotalNumRows": 21
+}

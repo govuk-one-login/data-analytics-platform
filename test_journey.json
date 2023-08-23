@@ -1,0 +1,321 @@
+[
+  [
+    {
+      "longValue": 119
+    },
+    {
+      "stringValue": "Fraud CRI"
+    },
+    {
+      "stringValue": "Fraud CRI"
+    },
+    {
+      "stringValue": "IPV"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "longValue": 9999
+    }
+  ],
+  [
+    {
+      "longValue": 84
+    },
+    {
+      "stringValue": "Account Management"
+    },
+    {
+      "stringValue": "Account Management"
+    },
+    {
+      "stringValue": "Authentication"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "longValue": 9999
+    }
+  ],
+  [
+    {
+      "longValue": 87
+    },
+    {
+      "stringValue": "App Journey"
+    },
+    {
+      "stringValue": "App Journey"
+    },
+    {
+      "stringValue": "DCMAW"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "longValue": 9999
+    }
+  ],
+  [
+    {
+      "longValue": 3
+    },
+    {
+      "stringValue": "CRI"
+    },
+    {
+      "stringValue": "CRI"
+    },
+    {
+      "stringValue": "DCMAW"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "longValue": 9999
+    }
+  ],
+  [
+    {
+      "longValue": 19
+    },
+    {
+      "stringValue": "Account MFA"
+    },
+    {
+      "stringValue": "Account MFA"
+    },
+    {
+      "stringValue": "Authentication"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "longValue": 9999
+    }
+  ],
+  [
+    {
+      "longValue": 80
+    },
+    {
+      "stringValue": "Relying Parties Connect"
+    },
+    {
+      "stringValue": "Relying Parties Connect"
+    },
+    {
+      "stringValue": "Authentication"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "longValue": 9999
+    }
+  ],
+  [
+    {
+      "longValue": 35
+    },
+    {
+      "stringValue": "Address CRI"
+    },
+    {
+      "stringValue": "Address CRI"
+    },
+    {
+      "stringValue": "IPV"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "longValue": 9999
+    }
+  ],
+  [
+    {
+      "longValue": 100
+    },
+    {
+      "stringValue": "APP Journey"
+    },
+    {
+      "stringValue": "APP Journey"
+    },
+    {
+      "stringValue": "DCMAW"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "longValue": 9999
+    }
+  ],
+  [
+    {
+      "longValue": 74
+    },
+    {
+      "stringValue": "User Login"
+    },
+    {
+      "stringValue": "User Login"
+    },
+    {
+      "stringValue": "Authentication"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "longValue": 9999
+    }
+  ],
+  [
+    {
+      "longValue": 213
+    },
+    {
+      "stringValue": "Driving License"
+    },
+    {
+      "stringValue": "Driving License"
+    },
+    {
+      "stringValue": "IPV"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "longValue": 9999
+    }
+  ],
+  [
+    {
+      "longValue": 85
+    },
+    {
+      "stringValue": "Account Creation"
+    },
+    {
+      "stringValue": "Account Creation"
+    },
+    {
+      "stringValue": "Authentication"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "stringValue": "IAMR:test-dap-redshift-processing-role"
+    },
+    {
+      "stringValue": "2023-08-15"
+    },
+    {
+      "longValue": 9999
+    }
+  ]
+]

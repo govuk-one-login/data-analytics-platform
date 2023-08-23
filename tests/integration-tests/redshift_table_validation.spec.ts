@@ -78,7 +78,7 @@ describe('Redshift Data Model Validations', () => {
   test.concurrent.each`
     family_name                           | journey_type
     ${'DCMAW_CRI'}                        | ${'DCMAW'}
-    ${'AUTH_ORCHESTRATION'}               |${'Authentication'}
+    ${'AUTH_ORCHESTRATION'}               | ${'Authentication'}
     ${'AUTH_ACCOUNT_USER_LOGIN'}          | ${'Authentication'}
     ${'AUTH_ACCOUNT_CREATION'}            | ${'Authentication'}
     ${'AUTH_ACCOUNT_MFA'}                 | ${'Authentication'}
@@ -94,9 +94,9 @@ describe('Redshift Data Model Validations', () => {
     async ({ ...data }) => {
       // given
       const expectedEvent = JSON.parse(
-        fs.readFileSync('tests/data/event/' + (data.family_name as string) + '_family.json', 'utf-8'),
+        fs.readFileSync('tests/data/event/' + ((data.family_name as string).toLowerCase()) + '_family.json', 'utf-8'),
       );
-      const query = DIM_EVENT_BY_NAME + "'" + (data.family_name as string) + "'";
+      const query = DIM_EVENT_BY_NAME + "'" + ((data.family_name as string).toLowerCase()) + "'";
       const redShiftQueryResults = await redshiftRunQuery(query);
       const actualData = [];
       for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {

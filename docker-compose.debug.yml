@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  didataanalyticsplatform:
+    image: didataanalyticsplatform
+    build:
+      context: .
+      dockerfile: ./Dockerfile
