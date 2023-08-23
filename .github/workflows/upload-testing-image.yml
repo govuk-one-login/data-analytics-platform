@@ -8,7 +8,18 @@ on:
         required: true
 
 jobs:
+  get-repository-secret-name:
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.get-name.outputs.name }}
+    steps:
+      - id: get-name
+        env:
+          TEST_TYPE: ${{ inputs.test-type }}
+        run: echo "name=ECR_REPOSITORY_$(echo $TEST_TYPE | tr '[:lower:]' '[:upper:]')" >> $GITHUB_OUTPUT
+
   upload-testing-image:
+    needs: [get-repository-secret-name]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
@@ -35,7 +46,7 @@ jobs:
         env:
           CONTAINER_SIGN_KMS_KEY: ${{ secrets.CONTAINER_SIGN_KMS_KEY }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_INTEGRATION }}
+          ECR_REPOSITORY: ${{ secrets[needs.get-repository-secret-name.outputs.name] }}
           IMAGE_NAME: dap-${{ inputs.test-type }}-tests
           IMAGE_TAG: latest
         run: |
