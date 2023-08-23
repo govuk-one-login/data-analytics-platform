@@ -21,6 +21,14 @@
 --      7. Create IAM user (step function IAM role)
 --      8. User associated to group
 --      9. Alter table ownership to enable deletes/truncates
+--
+-- 2023-08-23  Sarnjit Beesla  
+--      Setup scripts to support the management of Stage layer duplicates
+--      Database objects cover the following:
+--      10. Audit schema
+--      11. Audit data objects creation
+--      12. Database object privileges assigned to group
+--      13. Alter table ownership to enable inserts
 -------------------------------------------------------------------------------
 
 
@@ -142,3 +150,55 @@ ALTER GROUP dap_elt_processing ADD USER "IAMR:{env}-dap-redshift-processing-role
 --**REPLACE {env}**
 ALTER TABLE dap_txma_reporting_db.conformed.ref_events OWNER TO "IAMR:{env}-dap-redshift-processing-role";
 ALTER TABLE dap_txma_reporting_db.conformed.ref_relying_parties OWNER TO "IAMR:{env}-dap-redshift-processing-role";
+
+
+/*
+10. Audi Schema
+*/
+
+--**ENSURE DATBASE CREATED IN STEP(1) IS SELECTED**
+
+CREATE SCHEMA IF NOT EXISTS audit;
+
+
+/*
+11. Product Family Audit table creation and population
+*/
+
+-- copy the contents of the file: redshift-scripts/setup_process/sp_audit_data_objects.sql
+-- paste into the redshift query editor
+
+-- click [Run] button to create the stored procedure: audit.sp_conformed_data_objects
+
+-- run the following cmd once confirmed SP has been created
+
+CALL dap_txma_reporting_db.audit.sp_audit_data_objects()
+
+
+/*
+12. Database object privileges to group
+*/
+
+GRANT ALL ON DATABASE "dap_txma_reporting_db" TO GROUP dap_elt_processing;
+GRANT ALL ON SCHEMA "audit" TO GROUP dap_elt_processing;
+GRANT ALL ON ALL TABLES IN SCHEMA "audit" TO GROUP dap_elt_processing;
+
+
+/*
+13. Alter table ownership
+*/
+
+--**REPLACE {env}**
+
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_account_creation_1 OWNER TO "IAMR:{env}-dap-redshift-processing-role";	
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_orchestration_2	OWNER TO "IAMR:{env}-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_account_user_login_3 OWNER TO "IAMR:{env}-dap-redshift-processing-role";	
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_dcmaw_cri_4 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_account_mfa_5 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_account_management_6 OWNER TO "IAMR:{env}-dap-redshift-processing-role";	
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_address_7 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_driving_license_8 OWNER TO "IAMR:{env}-dap-redshift-processing-role";	
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_fraud_9 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_journey_10 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_kbv_11 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_passport_12 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
