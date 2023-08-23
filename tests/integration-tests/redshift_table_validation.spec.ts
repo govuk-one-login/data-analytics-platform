@@ -94,9 +94,10 @@ describe('Redshift Data Model Validations', () => {
     async ({ ...data }) => {
       // given
       const expectedEvent = JSON.parse(
-        fs.readFileSync('tests/data/event/' + (data.family_name as string) + '_family.json', 'utf-8'),
+        fs.readFileSync('tests/data/event/' + ((data.family_name as string).toLowerCase()) + '_family.json', 'utf-8'),
       );
       const query = DIM_EVENT_BY_NAME + "'" + (data.family_name as string) + "'";
+
       const redShiftQueryResults = await redshiftRunQuery(query);
       const actualData = [];
       for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
