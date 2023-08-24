@@ -2,7 +2,7 @@
   "environment": "dev",
   "command": "SFN_LIST_EXECUTIONS",
   "input": {
-    "stateMachineArn": "<paste here>",
+    "stateMachineName": "dev-dap-raw-to-stage-process",
     "maxResults": 5
   }
 }
