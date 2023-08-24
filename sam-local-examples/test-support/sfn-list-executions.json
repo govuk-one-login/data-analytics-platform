@@ -1,0 +1,8 @@
+{
+  "environment": "dev",
+  "command": "SFN_LIST_EXECUTIONS",
+  "input": {
+    "stateMachineArn": "<paste here>",
+    "maxResults": 5
+  }
+}

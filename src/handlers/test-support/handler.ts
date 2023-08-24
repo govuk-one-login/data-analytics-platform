@@ -15,7 +15,7 @@ import { GetQueueUrlCommand, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { cloudwatchClient, firehoseClient, lambdaClient, s3Client, sfnClient, sqsClient } from '../../shared/clients';
 import * as zlib from 'zlib';
 import { getLogger } from '../../shared/powertools';
-import { DescribeExecutionCommand, StartExecutionCommand } from '@aws-sdk/client-sfn';
+import { DescribeExecutionCommand, ListExecutionsCommand, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import type { Context } from 'aws-lambda';
 import { DescribeDeliveryStreamCommand } from '@aws-sdk/client-firehose';
 import { QueryRunner } from './query-runner';
@@ -38,6 +38,7 @@ const TEST_SUPPORT_COMMANDS = [
   'SQS_SEND',
   'SFN_START_EXECUTION',
   'SFN_DESCRIBE_EXECUTION',
+  'SFN_LIST_EXECUTIONS',
 ] as const;
 
 export type TestSupportEnvironment = (typeof AWS_ENVIRONMENTS)[number];
@@ -157,6 +158,13 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
     case 'SFN_DESCRIBE_EXECUTION': {
       const request = new DescribeExecutionCommand({
         ...getRequiredParams(event.input, 'executionArn'),
+      });
+      return await sfnClient.send(request);
+    }
+    case 'SFN_LIST_EXECUTIONS': {
+      const request = new ListExecutionsCommand({
+        ...getRequiredParams(event.input, 'stateMachineArn'),
+        maxResults: event.input.maxResults ?? 1,
       });
       return await sfnClient.send(request);
     }

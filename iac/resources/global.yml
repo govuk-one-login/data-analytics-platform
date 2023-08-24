@@ -182,6 +182,7 @@ TestSupportLambda:
           - Effect: Allow
             Action:
               - states:DescribeExecution
+              - states:ListExecutions
               - states:StartExecution
             Resource: '*'
           - Effect: Allow
