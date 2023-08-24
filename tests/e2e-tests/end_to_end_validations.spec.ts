@@ -5,7 +5,6 @@ import { checkFileCreatedOnS3, copyFilesFromBucket } from '../helpers/s3-helpers
 import { startStepFunction, stepFunctionListExecutions } from '../helpers/step-helpers';
 import {
   rawdataS3BucketName,
-  redshiftProcessStepFucntionName,
   stageProcessStepFucntionName,
   txmaProcessingWorkGroupName,
   txmaStageDatabaseName,
@@ -76,11 +75,15 @@ describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → C
       expect(JSON.stringify(athenaQueryResults)).toContain(String(organization.get(data[index])));
     }
     // ******************** Start raw to stage step function  ************************************
-    const RedshiftstepexecutionId = await stepFunctionListExecutions(redshiftProcessStepFucntionName());
+
+    const RedshiftstepexecutionId = await stepFunctionListExecutions(
+      'arn:aws:states:eu-west-2:072886614474:stateMachine:test-dap-raw-to-stage-process',
+    );
+    const RedshiftexecutionArn = RedshiftstepexecutionId.executions;
 
     // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************
 
-    const stageToConformedStatus = await waitForStepFunction(String(RedshiftstepexecutionId.executions), 20);
+    const stageToConformedStatus = await waitForStepFunction(String(RedshiftexecutionArn), 20);
 
     expect(stageToConformedStatus).toEqual('SUCCEEDED');
     // // ******************** Run Redshift queries ************************************
