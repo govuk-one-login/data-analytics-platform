@@ -77,14 +77,12 @@ describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → C
     }
     // ******************** Start raw to stage step function  ************************************
 
-    const RedshiftstepexecutionId = await stepFunctionListExecutions(
-      "'arn:aws:states:eu-west-2:"+ACCOUNT_ID+":stateMachine:test-dap-raw-to-stage-process'",
-    );
-    const RedshiftexecutionArn = RedshiftstepexecutionId.executions;
+    const listExecutionsOutput = await stepFunctionListExecutions(stageProcessStepFucntionName());
+    const executionARN = listExecutionsOutput.executions;
 
     // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************
 
-    const stageToConformedStatus = await waitForStepFunction(String(RedshiftexecutionArn), 20);
+    const stageToConformedStatus = await waitForStepFunction(String(executionARN), 20);
 
     expect(stageToConformedStatus).toEqual('SUCCEEDED');
     // // ******************** Run Redshift queries ************************************

@@ -22,11 +22,11 @@ export const describeExecution = async (executionArn: string): Promise<Record<st
   return await invokeTestSupportLambda(event);
 };
 
-export const stepFunctionListExecutions = async (stateMachineArn: string): Promise<ListExecutionsOutput> => {
+export const stepFunctionListExecutions = async (stateMachineName: string): Promise<ListExecutionsOutput> => {
   const event: Omit<TestSupportEvent, 'environment'> = {
     command: 'SFN_LIST_EXECUTIONS',
     input: {
-      stateMachineArn,
+      stateMachineName,
     },
   };
   return (await invokeTestSupportLambda(event)) as unknown as ListExecutionsOutput;
