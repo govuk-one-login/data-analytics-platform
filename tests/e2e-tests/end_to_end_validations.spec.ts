@@ -15,6 +15,7 @@ import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 const data = JSON.parse(fs.readFileSync('tests/data/eventList.json', 'utf-8'));
 const organization = new Map<string, string>();
 
+const ACCOUNT_ID = "072886614474";
 describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → Conformed Layer ', () => {
   // ******************** Copy files to s3 raw bucket ************************************
 
@@ -77,7 +78,7 @@ describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → C
     // ******************** Start raw to stage step function  ************************************
 
     const RedshiftstepexecutionId = await stepFunctionListExecutions(
-      'arn:aws:states:eu-west-2:072886614474:stateMachine:test-dap-raw-to-stage-process',
+      "'arn:aws:states:eu-west-2:"+ACCOUNT_ID+":stateMachine:test-dap-raw-to-stage-process'",
     );
     const RedshiftexecutionArn = RedshiftstepexecutionId.executions;
 
