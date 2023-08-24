@@ -487,6 +487,18 @@
       "Parameters": {
         "JobName": "${DataQualityGlueJobname}"
       },
+      "Next": "RedshiftProcessingStepFunction"
+    },
+    "RedshiftProcessingStepFunction": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Parameters": {
+        "StateMachineArn": "${RedshiftProcessingStepFunctionArn}",
+        "Input": {
+          "StatePayload": "Triggered from raw to stage step function",
+          "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+        }
+      },
       "Next": "StopProcessing"
     },
     "StopProcessing": {

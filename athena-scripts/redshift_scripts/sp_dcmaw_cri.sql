@@ -287,7 +287,37 @@ BEGIN
     LEFT JOIN conformed.dim_verification_route dvr 
          ON  cnf.sub_domain = dvr.verification_route_name;
          
-         
+
+  INSERT into audit.err_duplicate_event_id_dcmaw_cri_4 (total_duplicate_event_count_minus_one
+  ,product_family,event_name,event_id,timestamp_formatted,created_by,created_datetime)
+  SELECT event_count,Product_family,event_name,event_id,timestamp_formatted,current_user,GETDATE() as Current_date
+  FROM
+      (
+          SELECT COUNT(*) AS event_count,event_name,auth.Product_family,event_id,timestamp_formatted
+          FROM
+              (
+                  SELECT
+                      'dcmaw_cri' AS Product_family,
+                      ROW_NUMBER() OVER (PARTITION BY event_id, timestamp_formatted ORDER BY timestamp_formatted) AS row_num,
+                      *
+                  FROM
+                      "dap_txma_reporting_db"."dap_txma_stage"."dcmaw_cri" 
+                      --where event_id='5c94f844-f05d-4c32-87fe-e3b6b265223f'
+              ) auth
+          JOIN "dap_txma_reporting_db"."conformed"."batchcontrol" batc ON auth.Product_family = batc.product_family
+              AND auth.processed_date > batc.maxrundate
+          WHERE row_num <> 1
+          AND (auth.product_family,event_name, event_id) NOT IN (SELECT product_family ,event_name, event_id 
+                                                                      FROM audit.err_duplicate_event_id_dcmaw_cri_4)
+          GROUP BY
+              auth.Product_family,
+              event_name,
+              event_id,
+              timestamp_formatted            
+      ) subquery;
+
+
+
     --update config table
     
     
