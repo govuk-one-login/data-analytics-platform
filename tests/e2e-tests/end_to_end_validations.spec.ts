@@ -61,8 +61,8 @@ describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → C
     // ******************** Run Athena queries ************************************
     for (let index = 0; index <= data.length - 1; index++) {
       const productFamilyGroupName = productFamily(data[index]);
-      console.log("Prdocut Family Name  "+productFamilyGroupName)
-      console.log("Event id is   "+String(organization.get(data[index])))
+      console.log('Prdocut Family Name  ' + productFamilyGroupName);
+      console.log('Event id is   ' + String(organization.get(data[index])));
       const athenaQueryResults = await getQueryResults(
         'SELECT * FROM ' +
           productFamilyGroupName +
@@ -87,8 +87,7 @@ describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → C
     expect(stageToConformedStatus).toEqual('SUCCEEDED');
     // // ******************** Run Redshift queries ************************************
     for (let index = 0; index <= data.length - 1; index++) {
-
-      console.log("Event id is   "+String(organization.get(data[index])))
+      console.log('Event id is   ' + String(organization.get(data[index])));
       const redShiftQueryResults = await redshiftRunQuery(
         "select * from dap_txma_reporting_db.conformed.fact_user_journey_event where event_id ='" +
           String(organization.get(data[index])) +

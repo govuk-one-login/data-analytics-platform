@@ -29,5 +29,5 @@ export const stepFunctionListExecutions = async (stateMachineName: string): Prom
       stateMachineName,
     },
   };
-  return await invokeTestSupportLambda(event) as unknown as ListExecutionsOutput;
+  return (await invokeTestSupportLambda(event)) as unknown as ListExecutionsOutput;
 };
