@@ -1,4 +1,4 @@
-import { ListExecutionsCommandOutput, ListExecutionsOutput } from '@aws-sdk/client-sfn';
+import type { ListExecutionsOutput } from '@aws-sdk/client-sfn';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
 import { invokeTestSupportLambda } from './lambda-helpers';
 
