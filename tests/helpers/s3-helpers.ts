@@ -152,16 +152,17 @@ export const copyFilesFromBucket = async (BucketName: string, eventList: string[
     const contents = await getEventListS3(sourceFilePath).then(result => result.Contents as S3ListEntry[]);
     if (contents !== undefined) {
       if (contents.length > 0) {
-        contents.sort((f1, f2) => Date.parse(f2.LastModified) - Date.parse(f1.LastModified));
+        contents.sort((f1, f2) => Date.parse(f1.LastModified) - Date.parse(f2.LastModified));
 
         for (let index1 = 0; index1 < contents.length; index1++) {
           sourceFilename = contents[index1].Key;
           fileName = sourceFilename.split('/');
+
+          const destinationFilePath = getEventFilePrefixDayBefore(eventList[index]);
+          const key = destinationFilePath + '/' + fileName[fileName.length - 1];
+          const copySource = '/' + BucketName + '/' + sourceFilename;
+          await cpS3files(BucketName, key, copySource, true);
         }
-        const destinationFilePath = getEventFilePrefixDayBefore(eventList[index]);
-        const key = destinationFilePath + '/' + fileName[fileName.length - 1];
-        const copySource = '/' + BucketName + '/' + sourceFilename;
-        await cpS3files(BucketName, key, copySource);
       }
     }
   }
