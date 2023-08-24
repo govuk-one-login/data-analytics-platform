@@ -150,8 +150,7 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
       return await sqsClient.send(request);
     }
     case 'SFN_START_EXECUTION': {
-      const stateMachineName: string = getRequiredParams(event.input, 'stateMachineName').stateMachineName;
-      const stateMachineArn = `arn:aws:states:eu-west-2:${getAccountId(context)}:stateMachine:${stateMachineName}`;
+      const stateMachineArn = getStateMachineArn(event, context);
       logger.info(`Starting execution of state machine with arn ${stateMachineArn}`);
       return await sfnClient.send(new StartExecutionCommand({ stateMachineArn }));
     }
@@ -162,8 +161,9 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
       return await sfnClient.send(request);
     }
     case 'SFN_LIST_EXECUTIONS': {
+      const stateMachineArn = getStateMachineArn(event, context);
       const request = new ListExecutionsCommand({
-        ...getRequiredParams(event.input, 'stateMachineArn'),
+        stateMachineArn,
         maxResults: event.input.maxResults ?? 1,
       });
       return await sfnClient.send(request);
@@ -238,4 +238,9 @@ const getS3CopyBucketAndKey = (CopySource: string): { Bucket: string; Key: strin
     throw new Error(`Cannot get bucket name from given CopySource '${CopySource}'`);
   }
   return { Bucket, Key: CopySource.substring(CopySource.indexOf(Bucket) + Bucket.length + 1) };
+};
+
+const getStateMachineArn = (event: TestSupportEvent, context: Context): string => {
+  const stateMachineName: string = getRequiredParams(event.input, 'stateMachineName').stateMachineName;
+  return `arn:aws:states:eu-west-2:${getAccountId(context)}:stateMachine:${stateMachineName}`;
 };
