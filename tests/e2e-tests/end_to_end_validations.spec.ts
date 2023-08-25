@@ -1,14 +1,8 @@
 import * as fs from 'fs';
 import { getQueryResults, redshiftRunQuery } from '../helpers/db-helpers';
-import {
-  TodayDate,
-  getEventFilePrefix,
-  productFamily,
-  waitForStepFunction,
-  yesterdayDate,
-} from '../helpers/common-helpers';
+import { TodayDate, getEventFilePrefix, productFamily, waitForStepFunction } from '../helpers/common-helpers';
 import { checkFileCreatedOnS3, copyFilesFromBucket } from '../helpers/s3-helpers';
-import { startStepFunction } from '../helpers/step-helpers';
+import { startStepFunction, stepFunctionListExecutions } from '../helpers/step-helpers';
 import {
   rawdataS3BucketName,
   redshiftProcessStepFucntionName,
@@ -22,10 +16,10 @@ import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 const data = JSON.parse(fs.readFileSync('tests/data/eventList.json', 'utf-8'));
 const organization = new Map<string, string>();
 
-describe('Verify Data from raw layer is processed to stage layer', () => {
+describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → Conformed Layer ', () => {
   // ******************** Copy files to s3 raw bucket ************************************
 
-  test('store files in s3 bucket in raw layer and process step function and validate using Athena queries ', async () => {
+  test('Events from SQS to Raw Layer is processed, Step Functions Executed, verify Events in fact_user_journey_event table using the Event_id', async () => {
     for (let index = 0; index <= data.length - 1; index++) {
       const productFamilyGroup = productFamily(data[index]).replaceAll('_', '-');
       const event = JSON.parse(
@@ -54,50 +48,52 @@ describe('Verify Data from raw layer is processed to stage layer', () => {
         expect(fileUploaded).toEqual(true);
       }
     }
+
     await copyFilesFromBucket(rawdataS3BucketName(), data);
 
     // ******************** Start raw to stage step function  ************************************
     const stepexecutionId = await startStepFunction(stageProcessStepFucntionName());
 
     // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************
-
-    const rawToStageStatus = await waitForStepFunction(String(stepexecutionId.executionArn), 20);
-
+    const rawToStageStatus = await waitForStepFunction(String(stepexecutionId.executionArn), 45);
     expect(rawToStageStatus).toEqual('SUCCEEDED');
 
     // ******************** Run Athena queries ************************************
     for (let index = 0; index <= data.length - 1; index++) {
-      const productFamilyGroupName = productFamily(data[index]).replaceAll('_', '-');
+      const productFamilyGroupName = productFamily(data[index]);
       const athenaQueryResults = await getQueryResults(
-        'SELECT *  from ' +
+        'SELECT * FROM ' +
           productFamilyGroupName +
           " where event_id = '" +
           String(organization.get(data[index])) +
-          "and processed_date = '" +
-          String(yesterdayDate()) +
-          "'",
+          "' and processed_date = '" +
+          String(TodayDate()) +
+          "' ;",
         txmaStageDatabaseName(),
         txmaProcessingWorkGroupName(),
       );
-      expect(JSON.stringify(athenaQueryResults)).not.toBeNull();
+
+      expect(JSON.stringify(athenaQueryResults)).toContain(String(organization.get(data[index])));
     }
     // ******************** Start raw to stage step function  ************************************
-    const RedshiftstepexecutionId = await startStepFunction(redshiftProcessStepFucntionName());
+
+    const listExecutionsOutput = await stepFunctionListExecutions(redshiftProcessStepFucntionName());
+    const executionARN = listExecutionsOutput.executions?.at(0)?.executionArn;
 
     // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************
 
-    const stageToConformedStatus = await waitForStepFunction(String(RedshiftstepexecutionId.executionArn), 5);
+    const stageToConformedStatus = await waitForStepFunction(String(executionARN), 5);
 
     expect(stageToConformedStatus).toEqual('SUCCEEDED');
-    // ******************** Run Redshift queries ************************************
+    // // ******************** Run Redshift queries ************************************
     for (let index = 0; index <= data.length - 1; index++) {
       const redShiftQueryResults = await redshiftRunQuery(
         "select * from dap_txma_reporting_db.conformed.fact_user_journey_event where event_id ='" +
           String(organization.get(data[index])) +
           "' and processed_date = " +
-          TodayDate(),
+          String(TodayDate()),
       );
-      expect(redShiftQueryResults).not.toBeNull();
+      expect(redShiftQueryResults.TotalNumRows).not.toEqual(0);
     }
   }, 3600000);
 });
