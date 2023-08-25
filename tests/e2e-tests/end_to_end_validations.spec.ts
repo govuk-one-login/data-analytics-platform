@@ -5,6 +5,7 @@ import { checkFileCreatedOnS3, copyFilesFromBucket } from '../helpers/s3-helpers
 import { startStepFunction, stepFunctionListExecutions } from '../helpers/step-helpers';
 import {
   rawdataS3BucketName,
+  redshiftProcessStepFucntionName,
   stageProcessStepFucntionName,
   txmaProcessingWorkGroupName,
   txmaStageDatabaseName,
@@ -54,7 +55,7 @@ describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → C
     const stepexecutionId = await startStepFunction(stageProcessStepFucntionName());
 
     // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************
-    const rawToStageStatus = await waitForStepFunction(String(stepexecutionId.executionArn), 30);
+    const rawToStageStatus = await waitForStepFunction(String(stepexecutionId.executionArn), 45);
     expect(rawToStageStatus).toEqual('SUCCEEDED');
 
     // ******************** Run Athena queries ************************************
@@ -76,12 +77,12 @@ describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → C
     }
     // ******************** Start raw to stage step function  ************************************
 
-    const listExecutionsOutput = await stepFunctionListExecutions(stageProcessStepFucntionName());
-    const executionARN = listExecutionsOutput.executions;
+    const listExecutionsOutput = await stepFunctionListExecutions(redshiftProcessStepFucntionName());
+    const executionARN = listExecutionsOutput.executions?.at(0)?.executionArn;
 
     // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************
 
-    const stageToConformedStatus = await waitForStepFunction(String(executionARN), 20);
+    const stageToConformedStatus = await waitForStepFunction(String(executionARN), 5);
 
     expect(stageToConformedStatus).toEqual('SUCCEEDED');
     // // ******************** Run Redshift queries ************************************
