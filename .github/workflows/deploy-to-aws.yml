@@ -66,7 +66,7 @@ jobs:
       - name: SAM build
         run: sam build
       - name: Assume AWS GitHub actions role
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_{0}', inputs.environment)] }}
