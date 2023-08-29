@@ -113,3 +113,90 @@ RedshiftAccessEC2Role:
           Action: sts:AssumeRole
     ManagedPolicyArns:
       - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+MyLambdaFunction:
+  Type: AWS::Lambda::Function
+  Properties: 
+    Handler: index.handler
+    Role: arn:aws:iam::${AWS::AccountId}:role/execution_role
+    FunctionName: redshift-backup
+    Code:
+      ZipFile: |
+        import boto3
+        import datetime
+
+        current_date = datetime.datetime.now().strftime('%Y-%m-%d')
+        client = boto3.client('redshift-serverless')
+        response = client.create_snapshot(
+        namespaceName='test-redshift-serverless-ns',
+        retentionPeriod=30,
+        snapshotName='testsnap11-'+ current_date, 
+        tags=[
+        {
+            'key': 'name',
+            'value': 'test'
+        },
+        ]
+        )
+    Runtime: python3.8
+
+DailyRule:
+  Type: AWS::Events::Rule
+  Properties: 
+    Description: "Invoke Lambda function daily"
+    ScheduleExpression: "cron(0 0 * * ? *)"
+    State: "ENABLED"
+    Targets: 
+      - 
+        Arn: 
+          Fn::GetAtt:
+            - "redshift-backup"
+            - "Arn"
+        Id: "TargetFunctionV1"
+
+WeeklyRule:
+  Type: AWS::Events::Rule
+  Properties: 
+    Description: "Invoke Lambda function weekly"
+    ScheduleExpression: "cron(0 0 ? * SUN *)"
+    State: "ENABLED"
+    Targets: 
+      - 
+        Arn: 
+          Fn::GetAtt:
+            - "redshift-backup"
+            - "Arn"
+        Id: "TargetFunctionV2"
+
+MonthlyRule:
+  Type: AWS::Events::Rule
+  Properties: 
+    Description: "Invoke Lambda function monthly"
+    ScheduleExpression: "cron(0 0 1 * ? *)"
+    State: "ENABLED"
+    Targets: 
+      - 
+        Arn: 
+          Fn::GetAtt:
+            - "redshift-backup"
+            - "Arn"
+        Id: "TargetFunctionV3"
+
+PermissionForEventsToInvokeLambda:
+  Type: "AWS::Lambda::Permission"
+  Properties:
+    FunctionName:
+      Ref: redshift-backup
+    Action: "lambda:InvokeFunction"
+    Principal: "events.amazonaws.com"
+    SourceArn:
+      - Fn::GetAtt:
+          - "DailyRule"
+          - "Arn"
+      - Fn::GetAtt:
+          - "WeeklyRule"
+          - "Arn"
+      - Fn::GetAtt:
+          - "MonthlyRule"
+          - "Arn"
+
