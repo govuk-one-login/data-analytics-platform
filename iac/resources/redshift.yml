@@ -180,38 +180,37 @@ MonthlyRule:
         Id: 'TargetFunctionV3'
 
 PermissionForDailyEventsToInvokeLambda:
-  Type: "AWS::Lambda::Permission"
+  Type: 'AWS::Lambda::Permission'
   Properties:
     FunctionName:
       Ref: RedshiftBackup
-    Action: "lambda:InvokeFunction"
-    Principal: "events.amazonaws.com"
+    Action: 'lambda:InvokeFunction'
+    Principal: 'events.amazonaws.com'
     SourceArn:
       Fn::GetAtt:
-        - "DailyRule"
-        - "Arn"
+        - 'DailyRule'
+        - 'Arn'
 
 PermissionForWeeklyEventsToInvokeLambda:
-  Type: "AWS::Lambda::Permission"
+  Type: 'AWS::Lambda::Permission'
   Properties:
     FunctionName:
       Ref: RedshiftBackup
-    Action: "lambda:InvokeFunction"
-    Principal: "events.amazonaws.com"
+    Action: 'lambda:InvokeFunction'
+    Principal: 'events.amazonaws.com'
     SourceArn:
       Fn::GetAtt:
-        - "WeeklyRule"
-        - "Arn"
+        - 'WeeklyRule'
+        - 'Arn'
 
 PermissionForMonthlyEventsToInvokeLambda:
-  Type: "AWS::Lambda::Permission"
+  Type: 'AWS::Lambda::Permission'
   Properties:
     FunctionName:
       Ref: RedshiftBackup
-    Action: "lambda:InvokeFunction"
-    Principal: "events.amazonaws.com"
+    Action: 'lambda:InvokeFunction'
+    Principal: 'events.amazonaws.com'
     SourceArn:
       Fn::GetAtt:
-        - "MonthlyRule"
-        - "Arn"
-
+        - 'MonthlyRule'
+        - 'Arn'
