@@ -27,7 +27,7 @@
     "aws-sdk-client-mock": "^3.0.0",
     "esbuild": "^0.19.2",
     "esbuild-jest": "^0.5.0",
-    "eslint": "^8.47.0",
+    "eslint": "^8.48.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-config-standard-with-typescript": "^37.0.0",
     "husky": "^8.0.3",
