@@ -74,3 +74,8 @@ This approach is used by both BTM and TxMA.
 ## Checkov skips
 
 An explanation of the Checkov checks we skip can be found [here](https://govukverify.atlassian.net/wiki/spaces/DAP/pages/3535503483/Checkov+Rules).
+
+## Husky
+
+Using [Husky](https://typicode.github.io/husky) to run the `pre-commit` and `pre-push` [githooks](https://git-scm.com/docs/githooks) is taken from both BTM and TxMA.
+The use of the [lint-staged](https://github.com/okonet/lint-staged) library is taken from BTM.

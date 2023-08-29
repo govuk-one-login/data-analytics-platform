@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npx lint-staged
+
+git diff --cached --name-only | if grep --quiet 'iac/'; then
+  echo "Running sam validate and checkov checks on IaC code"
+  npm run iac:build
+  sam validate --lint --region eu-west-2
+  checkov --config-file .checkov.local.yml --file template.yaml --quiet
+fi

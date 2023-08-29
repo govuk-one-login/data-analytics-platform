@@ -1,3 +1,5 @@
 .aws-sam/
 dist/
 .eslintrc.js
+jest-stare/
+test-report/

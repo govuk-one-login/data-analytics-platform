@@ -1,0 +1,8 @@
+athena-scripts/
+statemachine/
+jest-stare/
+test-report/
+*.md
+.eslintignore
+.prettierignore
+.husky/
