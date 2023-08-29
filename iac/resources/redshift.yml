@@ -114,12 +114,12 @@ RedshiftAccessEC2Role:
     ManagedPolicyArns:
       - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
 
-MyLambdaFunction:
+RedshiftBackup:
   Type: AWS::Lambda::Function
-  Properties: 
+  Properties:
     Handler: index.handler
     Role: arn:aws:iam::${AWS::AccountId}:role/execution_role
-    FunctionName: redshift-backup
+    FunctionName: RedshiftBackup
     Code:
       ZipFile: |
         import boto3
@@ -142,61 +142,57 @@ MyLambdaFunction:
 
 DailyRule:
   Type: AWS::Events::Rule
-  Properties: 
-    Description: "Invoke Lambda function daily"
-    ScheduleExpression: "cron(0 0 * * ? *)"
-    State: "ENABLED"
-    Targets: 
-      - 
-        Arn: 
+  Properties:
+    Description: 'Invoke Lambda function daily'
+    ScheduleExpression: 'cron(0 0 * * ? *)'
+    State: 'ENABLED'
+    Targets:
+      - Arn:
           Fn::GetAtt:
-            - "redshift-backup"
-            - "Arn"
-        Id: "TargetFunctionV1"
+            - 'RedshiftBackup'
+            - 'Arn'
+        Id: 'TargetFunctionV1'
 
 WeeklyRule:
   Type: AWS::Events::Rule
-  Properties: 
-    Description: "Invoke Lambda function weekly"
-    ScheduleExpression: "cron(0 0 ? * SUN *)"
-    State: "ENABLED"
-    Targets: 
-      - 
-        Arn: 
+  Properties:
+    Description: 'Invoke Lambda function weekly'
+    ScheduleExpression: 'cron(0 0 ? * SUN *)'
+    State: 'ENABLED'
+    Targets:
+      - Arn:
           Fn::GetAtt:
-            - "redshift-backup"
-            - "Arn"
-        Id: "TargetFunctionV2"
+            - 'RedshiftBackup'
+            - 'Arn'
+        Id: 'TargetFunctionV2'
 
 MonthlyRule:
   Type: AWS::Events::Rule
-  Properties: 
-    Description: "Invoke Lambda function monthly"
-    ScheduleExpression: "cron(0 0 1 * ? *)"
-    State: "ENABLED"
-    Targets: 
-      - 
-        Arn: 
+  Properties:
+    Description: 'Invoke Lambda function monthly'
+    ScheduleExpression: 'cron(0 0 1 * ? *)'
+    State: 'ENABLED'
+    Targets:
+      - Arn:
           Fn::GetAtt:
-            - "redshift-backup"
-            - "Arn"
-        Id: "TargetFunctionV3"
+            - 'RedshiftBackup'
+            - 'Arn'
+        Id: 'TargetFunctionV3'
 
 PermissionForEventsToInvokeLambda:
-  Type: "AWS::Lambda::Permission"
+  Type: 'AWS::Lambda::Permission'
   Properties:
     FunctionName:
-      Ref: redshift-backup
-    Action: "lambda:InvokeFunction"
-    Principal: "events.amazonaws.com"
+      Ref: RedshiftBackup
+    Action: 'lambda:InvokeFunction'
+    Principal: 'events.amazonaws.com'
     SourceArn:
       - Fn::GetAtt:
-          - "DailyRule"
-          - "Arn"
+          - 'DailyRule'
+          - 'Arn'
       - Fn::GetAtt:
-          - "WeeklyRule"
-          - "Arn"
+          - 'WeeklyRule'
+          - 'Arn'
       - Fn::GetAtt:
-          - "MonthlyRule"
-          - "Arn"
-
+          - 'MonthlyRule'
+          - 'Arn'
