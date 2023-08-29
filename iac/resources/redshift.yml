@@ -118,7 +118,7 @@ RedshiftBackup:
   Type: AWS::Lambda::Function
   Properties:
     Handler: index.handler
-    Role: arn:aws:iam::${AWS::AccountId}:role/execution_role
+    Role: !Sub arn:aws:iam::${AWS::AccountId}:role/execution_role
     FunctionName: RedshiftBackup
     Code:
       ZipFile: |
@@ -179,20 +179,39 @@ MonthlyRule:
             - 'Arn'
         Id: 'TargetFunctionV3'
 
-PermissionForEventsToInvokeLambda:
-  Type: 'AWS::Lambda::Permission'
+PermissionForDailyEventsToInvokeLambda:
+  Type: "AWS::Lambda::Permission"
   Properties:
     FunctionName:
       Ref: RedshiftBackup
-    Action: 'lambda:InvokeFunction'
-    Principal: 'events.amazonaws.com'
+    Action: "lambda:InvokeFunction"
+    Principal: "events.amazonaws.com"
     SourceArn:
-      - Fn::GetAtt:
-          - 'DailyRule'
-          - 'Arn'
-      - Fn::GetAtt:
-          - 'WeeklyRule'
-          - 'Arn'
-      - Fn::GetAtt:
-          - 'MonthlyRule'
-          - 'Arn'
+      Fn::GetAtt:
+        - "DailyRule"
+        - "Arn"
+
+PermissionForWeeklyEventsToInvokeLambda:
+  Type: "AWS::Lambda::Permission"
+  Properties:
+    FunctionName:
+      Ref: RedshiftBackup
+    Action: "lambda:InvokeFunction"
+    Principal: "events.amazonaws.com"
+    SourceArn:
+      Fn::GetAtt:
+        - "WeeklyRule"
+        - "Arn"
+
+PermissionForMonthlyEventsToInvokeLambda:
+  Type: "AWS::Lambda::Permission"
+  Properties:
+    FunctionName:
+      Ref: RedshiftBackup
+    Action: "lambda:InvokeFunction"
+    Principal: "events.amazonaws.com"
+    SourceArn:
+      Fn::GetAtt:
+        - "MonthlyRule"
+        - "Arn"
+
