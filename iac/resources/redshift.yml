@@ -153,7 +153,7 @@ DailyRule:
   Type: AWS::Events::Rule
   Properties:
     Description: 'Invoke Lambda function daily'
-    ScheduleExpression: 'cron(0 0 * * ? *)'
+    ScheduleExpression: 'cron(0 13 * * ? *)'
     State: 'ENABLED'
     Targets:
       - Arn:
@@ -166,7 +166,7 @@ WeeklyRule:
   Type: AWS::Events::Rule
   Properties:
     Description: 'Invoke Lambda function weekly'
-    ScheduleExpression: 'cron(0 0 ? * SUN *)'
+    ScheduleExpression: 'cron(0 18 ? * FRI *)'
     State: 'ENABLED'
     Targets:
       - Arn:
