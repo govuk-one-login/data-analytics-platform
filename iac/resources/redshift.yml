@@ -115,6 +115,7 @@ RedshiftAccessEC2Role:
       - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
 
 RedshiftBackup:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
   Type: AWS::Lambda::Function
   Properties:
     Handler: index.handler
@@ -139,6 +140,15 @@ RedshiftBackup:
         ]
         )
     Runtime: python3.8
+    ReservedConcurrentExecutions: 10
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
+
 
 DailyRule:
   Type: AWS::Events::Rule
