@@ -70,7 +70,7 @@ const getFileDetails = async (bucket: string, key: string): Promise<string> => {
 
 const extractRowValue = (event: AthenaGetStatementEvent, rowNumber: number, dataNumber: number): string => {
   const data = event.configObject.queryResult.ResultSet?.Rows?.at(rowNumber)?.Data?.at(dataNumber);
-  if (data === undefined || data.VarCharValue === undefined) {
+  if (data?.VarCharValue === undefined) {
     throw new Error(`Row number ${rowNumber} or its Data at position ${dataNumber} is missing or invalid`);
   }
   return data.VarCharValue;
