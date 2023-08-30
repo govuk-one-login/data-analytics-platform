@@ -149,7 +149,6 @@ RedshiftBackup:
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
 
-
 DailyRule:
   Type: AWS::Events::Rule
   Properties:
