@@ -36,6 +36,7 @@
     "jest-stare": "^2.5.1",
     "lint-staged": "^14.0.1",
     "prettier": "^3.0.3",
+    "prettier-plugin-sh": "^0.13.1",
     "typescript": "^5.2.2"
   },
   "scripts": {
