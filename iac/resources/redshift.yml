@@ -135,7 +135,7 @@ LambdaExecutionRole:
                 - 'logs:CreateLogStream'
                 - 'logs:PutLogEvents'
               Resource: 'arn:aws:logs:*:*:*'
-  # checkov:skip=CKV_AWS_111: Skipping until the resource ARN is known            
+            # checkov:skip=CKV_AWS_111: Skipping until the resource ARN is known
             - Effect: 'Allow'
               Action:
                 - ec2:CreateNetworkInterface
