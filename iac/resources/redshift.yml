@@ -135,6 +135,12 @@ LambdaExecutionRole:
                 - 'logs:CreateLogStream'
                 - 'logs:PutLogEvents'
               Resource: 'arn:aws:logs:*:*:*'
+            - Effect: 'Allow'              
+              Action:
+                  - ec2:CreateNetworkInterface
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DeleteNetworkInterface
+              Resource: '*'              
 
 RedshiftBackup:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
