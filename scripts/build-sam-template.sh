@@ -11,7 +11,7 @@ rm -f "$OUTFILE"
 cat "$IAC_DIR"/base.yml > "$OUTFILE"
 echo -e "\nResources:" >> "$OUTFILE"
 
-for file in "$RESOURCE_DIR"/* ; do
+for file in "$RESOURCE_DIR"/*; do
   sed 's/^/  /' < "$file" >> "$OUTFILE"
   echo >> "$OUTFILE"
 done
