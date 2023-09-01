@@ -58,6 +58,7 @@ AuthAccountUserLoginCrawler:
       S3Targets:
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_CHECK_USER_KNOWN_EMAIL/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_LOG_IN_SUCCESS/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTH_CODE_ISSUED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -127,6 +128,9 @@ AuthOrchestrationCrawler:
     Targets:
       S3Targets:
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTHORISATION_INITIATED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTHORISATION_REQUEST_ERROR/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTHORISATION_REQUEST_RECEIVED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_IPV_AUTHORISATION_REQUESTED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -170,6 +174,8 @@ IpvCriAddressCrawler:
       S3Targets:
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_ADDRESS_CRI_START/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_ADDRESS_CRI_VC_ISSUED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_ADDRESS_CRI_END/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_ADDRESS_CRI_REQUEST_SENT/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -206,6 +212,9 @@ IpvCriFraudCrawler:
       S3Targets:
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_START/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_VC_ISSUED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_REQUEST_SENT/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_RESPONSE_RECEIVED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -264,6 +273,51 @@ IpvJourneyCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_JOURNEY_START/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_SPOT_RESPONSE_APPROVED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_SPOT_RESPONSE_REJECTED/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
+
+IpvCriCicCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: ipv_cri_cic
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma/CIC_CRI_AUTH_CODE_ISSUED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/CIC_CRI_START/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/CIC_CRI_VC_ISSUED/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
+
+IpvCriFtofCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: ipv_cri_ftof
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_CRI_AUTH_CODE_ISSUED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_CRI_START/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_CRI_VC_ISSUED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_YOTI_END/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_YOTI_PDF_EMAILED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_YOTI_START/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPR_RESULT_NOTIFICATION_EMAILED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPR_USER_REDIRECTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_F2F_CRI_VC_CONSUMED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_F2F_CRI_VC_RECEIVED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
