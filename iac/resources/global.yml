@@ -92,6 +92,32 @@ GlobalNonEventBucketPolicy:
           Principal:
             AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
+VPCFlowLogsBucket:
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub '${Environment}-dap-vpc-flow-logs'
+    LoggingConfiguration:
+      DestinationBucketName: !Ref GlobalLogBucket
+      LogFilePrefix: dap-s3-flow-log/log
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 365
+          Status: Enabled
+    NotificationConfiguration:
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+        - Event: s3:ObjectRemoved:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn            
+
 S3NotificationsLoggerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda just does logging
   Type: AWS::Serverless::Function
@@ -121,6 +147,8 @@ S3BucketNotificationLambdaPermission:
     FunctionName: !Ref S3NotificationsLoggerLambda
     Action: lambda:InvokeFunction
     Principal: s3.amazonaws.com
+    SourceAccount: !Sub ${AWS::AccountId}
+    SourceArn: 'arn:aws:s3:::*'    
 
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration
@@ -290,6 +318,38 @@ VPCForDAP:
         Value: !Ref Environment
       - Key: Name
         Value: dap-private-vpc
+
+FlowLogRole:
+  Type: 'AWS::IAM::Role'
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - 'vpc-flow-logs.amazonaws.com'
+          Action:
+            - 'sts:AssumeRole'
+    Policies:
+      - PolicyName: 'FlowLogPermissions'
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 's3:PutObject'
+              Resource: !Sub 'arn:aws:s3:::${VPCFlowLogsBucket}/*'
+
+FlowLogs:
+  Type: 'AWS::EC2::FlowLog'
+  Properties:
+    DeliverLogsPermissionArn: !GetAtt FlowLogRole.Arn
+    LogDestination: !GetAtt VPCFlowLogsBucket.Arn
+    LogDestinationType: 's3'
+    ResourceId: !Ref VPCForDAP
+    ResourceType: 'VPC'
+    TrafficType: 'ALL'              
 
 SubnetForDAP1:
   Type: AWS::EC2::Subnet
