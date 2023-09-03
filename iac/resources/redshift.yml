@@ -118,7 +118,7 @@ RedshiftAccessEC2LaunchTemplate:
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
-           VolumeSize: 64        
+            VolumeSize: 64
 
 RedshiftAccessEC2:
   Type: 'AWS::EC2::Instance'
@@ -126,7 +126,7 @@ RedshiftAccessEC2:
     LaunchTemplate:
       LaunchTemplateName: !Ref RedshiftAccessEC2LaunchTemplate
       Version: !GetAtt RedshiftAccessEC2LaunchTemplate.LatestVersionNumber
-    SubnetId: !Ref SubnetForDAP1              
+    SubnetId: !Ref SubnetForDAP1
 
 RedshiftAccessEC2Role:
   Type: AWS::IAM::Role

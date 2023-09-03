@@ -116,7 +116,7 @@ VPCFlowLogsBucket:
         - Event: s3:ObjectCreated:*
           Function: !GetAtt S3NotificationsLoggerLambda.Arn
         - Event: s3:ObjectRemoved:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn            
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
 
 S3NotificationsLoggerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda just does logging
@@ -148,7 +148,7 @@ S3BucketNotificationLambdaPermission:
     Action: lambda:InvokeFunction
     Principal: s3.amazonaws.com
     SourceAccount: !Sub ${AWS::AccountId}
-    SourceArn: 'arn:aws:s3:::*'    
+    SourceArn: 'arn:aws:s3:::*'
 
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration
@@ -349,7 +349,7 @@ FlowLogs:
     LogDestinationType: 's3'
     ResourceId: !Ref VPCForDAP
     ResourceType: 'VPC'
-    TrafficType: 'ALL'              
+    TrafficType: 'ALL'
 
 SubnetForDAP1:
   Type: AWS::EC2::Subnet
