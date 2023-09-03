@@ -118,6 +118,28 @@ VPCFlowLogsBucket:
         - Event: s3:ObjectRemoved:*
           Function: !GetAtt S3NotificationsLoggerLambda.Arn
 
+VPCFlowLogsBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref VPCFlowLogsBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${VPCFlowLogsBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+          Resource: !Sub ${VPCFlowLogsBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+
 S3NotificationsLoggerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda just does logging
   Type: AWS::Serverless::Function
