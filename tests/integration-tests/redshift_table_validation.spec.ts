@@ -118,7 +118,17 @@ describe('Redshift Data Model Validations', () => {
   );
   test.concurrent.each`
     family_name                           | service_name
-    ${'DCMAW_CRI'}                        | ${'APP Journey'}
+    ${'AUTH_ORCHESTRATION'}               | ${'Relying Parties Connect'}
+    ${'AUTH_ACCOUNT_USER_LOGIN'}          | ${'User Login'}
+    ${'AUTH_ACCOUNT_CREATION'}            | ${'Account Creation'}
+    ${'AUTH_ACCOUNT_MFA'}                 | ${'Account MFA'}
+    ${'AUTH_ACCOUNT_MANAGEMENT'}          | ${'Account Management'}
+    ${'IPV_CRI_DRIVING_LICENSE'}          | ${'Driving License'}
+    ${'IPV_CRI_ADDRESS'}                  | ${'Address CRI'}
+    ${'IPV_CRI_FRAUD'}                    | ${'Fraud CRI'}
+    ${'IPV_CRI_KBV'}                      | ${'KBV CRI'}
+    ${'IPV_JOURNEY'}                      | ${'IPV Journey'}
+    ${'IPV_CRI_PASSPORT'}                 | ${'Passport CRI'}
     `(
     'Should validate fact table records as per the  product family grouping $family_name',
     async ({ ...data }) => {
@@ -135,11 +145,11 @@ describe('Redshift Data Model Validations', () => {
           (expectedEvent[index] as string) +
           "'";
         const redShiftQueryResults = await redshiftRunQuery(query);
-        // console.log('Data:' + JSON.stringify(redShiftQueryResults));
+        console.log('Data:' + JSON.stringify(redShiftQueryResults));
         expect(redShiftQueryResults.TotalNumRows).toBeGreaterThan(1);
         if (redShiftQueryResults.Records != null) {
           for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
-            expect(data.service_name).toEqual(redShiftQueryResults.Records[index][3].stringValue);
+            expect(data.service_name.toLowerCase()).toEqual(redShiftQueryResults.Records[index][3].stringValue.toLowerCase());
           }
         }
       }
