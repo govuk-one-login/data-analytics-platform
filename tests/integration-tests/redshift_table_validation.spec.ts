@@ -6,7 +6,6 @@ import {
   DIM_JOURNEY_CHANNEL,
   DIM_RELYING_PARTY_COLUMNS,
   DIM_VERIFICATION_ROUTE,
-  EVENT_BY_FAMILY,
   FACT_USER_JOURNEY_EVENT,
 } from '../helpers/query-constant';
 import * as fs from 'fs';
