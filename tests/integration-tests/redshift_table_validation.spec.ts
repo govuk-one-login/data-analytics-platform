@@ -145,7 +145,7 @@ describe('Redshift Data Model Validations', () => {
           (expectedEvent[index] as string) +
           "'";
         const redShiftQueryResults = await redshiftRunQuery(query);
-        console.log('Data:' + JSON.stringify(redShiftQueryResults));
+        // console.log('Data:' + JSON.stringify(redShiftQueryResults));
         expect(redShiftQueryResults.TotalNumRows).toBeGreaterThan(1);
         if (redShiftQueryResults.Records != null) {
           for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
