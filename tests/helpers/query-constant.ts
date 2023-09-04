@@ -62,3 +62,5 @@ export const EVENT_BY_FAMILY =
   'LEFT JOIN  "dap_txma_reporting_db"."conformed".dim_relying_party drp ON fct.relying_party_key = drp.relying_party_key\n' +
   'LEFT JOIN  "dap_txma_reporting_db"."conformed".dim_verification_route dvr ON fct.verification_route_key = dvr.verification_route_key\n' +
   'WHERE de.product_family=';
+
+export const DISTINCT_EVENT_NAME = 'SELECT distinct event_name FROM ';
