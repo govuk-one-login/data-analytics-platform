@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { getQueryResults } from '../helpers/db-helpers';
 import { txmaProcessingWorkGroupName, txmaStageDatabaseName } from '../helpers/envHelper';
 import { productFamily } from '../helpers/common-helpers';
+import { DISTINCT_EVENT_NAME } from '../helpers/query-constant';
 
 // verify grouping is done as defined in https://docs.google.com/spreadsheets/d/1U_WNH5nCxtc1UOhooCUS54aO6e-xaqxW4jvgVt-jNNQ/edit#gid=1517871112
 
@@ -15,7 +16,7 @@ describe('Verify product family mapping in Stage Layer ', () => {
     for (let index = 0; index <= data.length - 1; index++) {
       const productFamilyGroupName = productFamily(data[index]);
       const athenaQueryResults = await getQueryResults(
-        'SELECT distinct event_name FROM ' + productFamilyGroupName,
+        DISTINCT_EVENT_NAME + String(productFamilyGroupName),
         txmaStageDatabaseName(),
         txmaProcessingWorkGroupName(),
       );
