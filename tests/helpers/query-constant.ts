@@ -50,3 +50,5 @@ export const FACT_USER_JOURNEY_EVENT =
   '        modified_date,\n' +
   '        batch_id \n' +
   'FROM "dap_txma_reporting_db"."conformed"."fact_user_journey_event"';
+
+export const DISTINCT_EVENT_NAME = 'SELECT distinct event_name FROM ';
