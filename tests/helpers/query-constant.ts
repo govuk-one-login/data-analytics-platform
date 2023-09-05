@@ -50,3 +50,17 @@ export const FACT_USER_JOURNEY_EVENT =
   '        modified_date,\n' +
   '        batch_id \n' +
   'FROM "dap_txma_reporting_db"."conformed"."fact_user_journey_event"';
+
+export const EVENT_BY_FAMILY =
+  'select dd.date,de.event_name,de.product_family,de.service_name,djc.channel_name,\n' +
+  'dvr.verification_route_name ,fct.user_id,fct.event_id,fct.event_time,fct.journey_id,fct.component_id\n' +
+  'FROM\n' +
+  ' "dap_txma_reporting_db"."conformed"."fact_user_journey_event" fct\n' +
+  'JOIN  "dap_txma_reporting_db"."conformed".dim_date dd ON fct.date_key= dd.date_key\n' +
+  'LEFT JOIN  "dap_txma_reporting_db"."conformed".DIM_EVENT DE ON fct.event_key = de.event_key\n' +
+  'LEFT JOIN  "dap_txma_reporting_db"."conformed".dim_journey_channel djc ON fct.journey_channel_key = djc.journey_channel_key\n' +
+  'LEFT JOIN  "dap_txma_reporting_db"."conformed".dim_relying_party drp ON fct.relying_party_key = drp.relying_party_key\n' +
+  'LEFT JOIN  "dap_txma_reporting_db"."conformed".dim_verification_route dvr ON fct.verification_route_key = dvr.verification_route_key\n' +
+  'WHERE de.product_family=';
+
+export const DISTINCT_EVENT_NAME = 'SELECT distinct event_name FROM ';
