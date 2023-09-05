@@ -22,7 +22,7 @@ SELECT
 	'' as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	format('%s',cast("extensions"."reason" as JSON)) as extensions_reason,
+	'' as extensions_reason,
 	format('%s',cast("extensions"."rejectionReason" as JSON)) as extensions_rejectionreason,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
