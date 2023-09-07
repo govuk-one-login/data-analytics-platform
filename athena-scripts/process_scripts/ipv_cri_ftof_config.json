@@ -27,7 +27,7 @@
     {
         "event_name": "f2f_yoti_start",
         "product_family": "ipv_cri_ftof",
-        "enabled": true
+        "enabled": false
     },
     {
         "event_name": "ipr_result_notification_emailed",
