@@ -500,7 +500,7 @@ IpvCriFtofGlueTable:
           - { Name: extensions_evidence, Type: string }
           - { Name: extensions_iss, Type: string }
           - { Name: extensions_successful, Type: string }
-          - { Name: extensions_previous_govuk_signin_journey_id, Type: string }
+          - { Name: extensions_previousgovuksigninjourneyid, Type: string }
           - { Name: restricted_passport, Type: string }
           - { Name: restricted_residencePermit, Type: string }
           - { Name: restricted_drivingPermit, Type: string }
