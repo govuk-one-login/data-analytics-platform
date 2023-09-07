@@ -501,10 +501,10 @@ IpvCriFtofGlueTable:
           - { Name: extensions_iss, Type: string }
           - { Name: extensions_successful, Type: string }
           - { Name: extensions_previous_govuk_signin_journey_id, Type: string }
-          - { Name: restricted_passport_documentType, Type: string }
-          - { Name: restricted_residencePermit_documentType, Type: string }
-          - { Name: restricted_drivingPermit_documentType, Type: string }
-          - { Name: restricted_idCard_documentType, Type: string }
+          - { Name: restricted_passport, Type: string }
+          - { Name: restricted_residencePermit, Type: string }
+          - { Name: restricted_drivingPermit, Type: string }
+          - { Name: restricted_idCard, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
