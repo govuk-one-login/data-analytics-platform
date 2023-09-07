@@ -48,5 +48,10 @@
         "event_name": "ipv_f2f_cri_vc_received",
         "product_family": "ipv_cri_ftof",
         "enabled": true
+    },
+    {
+        "event_name": "f2f_yoti_response_received",
+        "product_family": "ipv_cri_ftof",
+        "enabled": true
     }
 ]
