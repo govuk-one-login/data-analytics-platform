@@ -19,12 +19,12 @@ describe('smoke tests for DAP services prod', () => {
     const data = JSON.parse(fs.readFileSync('tests/data/eventList.json', 'utf-8'));
     const countData = {};
     for (let index = 0; index <= data.length - 1; index++) {
-      const query = PROCESSED_EVENT_BY_NAME + "'" + (data[index] as string) + "' and processed_date=20230818";
+      const query = PROCESSED_EVENT_BY_NAME + "'" + (data[index] as string) + "' and processed_date="+ String(TodayDate());
       // console.log('Query:' + query);
       const redShiftQueryResults = await redshiftRunQuery(query);
       expect(redShiftQueryResults).not.toBeNull();
       countData[data[index]] = redShiftQueryResults.TotalNumRows;
     }
-    // console.log('countData:' + JSON.stringify(countData));
+    console.log('countData:' + JSON.stringify(countData));
   }, 24000000);
 });
