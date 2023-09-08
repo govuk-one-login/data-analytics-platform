@@ -64,3 +64,18 @@ export const EVENT_BY_FAMILY =
   'WHERE de.product_family=';
 
 export const DISTINCT_EVENT_NAME = 'SELECT distinct event_name FROM ';
+
+export const PROCESSED_EVENT_BY_NAME =
+  'select dd.date,de.event_name,de.product_family,\n' +
+  'fct.user_id,fct.event_id,fct.event_time,fct.processed_date\n' +
+  'FROM\n' +
+  ' "dap_txma_reporting_db"."conformed"."fact_user_journey_event" fct\n' +
+  'JOIN  "dap_txma_reporting_db"."conformed".dim_date dd ON fct.date_key= dd.date_key\n' +
+  'LEFT JOIN  "dap_txma_reporting_db"."conformed".DIM_EVENT DE ON fct.event_key = de.event_key\n' +
+  'WHERE  event_name =';
+
+export const FACT_TABLE_EVENT_PROCESSED_TODAY =
+  'SELECT\n' +
+  '    *\n' +
+  'FROM\n' +
+  '    "dap_txma_reporting_db"."conformed"."fact_user_journey_event" where processed_date=';
