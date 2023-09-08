@@ -1,22 +1,10 @@
-import { getQueryResults, redshiftRunQuery } from '../helpers/db-helpers';
+import {  redshiftRunQuery } from '../helpers/db-helpers';
+
 import {
-  deliveryStreamName,
-  rawdataS3BucketName,
-  redshiftProcessStepFucntionName,
-  stageProcessStepFucntionName,
-  txmaProcessingWorkGroupName,
-  txmaStageDatabaseName,
-} from '../helpers/envHelper';
-import { describeFirehoseDeliveryStream } from '../helpers/firehose-helpers';
-import { listLambdaEventMappings } from '../helpers/lambda-helpers';
-import { getS3BucketStatus } from '../helpers/s3-helpers';
-import { startStepFunction } from '../helpers/step-helpers';
-import {
-  DIM_JOURNEY_CHANNEL,
   FACT_TABLE_EVENT_PROCESSED_TODAY,
   PROCESSED_EVENT_BY_NAME,
 } from '../helpers/query-constant';
-import { productFamily, TodayDate } from '../helpers/common-helpers';
+import { TodayDate } from '../helpers/common-helpers';
 import fs from 'fs';
 
 describe('smoke tests for DAP services prod', () => {
