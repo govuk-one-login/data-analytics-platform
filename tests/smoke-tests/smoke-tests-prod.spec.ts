@@ -1,9 +1,6 @@
-import {  redshiftRunQuery } from '../helpers/db-helpers';
+import { redshiftRunQuery } from '../helpers/db-helpers';
 
-import {
-  FACT_TABLE_EVENT_PROCESSED_TODAY,
-  PROCESSED_EVENT_BY_NAME,
-} from '../helpers/query-constant';
+import { FACT_TABLE_EVENT_PROCESSED_TODAY, PROCESSED_EVENT_BY_NAME } from '../helpers/query-constant';
 import { TodayDate } from '../helpers/common-helpers';
 import fs from 'fs';
 
