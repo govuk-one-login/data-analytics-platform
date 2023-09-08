@@ -7,9 +7,11 @@ import { listLambdaEventMappings } from '../helpers/lambda-helpers';
 import { describeFirehoseDeliveryStream } from '../helpers/firehose-helpers';
 import {
   deliveryStreamName,
-  rawdataS3BucketName, redshiftProcessStepFucntionName, stageProcessStepFucntionName,
+  rawdataS3BucketName,
+  redshiftProcessStepFucntionName,
+  stageProcessStepFucntionName,
   txmaProcessingWorkGroupName,
-  txmaStageDatabaseName
+  txmaStageDatabaseName,
 } from '../helpers/envHelper';
 import { getS3BucketStatus } from '../helpers/s3-helpers';
 import { startStepFunction } from '../helpers/step-helpers';
