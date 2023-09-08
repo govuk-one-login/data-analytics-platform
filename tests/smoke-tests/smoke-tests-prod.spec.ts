@@ -9,9 +9,8 @@ describe('smoke tests for DAP services prod', () => {
 
   test('Verify that records are processed today', async () => {
     const query = FACT_TABLE_EVENT_PROCESSED_TODAY + String(TodayDate());
-    console.log('Query:' + query);
     const redShiftQueryResults = await redshiftRunQuery(query);
-    console.log('Data:' + JSON.stringify(redShiftQueryResults));
+    // console.log('Data:' + JSON.stringify(redShiftQueryResults));
     expect(redShiftQueryResults).not.toBeNull();
     expect(redShiftQueryResults.TotalNumRows).toBeGreaterThan(1);
   });
