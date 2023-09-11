@@ -22,7 +22,7 @@ export const getEventFilePrefixDayBefore = (eventName: string): string => {
   )}/day=${formatNumberInTwoDigits(today.getDate() - 1)}`;
 };
 
-export function setEventData(event, data: Pick<any, string | number | symbol>): void {
+export function setEventData(event, data: Pick<object, string | number | symbol>): void {
   event.event_id = data.event_id;
   event.client_id = data.client_id;
   event.user.govuk_signin_journey_id = data.journey_id;
