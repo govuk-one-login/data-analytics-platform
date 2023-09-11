@@ -32,7 +32,7 @@ export function setEventData(event, data: Pick<any, string | number | symbol>): 
   event.timestamp_formatted = JSON.stringify(pastDate);
 }
 
-export async function publishAndValidate(event) : Promise<void> {
+export async function publishAndValidate(event): Promise<void> {
   const publishResult = await publishToTxmaQueue(event);
   // then
   expect(publishResult).not.toBeNull();
@@ -46,13 +46,16 @@ export async function publishAndValidate(event) : Promise<void> {
   expect(fileUploaded).toEqual(true);
 }
 
-export async function setPublishAndValidate(data: Pick<object, string | number | symbol>, filePath: string) :Promise<void> {
+export async function setPublishAndValidate(
+  data: Pick<object, string | number | symbol>,
+  filePath: string,
+): Promise<void> {
   const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
   setEventData(event, data);
   // when
   await publishAndValidate(event);
 }
-export async function publishAndValidateError(event, errorCode: string):Promise<void> {
+export async function publishAndValidateError(event, errorCode: string): Promise<void> {
   const publishResult = await publishToTxmaQueue(event);
   // then
   expect(publishResult).not.toBeNull();
@@ -67,7 +70,7 @@ export async function setPublishAndValidateError(
   data: Pick<object, string | number | symbol>,
   filePath: string,
   errorCode: string,
-): Promise<void>{
+): Promise<void> {
   const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
   setEventData(event, data);
   // when
