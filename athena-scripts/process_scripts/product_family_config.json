@@ -46,5 +46,13 @@
     {
         "product_family": "ipv_cri_passport",
         "enabled": true
+    },
+    {
+        "product_family": "ipv_cri_cic",
+        "enabled": true
+    },
+    {
+        "product_family": "ipv_cri_ftof",
+        "enabled": true
     }
 ]
