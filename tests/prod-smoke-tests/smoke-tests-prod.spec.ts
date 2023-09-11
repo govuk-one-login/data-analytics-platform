@@ -1,7 +1,7 @@
 import { getQueryResults, redshiftRunQuery } from '../helpers/db-helpers';
 
 import { FACT_TABLE_EVENT_PROCESSED_TODAY, PROCESSED_EVENT_BY_NAME } from '../helpers/query-constant';
-import { TodayDate } from '../helpers/common-helpers';
+import { TodayDate, productFamily } from '../helpers/common-helpers';
 import fs from 'fs';
 import { listLambdaEventMappings } from '../helpers/lambda-helpers';
 import { describeFirehoseDeliveryStream } from '../helpers/firehose-helpers';
@@ -15,6 +15,9 @@ import {
 } from '../helpers/envHelper';
 import { getS3BucketStatus } from '../helpers/s3-helpers';
 import { startStepFunction } from '../helpers/step-helpers';
+
+const data = JSON.parse(fs.readFileSync('tests/data/eventList.json', 'utf-8'));
+const countData = {};
 
 describe('smoke tests for DAP services prod', () => {
   // 	    // ******************** Smoke Tests  ************************************
@@ -63,7 +66,7 @@ describe('smoke tests for DAP services prod', () => {
     expect(stepexecutionId).not.toBeNull();
   });
 
-  test('Verify that records are processed today in prod', async () => {
+  test('Verify that records are processed today in prod Redshift / Conformed Layer', async () => {
     const query = FACT_TABLE_EVENT_PROCESSED_TODAY + String(TodayDate());
     const redShiftQueryResults = await redshiftRunQuery(query);
     // console.log('Data:' + JSON.stringify(redShiftQueryResults));
@@ -71,9 +74,7 @@ describe('smoke tests for DAP services prod', () => {
     expect(redShiftQueryResults.TotalNumRows).toBeGreaterThan(1);
   });
 
-  test('Output the number of records processed for specific event type on todays date in prod', async () => {
-    const data = JSON.parse(fs.readFileSync('tests/data/eventList.json', 'utf-8'));
-    const countData = {};
+  test('Output the number of records processed for specific event type on todays date in prod Redshift / Conformed Layer', async () => {
     for (let index = 0; index <= data.length - 1; index++) {
       const query =
         PROCESSED_EVENT_BY_NAME + "'" + (data[index] as string) + "' and processed_date=" + String(TodayDate());
@@ -82,5 +83,31 @@ describe('smoke tests for DAP services prod', () => {
       countData[data[index]] = redShiftQueryResults.TotalNumRows;
     }
     // console.log('countData:' + JSON.stringify(countData));
+  }, 24000000);
+
+  test('Verify that records are processed today in stage data', async () => {
+    for (let index = 0; index <= data.length - 1; index++) {
+      const productFamilyGroupName = productFamily(data[index]);
+      const athenaQueryResults = await getQueryResults(
+        'SELECT * FROM ' + productFamilyGroupName + " where processed_date = '" + String(TodayDate()) + "' ;",
+        txmaStageDatabaseName(),
+        txmaProcessingWorkGroupName(),
+      );
+      expect(athenaQueryResults).not.toBeNull();
+      expect(athenaQueryResults.length).toBeGreaterThan(1);
+    }
+  }, 120000);
+
+  test('Output the number of records processed for specific event type on todays date for Stage Data ', async () => {
+    for (let index = 0; index <= data.length - 1; index++) {
+      const productFamilyGroupName = productFamily(data[index]);
+      const athenaQueryResults = await getQueryResults(
+        'SELECT count(*) FROM ' + productFamilyGroupName + " where processed_date = '" + String(TodayDate()) + "' ;",
+        txmaStageDatabaseName(),
+        txmaProcessingWorkGroupName(),
+      );
+      expect(athenaQueryResults).not.toBeNull();
+      countData[data[index]] = athenaQueryResults;
+    }
   }, 24000000);
 });
