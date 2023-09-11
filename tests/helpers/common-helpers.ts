@@ -1,4 +1,8 @@
 import { describeExecution } from './step-helpers';
+import { faker } from '@faker-js/faker';
+import { publishToTxmaQueue } from './lambda-helpers';
+import { checkFileCreatedOnS3, checkFileCreatedOnS3kinesis } from './s3-helpers';
+import fs from 'fs';
 
 const formatNumberInTwoDigits = (num: number): string => {
   return `0${num}`.slice(-2);
@@ -18,6 +22,57 @@ export const getEventFilePrefixDayBefore = (eventName: string): string => {
   )}/day=${formatNumberInTwoDigits(today.getDate() - 1)}`;
 };
 
+export function setEventData(event, data: Pick<any, string | number | symbol>) {
+  event.event_id = data.event_id;
+  event.client_id = data.client_id;
+  event.user.govuk_signin_journey_id = data.journey_id;
+  event.event_name = data.eventName;
+  const pastDate = faker.date.past();
+  event.timestamp = Math.round(pastDate.getTime() / 1000);
+  event.timestamp_formatted = JSON.stringify(pastDate);
+}
+
+export async function publishAndValidate(event) {
+  const publishResult = await publishToTxmaQueue(event);
+  // then
+  expect(publishResult).not.toBeNull();
+  expect(publishResult).toHaveProperty('MessageId');
+
+  // givenx
+  const prefix = getEventFilePrefix(event.event_name);
+
+  // then
+  const fileUploaded = await checkFileCreatedOnS3(prefix, event.event_id, 120000);
+  expect(fileUploaded).toEqual(true);
+}
+
+export async function setPublishAndValidate(data: Pick<any, string | number | symbol>, filePath: string) {
+  const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  setEventData(event, data);
+  // when
+  await publishAndValidate(event);
+}
+export async function publishAndValidateError(event, errorCode: string) {
+  const publishResult = await publishToTxmaQueue(event);
+  // then
+  expect(publishResult).not.toBeNull();
+  // given
+  const prefix = getErrorFilePrefix();
+  // then
+  const fileUploaded = await checkFileCreatedOnS3kinesis(prefix, errorCode, 120000);
+  expect(fileUploaded).toEqual(true);
+}
+
+export async function setPublishAndValidateError(
+  data: Pick<any, string | number | symbol>,
+  filePath: string,
+  errorCode: string,
+) {
+  const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  setEventData(event, data);
+  // when
+  await publishAndValidateError(event, errorCode);
+}
 export const getErrorFilePrefix = (): string => {
   const today = new Date();
   return `kinesis-processing-errors-metadata-extraction-failed/${today.getFullYear()}/${formatNumberInTwoDigits(
