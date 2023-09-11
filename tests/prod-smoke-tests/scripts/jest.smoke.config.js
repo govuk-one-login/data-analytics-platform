@@ -3,7 +3,6 @@ module.exports = async () => {
     roots: ['<rootDir>/tests/prod-smoke-tests'],
     testMatch: ['**/tests/prod-smoke-tests/*.spec.ts'],
     coveragePathIgnorePatterns: ['/node_modules/'],
-    // globalSetup: "./src/handlers/int-test-support/helpers/testSetup.ts",
     testTimeout: 300000,
     verbose: true,
     transform: {
