@@ -28,7 +28,7 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	'' as extensions_evidence,
+	format('%s',cast("extensions"."evidence" as JSON)) as extensions_evidence,
 	'' as extensions_iss,
 	'' as extensions_successful,
 	format('%s',cast("extensions"."previous_govuk_signin_journey_id" as JSON)) as extensions_previousgovuksigninjourneyid,
