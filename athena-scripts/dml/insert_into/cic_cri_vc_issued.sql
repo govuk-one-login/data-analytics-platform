@@ -14,7 +14,7 @@ INSERT INTO "environment-txma-stage"."ipv_cri_cic" (
 )
 SELECT
 	event_id as event_id,
-	'' as client_id,
+	client_id as client_id,
 	component_id as component_id,
 	user.govuk_signin_journey_id as user_govuk_signin_journey_id,
 	user.user_id as user_user_id,

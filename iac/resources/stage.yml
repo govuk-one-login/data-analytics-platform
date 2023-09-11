@@ -108,6 +108,7 @@ AuthOrchestrationGlueTable:
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
           - { Name: extensions_clientName, Type: string }
+          - { Name: extensions_description, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
