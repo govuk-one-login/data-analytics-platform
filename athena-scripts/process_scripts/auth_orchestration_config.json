@@ -3,5 +3,20 @@
         "event_name": "auth_authorisation_initiated",
         "product_family": "auth_orchestration",
         "enabled": true
+    },
+    {
+        "event_name": "auth_authorisation_request_error",
+        "product_family": "auth_orchestration",
+        "enabled": true
+    },
+    {
+        "event_name": "auth_authorisation_request_received",
+        "product_family": "auth_orchestration",
+        "enabled": true
+    },
+    {
+        "event_name": "auth_ipv_authorisation_requested",
+        "product_family": "auth_orchestration",
+        "enabled": true
     }
 ]

@@ -8,5 +8,10 @@
         "event_name": "auth_log_in_success",
         "product_family": "auth_account_user_login",
         "enabled": true
+    },
+    {
+        "event_name": "auth_auth_code_issued",
+        "product_family": "auth_account_user_login",
+        "enabled": true
     }
 ]
