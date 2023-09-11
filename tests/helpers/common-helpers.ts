@@ -22,7 +22,7 @@ export const getEventFilePrefixDayBefore = (eventName: string): string => {
   )}/day=${formatNumberInTwoDigits(today.getDate() - 1)}`;
 };
 
-export function setEventData(event, data: Pick<any, string | number | symbol>) {
+export function setEventData(event, data: Pick<any, string | number | symbol>): void {
   event.event_id = data.event_id;
   event.client_id = data.client_id;
   event.user.govuk_signin_journey_id = data.journey_id;
@@ -32,7 +32,7 @@ export function setEventData(event, data: Pick<any, string | number | symbol>) {
   event.timestamp_formatted = JSON.stringify(pastDate);
 }
 
-export async function publishAndValidate(event) {
+export async function publishAndValidate(event) : Promise<void> {
   const publishResult = await publishToTxmaQueue(event);
   // then
   expect(publishResult).not.toBeNull();
@@ -46,13 +46,13 @@ export async function publishAndValidate(event) {
   expect(fileUploaded).toEqual(true);
 }
 
-export async function setPublishAndValidate(data: Pick<any, string | number | symbol>, filePath: string) {
+export async function setPublishAndValidate(data: Pick<object, string | number | symbol>, filePath: string) :Promise<void> {
   const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
   setEventData(event, data);
   // when
   await publishAndValidate(event);
 }
-export async function publishAndValidateError(event, errorCode: string) {
+export async function publishAndValidateError(event, errorCode: string):Promise<void> {
   const publishResult = await publishToTxmaQueue(event);
   // then
   expect(publishResult).not.toBeNull();
@@ -64,10 +64,10 @@ export async function publishAndValidateError(event, errorCode: string) {
 }
 
 export async function setPublishAndValidateError(
-  data: Pick<any, string | number | symbol>,
+  data: Pick<object, string | number | symbol>,
   filePath: string,
   errorCode: string,
-) {
+): Promise<void>{
   const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
   setEventData(event, data);
   // when
