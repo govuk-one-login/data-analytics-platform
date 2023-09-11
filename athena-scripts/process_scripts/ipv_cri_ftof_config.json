@@ -37,7 +37,7 @@
     {
         "event_name": "ipr_user_redirected",
         "product_family": "ipv_cri_ftof",
-        "enabled": true
+        "enabled": false
     },
     {
         "event_name": "ipv_f2f_cri_vc_consumed",
