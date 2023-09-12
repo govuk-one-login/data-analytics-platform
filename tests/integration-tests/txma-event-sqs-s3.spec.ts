@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { setPublishAndValidate, setPublishAndValidateError } from '../helpers/common-helpers';
+import { preparePublishAndValidate } from '../helpers/event-data-helper';
 
 // todo this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
 describe('Happy path tests Publish valid TXMA Event to SQS and expect event id stored in S3', () => {
@@ -12,7 +12,7 @@ describe('Happy path tests Publish valid TXMA Event to SQS and expect event id s
     async ({ ...data }) => {
       // given
       const filePath = 'tests/fixtures/txma-event.json';
-      await setPublishAndValidate(data, filePath);
+      await preparePublishAndValidate(data, filePath);
     },
     240000,
   );
@@ -29,7 +29,7 @@ describe('AUTH_ACCOUNT_CREATION GROUP Test - Invalid TXMA Event to SQS and expec
       // given
       const errorCode = 'DynamicPartitioning.MetadataExtractionFailed';
       const filePath = 'tests/fixtures/txma-event-invalid.json';
-      await setPublishAndValidateError(data, filePath, errorCode);
+      await preparePublishAndValidateError(data, filePath, errorCode);
     },
     240000,
   );
