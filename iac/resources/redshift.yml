@@ -124,7 +124,7 @@ RedshiftAccessEC2:
   Type: 'AWS::EC2::Instance'
   Properties:
     LaunchTemplate:
-      LaunchTemplateName: !Ref RedshiftAccessEC2LaunchTemplate
+      LaunchTemplateName: RedshiftAccessEC2LaunchTemplate
       Version: !GetAtt RedshiftAccessEC2LaunchTemplate.LatestVersionNumber
     SubnetId: !Ref SubnetForDAP1
 
