@@ -106,7 +106,7 @@ RedshiftAccessEC2InstanceProfile:
 RedshiftAccessEC2LaunchTemplate:
   Type: 'AWS::EC2::LaunchTemplate'
   Properties:
-    LaunchTemplateName: 'DAPLaunchTemplate'
+    LaunchTemplateName: RedshiftAccessEC2LaunchTemplate
     LaunchTemplateData:
       ImageId: 'ami-0eb260c4d5475b901'
       InstanceType: 't2.nano'
