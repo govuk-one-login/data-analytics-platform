@@ -1,0 +1,17 @@
+[
+    {
+        "event_name": "cic_cri_auth_code_issued",
+        "product_family": "ipv_cri_cic",
+        "enabled": true
+    },
+    {
+        "event_name": "cic_cri_start",
+        "product_family": "ipv_cri_cic",
+        "enabled": true
+    },
+    {
+        "event_name": "cic_cri_vc_issued",
+        "product_family": "ipv_cri_cic",
+        "enabled": true
+    }
+]
