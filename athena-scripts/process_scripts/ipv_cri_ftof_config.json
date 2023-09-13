@@ -32,12 +32,12 @@
     {
         "event_name": "ipr_result_notification_emailed",
         "product_family": "ipv_cri_ftof",
-        "enabled": false
+        "enabled": true
     },
     {
         "event_name": "ipr_user_redirected",
         "product_family": "ipv_cri_ftof",
-        "enabled": false
+        "enabled": true
     },
     {
         "event_name": "ipv_f2f_cri_vc_consumed",
