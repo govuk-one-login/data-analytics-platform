@@ -109,6 +109,7 @@ AuthOrchestrationGlueTable:
           - { Name: timestamp_formatted, Type: string }
           - { Name: extensions_clientName, Type: string }
           - { Name: extensions_description, Type: string }
+          - { Name: extensions_clientlandingpageurl, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
@@ -140,6 +141,7 @@ AuthAccountUserLoginGlueTable:
           - { Name: user_user_id, Type: string }
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
+          - { Name: extensions_isnewaccount, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
