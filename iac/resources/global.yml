@@ -367,7 +367,7 @@ FlowLogs:
   Type: 'AWS::EC2::FlowLog'
   Properties:
     LogDestination: !GetAtt VPCFlowLogsBucket.Arn
-    LogDestinationType: S3
+    LogDestinationType: s3
     ResourceId: !Ref VPCForDAP
     ResourceType: VPC
     TrafficType: ALL
