@@ -366,12 +366,11 @@ FlowLogRole:
 FlowLogs:
   Type: 'AWS::EC2::FlowLog'
   Properties:
-    DeliverLogsPermissionArn: !GetAtt FlowLogRole.Arn
     LogDestination: !GetAtt VPCFlowLogsBucket.Arn
-    LogDestinationType: 's3'
+    LogDestinationType: S3
     ResourceId: !Ref VPCForDAP
-    ResourceType: 'VPC'
-    TrafficType: 'ALL'
+    ResourceType: VPC
+    TrafficType: ALL
 
 SubnetForDAP1:
   Type: AWS::EC2::Subnet
