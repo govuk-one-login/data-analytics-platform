@@ -1,0 +1,57 @@
+[  
+    {
+        "event_name": "f2f_cri_auth_code_issued",
+        "product_family": "ipv_cri_ftof",
+        "enabled": true
+    },
+    {
+        "event_name": "f2f_cri_start",
+        "product_family": "ipv_cri_ftof",
+        "enabled": true
+    },
+    {
+        "event_name": "f2f_cri_vc_issued",
+        "product_family": "ipv_cri_ftof",
+        "enabled": false
+    },
+    {
+        "event_name": "f2f_yoti_end",
+        "product_family": "ipv_cri_ftof",
+        "enabled": false
+    },
+    {
+        "event_name": "f2f_yoti_pdf_emailed",
+        "product_family": "ipv_cri_ftof",
+        "enabled": true
+    },
+    {
+        "event_name": "f2f_yoti_start",
+        "product_family": "ipv_cri_ftof",
+        "enabled": false
+    },
+    {
+        "event_name": "ipr_result_notification_emailed",
+        "product_family": "ipv_cri_ftof",
+        "enabled": false
+    },
+    {
+        "event_name": "ipr_user_redirected",
+        "product_family": "ipv_cri_ftof",
+        "enabled": false
+    },
+    {
+        "event_name": "ipv_f2f_cri_vc_consumed",
+        "product_family": "ipv_cri_ftof",
+        "enabled": true
+    },
+    {
+        "event_name": "ipv_f2f_cri_vc_received",
+        "product_family": "ipv_cri_ftof",
+        "enabled": true
+    },
+    {
+        "event_name": "f2f_yoti_response_received",
+        "product_family": "ipv_cri_ftof",
+        "enabled": false
+    }
+]
