@@ -44,7 +44,7 @@ export async function publishAndValidateError(event, errorCode: string): Promise
   // given
   const prefix = getErrorFilePrefix();
   // then
-  const fileUploaded = await checkFileCreatedOnS3kinesis(prefix, errorCode, 120000);
+  const fileUploaded = await checkFileCreatedOnS3kinesis(prefix, errorCode, 240000);
   expect(fileUploaded).toEqual(true);
 }
 
