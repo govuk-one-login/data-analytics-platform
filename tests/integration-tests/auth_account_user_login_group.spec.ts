@@ -1,8 +1,5 @@
-import * as fs from 'fs';
 import { faker } from '@faker-js/faker';
-import { getEventFilePrefix, getErrorFilePrefix } from '../helpers/common-helpers';
-import { checkFileCreatedOnS3, checkFileCreatedOnS3kinesis } from '../helpers/s3-helpers';
-import { publishToTxmaQueue } from '../helpers/lambda-helpers';
+import { preparePublishAndValidate, preparePublishAndValidateError } from '../helpers/event-data-helper';
 
 // this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
 describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
@@ -10,33 +7,13 @@ describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expec
     eventName                            | event_id               | client_id              | journey_id
     ${'AUTH_CHECK_USER_KNOWN_EMAIL'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'AUTH_LOG_IN_SUCCESS'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'AUTH_AUTH_CODE_ISSUED'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const event = JSON.parse(
-        fs.readFileSync('tests/fixtures/txma-event-auth-account-user-login-group.json', 'utf-8'),
-      );
-      event.event_id = data.event_id;
-      event.client_id = data.client_id;
-      event.user.govuk_signin_journey_id = data.journey_id;
-      event.event_name = data.eventName;
-      const pastDate = faker.date.past();
-      event.timestamp = Math.round(pastDate.getTime() / 1000);
-      event.timestamp_formatted = JSON.stringify(pastDate);
-
-      // when
-      const publishResult = await publishToTxmaQueue(event);
-      // then
-      expect(publishResult).not.toBeNull();
-      expect(publishResult).toHaveProperty('MessageId');
-
-      // given
-      const prefix = getEventFilePrefix(event.event_name);
-
-      // then
-      const fileUploaded = await checkFileCreatedOnS3(prefix, event.event_id, 120000);
-      expect(fileUploaded).toEqual(true);
+      const filePath = 'tests/fixtures/txma-event-auth-account-user-login-group.json';
+      await preparePublishAndValidate(data, filePath);
     },
     240000,
   );
@@ -52,20 +29,8 @@ describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expec
     async ({ ...data }) => {
       // given
       const errorCode = 'DynamicPartitioning.MetadataExtractionFailed';
-      const event = JSON.parse(fs.readFileSync('tests/fixtures/txma-event-invalid.json', 'utf-8'));
-      event.client_id = data.client_id;
-      event.user.govuk_signin_journey_id = data.journey_id;
-      const pastDate = faker.date.past();
-      event.timestamp = Math.round(pastDate.getTime() / 1000);
-      event.timestamp_formatted = JSON.stringify(pastDate);
-      const publishResult = await publishToTxmaQueue(event);
-      // then
-      expect(publishResult).not.toBeNull();
-      // given
-      const prefix = getErrorFilePrefix();
-      // then
-      const fileUploaded = await checkFileCreatedOnS3kinesis(prefix, errorCode, 120000);
-      expect(fileUploaded).toEqual(true);
+      const filePath = 'tests/fixtures/txma-event-invalid.json';
+      await preparePublishAndValidateError(data, filePath, errorCode);
     },
     240000,
   );
