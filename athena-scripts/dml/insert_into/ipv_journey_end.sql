@@ -1,13 +1,10 @@
 INSERT INTO "environment-txma-stage"."ipv_journey" (
 	event_id,
-	client_id,
 	component_id,
 	user_govuk_signin_journey_id,
 	user_user_id,
 	timestamp,
 	timestamp_formatted,
-	extensions_reason,
-	extensions_rejectionreason,
 	year,
 	month,
 	day,
@@ -16,14 +13,11 @@ INSERT INTO "environment-txma-stage"."ipv_journey" (
 )
 SELECT
 	event_id as event_id,
-	NULL as client_id,
 	component_id as component_id,
 	user.govuk_signin_journey_id as user_govuk_signin_journey_id,
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	NULL as extensions_reason,
-	NULL as extensions_rejectionreason,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,

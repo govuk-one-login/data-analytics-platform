@@ -1,6 +1,5 @@
 INSERT INTO "environment-txma-stage"."ipv_cri_fraud" (
 	event_id,
-	client_id,
 	component_id,
 	user_govuk_signin_journey_id,
 	user_user_id,
@@ -16,7 +15,6 @@ INSERT INTO "environment-txma-stage"."ipv_cri_fraud" (
 )
 SELECT
 	event_id as event_id,
-	NULL as client_id,
 	component_id as component_id,
 	user.govuk_signin_journey_id as user_govuk_signin_journey_id,
 	user.user_id as user_user_id,

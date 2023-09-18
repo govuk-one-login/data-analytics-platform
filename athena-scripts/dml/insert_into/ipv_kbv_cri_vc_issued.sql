@@ -1,6 +1,5 @@
 INSERT INTO "environment-txma-stage"."ipv_cri_kbv" (
 	event_id,
-	client_id,
 	component_id,
 	user_govuk_signin_journey_id,
 	user_user_id,
@@ -8,7 +7,6 @@ INSERT INTO "environment-txma-stage"."ipv_cri_kbv" (
 	timestamp_formatted,
 	extensions_evidence,
 	extensions_iss,
-	extensions_experianiiqresponse,
 	year,
 	month,
 	day,
@@ -17,7 +15,6 @@ INSERT INTO "environment-txma-stage"."ipv_cri_kbv" (
 )
 SELECT
 	event_id as event_id,
-	NULL as client_id,
 	component_id as component_id,
 	user.govuk_signin_journey_id as user_govuk_signin_journey_id,
 	user.user_id as user_user_id,
@@ -25,7 +22,6 @@ SELECT
 	timestamp_formatted as timestamp_formatted,
 	replace(format('%s',cast("extensions"."evidence" as JSON)),'null',NULL) as extensions_evidence,
 	replace(format('%s',cast("extensions"."iss" as JSON)),'null',NULL) as extensions_iss,
-	NULL as extensions_experianiiqresponse,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
