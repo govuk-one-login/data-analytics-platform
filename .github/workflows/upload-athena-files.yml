@@ -33,7 +33,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Assume AWS GitHub actions role
-        uses: aws-actions/configure-aws-credentials@v2.2.0
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.ELT_METADATA_UPLOAD_ROLE_ARN }}
