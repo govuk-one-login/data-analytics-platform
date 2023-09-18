@@ -15,7 +15,7 @@ jobs:
       valid: ${{ steps.validate.outputs.valid }}
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - id: validate
         name: Validate branch eligibility for tear down
         run: scripts/validate-deployment-or-teardown.sh ${{ github.head_ref }} >> $GITHUB_OUTPUT
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: 16
