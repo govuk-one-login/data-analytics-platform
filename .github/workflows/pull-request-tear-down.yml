@@ -35,7 +35,7 @@ jobs:
         with:
           node-version: 16
       - name: Assume AWS role
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.FEATURE_ENVIRONMENT_TEAR_DOWN_ROLE_ARN }}
