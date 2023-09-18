@@ -21,7 +21,7 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	format('%s',cast("extensions"."isNewAccount" as JSON)) as extensions_isnewaccount,
+	replace(format('%s',cast("extensions"."isNewAccount" as JSON)),'null',NULL)  as extensions_isnewaccount,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
