@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Node setup
         uses: actions/setup-node@v3
         with:
@@ -28,7 +28,7 @@ jobs:
       - name: IaC linting checks
         run: npm run iac:lint
       - name: Check out checkov hooks repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: alphagov/di-devplatform-checkov-hook
           token: ${{ secrets.CHECKOUT_REPO_PAT }}
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Node setup
         uses: actions/setup-node@v3
         with:
