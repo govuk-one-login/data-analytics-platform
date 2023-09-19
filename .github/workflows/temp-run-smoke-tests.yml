@@ -1,0 +1,36 @@
+name: ✳️ Temp run smoke tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  run-smoke-tests:
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Assume AWS role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.FEATURE_ENVIRONMENT_TEAR_DOWN_ROLE_ARN }}
+      - name: Node setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+      - name: Install node packages
+        run: npm ci
+      - name: Correct environment in jest.setup.js
+        run: sed -i 's/dev/feature/' jest.setup.js
+      - name: Run smoke tests
+        run: npm run smoke-test
+        env:
+          ENVIRONMENT: feature
+          TXMA_BUCKET: feature-dap-raw-layer
+          TXMA_QUEUE_URL: https://sqs.eu-west-2.amazonaws.com/655068466146/feature-placeholder-txma-event-queue
