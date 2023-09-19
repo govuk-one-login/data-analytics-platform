@@ -24,10 +24,22 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	replace(format('%s',cast("restricted"."passport" as JSON)),'null',NULL) as restricted_passport,
-	replace(format('%s',cast("restricted"."residencePermit" as JSON)),'null',NULL) as restricted_residencepermit,
-	replace(format('%s',cast("restricted"."drivingPermit" as JSON)),'null',NULL) as restricted_drivingpermit,
-	replace(format('%s',cast("restricted"."idCard" as JSON)),'null',NULL) as restricted_idcard,
+	case format('%s',cast("restricted"."passport" as JSON))
+		when 'null' then null
+	    else format('%s',cast("restricted"."passport" as JSON))
+	end as restricted_passport,
+	case format('%s',cast("restricted"."residencePermit" as JSON))
+		when 'null' then null
+	    else format('%s',cast("restricted"."residencePermit" as JSON))
+	end as restricted_residencepermit,
+	case format('%s',cast("restricted"."drivingPermit" as JSON))
+		when 'null' then null
+	    else format('%s',cast("restricted"."drivingPermit" as JSON)) 
+	end as restricted_drivingpermit,
+	case format('%s',cast("restricted"."idCard" as JSON))
+		when 'null' then null
+	    else format('%s',cast("restricted"."idCard" as JSON))
+	end as restricted_idcard,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,

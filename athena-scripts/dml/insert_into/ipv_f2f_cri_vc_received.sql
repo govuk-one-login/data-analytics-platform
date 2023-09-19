@@ -21,9 +21,18 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	replace(format('%s',cast("extensions"."evidence" as JSON)),'null',NULL)  as extensions_evidence,
-	replace(format('%s',cast("extensions"."iss" as JSON)),'null',NULL)  as extensions_iss,
-	replace(format('%s',cast("extensions"."successful" as JSON)),'null',NULL)  as extensions_successful,
+	case format('%s',cast("extensions"."evidence" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."evidence" as JSON))
+	end as extensions_evidence,
+	case format('%s',cast("extensions"."iss" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."iss" as JSON))
+	end as extensions_iss,
+	case format('%s',cast("extensions"."successful" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."successful" as JSON))
+	end as extensions_successful,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
