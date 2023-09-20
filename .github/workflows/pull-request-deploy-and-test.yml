@@ -2,11 +2,9 @@ name: ✳️ Pull request deploy and test
 
 on:
   workflow_dispatch:
-  pull_request:
+  pull_request_review:
     types:
-      - opened
-      - reopened
-      - synchronize
+      - submitted
     paths-ignore:
       - '**.md'
 
@@ -20,7 +18,7 @@ jobs:
         uses: actions/checkout@v4
       - id: validate
         name: Validate branch eligibility for deployment
-        run: scripts/validate-deployment-or-teardown.sh ${{ github.head_ref }} >> $GITHUB_OUTPUT
+        run: scripts/validate-deployment-or-teardown.sh ${{ github.ref_name }} >> $GITHUB_OUTPUT
 
   deploy-to-feature:
     needs: [validate-deployment-or-teardown]
@@ -29,31 +27,45 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    secrets: inherit
-    uses: ./.github/workflows/deploy-to-aws.yml
-    with:
-      environment: FEATURE
-      skip-s3-upload: true
-
-  wait-for-deployment-to-finish:
-    needs: [deploy-to-feature]
-    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
-    permissions:
-      id-token: write
-      contents: read
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Node setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+      - name: Install node packages
+        run: npm ci
+      - name: Build lambdas
+        run: npm run build
+      - name: Build SAM template
+        run: npm run iac:build
+      - name: SAM setup
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+          version: 1.82.0
+      - name: SAM build
+        run: sam build
       - name: Assume AWS role
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.FEATURE_ENVIRONMENT_TEAR_DOWN_ROLE_ARN }}
-      - name: Wait for stack update to be complete
-        run: aws --region eu-west-2 cloudformation wait stack-update-complete --stack-name dap
+      - name: Deploy stack
+        env:
+          AWS_RETRY_MODE: adaptive
+          PARAMETER_OVERRIDES: 'Environment=feature VpcStackName=none CodeSigningConfigArn=arn:aws:lambda:eu-west-2:655068466146:code-signing-config:csc-0e1d19d9d083bacf6 PermissionsBoundary=arn:aws:iam::655068466146:policy/dap-feature-deploy-AppProgrammaticPermissionsBoundary-0abf029fc6b0 TestRoleArn=arn:aws:iam::655068466146:role/PL-dap-feature-deploy-TestRole-0abf029fc6b0'
+          SIGNING_PROFILE_NAME: ${{ secrets.SIGNING_PROFILE_NAME_FEATURE }}
+        run: |
+          PROFILES=$(cat template.yaml | grep 'AWS::Serverless::Function' -B2 | grep -E '^  \w+' | sed -E 's/ |://g' | xargs printf -- "%s=$SIGNING_PROFILE_NAME ")
+          sam deploy --region eu-west-2 --stack-name dap --parameter-overrides "$PARAMETER_OVERRIDES" --signing-profiles "$PROFILES" --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset
 
   run-integration-tests:
-    needs: [wait-for-deployment-to-finish]
+    needs: [deploy-to-feature]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
@@ -75,7 +87,7 @@ jobs:
       - name: Install node packages
         run: npm ci
       - name: Correct environment in jest.setup.js
-        run:  sed -i 's/dev/feature/' jest.setup.js
+        run: sed -i 's/dev/feature/' jest.setup.js
         # todo remove the `-- --testPathIgnorePatterns=redshift` below once redshift works in the feature environment
       - name: Run integration tests
         run: npm run integration-test -- --testPathIgnorePatterns=redshift
@@ -85,7 +97,7 @@ jobs:
           TXMA_QUEUE_URL: https://sqs.eu-west-2.amazonaws.com/655068466146/feature-placeholder-txma-event-queue
 
   run-smoke-tests:
-    needs: [wait-for-deployment-to-finish]
+    needs: [deploy-to-feature]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
@@ -107,7 +119,7 @@ jobs:
       - name: Install node packages
         run: npm ci
       - name: Correct environment in jest.setup.js
-        run:  sed -i 's/dev/feature/' jest.setup.js
+        run: sed -i 's/dev/feature/' jest.setup.js
       - name: Run smoke tests
         run: npm run smoke-test
         env:
