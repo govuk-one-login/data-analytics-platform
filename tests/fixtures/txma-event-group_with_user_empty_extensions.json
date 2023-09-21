@@ -1,0 +1,15 @@
+{
+  "event_id": "d4a46fd7-9828-4ef4-b4af-49e6aea9c235",
+  "event_name": "F2F_YOTI_RESPONSE_RECEIVED",
+  "component_id": "https://review-o.account.gov.uk",
+  "client_id": "C910A762-4BB2-400D-8F3D-4D7E6C84E342",
+  "extensions": {},
+  "user": {
+    "user_id": "7d9c8feb2574ae89a6699e65a7c336a16aa43c7ce8b012a8d1eb9a916413b198"
+  },
+  "timestamp": 1695109450,
+  "timestamp_formatted": "2023-09-19T07:44:10.000Z",
+  "txma": {
+    "configVersion": "1.3.9"
+  }
+}

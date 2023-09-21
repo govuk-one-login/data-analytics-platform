@@ -1,0 +1,13 @@
+{
+  "event_id": "63125e7b-95a5-4752-8007-e7dbb19b16d1",
+  "event_name": "AUTH_AUTHORISATION_REQUEST_RECEIVED",
+  "component_id": "https://oidc.account.gov.uk/",
+  "timestamp": 1695049039,
+  "extensions": {
+    "isNewAccount": "NEW"
+  },
+  "timestamp_formatted": "2023-09-18T14:57:19.000Z",
+  "txma": {
+    "configVersion": "1.3.9"
+  }
+}

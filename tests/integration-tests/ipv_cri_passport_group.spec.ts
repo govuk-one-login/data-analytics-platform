@@ -1,5 +1,9 @@
 import { faker } from '@faker-js/faker';
-import { preparePublishAndValidate, preparePublishAndValidateError } from '../helpers/event-data-helper';
+import { preparePublishAndValidate, preparePublishAndValidateError, setEventData } from '../helpers/event-data-helper';
+import fs from 'fs';
+import { publishToTxmaQueue } from '../helpers/lambda-helpers';
+import { getErrorFilePrefix } from '../helpers/common-helpers';
+import { checkFileCreatedOnS3kinesis } from '../helpers/s3-helpers';
 
 // todo this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
 describe('IPV_CRI_PASSPORT GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
@@ -29,7 +33,16 @@ describe('IPV_CRI_PASSPORT GROUP Test - valid TXMA Event to SQS and expect event
       // given
       const errorCode = 'DynamicPartitioning.MetadataExtractionFailed';
       const filePath = 'tests/fixtures/txma-event-invalid.json';
-      await preparePublishAndValidateError(data, filePath, errorCode);
+      const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      setEventData(event, data);
+      const publishResult = await publishToTxmaQueue(event);
+      // then
+      expect(publishResult).not.toBeNull();
+      // given
+      const prefix = getErrorFilePrefix();
+      // then
+      const fileUploaded = await checkFileCreatedOnS3kinesis(prefix, errorCode, 340000);
+      expect(fileUploaded).toEqual(true);
     },
     240000,
   );
