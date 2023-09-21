@@ -55,6 +55,7 @@ PipelinePolicy:
             - 'arn:aws:iam::999430925643:policy/dap*'
             - 'arn:aws:iam::999430925643:instance-profile/staging*'
             - 'arn:aws:iam::999430925643:role/LambdaExecutionRole'
+            - 'arn:aws:iam::072886614474:role/*DeployRole*'
     Roles:
       - Fn::If:
           - IsFeature
