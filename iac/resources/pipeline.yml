@@ -1,0 +1,117 @@
+PipelinePolicy:
+  Type: "AWS::IAM::ManagedPolicy"
+  Properties: 
+    PolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Sid: "VisualEditor0"
+          Effect: "Allow"
+          Action: 
+            - "iam:ListPolicies"
+            - "iam:ListRoles"
+          Resource: "*"
+        - Sid: "VisualEditor1"
+          Effect: "Allow"
+          Action:
+            - "iam:UpdateAssumeRolePolicy"
+            - "iam:GetPolicyVersion"
+            - "iam:ListRoleTags"
+            - "iam:UntagRole"
+            - "iam:TagRole"
+            - "iam:DeletePolicy"
+            - "iam:CreateRole"
+            - "iam:AttachRolePolicy"
+            - "iam:PutRolePolicy"
+            - "iam:ListInstanceProfilesForRole"
+            - "iam:PassRole"
+            - "iam:DetachRolePolicy"
+            - "iam:DeleteRolePolicy"
+            - "iam:ListAttachedRolePolicies"
+            - "iam:DetachGroupPolicy"
+            - "iam:ListPolicyTags"
+            - "iam:ListRolePolicies"
+            - "iam:CreatePolicyVersion"
+            - "iam:PutGroupPolicy"
+            - "iam:GetRole"
+            - "iam:GetPolicy"
+            - "iam:DeleteRole"
+            - "iam:UpdateRoleDescription"
+            - "iam:TagPolicy"
+            - "iam:CreatePolicy"
+            - "iam:ListPolicyVersions"
+            - "iam:AttachGroupPolicy"
+            - "iam:UntagPolicy"
+            - "iam:UpdateRole"
+            - "iam:GetGroupPolicy"
+            - "iam:DeleteGroupPolicy"
+            - "iam:GetRolePolicy"
+            - "iam:DeletePolicyVersion"
+            - "iam:GetInstanceProfile"
+            - "iam:DeleteRolePolicy"
+          Resource: 
+            - "arn:aws:iam::999430925643:role/staging*"
+            - "arn:aws:iam::999430925643:policy/staging*"
+            - "arn:aws:iam::999430925643:role/dap*"
+            - "arn:aws:iam::999430925643:policy/dap*"
+            - "arn:aws:iam::999430925643:instance-profile/staging*"
+            - "arn:aws:iam::999430925643:role/LambdaExecutionRole"
+
+  
+  AttachPolicyToFeatureRole:
+    Type: 'AWS::IAM::PolicyAttachment'
+    Condition: IsFeature
+    Properties:
+      Roles: 
+        - PL-dap-feature-deploy-DeployRole-0abf029fc6b0
+      PolicyName: !Ref PipelinePolicy
+
+  AttachPolicyToDevRole:
+    Type: 'AWS::IAM::PolicyAttachment'
+    Condition: IsDev
+    Properties:
+      Roles: 
+        - PL-secure-pipelines-pipeline-DeployRole-0ac4f1a0d400
+      PolicyName: !Ref PipelinePolicy
+  
+  AttachPolicyToTestRole:
+    Type: 'AWS::IAM::PolicyAttachment'
+    Condition: IsTest
+    Properties:
+      Roles: 
+        - PL-dap-test-deploy-DeployRole-022c55851b0a
+      PolicyName: !Ref PipelinePolicy
+
+  AttachPolicyToBuildRole:
+    Type: 'AWS::IAM::PolicyAttachment'
+    Condition: IsBuild
+    Properties:
+      Roles: 
+        - PL-dap-build-deploy-DeployRole-02569a5d3e58
+      PolicyName: !Ref PipelinePolicy
+
+  AttachPolicyToIntegrationRole:
+    Type: 'AWS::IAM::PolicyAttachment'
+    Condition: IsIntegration
+    Properties:
+      Roles: 
+        - PL-dap-integration-deploy-DeployRole-023e422e7530
+      PolicyName: !Ref PipelinePolicy
+  
+  AttachPolicyToStageRole:
+    Type: 'AWS::IAM::PolicyAttachment'
+    Condition: IsStaging
+    Properties:
+      Roles: 
+        - PL-dap-staging-deploy-DeployRole-02e7fac29d94
+      PolicyName: !Ref PipelinePolicy
+
+  AttachPolicyToProdRole:
+    Type: 'AWS::IAM::PolicyAttachment'
+    Condition: IsProduction
+    Properties:
+      Roles: 
+        - PL-dap-production-deploy-DeployRole-068116bf8a2e
+      PolicyName: !Ref PipelinePolicy
+  
+
+      
