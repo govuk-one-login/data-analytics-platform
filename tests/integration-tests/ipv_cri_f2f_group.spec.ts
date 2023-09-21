@@ -1,9 +1,5 @@
 import { faker } from '@faker-js/faker';
-import {
-  publishAndValidate,
-  setEventData,
-  setEventDataWithoutUser,
-} from '../helpers/event-data-helper';
+import { publishAndValidate, setEventData, setEventDataWithoutUser } from '../helpers/event-data-helper';
 import fs from 'fs';
 
 describe('IPV_CRI_F2F GROUP Test - valid TXMA Event with client id to SQS and expect event id stored in S3', () => {
