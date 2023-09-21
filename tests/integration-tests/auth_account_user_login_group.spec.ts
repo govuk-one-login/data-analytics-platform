@@ -2,10 +2,7 @@ import { faker } from '@faker-js/faker';
 import {
   preparePublishAndValidate,
   preparePublishAndValidateError,
-  publishAndValidate,
-  setEventData,
 } from '../helpers/event-data-helper';
-import fs from 'fs';
 
 // this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
 describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {

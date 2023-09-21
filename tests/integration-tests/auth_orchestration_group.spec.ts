@@ -34,8 +34,8 @@ describe('AUTH_ORCHESTRATION GROUP Test - valid TXMA Event with extension to SQS
       const filePath = 'tests/fixtures/txma-event-group_with_empty_extensions.json';
       const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       setEventData(event, data);
-      if (data.extensions == 'description') event.extensions.description = 'Request Missing';
-      else if (data.extensions == 'clientLandingPageUrl')
+      if (data.extensions === 'description') event.extensions.description = 'Request Missing';
+      else if (data.extensions === 'clientLandingPageUrl')
         event.extensions.clientLandingPageUrl = 'clientLandingPageUrl';
       // console.log('Event Data' + JSON.stringify(event));
       // when

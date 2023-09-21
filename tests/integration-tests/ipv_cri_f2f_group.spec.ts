@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker';
 import {
-  preparePublishAndValidate,
   publishAndValidate,
   setEventData,
   setEventDataWithoutUser,
@@ -40,7 +39,7 @@ describe('IPV_CRI_F2F GROUP Test - valid TXMA Event without client id to SQS and
       const filePath = 'tests/fixtures/txma-event-group_without_extensions.json';
       const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       setEventData(event, data);
-      console.log('Event Data' + JSON.stringify(event));
+      // console.log('Event Data' + JSON.stringify(event));
       // when
       await publishAndValidate(event);
     },

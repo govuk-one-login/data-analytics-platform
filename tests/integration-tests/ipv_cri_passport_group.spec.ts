@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { preparePublishAndValidate, preparePublishAndValidateError, setEventData } from '../helpers/event-data-helper';
+import { preparePublishAndValidate, setEventData } from '../helpers/event-data-helper';
 import fs from 'fs';
 import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 import { getErrorFilePrefix } from '../helpers/common-helpers';

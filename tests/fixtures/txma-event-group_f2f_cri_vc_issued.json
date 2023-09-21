@@ -4,7 +4,7 @@
   "component_id": "https://identity.account.gov.uk",
   "user": {
     "govuk_signin_journey_id": "unknown",
-    "user_id": "7d9c8feb2574ae89a6699e65a7c336a16aa43c7ce8b012a8d1eb9a916413b198"
+    "user_id": "7d9c876uygrbjhge65a7c336a16aa43c7ce8b012a8d1eb9a916413b198"
   },
   "extensions": {
     "iss": "https://review-o.account.gov.uk",

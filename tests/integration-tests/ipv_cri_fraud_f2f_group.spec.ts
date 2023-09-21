@@ -16,7 +16,7 @@ describe('IPV_CRI_FRAUD GROUP Test - valid TXMA F2F Event without extension to S
       const filePath = 'tests/fixtures/txma-event-group_without_extensions.json';
       const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       setEventData(event, data);
-      console.log(JSON.stringify(event));
+      // console.log(JSON.stringify(event));
       // when
       await publishAndValidate(event);
     },

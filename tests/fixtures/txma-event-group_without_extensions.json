@@ -3,7 +3,7 @@
   "event_name": "AUTH_AUTHORISATION_REQUEST_RECEIVED",
   "component_id": "https://oidc.account.gov.uk/",
   "user": {
-    "govuk_signin_journey_id": "P_tdBWpJd0J5sAlHxxcuC2Fr6vA"
+    "govuk_signin_journey_id": "P_t3dBWpJd0J52132sAlHxxcuC2Fr6vA"
   },
   "timestamp": 1695049039,
   "timestamp_formatted": "2023-09-18T14:57:19.000Z",
