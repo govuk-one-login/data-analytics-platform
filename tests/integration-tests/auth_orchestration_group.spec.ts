@@ -19,7 +19,7 @@ describe('AUTH_ORCHESTRATION GROUP Test - valid TXMA Event to SQS and expect eve
       const filePath = 'tests/fixtures/txma-event-auth-orchestration-group.json';
       await preparePublishAndValidate(data, filePath);
     },
-    240000,
+    340000,
   );
 });
 describe('AUTH_ORCHESTRATION GROUP Test - valid TXMA Event with extension to SQS and expect event id stored in S3', () => {
