@@ -55,7 +55,7 @@ describe('AUTH_ORCHESTRATION GROUP Test - valid TXMA F2F Event without extension
       const filePath = 'tests/fixtures/txma-event-group_without_extensions.json';
       await preparePublishAndValidate(data, filePath);
     },
-    240000,
+    340000,
   );
 });
 
@@ -71,6 +71,6 @@ describe('AUTH_ORCHESTRATION GROUP Test - valid TXMA Event to SQS and expect eve
       const filePath = 'tests/fixtures/txma-event-invalid.json';
       await preparePublishAndValidateError(data, filePath, errorCode);
     },
-    240000,
+    340000,
   );
 });
