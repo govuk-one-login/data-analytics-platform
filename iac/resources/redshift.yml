@@ -78,24 +78,6 @@ RedshiftServerlessWorkgroup:
       - !Ref SubnetForDAP3
     WorkgroupName: !Sub '${Environment}-redshift-serverless-workgroup'
 
-# RedshiftAccessEC2:
-#   Type: AWS::EC2::Instance
-#   Properties:
-#     ImageId: ami-0eb260c4d5475b901 # Ubuntu Server 22.04 LTS
-#     InstanceType: t2.nano
-#     SubnetId: !Ref SubnetForDAP1
-#     IamInstanceProfile: !Ref RedshiftAccessEC2InstanceProfile
-#     MetadataOptions:
-#        HttpTokens: required
-#        HttpPutResponseHopLimit: 1
-#     BlockDeviceMappings:
-#       - DeviceName: /dev/sda1
-#         Ebs:
-#           VolumeSize: 64
-#     Tags:
-#       - Key: Name
-#         Value: !Sub ${Environment}-dap-redshift-access-server
-
 RedshiftAccessEC2InstanceProfile:
   Type: AWS::IAM::InstanceProfile
   Properties:
