@@ -49,13 +49,13 @@ PipelinePolicy:
             - 'iam:GetInstanceProfile'
             - 'iam:DeleteRolePolicy'
           Resource:
-            - 'arn:aws:iam::999430925643:role/staging*'
-            - 'arn:aws:iam::999430925643:policy/staging*'
-            - 'arn:aws:iam::999430925643:role/dap*'
-            - 'arn:aws:iam::999430925643:policy/dap*'
-            - 'arn:aws:iam::999430925643:instance-profile/staging*'
-            - 'arn:aws:iam::999430925643:role/LambdaExecutionRole'
-            - 'arn:aws:iam::072886614474:role/*DeployRole*'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Environment}*'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/${Environment}*'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:role/dap*'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/dap*'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:instance-profile/${Environment}*'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*DeployRole*'
     Roles:
       - Fn::If:
           - IsFeature
