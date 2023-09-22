@@ -7,8 +7,6 @@ INSERT INTO "environment-txma-stage"."ipv_cri_ftof" (
 	timestamp,
 	timestamp_formatted,
 	extensions_evidence,
-	extensions_iss,
-	extensions_successful,
 	extensions_previousgovuksigninjourneyid,
 	restricted_passport,
 	restricted_residencepermit,
@@ -28,14 +26,30 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	format('%s',cast("extensions"."evidence" as JSON)) as extensions_evidence,
-	'' as extensions_iss,
-	'' as extensions_successful,
-	format('%s',cast("extensions"."previous_govuk_signin_journey_id" as JSON)) as extensions_previousgovuksigninjourneyid,
-	format('%s',cast("restricted"."passport" as JSON)) as restricted_passport,
-	format('%s',cast("restricted"."residencePermit" as JSON)) as restricted_residencepermit,
-	format('%s',cast("restricted"."drivingPermit" as JSON)) as restricted_drivingpermit,
-	format('%s',cast("restricted"."idCard" as JSON)) as restricted_idcard,
+	case format('%s',cast("extensions"."evidence" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."evidence" as JSON))	
+	end as extensions_evidence,
+	case format('%s',cast("extensions"."previous_govuk_signin_journey_id" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."previous_govuk_signin_journey_id" as JSON))
+	end as extensions_previousgovuksigninjourneyid,
+	case format('%s',cast("restricted"."passport" as JSON))
+		when 'null' then null
+	    else format('%s',cast("restricted"."passport" as JSON))
+	end as restricted_passport,
+	case format('%s',cast("restricted"."residencePermit" as JSON))
+		when 'null' then null
+	    else format('%s',cast("restricted"."residencePermit" as JSON))
+	end as restricted_residencepermit,
+	case format('%s',cast("restricted"."drivingPermit" as JSON))
+		when 'null' then null
+	    else format('%s',cast("restricted"."drivingPermit" as JSON))
+	end as restricted_drivingpermit,
+	case format('%s',cast("restricted"."idCard" as JSON))
+		when 'null' then null
+	    else format('%s',cast("restricted"."idCard" as JSON))
+	end as restricted_idcard,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
