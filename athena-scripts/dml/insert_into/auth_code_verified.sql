@@ -23,9 +23,18 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	format('%s',cast("extensions"."account-recovery" as JSON)) as extensions_accountrecovery,
-	format('%s',cast("extensions"."mfa-type" as JSON)) as extensions_mfatype,
-	format('%s',cast("extensions"."notification-type" as JSON)) as extensions_notificationtype,
+	case format('%s',cast("extensions"."account-recovery" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."account-recovery" as JSON)) 
+	end as extensions_accountrecovery,
+	case format('%s',cast("extensions"."mfa-type" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."mfa-type" as JSON))
+	end as extensions_mfatype,
+	case format('%s',cast("extensions"."notification-type" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."notification-type" as JSON)) 
+	end as extensions_notificationtype,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,

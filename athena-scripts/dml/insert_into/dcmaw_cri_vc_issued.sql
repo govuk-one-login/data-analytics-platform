@@ -21,7 +21,10 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	format('%s',cast("extensions"."evidence" as JSON)) as extensions_evidence,
+	case format('%s',cast("extensions"."evidence" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."evidence" as JSON))
+	end as extensions_evidence,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
