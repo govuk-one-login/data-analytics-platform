@@ -1,9 +1,8 @@
-name: SonarCloud
+name: SonarCloud Code Analysis
 on:
   push:
     branches:
-      # only commented on for greg's test branch, will revert on PR to main
-      # - main
+      - main
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
