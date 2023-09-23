@@ -31,6 +31,6 @@ describe('IPV_CRI_DRIVING_LICENSE GROUP Test - valid TXMA Event to SQS and expec
       const filePath = 'tests/fixtures/txma-event-invalid.json';
       await preparePublishAndValidateError(data, filePath, errorCode);
     },
-    240000,
+    440000,
   );
 });

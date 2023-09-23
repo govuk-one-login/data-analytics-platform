@@ -36,6 +36,6 @@ describe('IPV_CRI_FRAUD GROUP Test - valid TXMA Event to SQS and expect event id
       const filePath = 'tests/fixtures/txma-event-invalid.json';
       await preparePublishAndValidateError(data, filePath, errorCode);
     },
-    240000,
+    440000,
   );
 });

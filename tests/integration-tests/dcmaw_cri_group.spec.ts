@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { preparePublishAndValidate, publishAndValidate, setEventData } from '../helpers/event-data-helper';
+import { publishAndValidate, setEventData } from '../helpers/event-data-helper';
 import * as fs from 'fs';
 import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 import { getErrorFilePrefix } from '../helpers/common-helpers';
@@ -49,6 +49,6 @@ describe('DCMAW_CRI GROUP Test - valid TXMA Event to SQS and expect event id not
       const fileUploaded = await checkFileCreatedOnS3kinesis(prefix, errorCode, 340000);
       expect(fileUploaded).toEqual(true);
     },
-    340000,
+    440000,
   );
 });

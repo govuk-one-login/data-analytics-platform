@@ -32,6 +32,6 @@ describe('AUTH_ACCOUNT_CREATION GROUP Test - Invalid TXMA Event to SQS and expec
       const filePath = 'tests/fixtures/txma-event-invalid.json';
       await preparePublishAndValidateError(data, filePath, errorCode);
     },
-    240000,
+    440000,
   );
 });

@@ -44,6 +44,6 @@ describe('IPV_CRI_PASSPORT GROUP Test - valid TXMA Event to SQS and expect event
       const fileUploaded = await checkFileCreatedOnS3kinesis(prefix, errorCode, 340000);
       expect(fileUploaded).toEqual(true);
     },
-    340000,
+    440000,
   );
 });

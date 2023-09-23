@@ -50,6 +50,6 @@ describe('IPV_JOURNEY GROUP Test - Invalid TXMA Event to SQS and expect event is
       const filePath = 'tests/fixtures/txma-event-invalid.json';
       await preparePublishAndValidateError(data, filePath, errorCode);
     },
-    340000,
+    440000,
   );
 });

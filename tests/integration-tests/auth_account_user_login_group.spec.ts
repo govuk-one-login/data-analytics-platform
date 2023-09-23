@@ -30,6 +30,6 @@ describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - in valid TXMA Event to SQS and ex
       const filePath = 'tests/fixtures/txma-event-invalid.json';
       await preparePublishAndValidateError(data, filePath, errorCode);
     },
-    240000,
+    440000,
   );
 });

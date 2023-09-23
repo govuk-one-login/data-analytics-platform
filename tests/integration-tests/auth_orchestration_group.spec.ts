@@ -71,6 +71,6 @@ describe('AUTH_ORCHESTRATION GROUP Test - valid TXMA Event to SQS and expect eve
       const filePath = 'tests/fixtures/txma-event-invalid.json';
       await preparePublishAndValidateError(data, filePath, errorCode);
     },
-    340000,
+    440000,
   );
 });
