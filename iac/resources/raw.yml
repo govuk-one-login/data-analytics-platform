@@ -318,6 +318,7 @@ IpvCriFtofCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPR_USER_REDIRECTED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_F2F_CRI_VC_CONSUMED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_F2F_CRI_VC_RECEIVED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_YOTI_RESPONSE_RECEIVED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
