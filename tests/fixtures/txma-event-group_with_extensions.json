@@ -1,0 +1,18 @@
+{
+  "event_id": "3e20c91a-f530-43ba-b5a9-f40286a8cbf3",
+  "event_name": "AUTH_AUTH_CODE_ISSUED",
+  "client_id": "0bb3859f-70ed-4078-bea2-afc3c89e62e5",
+  "component_id": "UNKNOWN",
+  "extensions": {
+    "isNewAccount": "NEW"
+  },
+  "user": {
+    "govuk_signin_journey_id": "WWn2wAkV23aJXNYBRJE2QQwhUrY8A",
+    "user_id": "26bfaa04cb495d578323759b6dbba6edbe2ec18542c550b8f7b108e3eb41829adae"
+  },
+  "timestamp": 1694735934,
+  "timestamp_formatted": "2023-09-14T23:58:54.000Z",
+  "txma": {
+    "configVersion": "1.3.8"
+  }
+}

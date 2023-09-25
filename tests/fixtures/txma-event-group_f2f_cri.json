@@ -1,0 +1,37 @@
+{
+  "event_id": "705a007b-9700-447f-a136-42c7610c6b9b",
+  "event_name": "F2F_CRI_VC_ISSUED",
+  "client_id": "0bb3859f-70ed-4078-bea2-afc3c89e62e5",
+  "component_id": "https://review-o.account.gov.uk",
+  "user": {
+    "user_id": "7d9c8hghgr4rt47vgh43c7ce8b012a8d1eb9a916413b198"
+  },
+  "extensions": {
+    "previous_govuk_signin_journey_id": "Li7276r749i4De-_INrPD6Q",
+    "evidence": [
+      {
+        "checkDetails": [
+          {
+            "biometricVerificationProcessLevel": null,
+            "checkMethod": "vri",
+            "photoVerificationProcessLevel": null
+          },
+          {
+            "biometricVerificationProcessLevel": 3,
+            "checkMethod": "bvr",
+            "photoVerificationProcessLevel": null
+          }
+        ],
+        "strengthScore": 3,
+        "type": "IdentityCheck",
+        "validityScore": 2,
+        "verificationScore": 3
+      }
+    ]
+  },
+  "timestamp": 1695109450,
+  "timestamp_formatted": "2023-09-19T07:44:10.000Z",
+  "txma": {
+    "configVersion": "1.3.9"
+  }
+}
