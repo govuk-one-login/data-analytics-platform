@@ -13,6 +13,13 @@ export function setEventData(event, data: Pick<object, string | number | symbol>
   event.timestamp = Math.round(pastDate.getTime() / 1000);
   event.timestamp_formatted = JSON.stringify(pastDate);
 }
+export function setEventDataWithoutEventName(event, data: Pick<object, string | number | symbol>): void {
+  event.client_id = data.client_id;
+  event.user.govuk_signin_journey_id = data.journey_id;
+  const pastDate = faker.date.past();
+  event.timestamp = Math.round(pastDate.getTime() / 1000);
+  event.timestamp_formatted = JSON.stringify(pastDate);
+}
 export function setEventDataWithoutUser(event, data: Pick<object, string | number | symbol>): void {
   event.event_id = data.event_id;
   event.client_id = data.client_id;
@@ -62,7 +69,7 @@ export async function preparePublishAndValidateError(
   errorCode: string,
 ): Promise<void> {
   const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  setEventData(event, data);
+  setEventDataWithoutEventName(event, data);
   // when
   await publishAndValidateError(event, errorCode);
 }
