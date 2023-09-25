@@ -1,4 +1,4 @@
-PipelinePolicy:
+DeployRoleExtraIAMActions:
   Type: 'AWS::IAM::ManagedPolicy'
   Properties:
     PolicyDocument:
