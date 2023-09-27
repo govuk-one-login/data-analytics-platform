@@ -587,7 +587,7 @@ FtofYotiResponseReceivedGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref RawGlueDatabase
     TableInput:
-      Name: F2F_YOTI_RESPONSE_RECEIVED
+      Name: f2f_yoti_response_received
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: year, Type: int }
