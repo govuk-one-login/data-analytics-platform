@@ -573,6 +573,10 @@ FtofIpvCriVcReceivedGlueTable:
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
           - { Name: txma, Type: 'struct<configVersion:string>' }
+          - {
+              Name: extensions,
+              Type: 'struct<iss:string,successful:boolean,evidence:array<struct<checkDetails:array<struct<biometricVerificationProcessLevel:int,checkMethod:string,photoVerificationProcessLevel:int>>,failedCheckDetails:array<struct<biometricVerificationProcessLevel:int,checkMethod:string>>,strengthScore:int,type:string,validityScore:int,verificationScore:int>>>',
+            }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         Location: !Sub s3://${RawLayerBucket}/txma/IPV_F2F_CRI_VC_RECEIVED/
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
@@ -599,7 +603,7 @@ FtofYotiResponseReceivedGlueTable:
           - { Name: event_name, Type: string }
           - { Name: component_id, Type: string }
           - { Name: client_id, Type: string }
-          - { Name: user, Type: 'struct<user_id:string>' }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
           - { Name: txma, Type: 'struct<configVersion:string>' }
