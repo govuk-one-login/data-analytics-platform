@@ -359,7 +359,7 @@ FtofCriVcIssuedGlueTable:
               Type: 'struct<passport:array<struct<documentType:string>>,residencePermit:array<struct<documentType:string>>,drivingPermit:array<struct<documentType:string>>,idCard:array<struct<documentType:string>>>',
             }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
-        Location: !Sub s3://${StageLayerBucket}/txma/F2F_CRI_VC_ISSUED/
+        Location: !Sub s3://${RawLayerBucket}/txma/F2F_CRI_VC_ISSUED/
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
         SerdeInfo:
           Parameters:
