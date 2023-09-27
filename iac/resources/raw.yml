@@ -328,6 +328,73 @@ IpvCriFtofCrawler:
       DeleteBehavior: DELETE_FROM_DATABASE
     Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
+FtofCriVcIssuedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ftof_cri_vc_issued
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: int }
+        - { Name: month, Type: int }
+        - { Name: day, Type: int }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: struct<govuk_signin_journey_id:string, user_id:string> }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: struct<configVersion:string> }
+          - {
+              Name: extensions,
+              Type: struct<previous_govuk_signin_journey_id:string,
+              evidence:array<struct<checkDetails:array<struct<biometricVerificationProcessLevel:int,
+              checkMethod:string,
+              photoVerificationProcessLevel:int>>,
+              strengthScore:int,
+              type:string,
+              validityScore:int,
+              verificationScore:int>>>,
+            }
+          - {
+              Name: restricted,
+              Type: struct<passport:array<struct<documentType:string>>,
+              residencePermit:array<struct<documentType:string>>,
+              drivingPermit:array<struct<documentType:string>>,
+              idCard:array<struct<documentType:string>>>,
+            }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${StageLayerBucket}/txma/F2F_CRI_VC_ISSUED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+FtofCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: ipv_cri_ftof_fixed
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      CatalogTargets:
+        - DatabaseName: !Ref RawGlueDatabase
+          Tables:
+            - !Ref FtofCriVcIssuedGlueTable
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: LOG
+      DeleteBehavior: LOG
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+
 RawGlueCrawlerRole:
   Type: AWS::IAM::Role
   Properties:
