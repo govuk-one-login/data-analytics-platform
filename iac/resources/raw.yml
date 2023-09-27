@@ -301,33 +301,6 @@ IpvCriCicCrawler:
       DeleteBehavior: DELETE_FROM_DATABASE
     Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
-IpvCriFtofCrawler:
-  Type: AWS::Glue::Crawler
-  Properties:
-    Name: ipv_cri_ftof
-    Role: !GetAtt RawGlueCrawlerRole.Arn
-    Targets:
-      S3Targets:
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_CRI_AUTH_CODE_ISSUED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_CRI_START/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_CRI_VC_ISSUED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_YOTI_END/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_YOTI_PDF_EMAILED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_YOTI_START/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPR_RESULT_NOTIFICATION_EMAILED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPR_USER_REDIRECTED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_F2F_CRI_VC_CONSUMED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_F2F_CRI_VC_RECEIVED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_YOTI_RESPONSE_RECEIVED/'
-    DatabaseName: !Ref RawGlueDatabase
-    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
-    RecrawlPolicy:
-      RecrawlBehavior: CRAWL_EVERYTHING
-    SchemaChangePolicy:
-      UpdateBehavior: UPDATE_IN_DATABASE
-      DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
-
 FtofCriVcIssuedGlueTable:
   Type: AWS::Glue::Table
   Properties:
