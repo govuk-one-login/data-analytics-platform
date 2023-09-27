@@ -346,7 +346,7 @@ FtofCriVcIssuedGlueTable:
           - { Name: event_name, Type: string }
           - { Name: client_id, Type: string }
           - { Name: component_id, Type: string }
-          - { Name: user, Type: 'struct<govuk_signin_journey_id:string, user_id:string>' }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
           - { Name: txma, Type: 'struct<configVersion:string>' }
