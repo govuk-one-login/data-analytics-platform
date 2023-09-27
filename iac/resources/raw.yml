@@ -612,7 +612,7 @@ FtofYotiResponseReceivedGlueTable:
             serialiazation.format: 1
           SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
 
-FtofCrawler:
+IpvCriFtofCrawler:
   Type: AWS::Glue::Crawler
   Properties:
     Name: ipv_cri_ftof
