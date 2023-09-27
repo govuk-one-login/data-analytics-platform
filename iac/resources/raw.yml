@@ -310,9 +310,9 @@ FtofCriVcIssuedGlueTable:
       Name: f2f_cri_vc_issued
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: year, Type: int }
-        - { Name: month, Type: int }
-        - { Name: day, Type: int }
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
       StorageDescriptor:
         Columns:
           - { Name: event_id, Type: string }
@@ -348,9 +348,9 @@ FtofCriAuthCodeIssuedGlueTable:
       Name: f2f_cri_auth_code_issued
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: year, Type: int }
-        - { Name: month, Type: int }
-        - { Name: day, Type: int }
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
       StorageDescriptor:
         Columns:
           - { Name: event_id, Type: string }
@@ -378,9 +378,9 @@ FtofCriStartGlueTable:
       Name: f2f_cri_start
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: year, Type: int }
-        - { Name: month, Type: int }
-        - { Name: day, Type: int }
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
       StorageDescriptor:
         Columns:
           - { Name: event_id, Type: string }
@@ -408,9 +408,9 @@ FtofYotiPdfEmailedGlueTable:
       Name: f2f_yoti_pdf_emailed
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: year, Type: int }
-        - { Name: month, Type: int }
-        - { Name: day, Type: int }
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
       StorageDescriptor:
         Columns:
           - { Name: event_id, Type: string }
@@ -438,9 +438,9 @@ FtofYotiStartGlueTable:
       Name: f2f_yoti_start
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: year, Type: int }
-        - { Name: month, Type: int }
-        - { Name: day, Type: int }
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
       StorageDescriptor:
         Columns:
           - { Name: event_id, Type: string }
@@ -472,9 +472,9 @@ FtofIprResultNotificationEmailedGlueTable:
       Name: ipr_result_notification_emailed
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: year, Type: int }
-        - { Name: month, Type: int }
-        - { Name: day, Type: int }
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
       StorageDescriptor:
         Columns:
           - { Name: event_id, Type: string }
@@ -502,9 +502,9 @@ FtofIprUserRedirectedGlueTable:
       Name: ipr_user_redirected
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: year, Type: int }
-        - { Name: month, Type: int }
-        - { Name: day, Type: int }
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
       StorageDescriptor:
         Columns:
           - { Name: event_id, Type: string }
@@ -532,9 +532,9 @@ FtofIpvCriVcConsumedGlueTable:
       Name: ipv_f2f_cri_vc_consumed
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: year, Type: int }
-        - { Name: month, Type: int }
-        - { Name: day, Type: int }
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
       StorageDescriptor:
         Columns:
           - { Name: event_id, Type: string }
@@ -561,9 +561,9 @@ FtofIpvCriVcReceivedGlueTable:
       Name: ipv_f2f_cri_vc_received
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: year, Type: int }
-        - { Name: month, Type: int }
-        - { Name: day, Type: int }
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
       StorageDescriptor:
         Columns:
           - { Name: event_id, Type: string }
@@ -590,9 +590,9 @@ FtofYotiResponseReceivedGlueTable:
       Name: f2f_yoti_response_received
       TableType: EXTERNAL_TABLE
       PartitionKeys:
-        - { Name: year, Type: int }
-        - { Name: month, Type: int }
-        - { Name: day, Type: int }
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
       StorageDescriptor:
         Columns:
           - { Name: event_id, Type: string }
