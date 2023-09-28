@@ -631,7 +631,7 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
                             )
                             else null end as valid_json_data
                         FROM
-                             "dap_txma_reporting_db"."ipv_cri_driving_license"
+                             "dap_txma_reporting_db"."dap_txma_stage"."ipv_cri_driving_license"
                             --where extensions_evidence != ''
                             --where event_id='70076134-77f7-4d11-b60d-017c1894e4e9'
                     )), level_1_data as
