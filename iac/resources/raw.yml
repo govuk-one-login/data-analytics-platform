@@ -301,32 +301,348 @@ IpvCriCicCrawler:
       DeleteBehavior: DELETE_FROM_DATABASE
     Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
+FtofCriVcIssuedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: f2f_cri_vc_issued
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<configVersion:string>' }
+          - {
+              Name: extensions,
+              Type: 'struct<previous_govuk_signin_journey_id:string,evidence:array<struct<checkDetails:array<struct<biometricVerificationProcessLevel:int,checkMethod:string,photoVerificationProcessLevel:int>>,strengthScore:int,type:string,validityScore:int,verificationScore:int>>>',
+            }
+          - {
+              Name: restricted,
+              Type: 'struct<passport:array<struct<documentType:string>>,residencePermit:array<struct<documentType:string>>,drivingPermit:array<struct<documentType:string>>,idCard:array<struct<documentType:string>>>',
+            }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/F2F_CRI_VC_ISSUED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+FtofCriAuthCodeIssuedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: f2f_cri_auth_code_issued
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<configVersion:string>' }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/F2F_CRI_AUTH_CODE_ISSUED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+FtofCriStartGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: f2f_cri_start
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<configVersion:string>' }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/F2F_CRI_START/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+FtofYotiPdfEmailedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: f2f_yoti_pdf_emailed
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<configVersion:string>' }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/F2F_YOTI_PDF_EMAILED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+FtofYotiStartGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: f2f_yoti_start
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<configVersion:string>' }
+          - {
+              Name: restricted,
+              Type: 'struct<passport:array<struct<documentType:string>>,residencePermit:array<struct<documentType:string>>,drivingPermit:array<struct<documentType:string>>,idCard:array<struct<documentType:string>>>',
+            }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/F2F_YOTI_START/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+FtofIprResultNotificationEmailedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipr_result_notification_emailed
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<configVersion:string>' }
+          - { Name: extensions, Type: 'struct<previous_govuk_signin_journey_id:string>' }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPR_RESULT_NOTIFICATION_EMAILED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+FtofIprUserRedirectedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipr_user_redirected
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<configVersion:string>' }
+          - { Name: extensions, Type: 'struct<previous_govuk_signin_journey_id:string>' }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPR_USER_REDIRECTED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+FtofIpvCriVcConsumedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_f2f_cri_vc_consumed
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<configVersion:string>' }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_F2F_CRI_VC_CONSUMED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+FtofIpvCriVcReceivedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_f2f_cri_vc_received
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<configVersion:string>' }
+          - {
+              Name: extensions,
+              Type: 'struct<iss:string,successful:boolean,evidence:array<struct<checkDetails:array<struct<biometricVerificationProcessLevel:int,checkMethod:string,photoVerificationProcessLevel:int>>,failedCheckDetails:array<struct<biometricVerificationProcessLevel:int,checkMethod:string>>,strengthScore:int,type:string,validityScore:int,verificationScore:int>>>',
+            }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_F2F_CRI_VC_RECEIVED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+FtofYotiResponseReceivedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: f2f_yoti_response_received
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<configVersion:string>' }
+          - { Name: extensions, Type: 'struct<previous_govuk_signin_journey_id:string>' }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/F2F_YOTI_RESPONSE_RECEIVED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
 IpvCriFtofCrawler:
   Type: AWS::Glue::Crawler
   Properties:
     Name: ipv_cri_ftof
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
-      S3Targets:
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_CRI_AUTH_CODE_ISSUED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_CRI_START/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_CRI_VC_ISSUED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_YOTI_END/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_YOTI_PDF_EMAILED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_YOTI_START/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPR_RESULT_NOTIFICATION_EMAILED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPR_USER_REDIRECTED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_F2F_CRI_VC_CONSUMED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_F2F_CRI_VC_RECEIVED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/F2F_YOTI_RESPONSE_RECEIVED/'
+      CatalogTargets:
+        - DatabaseName: !Ref RawGlueDatabase
+          Tables:
+            - !Ref FtofCriVcIssuedGlueTable
+            - !Ref FtofCriAuthCodeIssuedGlueTable
+            - !Ref FtofCriStartGlueTable
+            - !Ref FtofYotiPdfEmailedGlueTable
+            - !Ref FtofYotiStartGlueTable
+            - !Ref FtofIprResultNotificationEmailedGlueTable
+            - !Ref FtofIprUserRedirectedGlueTable
+            - !Ref FtofIpvCriVcConsumedGlueTable
+            - !Ref FtofIpvCriVcReceivedGlueTable
+            - !Ref FtofYotiResponseReceivedGlueTable
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
       RecrawlBehavior: CRAWL_EVERYTHING
     SchemaChangePolicy:
-      UpdateBehavior: UPDATE_IN_DATABASE
-      DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
+      UpdateBehavior: LOG
+      DeleteBehavior: LOG
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
 
 RawGlueCrawlerRole:
   Type: AWS::IAM::Role
