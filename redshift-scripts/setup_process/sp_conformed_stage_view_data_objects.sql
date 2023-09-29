@@ -1,6 +1,10 @@
 CREATE OR REPLACE PROCEDURE conformed.sp_conformed_stage_view_data_objects() 
 AS $$ 
 BEGIN 
+/*
+Name       Date         Notes
+P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
+*/
 
     Create or replace view conformed.V_STG_auth_account_creation
     AS
@@ -567,7 +571,7 @@ BEGIN
     Null CHECK_DETAILS_KBV_QUALITY,
     Null VERIFICATION_SCORE,
     checkdetails_checkmethod CHECK_DETAILS_CHECK_METHOD,
-    Null Iss,
+    extensions_iss Iss,
     validityscore VALIDITY_SCORE,
     type "TYPE",
     BatC.product_family batch_product_family,
@@ -588,6 +592,7 @@ BEGIN
                     event_name,
                     client_id,
                     component_id,
+                    extensions_iss,
                     "timestamp",
                     timestamp_formatted,
                     user_govuk_signin_journey_id,
@@ -610,6 +615,7 @@ BEGIN
                             client_id,
                             component_id,
                             "timestamp",
+                            extensions_iss,
                             timestamp_formatted,
                             user_govuk_signin_journey_id,
                             user_user_id,
@@ -625,9 +631,9 @@ BEGIN
                             )
                             else null end as valid_json_data
                         FROM
-                            "dap_txma_reporting_db"."dap_txma_stage"."ipv_cri_driving_license"
+                             "dap_txma_reporting_db"."dap_txma_stage"."ipv_cri_driving_license"
                             --where extensions_evidence != ''
-                            --and event_id='f6eb0bef-98dc-4a71-ac33-d6bc1725f11d'
+                            --where event_id='70076134-77f7-4d11-b60d-017c1894e4e9'
                     )), level_1_data as
                 (SELECT
                             event_id,
@@ -638,6 +644,7 @@ BEGIN
                             timestamp_formatted,
                             user_govuk_signin_journey_id,
                             user_user_id,
+                            extensions_iss,
                             year,
                             month,
                             day,
@@ -661,6 +668,7 @@ BEGIN
                         timestamp_formatted,
                         user_govuk_signin_journey_id,
                         user_user_id,
+                        extensions_iss,
                         year,
                         month,
                         day,
@@ -695,6 +703,7 @@ BEGIN
                     year,
                     month,
                     day,
+                    extensions_iss,
                     processed_date,
                     activityhistoryscore,
                     strengthscore,
@@ -979,7 +988,7 @@ BEGIN
 
     Create or replace view conformed.v_stg_ipv_cri_kbv
     AS
-    select DISTINCT
+     select DISTINCT
     Auth.product_family,
     Auth.event_id,
     Auth.client_id,
@@ -1004,11 +1013,11 @@ BEGIN
     null ACTIVITY_HISTORY_SCORE,
     Null IDENTITY_FRAUD_SCORE,
     Null DECISION_SCORE,
-    Null FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,
+    failedcheckdetails_kbvresponsemode FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,
     failedcheckdetails_checkmethod FAILED_CHECK_DETAILS_CHECK_METHOD,
     failedcheckdetails_kbvresponsemode CHECK_DETAILS_KBV_RESPONSE_MODEL,
     checkdetails_kbvquality CHECK_DETAILS_KBV_QUALITY,
-    Null VERIFICATION_SCORE,
+    verificationscore VERIFICATION_SCORE,
     checkdetails_checkmethod CHECK_DETAILS_CHECK_METHOD,
     extensions_iss Iss,
     extensions_experianiiqresponse experianiiqresponse,
@@ -1087,6 +1096,7 @@ BEGIN
                             user_govuk_signin_journey_id,
                             user_user_id,
                             year,
+                            verificationscore,
                             month,
                             day,
                             processed_date,
@@ -1114,6 +1124,7 @@ BEGIN
                         month,
                         day,
                         processed_date,
+                        verificationscore,
                         extensions_evidence,
                         extensions_iss,
                         extensions_experianiiqresponse,
@@ -1141,6 +1152,7 @@ BEGIN
                     timestamp_formatted,
                     user_govuk_signin_journey_id,
                     extensions_iss,
+                    verificationscore,
                     extensions_experianiiqresponse,
                     user_user_id,
                     year,
@@ -1310,5 +1322,3 @@ EXCEPTION WHEN OTHERS THEN
 END;
 
 $$ language plpgsql;
-
-
