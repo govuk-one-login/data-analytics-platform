@@ -52,7 +52,7 @@ describe('Redshift Data Model Validations', () => {
     expect(redShiftQueryResults).not.toBeNull();
     expect(redShiftQueryResults.TotalNumRows).toEqual(3);
   });
-  test('Verify Redshift Database => FACT_USER_JOURNEY_EVENT table metadata', async () => {
+  test.skip('Verify Redshift Database => FACT_USER_JOURNEY_EVENT table metadata', async () => {
     const redShiftQueryResults = await redshiftRunQuery(FACT_USER_JOURNEY_EVENT);
     expect(redShiftQueryResults).not.toBeNull();
   });

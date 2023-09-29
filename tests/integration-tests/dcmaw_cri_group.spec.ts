@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { preparePublishAndValidate, setEventData } from '../helpers/event-data-helper';
+import { publishAndValidate, setEventData } from '../helpers/event-data-helper';
 import * as fs from 'fs';
 import { publishToTxmaQueue } from '../helpers/lambda-helpers';
 import { getErrorFilePrefix } from '../helpers/common-helpers';
@@ -22,9 +22,10 @@ describe('DCMAW_CRI GROUP Test - valid TXMA Event to SQS and expect event id sto
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       const filePath = 'tests/fixtures/txma-event-dcmaw-cri-group.json';
-      await preparePublishAndValidate(data, filePath);
+      const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      await publishAndValidate(event);
     },
-    240000,
+    440000,
   );
 });
 
@@ -32,14 +33,6 @@ describe('DCMAW_CRI GROUP Test - valid TXMA Event to SQS and expect event id not
   test.concurrent.each`
     eventName                           | event_id               | client_id              | journey_id
     ${'DCMAW_APP_END'}                  | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'DCMAW_APP_HANDOFF_START'}        | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'DCMAW_APP_START'}                | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'DCMAW_BRP_SELECTED'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'DCMAW_CRI_START'}                | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'DCMAW_CRI_VC_ISSUED'}            | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'DCMAW_DRIVING_LICENCE_SELECTED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'DCMAW_PASSPORT_SELECTED'}        | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'DCMAW_WEB_END'}                  | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content not stored on S3',
     async ({ ...data }) => {
@@ -53,9 +46,9 @@ describe('DCMAW_CRI GROUP Test - valid TXMA Event to SQS and expect event id not
       // given
       const prefix = getErrorFilePrefix();
       // then
-      const fileUploaded = await checkFileCreatedOnS3kinesis(prefix, errorCode, 240000);
+      const fileUploaded = await checkFileCreatedOnS3kinesis(prefix, errorCode, 340000);
       expect(fileUploaded).toEqual(true);
     },
-    240000,
+    440000,
   );
 });

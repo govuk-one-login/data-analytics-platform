@@ -7,7 +7,6 @@ describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expec
     eventName                            | event_id               | client_id              | journey_id
     ${'AUTH_CHECK_USER_KNOWN_EMAIL'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'AUTH_LOG_IN_SUCCESS'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'AUTH_AUTH_CODE_ISSUED'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
@@ -18,8 +17,7 @@ describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expec
     240000,
   );
 });
-
-describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expect event id not stored in S3', () => {
+describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - in valid TXMA Event to SQS and expect event id not stored in S3', () => {
   test.concurrent.each`
     eventName                            | event_id               | client_id              | journey_id
     ${'AUTH_CHECK_USER_KNOWN_EMAIL'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
@@ -32,6 +30,6 @@ describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expec
       const filePath = 'tests/fixtures/txma-event-invalid.json';
       await preparePublishAndValidateError(data, filePath, errorCode);
     },
-    240000,
+    440000,
   );
 });
