@@ -1,0 +1,106 @@
+QuicksightAccessLambdaFunction:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as credentials would be out of date when retried
+  Type: AWS::Serverless::Function
+  Condition: IsQuicksightEnvironment
+  Properties:
+    FunctionName: cognito-quicksight-access
+    Handler: cognito-quicksight-access.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action: quicksight:GenerateEmbedUrlForRegisteredUser
+            Resource: '*'
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        COGNITO_CLIENT_ID: !Ref QuicksightAccessUserPoolClient
+        COGNITO_DOMAIN: !Sub https://${QuicksightAccessUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com
+    Tags:
+      Environment: !Ref Environment
+    Timeout: 20
+    MemorySize: 512
+    # this lambda lives in the protected subnets of a different VPC than the other lambdas
+    # because it needs (limited) internet access to call cognito and quicksight APIs and these services do not have VPC endpoints
+    # see https://govukverify.atlassian.net/wiki/spaces/PLAT/pages/3531735041/VPC
+    VpcConfig:
+      SecurityGroupIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-AWSServicesEndpointSecurityGroupId
+      SubnetIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdA
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdB
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdC
+
+QuicksightAccessApiGateway:
+  Type: AWS::ApiGatewayV2::Api
+  Condition: IsQuicksightEnvironment
+  Properties:
+    Name: !Sub ${Environment}-dap-quicksight-access
+    ProtocolType: HTTP
+    Target: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
+
+QuicksightAccessApiGatewayLambdaPermission:
+  Type: AWS::Lambda::Permission
+  Condition: IsQuicksightEnvironment
+  Properties:
+    FunctionName: !Ref QuicksightAccessLambdaFunction
+    Action: lambda:InvokeFunction
+    Principal: apigateway.amazonaws.com
+    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/$default
+
+# todo maybe add DeletionProtection
+QuicksightAccessUserPool:
+  Type: AWS::Cognito::UserPool
+  Condition: IsQuicksightEnvironment
+  Properties:
+    AccountRecoverySetting:
+      RecoveryMechanisms:
+        - Name: verified_email
+          Priority: 1
+    AdminCreateUserConfig:
+      AllowAdminCreateUserOnly: true
+    AutoVerifiedAttributes:
+      - email
+    EmailConfiguration:
+      EmailSendingAccount: COGNITO_DEFAULT
+    EnabledMfas:
+      - SOFTWARE_TOKEN_MFA
+    MfaConfiguration: 'ON'
+    UserAttributeUpdateSettings:
+      AttributesRequireVerificationBeforeUpdate:
+        - email
+    UserPoolName: !Sub ${Environment}-dap-quicksight-access-pool
+
+QuicksightAccessUserPoolClient:
+  Type: AWS::Cognito::UserPoolClient
+  Condition: IsQuicksightEnvironment
+  Properties:
+    AllowedOAuthFlows:
+      - code
+    AllowedOAuthFlowsUserPoolClient: true
+    AllowedOAuthScopes:
+      - email
+      - openid
+      - profile
+    CallbackURLs:
+      - !GetAtt QuicksightAccessApiGateway.ApiEndpoint
+    ClientName: !Sub ${Environment}-dap-quicksight-access-client
+    ExplicitAuthFlows:
+      - ALLOW_REFRESH_TOKEN_AUTH
+      - ALLOW_USER_SRP_AUTH
+    ReadAttributes:
+      - email
+      - email_verified
+      - sub
+    SupportedIdentityProviders:
+      - COGNITO
+    UserPoolId: !Ref QuicksightAccessUserPool
+
+QuicksightAccessUserPoolDomain:
+  Condition: IsQuicksightEnvironment
+  Type: AWS::Cognito::UserPoolDomain
+  Properties:
+    Domain: !Sub ${Environment}-dap-quicksight-access
+    UserPoolId: !Ref QuicksightAccessUserPool

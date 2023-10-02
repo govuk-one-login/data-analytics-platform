@@ -1,4 +1,4 @@
-import type { SQSEvent } from 'aws-lambda';
+import type { APIGatewayProxyEventV2, SQSEvent } from 'aws-lambda';
 import { readFile } from 'fs/promises';
 import type { Readable } from 'stream';
 import type { SdkStream } from '@aws-sdk/types';
@@ -29,4 +29,20 @@ export const mockS3BodyStream = ({ stringValue, byteValue }: BodyStreamParams): 
     transformToByteArray: async () => byteValue,
   };
   return mockBodyStream as BodyStream;
+};
+
+export const mockApiGatewayEvent = async (
+  queryParams: Record<string, string>,
+  accountId: string,
+): Promise<APIGatewayProxyEventV2> => {
+  const apiGatewayEvent: APIGatewayProxyEventV2 = JSON.parse(await getTestResource('api-gateway-event.json'));
+  return {
+    ...apiGatewayEvent,
+    rawQueryString: new URLSearchParams(queryParams).toString(),
+    queryStringParameters: queryParams,
+    requestContext: {
+      ...apiGatewayEvent.requestContext,
+      accountId,
+    },
+  };
 };

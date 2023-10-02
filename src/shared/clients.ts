@@ -8,6 +8,7 @@ import { ConfiguredRetryStrategy } from '@smithy/util-retry';
 import { AthenaClient } from '@aws-sdk/client-athena';
 import { SFNClient } from '@aws-sdk/client-sfn';
 import { RedshiftDataClient } from '@aws-sdk/client-redshift-data';
+import { QuickSightClient } from '@aws-sdk/client-quicksight';
 
 export const athenaClient = new AthenaClient(AWS_CLIENT_BASE_CONFIG);
 
@@ -19,6 +20,8 @@ export const firehoseClient = new FirehoseClient({
 });
 
 export const lambdaClient = new LambdaClient(AWS_CLIENT_BASE_CONFIG);
+
+export const quicksightClient = new QuickSightClient(AWS_CLIENT_BASE_CONFIG);
 
 export const redshiftClient = new RedshiftDataClient(AWS_CLIENT_BASE_CONFIG);
 

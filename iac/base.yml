@@ -78,6 +78,11 @@ Conditions:
     # todo replace line below with `- !Condition IsDev` when txma queue has been moved from dev to staging
     - !Condition IsStaging
     - !Condition IsBuild
+  IsQuicksightEnvironment: !Or
+    - !Condition IsDev
+    - !Condition IsTest
+    - !Condition IsFeature
+    - !Condition IsProduction
 
 Globals:
   Function:
