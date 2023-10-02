@@ -10,7 +10,7 @@
     "@aws-sdk/client-athena": "^3.418.0",
     "@aws-sdk/client-cloudwatch-logs": "^3.418.0",
     "@aws-sdk/client-firehose": "^3.418.0",
-    "@aws-sdk/client-lambda": "^3.418.0",
+    "@aws-sdk/client-lambda": "^3.421.0",
     "@aws-sdk/client-redshift-data": "^3.418.0",
     "@aws-sdk/client-s3": "^3.418.0",
     "@aws-sdk/client-sfn": "^3.418.0",
