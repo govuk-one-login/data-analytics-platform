@@ -371,6 +371,9 @@ IpvJourneyGlueTable:
           - { Name: timestamp_formatted, Type: string }
           - { Name: extensions_reason, Type: string }
           - { Name: extensions_rejectionReason, Type: string }
+          - { Name: extensions_hasmitigations, Type: boolean }
+          - { Name: extensions_levelofconfidence, Type: string }
+          - { Name: extensions_cifail, Type: boolean }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
