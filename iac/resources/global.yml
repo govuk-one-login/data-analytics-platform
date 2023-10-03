@@ -442,6 +442,30 @@ SubnetForDAP3:
       - Key: Name
         Value: dap-private-sn3
 
+AssociateNACLToSubnet1:
+  Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+  Properties:
+    NetworkAclId:
+      Ref: 'DAPNACL'
+    SubnetId:
+      Ref: 'SubnetForDAP1'
+
+AssociateNACLToSubnet2:
+  Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+  Properties:
+    NetworkAclId:
+      Ref: 'DAPNACL'
+    SubnetId:
+      Ref: 'SubnetForDAP2'
+
+AssociateNACLToSubnet3:
+  Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+  Properties:
+    NetworkAclId:
+      Ref: 'DAPNACL'
+    SubnetId:
+      Ref: 'SubnetForDAP3'
+
 RouteTableForDAP:
   Type: AWS::EC2::RouteTable
   Properties:
