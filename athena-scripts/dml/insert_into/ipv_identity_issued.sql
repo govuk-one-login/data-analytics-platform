@@ -21,17 +21,17 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	case format('%s',cast("extensions"."hasMitigations" as JSON))
+	case format('%s',cast("extensions"."hasMitigations" as VARCHAR))
 		when 'null' then null
-	    else format('%s',cast("extensions"."hasMitigations" as JSON))
+	    else format('%s',cast("extensions"."hasMitigations" as VARCHAR))
 	end as extensions_hasmitigations,
-	case format('%s',cast("extensions"."levelOfConfidence" as JSON))
+	case format('%s',cast("extensions"."levelOfConfidence" as VARCHAR))
 		when 'null' then null
-	    else format('%s',cast("extensions"."levelOfConfidence" as JSON))
+	    else format('%s',cast("extensions"."levelOfConfidence" as VARCHAR))
 	end as extensions_levelofconfidence,
-	case format('%s',cast("extensions"."ciFail" as JSON))
+	case format('%s',cast("extensions"."ciFail" as VARCHAR))
 		when 'null' then null
-	    else format('%s',cast("extensions"."ciFail" as JSON))
+	    else format('%s',cast("extensions"."ciFail" as VARCHAR))
 	end as extensions_cifail,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
