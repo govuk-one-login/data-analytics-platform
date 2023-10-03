@@ -7,7 +7,7 @@ INSERT INTO "environment-txma-stage"."ipv_journey" (
 	timestamp_formatted,
 	extensions_hasmitigations,
 	extensions_levelofconfidence,
-	extensions_cifail
+	extensions_cifail,
 	year,
 	month,
 	day,
