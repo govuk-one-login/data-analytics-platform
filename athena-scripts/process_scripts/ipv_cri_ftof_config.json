@@ -12,7 +12,7 @@
     {
         "event_name": "f2f_cri_vc_issued",
         "product_family": "ipv_cri_ftof",
-        "enabled": false
+        "enabled": true
     },
     {
         "event_name": "f2f_yoti_end",

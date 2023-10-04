@@ -21,7 +21,7 @@ BEGIN
     ('DCMAW_CRI_VC_ISSUED','DCMAW_CRI','DCMAW','CRI',' '),
     ('DCMAW_DRIVING_LICENCE_SELECTED','DCMAW_CRI','DCMAW','CRI',' '),
     ('DCMAW_PASSPORT_SELECTED','DCMAW_CRI','DCMAW','CRI',' '),
-    ('DCMAW_WEB_END','DCMAW_CRI','DCMAW','APP Journey',' '),
+    ('DCMAW_WEB_END','DCMAW_CRI','DCMAW','App Journey',' '),
     ('DCMAW_BRP_SELECTED','DCMAW_CRI','DCMAW','CRI',' '),
     ('IPV_ADDRESS_CRI_START','IPV_CRI_ADDRESS','IPV','Address CRI',' '),
     ('IPV_ADDRESS_CRI_VC_ISSUED','IPV_CRI_ADDRESS','IPV','Address CRI',' '),
@@ -44,26 +44,50 @@ BEGIN
     --
     TRUNCATE conformed.ref_relying_parties;
     --
-    INSERT INTO conformed.REF_RELYING_PARTIES(CLIENT_ID,CLIENT_NAME,DESCRIPTION) 
+    /*INSERT INTO conformed.REF_RELYING_PARTIES(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME) 
     VALUES
-    ('LcueBVCnGZw-YFdTZ4S07XbQx7I','GOV.UK','auth'),
+    ('LcueBVCnGZw-YFdTZ4S07XbQx7I','GOV.UK','auth','GOV'),
     ('ZL0kvRBP5xMy5OwONj8ARLPyuko','lite-exporter','auth'),
-    ('TGygWFxGDNn8ItyaecWCopqIX3s','Subject matter specialists Ofqual','auth'),
-    ('pDqO7_Hu-pq5wam5I4MlURXrv5k','Modern Slavery Statement Register','auth'),
-    ('x3F_Iu0LgqJpegY5ni0QSB0uezw','Apprenticeship Service','auth'),
+    ('TGygWFxGDNn8ItyaecWCopqIX3s','Subject matter specialists Ofqual','auth','OFQUAL'),
+    ('pDqO7_Hu-pq5wam5I4MlURXrv5k','Modern Slavery Statement Register','auth','MSU'),
+    ('x3F_Iu0LgqJpegY5ni0QSB0uezw','Apprenticeship Service','auth','Apprenticeship-Service'),
     ('zbNToJPcre4BXEap0na8kOjniKg','Manage family and support services','auth'),
-    ('RqFZ83csmS4Mi4Y7s7ohD9-ekwU','basic DBS check','auth+id'),
-    ('LUIZbIuJ_xVZxwhkNAApcO4O_6o','Social Work England','auth+id'),
-    ('VsAkrtMBzAosSveAv4xsuUDyiSs','Sign your mortgage deed','auth+id'),
-    ('XwwVDyl5oJKtK0DVsuw3sICWkPU','Vehicle Operator Licence','auth+id'),
-    ('zFeCxrwpLCUHFm-C4_CztwWtLfQ','Apply for a HM Armed Forces Veteran Card','auth+id'),
-    ('OdwbXmA5NLlYmMGHy3kjKFVD3PQ','Identity Proving and Verification Return (IPV Return) - Production','F2F email'),
-    ('7y-bchtHDfucVR5kcAe8KaM80wg','gov_gateway','app only'),
+    ('RqFZ83csmS4Mi4Y7s7ohD9-ekwU','basic DBS check','auth+id','DBS'),
+    ('LUIZbIuJ_xVZxwhkNAApcO4O_6o','Social Work England','auth+id','SWE'),
+    ('VsAkrtMBzAosSveAv4xsuUDyiSs','Sign your mortgage deed','auth+id','HMLR'),
+    ('XwwVDyl5oJKtK0DVsuw3sICWkPU','Vehicle Operator Licence','auth+id','DVSA'),
+    ('zFeCxrwpLCUHFm-C4_CztwWtLfQ','Apply for a HM Armed Forces Veteran Card','auth+id','Veterans'),
+    ('OdwbXmA5NLlYmMGHy3kjKFVD3PQ','Identity Proving and Verification Return (IPV Return) - Production','F2F email','IPV'),
+    ('7y-bchtHDfucVR5kcAe8KaM80wg','gov_gateway','app only','HMRC'),
     ('eTsLzrBkyI50bZOF6HlGvGEYKNYTTVWc','GOV.UK_Sign_In_Account_Management (old)','One Login'),
     ('KcKmx2g1GH6ersWFvzMi1bhehq4','production-account-management','One Login'),
     ('cAcut5r3PMtoDORZr5b9JT7VPw6VuF3Q','di-auth-stub-relying-party-production-app','ignore'),
     ('Y6YaRZ9bjCwS6HxaB34zvRhZJgBQyryT','di-auth-stub-relying-party-production','ignore'),
-    ('MjQc1h7nFVbNM05iawAdkkZ2W89uloDK','di-auth-smoketest-microclient-production','ignore');
+    ('MjQc1h7nFVbNM05iawAdkkZ2W89uloDK','di-auth-smoketest-microclient-production','ignore');*/
+
+
+INSERT INTO conformed.REF_RELYING_PARTIES(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME) 
+    VALUES
+('RqFZ83csmS4Mi4Y7s7ohD9-ekwU',	'basic DBS check',	'DBS'),
+('XwwVDyl5oJKtK0DVsuw3sICWkPU','Vehicle Operator Licence','DVSA'),
+('VsAkrtMBzAosSveAv4xsuUDyiSs',	'Sign your mortgage deed','HMLR'),
+('7y-bchtHDfucVR5kcAe8KaM80wg',	'gds-iv-gateway','HMRC'),
+('pDqO7_Hu-pq5wam5I4MlURXrv5k',	'Modern Slavery Statement Register','MSU'),
+('TGygWFxGDNn8ItyaecWCopqIX3s',	'Subject matter specialists Ofqual','OFQUAL'),
+('-1',	'Other','Other'),
+('LUIZbIuJ_xVZxwhkNAApcO4O_6o',	'Social Work England','SWE'),
+('x3F_Iu0LgqJpegY5ni0QSB0uezw',	'Apprenticeship Service','Apprenticeship-Service'),
+('bGAwNKM0XvnxCAuDQ_rMhhP3dxM',	'Claim Criminal Injuries Compensation','CCIC'),
+('Y6YaRZ9bjCwS6HxaB34zvRhZJgBQyryT','di-auth-stub-relying-party-production','di-auth-stub-relying-party-production'),
+('cAcut5r3PMtoDORZr5b9JT7VPw6VuF3Q','di-auth-stub-relying-party-production-app','di-auth-stub-relying-party-production-app'),
+('LcueBVCnGZw-YFdTZ4S07XbQx7I',	'GOV.UK','GOV'),
+('OdwbXmA5NLlYmMGHy3kjKFVD3PQ',	'Identity Proving and Verification Return (IPV Return) - Production','IPV'),
+('ZL0kvRBP5xMy5OwONj8ARLPyuko',	'lite-exporter','LITE'),
+('KcKmx2g1GH6ersWFvzMi1bhehq4',	'production-account-management','production-account-management'),
+('MjQc1h7nFVbNM05iawAdkkZ2W89uloDK',	'di-auth-smoketest-microclient-production','SMOKE TEST'),
+('zFeCxrwpLCUHFm-C4_CztwWtLfQ',	'Veterans','Veterans'),
+('tya4DoMpw_B7FK5YvuMAj3asc0A',	'Find a Grant','GMF'),
+('bGAwNKM0XvnxCAuDQ_rMhhP3dxM',	'Ministry of Justice','CCIC');
 
 
     raise info 'Setup of conformed layer ran successfully';
