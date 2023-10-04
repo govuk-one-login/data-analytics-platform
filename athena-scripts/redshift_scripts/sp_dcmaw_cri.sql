@@ -1,7 +1,11 @@
 CREATE OR replace PROCEDURE conformed.sp_dcmaw_cri ()
 AS $$
 BEGIN
-
+/*
+Name       Date         Notes
+P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
+                        Insert to the RP table slightly modified to include display_name column.
+*/
 	
 	UPDATE conformed.DIM_EVENT
     SET 
@@ -102,7 +106,7 @@ BEGIN
     ----Insert and update for dim_relying_party 
     
     
-    UPDATE conformed.DIM_RELYING_PARTY
+   /* UPDATE conformed.DIM_RELYING_PARTY
     SET
       CLIENT_ID = NVL(st.CLIENT_ID,'-1'),
       RELYING_PARTY_NAME = st.CLIENT_NAME,
@@ -127,23 +131,24 @@ BEGIN
     and  st.CLIENT_ID IN (
       SELECT CLIENT_ID
       FROM conformed.DIM_RELYING_PARTY
-    );
+    ); */
 
 
 
-    INSERT INTO  conformed.DIM_RELYING_PARTY (CLIENT_ID, RELYING_PARTY_NAME, RELYING_PARTY_DESCRIPTION, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
+    INSERT INTO  conformed.DIM_RELYING_PARTY (CLIENT_ID, RELYING_PARTY_NAME, DISPLAY_NAME, CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT
-        NVL(st.CLIENT_ID,'-1')  ,
+        NVL(st.CLIENT_ID,'-1') ,
         st.CLIENT_NAME,
-        st.CLIENT_NAME,
+        st.DISPLAY_NAME,
         current_user,
         CURRENT_DATE,
         current_user,
         CURRENT_DATE,
         9999
     FROM ( select DISTINCT
-            mn.CLIENT_ID,
-            ref.CLIENT_NAME,
+            mn.CLIENT_ID ,
+            ref.client_name,
+            ref.DISPLAY_NAME,
             current_user,
             CURRENT_DATE,
             current_user,
@@ -151,11 +156,13 @@ BEGIN
             9999
             FROM conformed.v_stg_dcmaw_cri mn
             left join  "dap_txma_reporting_db"."conformed"."ref_relying_parties" ref
-            on mn.CLIENT_ID=ref.CLIENT_ID) AS st
-    WHERE   st.CLIENT_ID NOT IN (
-            SELECT CLIENT_ID
+            --on mn.CLIENT_ID=ref.CLIENT_ID) AS st
+            on NVL(mn.CLIENT_ID,'-1')  = NVL(ref.CLIENT_ID,'-1') ) AS st
+    WHERE   NVL(st.CLIENT_ID,'-1')   NOT IN (
+            SELECT  NVL(CLIENT_ID,'-1') 
             FROM conformed.DIM_RELYING_PARTY
-        );
+        );      
+
 
 
 
@@ -187,27 +194,88 @@ BEGIN
     
     UPDATE "dap_txma_reporting_db"."conformed"."fact_user_journey_event"
     SET 
-      REJECTION_REASON=st.REJECTION_REASON
-      ,REASON=st.REASON
-      ,NOTIFICATION_TYPE=st.NOTIFICATION_TYPE
-      ,MFA_TYPE=st.MFA_TYPE
-      ,ACCOUNT_RECOVERY=st.ACCOUNT_RECOVERY
-      ,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL=JSON_SERIALIZE(st.FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
-      ,CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL=JSON_SERIALIZE(st.CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
-      ,ADDRESSES_ENTERED=st.ADDRESSES_ENTERED
-      ,ACTIVITY_HISTORY_SCORE=JSON_SERIALIZE(st.ACTIVITY_HISTORY_SCORE)
-      ,IDENTITY_FRAUD_SCORE=st.IDENTITY_FRAUD_SCORE
-      ,DECISION_SCORE=st.DECISION_SCORE
-      ,FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE=st.FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE
-      ,FAILED_CHECK_DETAILS_CHECK_METHOD=JSON_SERIALIZE(st.FAILED_CHECK_DETAILS_CHECK_METHOD)
-      ,CHECK_DETAILS_KBV_RESPONSE_MODEL=st.CHECK_DETAILS_KBV_RESPONSE_MODEL
-      ,CHECK_DETAILS_KBV_QUALITY=st.CHECK_DETAILS_KBV_QUALITY
-      ,VERIFICATION_SCORE=st.VERIFICATION_SCORE
-      ,CHECK_DETAILS_CHECK_METHOD=JSON_SERIALIZE(st.CHECK_DETAILS_CHECK_METHOD)
+      REJECTION_REASON=trim(st.REJECTION_REASON,'"')
+      ,REASON=trim(st.REASON,'"')
+      ,USER_USER_ID=st.user_user_id
+      ,USER_GOVUK_SIGNIN_JOURNEY_ID=st.user_govuk_signin_journey_id
+      ,COMPONENT_ID=st.COMPONENT_ID  
+      ,NOTIFICATION_TYPE=trim(st.NOTIFICATION_TYPE,'"')
+      ,MFA_TYPE=trim(st.MFA_TYPE,'"')
+      ,ACCOUNT_RECOVERY=trim(st.ACCOUNT_RECOVERY,'"')
+      ,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL=--JSON_SERIALIZE(st.FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
+                                                    trim(CASE when JSON_SERIALIZE(st.FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL) ='null'
+                                                        then NULL
+                                                    ELSE
+                                                        JSON_SERIALIZE(st.FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
+                                                    END ,'"')
+      ,CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL=--JSON_SERIALIZE(st.CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
+                                                trim(CASE when JSON_SERIALIZE(st.CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL) ='null'
+                                                        then NULL
+                                                    ELSE
+                                                        JSON_SERIALIZE(st.CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
+                                                    END ,'"')
+      ,ADDRESSES_ENTERED=trim(st.ADDRESSES_ENTERED,'"')
+      ,ACTIVITY_HISTORY_SCORE=--CAST(JSON_SERIALIZE(st.ACTIVITY_HISTORY_SCORE) AS INTEGER)
+                            CAST(case when trim(JSON_SERIALIZE(st.ACTIVITY_HISTORY_SCORE),'"') ~ '^[0-9]+$' then trim(JSON_SERIALIZE(st.ACTIVITY_HISTORY_SCORE),'"')
+                                  else null
+                                   end AS INTEGER)
+      ,IDENTITY_FRAUD_SCORE=--CAST(st.IDENTITY_FRAUD_SCORE AS INTEGER)
+                            CAST(case when trim(st.IDENTITY_FRAUD_SCORE,'"') ~ '^[0-9]+$' then trim(st.IDENTITY_FRAUD_SCORE,'"') 
+                                  else null
+                                   end AS INTEGER)
+      ,DECISION_SCORE=--CAST(st.DECISION_SCORE AS INTEGER)
+                        CAST(case when trim(st.DECISION_SCORE,'"') ~ '^[0-9]+$' then trim(st.DECISION_SCORE,'"')
+                                  else null
+                                   end AS INTEGER)
+      ,FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE=--st.FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE
+                                    CASE when st.FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE ='null'
+                                    then NULL
+                                    ELSE
+                                        st.FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE
+                                    END 
+      ,FAILED_CHECK_DETAILS_CHECK_METHOD=--JSON_SERIALIZE(st.FAILED_CHECK_DETAILS_CHECK_METHOD)
+                                    trim(CASE when JSON_SERIALIZE(st.FAILED_CHECK_DETAILS_CHECK_METHOD) ='null'
+                                    then NULL
+                                    ELSE
+                                        JSON_SERIALIZE(st.FAILED_CHECK_DETAILS_CHECK_METHOD) 
+                                    END ,'"')
+      ,CHECK_DETAILS_KBV_RESPONSE_MODE=--trim(st.CHECK_DETAILS_KBV_RESPONSE_MODEL ,'"')
+                                        trim(CASE when CHECK_DETAILS_KBV_RESPONSE_MODEL ='null'
+                                    then NULL
+                                    ELSE
+                                        CHECK_DETAILS_KBV_RESPONSE_MODEL
+                                    END ,'"') 
+      ,CHECK_DETAILS_KBV_QUALITY=--trim(st.CHECK_DETAILS_KBV_QUALITY,'"') 
+                                   trim(CASE when st.CHECK_DETAILS_KBV_QUALITY ='null'
+                                    then NULL
+                                    ELSE
+                                        st.CHECK_DETAILS_KBV_QUALITY
+                                    END ,'"') 
+      ,VERIFICATION_SCORE=--CAST(st.VERIFICATION_SCORE AS INTEGER)
+                          CAST(case when trim(st.VERIFICATION_SCORE,'"') ~ '^[0-9]+$' then trim(st.VERIFICATION_SCORE,'"') 
+                                        else null
+                                        end AS INTEGER)
+      ,CHECK_DETAILS_CHECK_METHOD=--JSON_SERIALIZE(st.CHECK_DETAILS_CHECK_METHOD)
+                                   trim(CASE when JSON_SERIALIZE(st.CHECK_DETAILS_CHECK_METHOD) ='null'
+                                    then NULL
+                                    ELSE
+                                        JSON_SERIALIZE(st.CHECK_DETAILS_CHECK_METHOD) 
+                                    END ,'"') 
       ,Iss=st.Iss
-      ,VALIDITY_SCORE=JSON_SERIALIZE(st.VALIDITY_SCORE)
-      ,STRENGTH_SCORE=JSON_SERIALIZE(st.STRENGTH_SCORE)
-      ,"TYPE"=JSON_SERIALIZE(st."TYPE")
+      ,VALIDITY_SCORE=--CAST(JSON_SERIALIZE(st.VALIDITY_SCORE) AS INTEGER)
+                        CAST(case when trim(JSON_SERIALIZE(st.VALIDITY_SCORE),'"') ~ '^[0-9]+$' then trim(JSON_SERIALIZE(st.VALIDITY_SCORE),'"')
+                                        else null
+                                        end AS INTEGER)
+      ,STRENGTH_SCORE=--CAST(JSON_SERIALIZE(st.STRENGTH_SCORE) AS INTEGER)
+                        CAST(case when trim(JSON_SERIALIZE(st.STRENGTH_SCORE),'"') ~ '^[0-9]+$' then trim(JSON_SERIALIZE(st.STRENGTH_SCORE),'"') 
+                                        else null
+                                        end AS INTEGER)
+      ,"TYPE"=--JSON_SERIALIZE(st."TYPE")
+                trim(CASE when JSON_SERIALIZE(st."TYPE") ='null'
+                            then NULL
+                            ELSE
+                                JSON_SERIALIZE(st."TYPE") 
+                            END,'"')  
       ,PROCESSED_DATE=st.PROCESSED_DATE
       ,MODIFIED_BY=current_user
       ,MODIFIED_DATE=CURRENT_DATE
@@ -223,11 +291,11 @@ BEGIN
     
     
     
-    INSERT INTO conformed.FACT_USER_JOURNEY_EVENT (EVENT_KEY,DATE_KEY,verification_route_key,journey_channel_key,relying_party_key,USER_ID,
-                            EVENT_ID,EVENT_TIME,JOURNEY_ID,COMPONENT_ID,EVENT_COUNT,
+ INSERT INTO conformed.FACT_USER_JOURNEY_EVENT (EVENT_KEY,DATE_KEY,verification_route_key,journey_channel_key,relying_party_key,USER_USER_ID,
+                            EVENT_ID,EVENT_TIME,USER_GOVUK_SIGNIN_JOURNEY_ID,COMPONENT_ID,EVENT_COUNT,
                             REJECTION_REASON,REASON,NOTIFICATION_TYPE,MFA_TYPE,ACCOUNT_RECOVERY,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,
                             CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,ADDRESSES_ENTERED,ACTIVITY_HISTORY_SCORE,IDENTITY_FRAUD_SCORE,DECISION_SCORE,
-                            FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODEL,CHECK_DETAILS_KBV_QUALITY,
+                            FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODE,CHECK_DETAILS_KBV_QUALITY,
                             VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,STRENGTH_SCORE,"TYPE", PROCESSED_DATE,
                             CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT NVL(DE.event_key,-1) AS event_key
@@ -235,35 +303,94 @@ BEGIN
           ,NVL(dvr.verification_route_key,-1) AS verification_route_key
           , NVL(djc.journey_channel_key,-1) AS journey_channel_key
           , NVL(drp.relying_party_key,-1) AS relying_party_key
-          ,user_user_id AS USER_ID
+          ,user_user_id AS USER_USER_ID
           ,event_id AS EVENT_ID
           --,cnf.event_name
           --,cnf.timestamp AS EVENT_TIME
           ,cnf.timestamp_formatted as EVENT_TIME
-          ,cnf.user_govuk_signin_journey_id AS JOURNEY_ID
+          ,cnf.user_govuk_signin_journey_id AS USER_GOVUK_SIGNIN_JOURNEY_ID
           ,cnf.component_id AS COMPONENT_ID
           ,EVENT_COUNT
-           ,REJECTION_REASON
-           ,REASON
-           ,NOTIFICATION_TYPE
-           ,MFA_TYPE,ACCOUNT_RECOVERY
-           ,JSON_SERIALIZE(FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
-           ,JSON_SERIALIZE(CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
-           ,ADDRESSES_ENTERED
-           ,JSON_SERIALIZE(ACTIVITY_HISTORY_SCORE)
-           ,IDENTITY_FRAUD_SCORE
-           ,DECISION_SCORE
-           ,FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE
-           ,JSON_SERIALIZE(FAILED_CHECK_DETAILS_CHECK_METHOD)
-           ,CHECK_DETAILS_KBV_RESPONSE_MODEL
-           ,CHECK_DETAILS_KBV_QUALITY
-           ,VERIFICATION_SCORE
-           ,JSON_SERIALIZE(CHECK_DETAILS_CHECK_METHOD)
+           ,trim(REJECTION_REASON,'"')
+           ,trim(REASON,'"')
+           ,trim(NOTIFICATION_TYPE,'"')
+           ,trim(MFA_TYPE,'"')
+           ,trim(ACCOUNT_RECOVERY,'"')
+           --,JSON_SERIALIZE(FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
+           ,trim(CASE when JSON_SERIALIZE(FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL) ='null'
+                            then NULL
+                            ELSE
+                                JSON_SERIALIZE(FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL) 
+                            END  ,'"')
+           --,JSON_SERIALIZE(CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
+           ,trim(CASE when JSON_SERIALIZE(CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL) ='null'
+                            then NULL
+                            ELSE
+                                JSON_SERIALIZE(CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL) 
+                            END  ,'"')
+           ,trim(ADDRESSES_ENTERED  ,'"')  
+           --, CAST(JSON_SERIALIZE(ACTIVITY_HISTORY_SCORE) AS INTEGER)
+           ,CAST(case when trim(JSON_SERIALIZE(ACTIVITY_HISTORY_SCORE),'"') ~ '^[0-9]+$' then trim(JSON_SERIALIZE(ACTIVITY_HISTORY_SCORE),'"') 
+            else null
+            end AS INTEGER)
+           --,0 IDENTITY_FRAUD_SCORE-- CAST(IDENTITY_FRAUD_SCORE AS INTEGER)
+           ,CAST(case when trim(IDENTITY_FRAUD_SCORE,'"') ~ '^[0-9]+$' then trim(IDENTITY_FRAUD_SCORE,'"') 
+            else null
+            end AS INTEGER)
+           --,0 DECISION_SCORE-- CAST(DECISION_SCORE  AS INTEGER)
+           ,CAST(case when trim(DECISION_SCORE,'"')   ~ '^[0-9]+$' then trim(DECISION_SCORE,'"') 
+            else null
+            end AS INTEGER)
+           --,FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE
+           ,trim(CASE when FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE ='null'
+                            then NULL
+                            ELSE
+                                FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE 
+                            END ,'"') 
+           --,JSON_SERIALIZE(FAILED_CHECK_DETAILS_CHECK_METHOD)
+           ,trim(CASE when JSON_SERIALIZE(FAILED_CHECK_DETAILS_CHECK_METHOD)  ='null'
+                                        then NULL
+                                        ELSE
+                                            JSON_SERIALIZE(FAILED_CHECK_DETAILS_CHECK_METHOD) 
+                                        END ,'"')
+           --,trim(CHECK_DETAILS_KBV_RESPONSE_MODEL ,'"') 
+           ,trim(CASE when CHECK_DETAILS_KBV_RESPONSE_MODEL  ='null'
+                                        then NULL
+                                        ELSE
+                                            CHECK_DETAILS_KBV_RESPONSE_MODEL 
+                                        END ,'"')
+           --,trim(CHECK_DETAILS_KBV_QUALITY ,'"') 
+           ,trim(CASE when CHECK_DETAILS_KBV_QUALITY  ='null'
+                                        then NULL
+                                        ELSE
+                                            CHECK_DETAILS_KBV_QUALITY 
+                                        END ,'"')
+           --,0 VERIFICATION_SCORE --CAST(VERIFICATION_SCORE  AS INTEGER)
+           ,CAST(case when VERIFICATION_SCORE ~ '^[0-9]+$' then VERIFICATION_SCORE
+            else null
+            end AS INTEGER)
+           --,JSON_SERIALIZE(CHECK_DETAILS_CHECK_METHOD)
+           ,trim(CASE when JSON_SERIALIZE(CHECK_DETAILS_CHECK_METHOD) ='null'
+                            then NULL
+                            ELSE
+                                JSON_SERIALIZE(CHECK_DETAILS_CHECK_METHOD) 
+                            END  ,'"')
            ,Iss
-           ,JSON_SERIALIZE(VALIDITY_SCORE)
-           ,JSON_SERIALIZE(STRENGTH_SCORE)
-           ,JSON_SERIALIZE("TYPE")
-        ,PROCESSED_DATE
+           --, CAST(JSON_SERIALIZE(VALIDITY_SCORE) AS INTEGER)
+           ,CAST(case when trim(JSON_SERIALIZE(VALIDITY_SCORE),'"') ~ '^[0-9]+$' then trim(JSON_SERIALIZE(VALIDITY_SCORE),'"') 
+            else null
+            end AS INTEGER)
+           --,0 STRENGTH_SCORE --CAST(JSON_SERIALIZE(STRENGTH_SCORE) AS INTEGER)
+           ,CAST(case when trim(JSON_SERIALIZE(STRENGTH_SCORE),'"') ~ '^[0-9]+$' then trim(JSON_SERIALIZE(STRENGTH_SCORE),'"') 
+            else null
+            end AS INTEGER)
+           --,JSON_SERIALIZE("TYPE")
+           ,trim(CASE when JSON_SERIALIZE("TYPE") ='null'
+                            then NULL
+                            ELSE
+                                JSON_SERIALIZE("TYPE") 
+                            END  ,'"')
+           ,PROCESSED_DATE
            ,current_user
            , CURRENT_DATE
            ,current_user
