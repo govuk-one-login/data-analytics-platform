@@ -260,28 +260,6 @@ IpvCriPassportCrawler:
       DeleteBehavior: DELETE_FROM_DATABASE
     Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
-IpvJourneyCrawler:
-  Type: AWS::Glue::Crawler
-  Properties:
-    Name: ipv_journey
-    Role: !GetAtt RawGlueCrawlerRole.Arn
-    Targets:
-      S3Targets:
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_IDENTITY_REUSE_COMPLETE/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_IDENTITY_REUSE_RESET/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_JOURNEY_END/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_JOURNEY_START/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_SPOT_RESPONSE_APPROVED/'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_SPOT_RESPONSE_REJECTED/'
-    DatabaseName: !Ref RawGlueDatabase
-    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
-    RecrawlPolicy:
-      RecrawlBehavior: CRAWL_EVERYTHING
-    SchemaChangePolicy:
-      UpdateBehavior: UPDATE_IN_DATABASE
-      DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
-
 IpvCriCicCrawler:
   Type: AWS::Glue::Crawler
   Properties:
@@ -635,6 +613,247 @@ IpvCriFtofCrawler:
             - !Ref FtofIpvCriVcConsumedGlueTable
             - !Ref FtofIpvCriVcReceivedGlueTable
             - !Ref FtofYotiResponseReceivedGlueTable
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: LOG
+      DeleteBehavior: LOG
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}'
+
+IpvIdentityIssuedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_identity_issued
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<configVersion:string>' }
+          - { Name: extensions, Type: 'struct<hasMitigations:boolean,levelOfConfidence:string,ciFail:boolean>' }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_IDENTITY_ISSUED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvIdentityReuseCompleteGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_identity_reuse_complete
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<obfuscated:boolean,config_version:string,configVersion:string>' }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_IDENTITY_REUSE_COMPLETE/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvIdentityReuseResetGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_identity_reuse_reset
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<obfuscated:boolean,config_version:string,configVersion:string>' }
+          - { Name: reingestcount, Type: int }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_IDENTITY_REUSE_RESET/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvJourneyEndGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_journey_end
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<obfuscated:boolean,config_version:string,configVersion:string>' }
+          - { Name: reingestcount, Type: int }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_JOURNEY_END/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvJourneyStartGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_journey_start
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<obfuscated:boolean,config_version:string,configVersion:string>' }
+          - { Name: reingestcount, Type: int }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_JOURNEY_START/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvSpotResponseApprovedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_spot_response_approved
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<obfuscated:boolean,config_version:string,configVersion:string>' }
+          - { Name: reingestcount, Type: int }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_SPOT_RESPONSE_APPROVED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvSpotResponseRejectedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_spot_response_rejected
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: client_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: txma, Type: 'struct<obfuscated:boolean,config_version:string,configVersion:string>' }
+          - { Name: extensions, Type: 'struct<rejectionReason:string,reason:string>' }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_SPOT_RESPONSE_REJECTED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvJourneyCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: ipv_journey
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      CatalogTargets:
+        - DatabaseName: !Ref RawGlueDatabase
+          Tables:
+            - !Ref IpvIdentityIssuedGlueTable
+            - !Ref IpvIdentityReuseCompleteGlueTable
+            - !Ref IpvIdentityReuseResetGlueTable
+            - !Ref IpvJourneyEndGlueTable
+            - !Ref IpvJourneyStartGlueTable
+            - !Ref IpvSpotResponseApprovedGlueTable
+            - !Ref IpvSpotResponseRejectedGlueTable
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
