@@ -5,7 +5,8 @@
   "client_id": "0bb3859f-70ed-4078-bea2-afc3c89e62e5",
   "extensions": {},
   "user": {
-    "user_id": "84375847587457846578c336a16aa43c7ce8b012a8d1eb9a916413b198"
+    "user_id": "84375847587457846578c336a16aa43c7ce8b012a8d1eb9a916413b198",
+    "govuk_signin_journey_id": "n1gOj9AszuLR2a7EcbHpHZgaddM"
   },
   "timestamp": 1695109450,
   "timestamp_formatted": "2023-09-19T07:44:10.000Z",

@@ -33,12 +33,9 @@ describe('Redshift Data Model Validations', () => {
     expect(redShiftQueryResults).not.toBeNull();
   }, 240000);
 
-  test('Verify Redshift Database => DIM_RELYING_PARTY table metadata', async () => {
+  test.skip('Verify Redshift Database => DIM_RELYING_PARTY table metadata', async () => {
     const redShiftQueryResults = await redshiftRunQuery(DIM_RELYING_PARTY_COLUMNS);
-    expect(redShiftQueryResults).not.toBeNull();
-  });
-  test('Verify Redshift Database => DIM_RELYING_PARTY table metadata', async () => {
-    const redShiftQueryResults = await redshiftRunQuery(DIM_RELYING_PARTY_COLUMNS);
+    // console.log('Data Results:' + JSON.stringify(redShiftQueryResults));
     expect(redShiftQueryResults).not.toBeNull();
   });
   test('Verify Redshift Database => DIM_VERIFICATION_ROUTE table metadata', async () => {

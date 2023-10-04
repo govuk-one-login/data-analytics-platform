@@ -3,9 +3,10 @@
   "component_id": "https://oidc.account.gov.uk/",
   "event_name": "AUTH_AUTHORISATION_REQUEST_ERROR",
   "extensions": {},
-  "timestamp": 1694760337,
-  "timestamp_formatted": "2023-09-15T06:45:37.000Z",
   "user": {
+    "user_id": "84375847587457846578c336a16aa43c7ce8b012a8d1eb9a916413b198",
     "govuk_signin_journey_id": "n1gOj9AszuLR2a7EcbHpHZgaddM"
-  }
+  },
+  "timestamp": 1694760337,
+  "timestamp_formatted": "2023-09-15T06:45:37.000Z"
 }
