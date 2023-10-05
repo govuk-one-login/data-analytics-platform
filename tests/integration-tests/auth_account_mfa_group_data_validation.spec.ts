@@ -31,25 +31,22 @@ describe('AUTH_CODE_VERIFIED GROUP Test - validate data at stage layer', () => {
           txmaProcessingWorkGroupName(),
         );
         // console.log('queryStage' + JSON.stringify(athenaQueryResultsStage));
-        if (data['mfa_type'] !== 'null' && data['mfa_type'] !== null && data['mfa_type'] !== undefined) {
+        //  eslint-disable-next-line rule-nam
+        if (data.mfa_type !== 'null' && data.mfa_type !== null && data.mfa_type !== undefined) {
           // console.log('Map--> "' + data['mfa_type']);
-          expect(`"${data['mfa_type']}"`).toEqual(athenaQueryResultsStage[0].extensions_mfatype);
+          expect(`"${data.mfa_type}"`).toEqual(athenaQueryResultsStage[0].extensions_mfatype);
+        }
+        if (data.account_recovery !== 'null' && data.account_recovery !== null && data.account_recovery !== undefined) {
+          expect(`"${data.account_recovery}"`).toEqual(athenaQueryResultsStage[0].extensions_accountrecovery);
         }
         if (
-          data['account-recovery'] !== 'null' &&
-          data['account-recovery'] !== null &&
-          data['account-recovery'] !== undefined
-        ) {
-          expect(`"${data['account-recovery']}"`).toEqual(athenaQueryResultsStage[0].extensions_accountrecovery);
-        }
-        if (
-          data['notification-type'] !== 'null' &&
-          data['notification-type'] !== null &&
-          data['notification-type'] !== undefined
+          data.notification_type !== 'null' &&
+          data.notification_type !== null &&
+          data.notification_type !== undefined
         ) {
           // console.log(athenaQueryResultsStage[0].extensions_mfatype);
           // console.log('Map--> ' + data['notification-type']);
-          expect(data['notification-type']).toEqual(athenaQueryResultsStage[0].extensions_notificationtype);
+          expect(`"${data.notification_type}"`).toEqual(athenaQueryResultsStage[0].extensions_notificationtype);
         }
       }
     },
