@@ -69,7 +69,9 @@ Conditions:
   IsFeature: !Equals [!Ref Environment, feature]
   IsDev: !Equals [!Ref Environment, dev]
   IsBuild: !Equals [!Ref Environment, build]
+  IsIntegration: !Equals [!Ref Environment, integration]
   IsStaging: !Equals [!Ref Environment, staging]
+  IsProduction: !Equals [!Ref Environment, production]
   UsePlaceholderTxMAQueue: !Or
     - !Condition IsTest
     - !Condition IsFeature
