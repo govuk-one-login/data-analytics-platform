@@ -9,7 +9,7 @@ describe('AUTH_CODE_VERIFIED GROUP Test - validate data at stage layer', () => {
     eventName                    | event_id               | client_id              | journey_id
     ${'AUTH_CODE_VERIFIED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
-    'Should validate $eventName event content stored on S3',
+    'Should validate $eventName event extensions  stored in raw and stage layer',
     async ({ ...data }) => {
       // given
       const query = `${AUTH_CODE_VERIFIED_DATA} and month = '${month(3)}' and year = '${year(
@@ -43,9 +43,9 @@ describe('AUTH_CODE_VERIFIED GROUP Test - validate data at stage layer', () => {
           expect(`"${data['account-recovery']}"`).toEqual(athenaQueryResultsStage[0].extensions_accountrecovery);
         }
         if (
-          data['account-recovery'] !== 'null' &&
-          data['account-recovery'] !== null &&
-          data['account-recovery'] !== undefined
+          data['notification-type'] !== 'null' &&
+          data['notification-type'] !== null &&
+          data['notification-type'] !== undefined
         ) {
           // console.log(athenaQueryResultsStage[0].extensions_mfatype);
           // console.log('Map--> ' + data['notification-type']);
