@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { getQueryResults } from '../helpers/db-helpers';
 import { AUTH_ACCOUNT_MFA_DATA, AUTH_CODE_VERIFIED_DATA } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
-import { extentionToMap, month, year } from '../helpers/common-helpers';
+import { extensionToMap, month, year } from '../helpers/common-helpers';
 
 describe('AUTH_CODE_VERIFIED GROUP Test - validate data at stage layer', () => {
   test.concurrent.each`
@@ -21,7 +21,7 @@ describe('AUTH_CODE_VERIFIED GROUP Test - validate data at stage layer', () => {
       for (let index = 0; index <= athenaQueryResults.length - 1; index++) {
         const eventId = athenaQueryResults[index].event_id;
         const stExtensions = athenaQueryResults[index].extensions;
-        const data = extentionToMap(stExtensions);
+        const data = extensionToMap(stExtensions);
         // console.log(data);
         const queryStage = `${AUTH_ACCOUNT_MFA_DATA} and event_id = '${eventId}'`;
         // console.log(queryStage);
