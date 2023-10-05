@@ -31,7 +31,6 @@ describe('AUTH_CODE_VERIFIED GROUP Test - validate data at stage layer', () => {
           txmaProcessingWorkGroupName(),
         );
         // console.log('queryStage' + JSON.stringify(athenaQueryResultsStage));
-        //  eslint-disable-next-line rule-nam
         if (data.mfa_type !== 'null' && data.mfa_type !== null && data.mfa_type !== undefined) {
           // console.log('Map--> "' + data['mfa_type']);
           expect(`"${data.mfa_type}"`).toEqual(athenaQueryResultsStage[0].extensions_mfatype);
