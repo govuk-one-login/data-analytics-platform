@@ -204,7 +204,7 @@ RedShiftEC2Policy:
           - PL-dap-production-deploy-DeployRole-068116bf8a2e
           - Ref: 'AWS::NoValue'
 
-MyIAMManagedPolicy:
+StateMachinePolicy:
   Type: 'AWS::IAM::ManagedPolicy'
   Properties:
     Description: 'My Managed Policy for Step Functions'
