@@ -7,6 +7,7 @@ export const deliveryStreamName = (): string => `${envName()}-dap-txma-delivery-
 export const rawdataS3BucketName = (): string => `${envName()}-dap-raw-layer`;
 
 export const txmaStageDatabaseName = (): string => `${envName()}-txma-stage`;
+export const txmaRawDatabaseName = (): string => `${envName()}-txma-raw`;
 
 export const txmaProcessingWorkGroupName = (): string => `${envName()}-dap-txma-processing`;
 
