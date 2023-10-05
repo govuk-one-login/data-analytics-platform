@@ -31,7 +31,7 @@ describe('AUTH_ORCHESTRATION GROUP Test - valid TXMA Event with extension to SQS
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const filePath = 'tests/fixtures/txma-event-group_with_empty_extensions.json';
+      const filePath = 'tests/fixtures/txma-event-group_with_user_empty_extensions.json';
       const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       setEventData(event, data);
       if (data.extensions === 'description') event.extensions.description = 'Request Missing';

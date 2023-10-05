@@ -10,7 +10,7 @@ describe('IPV_CRI_ADDRESS GROUP Test - valid TXMA F2F Event without extension to
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const filePath = 'tests/fixtures/txma-event-group_without_extensions.json';
+      const filePath = 'tests/fixtures/txma-event-group_with_user_empty_extensions.json';
       await preparePublishAndValidate(data, filePath);
     },
     240000,
