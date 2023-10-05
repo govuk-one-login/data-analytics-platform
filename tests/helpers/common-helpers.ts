@@ -109,22 +109,33 @@ export const TodayDate = (): string => {
   const formattedDate = year + month + day;
   return formattedDate;
 };
-
-// ***********************  yesterdayDate in YYYYMMDD format ***********************
-export const yesterdayDate = (): string => {
+export const day = (param: number): string => {
   const date = new Date();
-  date.setDate(date.getDate() - 1);
-
+  date.setDate(date.getDate() - param);
+  // Get year, month, and day part from the date
+  const day = date.toLocaleString('default', { day: '2-digit' });
+  return day;
+};
+export const month = (param: number): string => {
+  const date = new Date();
+  date.setDate(date.getDate() - param);
+  // Get year, month, and day part from the date
+  const month = date.toLocaleString('default', { month: '2-digit' });
+  return month;
+};
+export const year = (param: number): string => {
+  const date = new Date();
+  date.setDate(date.getDate() - param);
   // Get year, month, and day part from the date
   const year = date.toLocaleString('default', { year: 'numeric' });
-  const month = date.toLocaleString('default', { month: '2-digit' });
-  const day = date.toLocaleString('default', { day: '2-digit' });
-
-  // Generate yyyy-mm-dd date string
-  const formattedDate = year + month + day;
-  return formattedDate;
+  return year;
 };
-
+export function extensionToMap(value): Record<string, string> {
+  const transclude = 'account-recovery={account_recovery}, mfa-type={mfa_type}, notification-type={notification_type}';
+  const transRE = new RegExp(transclude.replace(/\{(.*?)\}/g, '(?<$1>.*)'));
+  const val = value.replace('{', '').replace('}', '');
+  return val.match(transRE).groups;
+}
 export const productFamily = (eventName: string): string => {
   let productFamilyName = '';
   if (eventName === 'AUTH_CREATE_ACCOUNT' || eventName === 'AUTH_CHECK_USER_NO_ACCOUNT_WITH_EMAIL') {

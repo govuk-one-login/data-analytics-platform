@@ -79,3 +79,9 @@ export const FACT_TABLE_EVENT_PROCESSED_TODAY =
   '    *\n' +
   'FROM\n' +
   '    "dap_txma_reporting_db"."conformed"."fact_user_journey_event" where processed_date=';
+
+export const AUTH_CODE_VERIFIED_DATA =
+  'SELECT event_id,extensions,day FROM auth_code_verified where extensions is not null';
+
+export const AUTH_ACCOUNT_MFA_DATA =
+  "SELECT event_id, extensions_notificationtype,extensions_mfatype, extensions_accountrecovery FROM auth_account_mfa where event_name='AUTH_CODE_VERIFIED'";
