@@ -607,3 +607,41 @@ VPCEndpointEC2Messages:
       - !Ref SubnetForDAP1
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
+
+AWSSupportReadOnlyRole:
+  Type: 'AWS::IAM::Role'
+  Properties:
+    RoleName: 'AWS-Support-ReadOnly'
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: 'Allow'
+          Principal:
+            Service:
+              - 'support.amazonaws.com'
+          Action:
+            - 'sts:AssumeRole'
+    Path: '/'
+    Policies:
+      - PolicyName: 'ReadOnlyAccess'
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Action: 
+                - 'athena:List*'
+                - 'athena:Describe*'
+                - 'states:List*'
+                - 'states:Describe*'
+                - 'redshift:Describe*'
+                - 'ec2:Describe*'
+                - 'vpc:Describe*'
+                - 'iam:List*'
+                - 'iam:Get*'
+                - 'events:Describe*'
+                - 'events:List*'
+                - 'lambda:List*'
+                - 'lambda:Get*'
+              Resource: '*'
+
+
