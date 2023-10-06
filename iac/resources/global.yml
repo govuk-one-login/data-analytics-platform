@@ -735,6 +735,60 @@ CloudTrailCloudWatchLogsRole:
                 - 'logs:PutLogEvents'
               Resource: '*'
 
+IAMChangeLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: !Sub /aws/dap-IAM-changes-log-group
+    KmsKeyId: !GetAtt KmsKey.Arn
+    RetentionInDays: 30
+
+CloudTrailForIAMChanges:
+  Type: 'AWS::CloudTrail::Trail'
+  Properties:
+    S3BucketName: !Ref TrailBucket
+    IncludeGlobalServiceEvents: true
+    IsLogging: true
+    TrailName: IAMPolicyChangeTrail
+    CloudWatchLogsLogGroupArn: !GetAtt IAMChangeLogGroup.Arn
+    CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
+
+IAMChangeMetricFilter:
+  Type: 'AWS::Logs::MetricFilter'
+  Properties:
+    LogGroupName: !Ref IAMChangeLogGroup
+    FilterPattern: '{ ($.eventName = "CreatePolicy") || ($.eventName = "DeletePolicy") || ($.eventName = "AttachRolePolicy") || ($.eventName = "DetachRolePolicy") || ($.eventName = "AttachUserPolicy") || ($.eventName = "DetachUserPolicy") || ($.eventName = "AttachGroupPolicy") || ($.eventName = "DetachGroupPolicy") || ($.eventName = "UpdateAssumeRolePolicy") || ($.eventName = "PutRolePolicy") || ($.eventName = "PutUserPolicy") || ($.eventName = "PutGroupPolicy") }'
+    MetricTransformations:
+      - MetricValue: "1"
+        MetricNamespace: "IAMPolicyMetrics"
+        MetricName: "IAMPolicyChangeCount"
+
+IAMChangeAlarm:
+  Type: 'AWS::CloudWatch::Alarm'
+  Properties:
+    AlarmName: IAMPolicyChangeAlarm
+    MetricName: IAMPolicyChangeCount
+    Namespace: IAMPolicyMetrics
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref IAMChangeAlertSNSTopic
+
+IAMChangeAlertSNSTopic:
+  Type: 'AWS::SNS::Topic'
+  Properties:
+    DisplayName: "IAM Policy Change Alert"
+    TopicName: "IAMPolicyChangeAlert"
+
+IAMChangeAlertSNSTopicSubscription:
+  Type: 'AWS::SNS::Subscription'
+  Properties:
+    Protocol: "email"
+    Endpoint: "alan.whiteley@digital.cabinet-office.gov.uk"  
+    TopicArn: !Ref IAMChangeAlertSNSTopic
+
 UnauthorizedApiCallSNSTopic:
   Type: 'AWS::SNS::Topic'
   Properties:
@@ -747,6 +801,8 @@ UnauthorizedApiCallSNSTopicSubscription:
     Protocol: "email"
 Endpoint: "alan.whiteley@digital.cabinet-office.gov.uk"  
     TopicArn: !Ref UnauthorizedApiCallSNSTopic
+
+
               
 
 
