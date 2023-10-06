@@ -10,8 +10,11 @@ import fs from 'fs';
 // todo this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
 describe('AUTH_ORCHESTRATION GROUP Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
   test.concurrent.each`
-    eventName                    | event_id               | client_id              | journey_id
-    ${'AUTH_AUTHORISATION_INITIATED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    eventName                            |    event_id            |    client_id           | journey_id
+    ${'AUTH_AUTHORISATION_INITIATED'}    | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'AUTH_AUTHORISATION_REQUEST_ERROR'}| ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'AUTH_AUTHORISATION_REQUEST_RECEIVED'}| ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'AUTH_IPV_AUTHORISATION_REQUESTED'}| ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {

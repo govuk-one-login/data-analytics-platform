@@ -8,6 +8,8 @@
   },
   "extensions": {
     "previous_govuk_signin_journey_id": "Li7276r749i4De-_INrPD6Q",
+    "iss": "https://review-o.account.gov.uk",
+    "successful": true,
     "evidence": [
       {
         "checkDetails": [
@@ -26,6 +28,13 @@
         "type": "IdentityCheck",
         "validityScore": 2,
         "verificationScore": 3
+      }
+    ]
+  },
+  "restricted": {
+    "passport": [
+      {
+        "documentType": "PASSPORT"
       }
     ]
   },

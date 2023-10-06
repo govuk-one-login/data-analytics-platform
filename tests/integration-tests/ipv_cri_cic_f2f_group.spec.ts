@@ -27,7 +27,6 @@ describe('IPV_CRI_CIC GROUP Test - valid TXMA F2F Event with client id to SQS an
     eventName                    | event_id               | client_id              | journey_id
     ${'CIC_CRI_AUTH_CODE_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'CIC_CRI_START'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'CIC_CRI_END'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {

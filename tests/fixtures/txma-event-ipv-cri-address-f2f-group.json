@@ -1,14 +1,14 @@
 {
   "event_id": "39bd765f-1a31-45c0-9a78-835686e1cbec",
   "event_name": "AUTH_AUTHORISATION_INITIATED",
-  "client_id": "03A5A659-17AA-453F-B905-95D2804823D1",
+  "client_id": "0bb3859f-70ed-4078-bea2-afc3c89e62e5",
   "component_id": "https://www.review-b.staging.account.gov.uk",
-  "extensions": {
-    "isNewAccount": "EXISTING"
-  },
   "user": {
-    "govuk_signin_journey_id": "63dba1a7-253c-4698-a228-0e3844ddf0f6",
+    "govuk_signin_journey_id": "63dba1a227-253c-4698-a228-0e3844ddf0f6",
     "user_id": "integration-tests"
+  },
+  "extensions": {
+    "client-name": "di-auth-stub-relying-party-staging-app"
   },
   "timestamp": 1684847567,
   "timestamp_formatted": "2023-05-23T13:12:47.000Z",

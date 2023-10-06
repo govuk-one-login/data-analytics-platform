@@ -7,6 +7,9 @@ describe('IPV_CRI_FRAUD GROUP Test - valid TXMA Event to SQS and expect event id
     eventName                        | event_id               | client_id              | journey_id
     ${'IPV_FRAUD_CRI_START'}         | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'IPV_FRAUD_CRI_VC_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_FRAUD_CRI_REQUEST_SENT'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_FRAUD_CRI_RESPONSE_RECEIVED'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
