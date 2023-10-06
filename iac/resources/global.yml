@@ -644,4 +644,109 @@ AWSSupportReadOnlyRole:
                 - 'lambda:Get*'
               Resource: '*'
 
+TrailBucket:
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub '${Environment}-dap-cloud-trail'
+    LoggingConfiguration:
+      DestinationBucketName: !Ref GlobalLogBucket
+      LogFilePrefix: cloudtrail/trail
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 365
+          Status: Enabled
+    NotificationConfiguration:
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+        - Event: s3:ObjectRemoved:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+
+CloudTrail:
+  Type: 'AWS::CloudTrail::Trail'
+  Properties:
+    S3BucketName: !Ref TrailBucket
+    IncludeGlobalServiceEvents: true
+    IsLogging: true
+    IsMultiRegionTrail: false
+    TrailName: UnauthorizedAPICallTrail
+    EventSelectors:
+      - ReadWriteType: 'All'
+    CloudWatchLogsLogGroupArn: !GetAtt UnauthorizedApiCallLogGroup.Arn
+    CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
+
+UnauthorizedApiCallLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: !Sub /aws/dap-cloud-trail-log-group
+    KmsKeyId: !GetAtt KmsKey.Arn
+    RetentionInDays: 30
+  
+UnauthorizedApiCallMetricFilter:
+  Type: 'AWS::Logs::MetricFilter'
+  Properties:
+    LogGroupName: !Ref UnauthorizedApiCallLogGroup
+    FilterPattern: '{($.errorCode = "AccessDenied") || ($.errorCode = "UnauthorizedOperation")}'
+    MetricTransformations:
+      - MetricValue: "1"
+        MetricNamespace: "CloudTrailMetrics"
+        MetricName: "UnauthorizedAPICallCount"
+
+UnauthorizedApiCallAlarm:
+  Type: 'AWS::CloudWatch::Alarm'
+  Properties:
+    AlarmName: UnauthorizedAPICallAlarm
+    MetricName: UnauthorizedAPICallCount
+    Namespace: CloudTrailMetrics
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref UnauthorizedApiCallSNSTopic
+
+CloudTrailCloudWatchLogsRole:
+  Type: 'AWS::IAM::Role'
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: 'Allow'
+          Principal:
+            Service: 'cloudtrail.amazonaws.com'
+          Action: 'sts:AssumeRole'
+    Policies:
+      - PolicyName: CloudTrailToCloudWatchLogsPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Action:
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+
+UnauthorizedApiCallSNSTopic:
+  Type: 'AWS::SNS::Topic'
+  Properties:
+    DisplayName: "Unauthorized API Call Alert"
+    TopicName: "UnauthorizedApiCallAlert"
+
+UnauthorizedApiCallSNSTopicSubscription:
+  Type: 'AWS::SNS::Subscription'
+  Properties:
+    Protocol: "email"
+Endpoint: "alan.whiteley@digital.cabinet-office.gov.uk"  
+    TopicArn: !Ref UnauthorizedApiCallSNSTopic
+              
+
 
