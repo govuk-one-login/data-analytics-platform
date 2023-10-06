@@ -12,6 +12,7 @@ describe('AUTH_ACCOUNT_USER_LOGIN GROUP Test - valid TXMA Event to SQS and expec
     eventName                            | event_id               | client_id              | journey_id
     ${'AUTH_CHECK_USER_KNOWN_EMAIL'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'AUTH_LOG_IN_SUCCESS'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'AUTH_AUTH_CODE_ISSUED'}             | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
