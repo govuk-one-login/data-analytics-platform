@@ -670,7 +670,7 @@ TrailBucket:
         - Event: s3:ObjectRemoved:*
           Function: !GetAtt S3NotificationsLoggerLambda.Arn
 
-CloudTrail:
+CloudTrailForUnauthorizedAPIChanges:
   Type: 'AWS::CloudTrail::Trail'
   Properties:
     S3BucketName: !Ref TrailBucket
@@ -682,6 +682,7 @@ CloudTrail:
       - ReadWriteType: 'All'
     CloudWatchLogsLogGroupArn: !GetAtt UnauthorizedApiCallLogGroup.Arn
     CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
+    EnableLogFileValidation: true    
 
 UnauthorizedApiCallLogGroup:
   Type: AWS::Logs::LogGroup
@@ -751,6 +752,7 @@ CloudTrailForIAMChanges:
     TrailName: IAMPolicyChangeTrail
     CloudWatchLogsLogGroupArn: !GetAtt IAMChangeLogGroup.Arn
     CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
+    EnableLogFileValidation: true    
 
 IAMChangeMetricFilter:
   Type: 'AWS::Logs::MetricFilter'
