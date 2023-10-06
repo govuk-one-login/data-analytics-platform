@@ -628,7 +628,7 @@ AWSSupportReadOnlyRole:
           Version: '2012-10-17'
           Statement:
             - Effect: 'Allow'
-              Action: 
+              Action:
                 - 'athena:List*'
                 - 'athena:Describe*'
                 - 'states:List*'
@@ -689,16 +689,16 @@ UnauthorizedApiCallLogGroup:
     LogGroupName: !Sub /aws/dap-cloud-trail-log-group
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
-  
+
 UnauthorizedApiCallMetricFilter:
   Type: 'AWS::Logs::MetricFilter'
   Properties:
     LogGroupName: !Ref UnauthorizedApiCallLogGroup
     FilterPattern: '{($.errorCode = "AccessDenied") || ($.errorCode = "UnauthorizedOperation")}'
     MetricTransformations:
-      - MetricValue: "1"
-        MetricNamespace: "CloudTrailMetrics"
-        MetricName: "UnauthorizedAPICallCount"
+      - MetricValue: '1'
+        MetricNamespace: 'CloudTrailMetrics'
+        MetricName: 'UnauthorizedAPICallCount'
 
 UnauthorizedApiCallAlarm:
   Type: 'AWS::CloudWatch::Alarm'
@@ -758,9 +758,9 @@ IAMChangeMetricFilter:
     LogGroupName: !Ref IAMChangeLogGroup
     FilterPattern: '{ ($.eventName = "CreatePolicy") || ($.eventName = "DeletePolicy") || ($.eventName = "AttachRolePolicy") || ($.eventName = "DetachRolePolicy") || ($.eventName = "AttachUserPolicy") || ($.eventName = "DetachUserPolicy") || ($.eventName = "AttachGroupPolicy") || ($.eventName = "DetachGroupPolicy") || ($.eventName = "UpdateAssumeRolePolicy") || ($.eventName = "PutRolePolicy") || ($.eventName = "PutUserPolicy") || ($.eventName = "PutGroupPolicy") }'
     MetricTransformations:
-      - MetricValue: "1"
-        MetricNamespace: "IAMPolicyMetrics"
-        MetricName: "IAMPolicyChangeCount"
+      - MetricValue: '1'
+        MetricNamespace: 'IAMPolicyMetrics'
+        MetricName: 'IAMPolicyChangeCount'
 
 IAMChangeAlarm:
   Type: 'AWS::CloudWatch::Alarm'
@@ -779,30 +779,25 @@ IAMChangeAlarm:
 IAMChangeAlertSNSTopic:
   Type: 'AWS::SNS::Topic'
   Properties:
-    DisplayName: "IAM Policy Change Alert"
-    TopicName: "IAMPolicyChangeAlert"
+    DisplayName: 'IAM Policy Change Alert'
+    TopicName: 'IAMPolicyChangeAlert'
 
 IAMChangeAlertSNSTopicSubscription:
   Type: 'AWS::SNS::Subscription'
   Properties:
-    Protocol: "email"
-    Endpoint: "alan.whiteley@digital.cabinet-office.gov.uk"  
+    Protocol: 'email'
+    Endpoint: 'alan.whiteley@digital.cabinet-office.gov.uk'
     TopicArn: !Ref IAMChangeAlertSNSTopic
 
 UnauthorizedApiCallSNSTopic:
   Type: 'AWS::SNS::Topic'
   Properties:
-    DisplayName: "Unauthorized API Call Alert"
-    TopicName: "UnauthorizedApiCallAlert"
+    DisplayName: 'Unauthorized API Call Alert'
+    TopicName: 'UnauthorizedApiCallAlert'
 
 UnauthorizedApiCallSNSTopicSubscription:
   Type: 'AWS::SNS::Subscription'
   Properties:
-    Protocol: "email"
-Endpoint: "alan.whiteley@digital.cabinet-office.gov.uk"  
+    Protocol: 'email'
+    Endpoint: 'alan.whiteley@digital.cabinet-office.gov.uk'
     TopicArn: !Ref UnauthorizedApiCallSNSTopic
-
-
-              
-
-
