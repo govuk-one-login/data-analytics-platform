@@ -49,10 +49,10 @@
     },
     {
         "product_family": "ipv_cri_cic",
-        "enabled": false
+        "enabled": true
     },
     {
-        "product_family": "ipv_cri_ftof",
-        "enabled": false
+        "product_family": "ipv_cri_f2f",
+        "enabled": true
     }
 ]

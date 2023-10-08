@@ -38,33 +38,34 @@ BEGIN
     ('IPV_PASSPORT_CRI_START','IPV_CRI_PASSPORT','IPV','Passport CRI',' '),
     ('IPV_PASSPORT_CRI_VC_ISSUED','IPV_CRI_PASSPORT','IPV','Passport CRI',' '),
     ('IPV_SPOT_RESPONSE_APPROVED','IPV_JOURNEY','IPV','IPV Journey','SPOT'),
-    ('IPV_SPOT_RESPONSE_REJECTED','IPV_JOURNEY','IPV','IPV Journey','SPOT');
+    ('IPV_SPOT_RESPONSE_REJECTED','IPV_JOURNEY','IPV','IPV Journey','SPOT'),
+    ('AUTH_AUTH_CODE_ISSUED','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login','SPOT'),
+    ('AUTH_AUTHORISATION_REQUEST_ERROR','AUTH_ORCHESTRATION','Authentication','User Login',' '),
+    ('AUTH_AUTHORISATION_REQUEST_RECEIVED','AUTH_ORCHESTRATION','Authentication','Relying Parties Connect',' '),
+    ('AUTH_IPV_AUTHORISATION_REQUESTED','AUTH_ORCHESTRATION','Authentication','Relying Parties Connect',' '),
+    ('IPV_ADDRESS_CRI_END','IPV_CRI_ADDRESS','IPV','Address CRI',' '),
+    ('IPV_ADDRESS_CRI_REQUEST_SENT','IPV_CRI_ADDRESS','IPV','Address CRI',' '),
+    ('IPV_FRAUD_CRI_REQUEST_SENT','IPV_CRI_FRAUD','IPV','Fraud CRI',' '),
+    ('IPV_FRAUD_CRI_RESPONSE_RECEIVED','IPV_CRI_FRAUD','IPV','Fraud CRI',' '),
+    ('IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED','IPV_CRI_FRAUD','IPV','Fraud CRI',' '),
+    ('CIC_CRI_AUTH_CODE_ISSUED','IPV_CRI_CIC','IPV','CIC CRI',' '),
+    ('CIC_CRI_START','IPV_CRI_CIC','IPV','CIC CRI',' '),
+    ('CIC_CRI_VC_ISSUED','IPV_CRI_CIC','IPV','CIC CRI',' '),
+    ('F2F_CRI_AUTH_CODE_ISSUED','IPV_CRI_F2F','IPV','F2F CRI',' '),
+    ('F2F_CRI_START','IPV_CRI_F2F','IPV','F2F CRI',' '),
+    ('F2F_CRI_VC_ISSUED','IPV_CRI_F2F','IPV','F2F CRI',' '),
+    ('F2F_YOTI_PDF_EMAILED','IPV_CRI_F2F','IPV','F2F CRI',' '),
+    ('F2F_YOTI_START','IPV_CRI_F2F','IPV','F2F CRI',' '),
+    ('IPR_RESULT_NOTIFICATION_EMAILED','IPV_CRI_F2F','IPV','F2F CRI',' '),
+    ('IPR_USER_REDIRECTED','IPV_CRI_F2F','IPV','F2F CRI',' '),
+    ('IPV_F2F_CRI_VC_CONSUMED','IPV_CRI_F2F','IPV','F2F CRI',' '),
+    ('IPV_F2F_CRI_VC_RECEIVED','IPV_CRI_F2F','IPV','F2F CRI',' '),
+    ('F2F_YOTI_RESPONSE_RECEIVED','IPV_CRI_F2F','IPV','F2F CRI',' ');
 
 
     --
     TRUNCATE conformed.ref_relying_parties;
     --
-    /*INSERT INTO conformed.REF_RELYING_PARTIES(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME) 
-    VALUES
-    ('LcueBVCnGZw-YFdTZ4S07XbQx7I','GOV.UK','auth','GOV'),
-    ('ZL0kvRBP5xMy5OwONj8ARLPyuko','lite-exporter','auth'),
-    ('TGygWFxGDNn8ItyaecWCopqIX3s','Subject matter specialists Ofqual','auth','OFQUAL'),
-    ('pDqO7_Hu-pq5wam5I4MlURXrv5k','Modern Slavery Statement Register','auth','MSU'),
-    ('x3F_Iu0LgqJpegY5ni0QSB0uezw','Apprenticeship Service','auth','Apprenticeship-Service'),
-    ('zbNToJPcre4BXEap0na8kOjniKg','Manage family and support services','auth'),
-    ('RqFZ83csmS4Mi4Y7s7ohD9-ekwU','basic DBS check','auth+id','DBS'),
-    ('LUIZbIuJ_xVZxwhkNAApcO4O_6o','Social Work England','auth+id','SWE'),
-    ('VsAkrtMBzAosSveAv4xsuUDyiSs','Sign your mortgage deed','auth+id','HMLR'),
-    ('XwwVDyl5oJKtK0DVsuw3sICWkPU','Vehicle Operator Licence','auth+id','DVSA'),
-    ('zFeCxrwpLCUHFm-C4_CztwWtLfQ','Apply for a HM Armed Forces Veteran Card','auth+id','Veterans'),
-    ('OdwbXmA5NLlYmMGHy3kjKFVD3PQ','Identity Proving and Verification Return (IPV Return) - Production','F2F email','IPV'),
-    ('7y-bchtHDfucVR5kcAe8KaM80wg','gov_gateway','app only','HMRC'),
-    ('eTsLzrBkyI50bZOF6HlGvGEYKNYTTVWc','GOV.UK_Sign_In_Account_Management (old)','One Login'),
-    ('KcKmx2g1GH6ersWFvzMi1bhehq4','production-account-management','One Login'),
-    ('cAcut5r3PMtoDORZr5b9JT7VPw6VuF3Q','di-auth-stub-relying-party-production-app','ignore'),
-    ('Y6YaRZ9bjCwS6HxaB34zvRhZJgBQyryT','di-auth-stub-relying-party-production','ignore'),
-    ('MjQc1h7nFVbNM05iawAdkkZ2W89uloDK','di-auth-smoketest-microclient-production','ignore');*/
-
 
 INSERT INTO conformed.REF_RELYING_PARTIES(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME) 
     VALUES
