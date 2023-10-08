@@ -65,6 +65,11 @@ copy the contents of the file: redshift-scripts/setup_process/alter_fact_user_jo
 click [Run] button to run the ALTER statements
 
 
+copy the contents of the file: redshift-scripts/setup_process/batchControl_insert.sql
+-- paste into the redshift query editor
+
+click [Run] button to run the INSERT statements
+
 
 /*
 5. Date dim table population
