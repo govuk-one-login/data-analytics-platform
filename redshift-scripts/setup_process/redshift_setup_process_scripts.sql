@@ -139,6 +139,12 @@ copy the contents of the file: redshift-scripts/setup_process/batchControl_inser
 click [Run] button to run the INSERT statements
 
 
+copy the contents of the file: redshift-scripts/setup_process/ref_events.sql
+-- paste into the redshift query editor
+
+click [Run] button to run the INSERT statements
+
+
 copy the contents of the file: redshift-scripts/setup_process/sp_conformed_stage_view_data_objects_beyond_mvp.sql
 -- paste into the redshift query editor
 
