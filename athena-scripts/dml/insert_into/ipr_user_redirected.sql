@@ -17,9 +17,9 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	case format('%s',cast("extensions"."previous_govuk_signin_journey_id" as JSON)) 
+	case format('%s',cast("extensions"."previous_govuk_signin_journey_id" as VARCHAR)) 
 		when 'null' then null
-	    else format('%s',cast("extensions"."previous_govuk_signin_journey_id" as JSON))	
+	    else format('%s',cast("extensions"."previous_govuk_signin_journey_id" as VARCHAR))	
 	end as extensions_previousgovuksigninjourneyid,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,

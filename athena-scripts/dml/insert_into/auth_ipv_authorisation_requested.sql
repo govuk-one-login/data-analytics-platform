@@ -21,9 +21,9 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	case format('%s',cast("extensions"."clientLandingPageUrl" as JSON))  
+	case format('%s',cast("extensions"."clientLandingPageUrl" as VARCHAR))  
 		when 'null' then null
-	    else format('%s',cast("extensions"."clientLandingPageUrl" as JSON))
+	    else format('%s',cast("extensions"."clientLandingPageUrl" as VARCHAR))
 	end as extensions_clientlandingpageurl,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,

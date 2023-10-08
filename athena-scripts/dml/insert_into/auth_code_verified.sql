@@ -27,13 +27,13 @@ SELECT
 		when 'null' then null
 	    else format('%s',cast("extensions"."account-recovery" as JSON)) 
 	end as extensions_accountrecovery,
-	case format('%s',cast("extensions"."mfa-type" as JSON))
+	case format('%s',cast("extensions"."mfa-type" as VARCHAR))
 		when 'null' then null
-	    else format('%s',cast("extensions"."mfa-type" as JSON))
+	    else format('%s',cast("extensions"."mfa-type" as VARCHAR))
 	end as extensions_mfatype,
-	case format('%s',cast("extensions"."notification-type" as JSON))
+	case format('%s',cast("extensions"."notification-type" as VARCHAR))
 		when 'null' then null
-	    else format('%s',cast("extensions"."notification-type" as JSON)) 
+	    else format('%s',cast("extensions"."notification-type" as VARCHAR)) 
 	end as extensions_notificationtype,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,

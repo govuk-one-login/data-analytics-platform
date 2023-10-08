@@ -30,9 +30,9 @@ SELECT
 		when 'null' then null
 	    else format('%s',cast("extensions"."evidence" as JSON))	
 	end as extensions_evidence,
-	case format('%s',cast("extensions"."previous_govuk_signin_journey_id" as JSON))
+	case format('%s',cast("extensions"."previous_govuk_signin_journey_id" as VARCHAR))
 		when 'null' then null
-	    else format('%s',cast("extensions"."previous_govuk_signin_journey_id" as JSON))
+	    else format('%s',cast("extensions"."previous_govuk_signin_journey_id" as VARCHAR))
 	end as extensions_previousgovuksigninjourneyid,
 	case format('%s',cast("restricted"."passport" as JSON))
 		when 'null' then null
