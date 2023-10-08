@@ -169,16 +169,6 @@ copy the contents of the files:
 
 for each click [Run] button to create the stored procedure: 
 
--- run the following cmds once confirmed SPs has been created
-
-CALL dap_txma_reporting_db.conformed.sp_auth_orchestration_beyond_mvp ()
-CALL dap_txma_reporting_db.conformed.sp_auth_account_user_login_beyond_mvp ()
-CALL dap_txma_reporting_db.conformed.sp_ipv_cri_address_beyond_mvp ()
-CALL dap_txma_reporting_db.conformed.sp_ipv_fraud_beyond_mvp ()
-
-
--- activities to always be undertaken last
--- db privilege assignment
 
 /*
 Database object privileges to group
@@ -236,3 +226,19 @@ ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_kbv_11 OW
 ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_passport_12 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
 ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_cic_13 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
 ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_f2f_14 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
+
+-- run the following cmds once confirmed SPs has been created
+
+CALL dap_txma_reporting_db.conformed.sp_auth_orchestration_beyond_mvp ()
+CALL dap_txma_reporting_db.conformed.sp_auth_account_user_login_beyond_mvp ()
+CALL dap_txma_reporting_db.conformed.sp_ipv_cri_address_beyond_mvp ()
+CALL dap_txma_reporting_db.conformed.sp_ipv_fraud_beyond_mvp ()
+
+
+-- drop temp beyon mvp procedures
+
+copy the contents of the files:
+
+-- redshift-scripts/setup_process/drop_temp_procedure_after_release.sql
+
+click [Run] button to run the DROP statements
