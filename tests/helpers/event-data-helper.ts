@@ -20,12 +20,12 @@ export function setEventDataWithoutEventName(event, data: Pick<object, string | 
   event.timestamp = Math.round(pastDate.getTime() / 1000);
   event.timestamp_formatted = JSON.stringify(pastDate);
 }
-export function setExtensions(dataExtension, event) {
-  let listExtension = dataExtension.split(',');
+export function setExtensions(dataExtension, event): void {
+  const listExtension = dataExtension.split(',');
   for (let index = 0; index <= listExtension.length - 1; index++) {
     if (listExtension[index] === 'ciFail') event.extensions.ciFail = 'true';
     if (listExtension[index] === 'hasMitigations') event.extensions.hasMitigations = 'false';
-    if (listExtension[index] === 'levelOfConfidence') event.extensions['levelOfConfidence'] = 'P1';
+    if (listExtension[index] === 'levelOfConfidence') event.extensions.levelOfConfidence= 'P1';
   }
 }
 export function setEventDataWithoutUser(event, data: Pick<object, string | number | symbol>): void {
