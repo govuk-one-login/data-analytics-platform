@@ -74,7 +74,7 @@ describe('IPV_CRI_CIC GROUP Test - valid TXMA F2F Event without user details to 
         const filePath = 'tests/fixtures/txma-event-group_with_empty_extensions.json';
         const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
         setEventData(event, data);
-        event.extensions['levelOfConfidence'] = 'P0';
+        event.extensions.levelOfConfidence = 'P0';
         // console.log('Event Data' + JSON.stringify(listExtension));
         setExtensions(data.extensions, event);
         // console.log('Event Data' + JSON.stringify(event));
