@@ -147,10 +147,19 @@ export const productFamily = (eventName: string): string => {
   if (eventName === 'AUTH_CODE_VERIFIED') {
     productFamilyName = 'AUTH_ACCOUNT_MFA';
   }
-  if (eventName === 'AUTH_LOG_IN_SUCCESS' || eventName === 'AUTH_CHECK_USER_KNOWN_EMAIL') {
+  if (
+    eventName === 'AUTH_LOG_IN_SUCCESS' ||
+    eventName === 'AUTH_CHECK_USER_KNOWN_EMAIL' ||
+    eventName === 'AUTH_AUTH_CODE_ISSUED'
+  ) {
     productFamilyName = 'AUTH_ACCOUNT_USER_LOGIN';
   }
-  if (eventName === 'AUTH_AUTHORISATION_INITIATED') {
+  if (
+    eventName === 'AUTH_AUTHORISATION_INITIATED' ||
+    eventName === 'AUTH_AUTHORISATION_REQUEST_ERROR' ||
+    eventName === 'AUTH_AUTHORISATION_REQUEST_RECEIVED' ||
+    eventName === 'AUTH_IPV_AUTHORISATION_REQUESTED'
+  ) {
     productFamilyName = 'AUTH_ORCHESTRATION';
   }
   if (
@@ -166,13 +175,24 @@ export const productFamily = (eventName: string): string => {
   ) {
     productFamilyName = 'DCMAW_CRI';
   }
-  if (eventName === 'IPV_ADDRESS_CRI_START' || eventName === 'IPV_ADDRESS_CRI_VC_ISSUED') {
+  if (
+    eventName === 'IPV_ADDRESS_CRI_START' ||
+    eventName === 'IPV_ADDRESS_CRI_VC_ISSUED' ||
+    eventName === 'IPV_ADDRESS_CRI_END' ||
+    eventName === 'IPV_ADDRESS_CRI_REQUEST_SENT'
+  ) {
     productFamilyName = 'IPV_CRI_ADDRESS';
   }
   if (eventName === 'IPV_DL_CRI_VC_ISSUED' || eventName === 'IPV_DL_CRI_START') {
     productFamilyName = 'IPV_CRI_DRIVING_LICENSE';
   }
-  if (eventName === 'IPV_FRAUD_CRI_START' || eventName === 'IPV_FRAUD_CRI_VC_ISSUED') {
+  if (
+    eventName === 'IPV_FRAUD_CRI_START' ||
+    eventName === 'IPV_FRAUD_CRI_VC_ISSUED' ||
+    eventName === 'IPV_FRAUD_CRI_REQUEST_SENT' ||
+    eventName === 'IPV_FRAUD_CRI_RESPONSE_RECEIVED' ||
+    eventName === 'IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED'
+  ) {
     productFamilyName = 'IPV_CRI_FRAUD';
   }
   if (
@@ -191,7 +211,23 @@ export const productFamily = (eventName: string): string => {
   if (eventName === 'IPV_PASSPORT_CRI_VC_ISSUED' || eventName === 'IPV_PASSPORT_CRI_START') {
     productFamilyName = 'IPV_CRI_PASSPORT';
   }
-
+  if (eventName === 'CIC_CRI_AUTH_CODE_ISSUED' || eventName === 'CIC_CRI_START' || eventName === 'CIC_CRI_VC_ISSUED') {
+    productFamilyName = 'IPV_CRI_CIC';
+  }
+  if (
+    eventName === 'F2F_CRI_AUTH_CODE_ISSUED' ||
+    eventName === 'F2F_CRI_START' ||
+    eventName === 'F2F_CRI_VC_ISSUED' ||
+    eventName === 'F2F_YOTI_PDF_EMAILED' ||
+    eventName === 'F2F_YOTI_START' ||
+    eventName === 'IPR_RESULT_NOTIFICATION_EMAILED' ||
+    eventName === 'IPR_USER_REDIRECTED' ||
+    eventName === 'IPV_F2F_CRI_VC_CONSUMED' ||
+    eventName === 'IPV_F2F_CRI_VC_RECEIVED' ||
+    eventName === 'F2F_YOTI_RESPONSE_RECEIVED'
+  ) {
+    productFamilyName = 'IPV_CRI_FtoF';
+  }
   return productFamilyName;
 };
 

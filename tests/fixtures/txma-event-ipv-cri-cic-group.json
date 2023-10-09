@@ -4,10 +4,13 @@
   "client_id": "0bb3859f-70ed-4078-bea2-afc3c89e62e5",
   "component_id": "https://review-o.account.gov.uk",
   "user": {
-    "user_id": "7d9c8hghgr4rt47vgh43c7ce8b012a8d1eb9a916413b198"
+    "govuk_signin_journey_id": "unknown",
+    "user_id": "7d9c876uygrbjhge65a7c336a16aa43c7ce8b012a8d1eb9a916413b198"
   },
   "extensions": {
     "previous_govuk_signin_journey_id": "Li7276r749i4De-_INrPD6Q",
+    "iss": "https://review-o.account.gov.uk",
+    "successful": true,
     "evidence": [
       {
         "checkDetails": [
@@ -22,10 +25,24 @@
             "photoVerificationProcessLevel": null
           }
         ],
+        "failedCheckDetails": [
+          {
+            "biometricVerificationProcessLevel": 3,
+            "checkMethod": "method 2"
+          }
+        ],
         "strengthScore": 3,
         "type": "IdentityCheck",
         "validityScore": 2,
-        "verificationScore": 3
+        "verificationScore": 3,
+        "activityHistoryScore": 1
+      }
+    ]
+  },
+  "restricted": {
+    "passport": [
+      {
+        "documentType": "PASSPORT"
       }
     ]
   },

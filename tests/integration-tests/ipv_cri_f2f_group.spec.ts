@@ -7,7 +7,6 @@ describe('IPV_CRI_F2F GROUP Test - valid TXMA Event with client id to SQS and ex
     eventName                    | event_id               | client_id              | journey_id
     ${'F2F_CRI_AUTH_CODE_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'F2F_CRI_START'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'F2F_YOTI_END'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'F2F_YOTI_PDF_EMAILED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     ${'F2F_YOTI_START'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
@@ -71,7 +70,7 @@ describe('IPV_CRI_F2F GROUP Test - valid TXMA Event F2F_CRI_VC_ISSUED to SQS and
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const filePath = 'tests/fixtures/txma-event-group_f2f_cri.json';
+      const filePath = 'tests/fixtures/txma-event-ipv-cri-ftof-group.json';
       const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       setEventData(event, data);
       event.client_id = faker.string.uuid();
@@ -110,6 +109,33 @@ describe('IPV_CRI_F2F GROUP Test - valid TXMA F2F Event without user details to 
       const filePath = 'tests/fixtures/txma-event-group_without_extensions_user.json';
       const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       setEventDataWithoutUser(event, data);
+      event.client_id = faker.string.uuid();
+      // when
+      await publishAndValidate(event);
+    },
+    240000,
+  );
+});
+describe('IPV_CRI_F2F GROUP Test - valid TXMA Event with extensions to SQS and expect event id stored in S3', () => {
+  test.concurrent.each`
+    eventName                    | event_id               | client_id              | journey_id
+    ${'F2F_CRI_AUTH_CODE_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'F2F_CRI_START'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'F2F_CRI_VC_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'F2F_YOTI_PDF_EMAILED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'F2F_YOTI_START'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPR_RESULT_NOTIFICATION_EMAILED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPR_USER_REDIRECTED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_F2F_CRI_VC_CONSUMED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_F2F_CRI_VC_RECEIVED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'F2F_YOTI_RESPONSE_RECEIVED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    `(
+    'Should validate $eventName event content stored on S3',
+    async ({ ...data }) => {
+      // given
+      const filePath = 'tests/fixtures/txma-event-ipv-cri-ftof-group.json';
+      const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      setEventData(event, data);
       event.client_id = faker.string.uuid();
       // when
       await publishAndValidate(event);

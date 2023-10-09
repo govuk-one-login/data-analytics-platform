@@ -4,7 +4,9 @@
   "client_id": "kvISvY2jahls9esQq8WNrvo1ovpoFzdI",
   "component_id": "https://oidc.staging.account.gov.uk/",
   "extensions": {
-    "client-name": "di-auth-stub-relying-party-staging-app"
+    "client-name": "di-auth-stub-relying-party-staging-app",
+    "clientLandingPageUrl": "http://www.apply-basic-criminal-record-check.service.gov.uk/",
+    "description": "Request is missing nonce parameter"
   },
   "user": {
     "govuk_signin_journey_id": "hnBm9BUvq3fxD7GfyHNW17XJ_UE",
