@@ -670,19 +670,42 @@ TrailBucket:
         - Event: s3:ObjectRemoved:*
           Function: !GetAtt S3NotificationsLoggerLambda.Arn
 
+TrailBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref TrailBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${TrailBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+          Resource: !Sub ${TrailBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root          
+
 CloudTrailForUnauthorizedAPIChanges:
   Type: 'AWS::CloudTrail::Trail'
   Properties:
     S3BucketName: !Ref TrailBucket
     IncludeGlobalServiceEvents: true
     IsLogging: true
-    IsMultiRegionTrail: false
+    IsMultiRegionTrail: true
     TrailName: UnauthorizedAPICallTrail
     EventSelectors:
       - ReadWriteType: 'All'
     CloudWatchLogsLogGroupArn: !GetAtt UnauthorizedApiCallLogGroup.Arn
     CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
     EnableLogFileValidation: true    
+    KmsKeyId: !GetAtt KmsKey.Arn
 
 UnauthorizedApiCallLogGroup:
   Type: AWS::Logs::LogGroup
@@ -749,10 +772,12 @@ CloudTrailForIAMChanges:
     S3BucketName: !Ref TrailBucket
     IncludeGlobalServiceEvents: true
     IsLogging: true
+    IsMultiRegionTrail: true
     TrailName: IAMPolicyChangeTrail
     CloudWatchLogsLogGroupArn: !GetAtt IAMChangeLogGroup.Arn
     CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
     EnableLogFileValidation: true    
+    KmsKeyId: !GetAtt KmsKey.Arn
 
 IAMChangeMetricFilter:
   Type: 'AWS::Logs::MetricFilter'
@@ -783,6 +808,7 @@ IAMChangeAlertSNSTopic:
   Properties:
     DisplayName: 'IAM Policy Change Alert'
     TopicName: 'IAMPolicyChangeAlert'
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 IAMChangeAlertSNSTopicSubscription:
   Type: 'AWS::SNS::Subscription'
@@ -803,3 +829,4 @@ UnauthorizedApiCallSNSTopicSubscription:
     Protocol: 'email'
     Endpoint: 'alan.whiteley@digital.cabinet-office.gov.uk'
     TopicArn: !Ref UnauthorizedApiCallSNSTopic
+    KmsMasterKeyId: !GetAtt KmsKey.Arn    
