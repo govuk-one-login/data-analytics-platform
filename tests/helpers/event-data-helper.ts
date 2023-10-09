@@ -25,7 +25,7 @@ export function setExtensions(dataExtension, event): void {
   for (let index = 0; index <= listExtension.length - 1; index++) {
     if (listExtension[index] === 'ciFail') event.extensions.ciFail = 'true';
     if (listExtension[index] === 'hasMitigations') event.extensions.hasMitigations = 'false';
-    if (listExtension[index] === 'levelOfConfidence') event.extensions.levelOfConfidence= 'P1';
+    if (listExtension[index] === 'levelOfConfidence') event.extensions.levelOfConfidence = 'P1';
   }
 }
 export function setEventDataWithoutUser(event, data: Pick<object, string | number | symbol>): void {
