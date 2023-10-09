@@ -56,7 +56,7 @@ DeployRoleExtraIAMActions:
             - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Environment}*'
             - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/${Environment}*'
             - !Sub 'arn:aws:iam::${AWS::AccountId}:role/dap*'
-            - !Sub 'arn:aws:iam::${AWS::AccountId}:role/AWS*'            
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:role/AWS*'
             - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/dap*'
             - !Sub 'arn:aws:iam::${AWS::AccountId}:instance-profile/${Environment}*'
             - !Sub 'arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole'
