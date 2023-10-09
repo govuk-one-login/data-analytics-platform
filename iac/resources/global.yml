@@ -645,22 +645,6 @@ AWSSupportReadOnlyRole:
                 - 'lambda:Get*'
               Resource: '*'
 
-KmsCloudTrailKey:
-  Type: 'AWS::KMS::Key'
-  Properties:
-    Description: 'Multi-region KMS Key for CloudTrail'
-    KeyPolicy:
-      Version: '2012-10-17'
-      Id: 'key-default-1'
-      Statement:
-        - Sid: 'Enable IAM User Permissions'
-          Effect: 'Allow'
-          Principal:
-            AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
-          Action: 'kms:*'
-          Resource: '*'
-    MultiRegion: true
-
 TrailBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
@@ -716,6 +700,7 @@ CloudTrailForUnauthorizedAPIChanges:
     IncludeGlobalServiceEvents: true
     IsLogging: true
     IsMultiRegionTrail: true
+    KMSKeyId: !Sub alias/${Environment}-dap-key    
     TrailName: UnauthorizedAPICallTrail
     EventSelectors:
       - ReadWriteType: 'All'
@@ -789,6 +774,7 @@ CloudTrailForIAMChanges:
     IncludeGlobalServiceEvents: true
     IsLogging: true
     IsMultiRegionTrail: true
+    KMSKeyId: !Sub alias/${Environment}-dap-key
     TrailName: IAMPolicyChangeTrail
     CloudWatchLogsLogGroupArn: !GetAtt IAMChangeLogGroup.Arn
     CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
