@@ -682,7 +682,7 @@ TrailBucketPolicy:
           Action: 's3:*'
           Resource:
             - !Sub ${TrailBucket.Arn}
-            - !Sub ${TrailBucket.Arn}/*]
+            - !Sub ${TrailBucket.Arn}/*
           Principal: '*'
           Condition:
             Bool:
@@ -693,7 +693,7 @@ TrailBucketPolicy:
             - 's3:PutObject'
           Resource:
             - !Sub ${TrailBucket.Arn}
-            - !Sub ${TrailBucket.Arn}/*]
+            - !Sub ${TrailBucket.Arn}/*
           Principal:
             AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
