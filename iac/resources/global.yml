@@ -300,6 +300,7 @@ KmsKey:
           Principal:
             Service:
               - cloudwatch.amazonaws.com
+              - cloudtrail.amazonaws.com
               - lambda.amazonaws.com
               - s3.amazonaws.com
               - sns.amazonaws.com
@@ -699,13 +700,14 @@ CloudTrailForUnauthorizedAPIChanges:
     IncludeGlobalServiceEvents: true
     IsLogging: true
     IsMultiRegionTrail: true
+    # KmsKeyId: !GetAtt KmsKey.Arn    
     TrailName: UnauthorizedAPICallTrail
     EventSelectors:
       - ReadWriteType: 'All'
     CloudWatchLogsLogGroupArn: !GetAtt UnauthorizedApiCallLogGroup.Arn
     CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
     EnableLogFileValidation: true    
-    KmsKeyId: !GetAtt KmsKey.Arn
+
 
 UnauthorizedApiCallLogGroup:
   Type: AWS::Logs::LogGroup
@@ -773,11 +775,11 @@ CloudTrailForIAMChanges:
     IncludeGlobalServiceEvents: true
     IsLogging: true
     IsMultiRegionTrail: true
+    # KmsKeyId: !Ref KmsKey  
     TrailName: IAMPolicyChangeTrail
     CloudWatchLogsLogGroupArn: !GetAtt IAMChangeLogGroup.Arn
     CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
     EnableLogFileValidation: true    
-    KmsKeyId: !GetAtt KmsKey.Arn
 
 IAMChangeMetricFilter:
   Type: 'AWS::Logs::MetricFilter'
@@ -822,6 +824,8 @@ UnauthorizedApiCallSNSTopic:
   Properties:
     DisplayName: 'Unauthorized API Call Alert'
     TopicName: 'UnauthorizedApiCallAlert'
+    KmsMasterKeyId: !GetAtt KmsKey.Arn    
+
 
 UnauthorizedApiCallSNSTopicSubscription:
   Type: 'AWS::SNS::Subscription'
@@ -829,4 +833,4 @@ UnauthorizedApiCallSNSTopicSubscription:
     Protocol: 'email'
     Endpoint: 'alan.whiteley@digital.cabinet-office.gov.uk'
     TopicArn: !Ref UnauthorizedApiCallSNSTopic
-    KmsMasterKeyId: !GetAtt KmsKey.Arn    
+
