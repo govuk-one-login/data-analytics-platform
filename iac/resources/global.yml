@@ -700,7 +700,7 @@ CloudTrailForUnauthorizedAPIChanges:
     IncludeGlobalServiceEvents: true
     IsLogging: true
     IsMultiRegionTrail: true
-    KMSKeyId: !Sub alias/${Environment}-dap-key    
+    KMSKeyId: !Sub alias/${Environment}-dap-key
     TrailName: UnauthorizedAPICallTrail
     EventSelectors:
       - ReadWriteType: 'All'
