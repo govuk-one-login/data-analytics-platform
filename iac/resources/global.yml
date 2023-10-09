@@ -680,7 +680,9 @@ TrailBucketPolicy:
       Statement:
         - Effect: Deny
           Action: 's3:*'
-          Resource: !Sub ${TrailBucket.Arn}/*
+          Resource:
+            - !Sub ${TrailBucket.Arn}
+            - !Sub ${TrailBucket.Arn}/*]
           Principal: '*'
           Condition:
             Bool:
@@ -689,7 +691,9 @@ TrailBucketPolicy:
           Action:
             - 's3:GetObject'
             - 's3:PutObject'
-          Resource: !Sub ${TrailBucket.Arn}/*
+          Resource:
+            - !Sub ${TrailBucket.Arn}
+            - !Sub ${TrailBucket.Arn}/*]
           Principal:
             AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
