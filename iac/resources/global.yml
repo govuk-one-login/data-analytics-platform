@@ -716,7 +716,6 @@ CloudTrailForUnauthorizedAPIChanges:
     IncludeGlobalServiceEvents: true
     IsLogging: true
     IsMultiRegionTrail: true
-    KmsKeyId: !Ref KmsCloudTrailKey
     TrailName: UnauthorizedAPICallTrail
     EventSelectors:
       - ReadWriteType: 'All'
@@ -790,7 +789,6 @@ CloudTrailForIAMChanges:
     IncludeGlobalServiceEvents: true
     IsLogging: true
     IsMultiRegionTrail: true
-    KmsKeyId: !Ref KmsCloudTrailKey
     TrailName: IAMPolicyChangeTrail
     CloudWatchLogsLogGroupArn: !GetAtt IAMChangeLogGroup.Arn
     CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
