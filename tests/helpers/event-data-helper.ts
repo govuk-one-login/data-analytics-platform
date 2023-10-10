@@ -6,8 +6,8 @@ import { getErrorFilePrefix, getEventFilePrefix } from './common-helpers';
 
 export function setEventData(event, data: Pick<object, string | number | symbol>): void {
   event.event_id = data.event_id;
-  event.client_id = data.client_id;
-  event.user.govuk_signin_journey_id = data.journey_id;
+  event.client_id = faker.string.uuid();
+  event.user.govuk_signin_journey_id = faker.string.uuid();
   event.event_name = data.eventName;
   const pastDate = faker.date.past();
   event.timestamp = Math.round(pastDate.getTime() / 1000);
@@ -19,6 +19,14 @@ export function setEventDataWithoutEventName(event, data: Pick<object, string | 
   const pastDate = faker.date.past();
   event.timestamp = Math.round(pastDate.getTime() / 1000);
   event.timestamp_formatted = JSON.stringify(pastDate);
+}
+export function setExtensions(dataExtension, event): void {
+  const listExtension = dataExtension.split(',');
+  for (let index = 0; index <= listExtension.length - 1; index++) {
+    if (listExtension[index] === 'ciFail') event.extensions.ciFail = 'true';
+    if (listExtension[index] === 'hasMitigations') event.extensions.hasMitigations = 'false';
+    if (listExtension[index] === 'levelOfConfidence') event.extensions.levelOfConfidence = 'P1';
+  }
 }
 export function setEventDataWithoutUser(event, data: Pick<object, string | number | symbol>): void {
   event.event_id = data.event_id;
