@@ -717,6 +717,15 @@ TrailBucketPolicy:
           Action:
             - s3:GetBucketAcl
           Resource: !Sub '${TrailBucket.Arn}'
+        - Sid: 'AllowSSLRequestsOnly'
+          Effect: Deny
+          Action: 's3:*'
+          Resource:
+            - !Sub '${TrailBucket.Arn}/*'
+          Principal: '*'
+          Condition:
+            Bool:
+              'aws:SecureTransport': 'false'
 
 CloudTrailForUnauthorizedAPIChanges:
   Type: 'AWS::CloudTrail::Trail'
