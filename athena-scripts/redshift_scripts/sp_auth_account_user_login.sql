@@ -194,7 +194,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
 
 
 
-    UPDATE "dap_txma_reporting_db"."conformed"."fact_user_journey_event"
+    UPDATE  "conformed"."fact_user_journey_event"
     SET
       REJECTION_REASON=trim(st.REJECTION_REASON,'"')
       ,REASON=trim(st.REASON,'"')
@@ -274,6 +274,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                         ELSE
                                             st."TYPE"
                                         END,'"')
+      ,IS_NEW_ACCOUNT=st.is_new_account                                         
       ,PROCESSED_DATE=st.PROCESSED_DATE
       ,MODIFIED_BY=current_user
       ,MODIFIED_DATE=CURRENT_DATE
@@ -282,7 +283,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
       FROM conformed.v_stg_auth_account_user_login
       WHERE EVENT_ID IN (
         SELECT EVENT_ID
-        FROM "dap_txma_reporting_db"."conformed"."fact_user_journey_event"
+        FROM "conformed"."fact_user_journey_event"
     ) )AS st
     WHERE fact_user_journey_event.EVENT_ID = st.EVENT_ID;
 
@@ -292,7 +293,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                             REJECTION_REASON,REASON,NOTIFICATION_TYPE,MFA_TYPE,ACCOUNT_RECOVERY,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,
                             CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,ADDRESSES_ENTERED,ACTIVITY_HISTORY_SCORE,IDENTITY_FRAUD_SCORE,DECISION_SCORE,
                             FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODE,CHECK_DETAILS_KBV_QUALITY,
-                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE", PROCESSED_DATE,
+                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE", IS_NEW_ACCOUNT,PROCESSED_DATE,
                             CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT NVL(DE.event_key,-1) AS event_key
           ,dd.date_key
@@ -382,6 +383,11 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                         ELSE
                                             "TYPE"
                                         END,'"')
+        ,trim(CASE when IS_NEW_ACCOUNT='null'
+                                        then NULL
+                                        ELSE
+                                            IS_NEW_ACCOUNT
+                                        END,'"')                                            
         ,PROCESSED_DATE
            ,current_user
            , CURRENT_DATE
@@ -401,8 +407,8 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
             WHEN cnf.EVENT_NAME LIKE '%DCMAW%' THEN 'App'
             ELSE 'General'
         END) = djc.channel_name
-    LEFT JOIN conformed.dim_relying_party drp ON
-    cnf.CLIENT_ID = drp.CLIENT_ID
+    LEFT JOIN conformed.dim_relying_party drp 
+    ON NVL(cnf.CLIENT_ID,'-1') = NVL(drp.CLIENT_ID,'-1')
     LEFT JOIN conformed.dim_verification_route dvr
          ON  cnf.sub_domain = dvr.verification_route_name;
 
