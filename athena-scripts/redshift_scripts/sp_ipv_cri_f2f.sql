@@ -445,7 +445,7 @@ LEFT JOIN conformed.dim_verification_route dvr
                         ROW_NUMBER() OVER (PARTITION BY event_id, timestamp_formatted ORDER BY timestamp_formatted) AS row_num,
                         *
                     FROM
-                        "dap_txma_reporting_db"."dap_txma_stage"."ipv_cri_ftof" 
+                        "dap_txma_reporting_db"."dap_txma_stage"."ipv_cri_f2f" 
                         --where event_id='5c94f844-f05d-4c32-87fe-e3b6b265223f'
                 ) auth
             JOIN "dap_txma_reporting_db"."conformed"."batchcontrol" batc ON auth.Product_family = batc.product_family
