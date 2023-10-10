@@ -281,6 +281,7 @@ CloudTrailPolicy:
             - 'cloudtrail:UpdateTrail'
             - 'cloudtrail:CreateTrail'
             - 'cloudtrail:RemoveTags'
+            - 'cloudtrail:StartLogging'
           Resource: !Sub 'arn:aws:cloudtrail:eu-west-2:${AWS::AccountId}:trail/*'
     Roles:
       - Fn::If:
