@@ -708,8 +708,8 @@ TrailBucketPolicy:
             - s3:PutObject
           Resource: !Sub '${TrailBucket.Arn}/*'
           Condition:
-            StringEquals:
-              s3:x-amz-acl: bucket-owner-full-control
+            Bool:
+              aws:SecureTransport: true
         - Sid: AllowCloudTrailBucketRead
           Effect: Allow
           Principal:
