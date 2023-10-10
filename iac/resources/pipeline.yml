@@ -310,5 +310,4 @@ CloudTrailPolicy:
       - Fn::If:
           - IsProduction
           - PL-dap-production-deploy-DeployRole-068116bf8a2e
-          - Ref: 'AWS::NoValue'          
-
+          - Ref: 'AWS::NoValue'
