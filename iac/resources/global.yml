@@ -671,28 +671,6 @@ TrailBucket:
         - Event: s3:ObjectRemoved:*
           Function: !GetAtt S3NotificationsLoggerLambda.Arn
 
-# TrailBucketPolicy:
-#   Type: AWS::S3::BucketPolicy
-#   Properties:
-#     Bucket: !Ref TrailBucket
-#     PolicyDocument:
-#       Version: 2012-10-17
-#       Statement:
-#         - Effect: Deny
-#           Action: 's3:*'
-#           Resource: !Sub '${TrailBucket.Arn}/*'
-#           Principal: '*'
-#           Condition:
-#             Bool:
-#               aws:SecureTransport: false
-#         - Effect: Allow
-#           Action:
-#             - 's3:GetObject'
-#             - 's3:PutObject'
-#           Resource: !Sub '${TrailBucket.Arn}/*'
-#           Principal:
-#             AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-
 TrailBucketPolicy:
   Type: AWS::S3::BucketPolicy
   Properties:
@@ -851,7 +829,7 @@ IAMChangeAlertSNSTopicSubscription:
   Type: 'AWS::SNS::Subscription'
   Properties:
     Protocol: 'email'
-    Endpoint: 'alan.whiteley@digital.cabinet-office.gov.uk'
+    Endpoint: 'dap-notifications@digital.cabinet-office.gov.uk'
     TopicArn: !Ref IAMChangeAlertSNSTopic
 
 UnauthorizedApiCallSNSTopic:
@@ -865,5 +843,5 @@ UnauthorizedApiCallSNSTopicSubscription:
   Type: 'AWS::SNS::Subscription'
   Properties:
     Protocol: 'email'
-    Endpoint: 'alan.whiteley@digital.cabinet-office.gov.uk'
+    Endpoint: 'dap-notifications@digital.cabinet-office.gov.uk'
     TopicArn: !Ref UnauthorizedApiCallSNSTopic

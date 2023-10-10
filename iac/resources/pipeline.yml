@@ -265,3 +265,50 @@ StateMachinePolicy:
           - IsProduction
           - PL-dap-production-deploy-DeployRole-068116bf8a2e
           - Ref: 'AWS::NoValue'
+
+CloudTrailPolicy:
+  Type: 'AWS::IAM::ManagedPolicy'
+  Properties:
+    Description: 'Managed policy for CloudTrail operations'
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: 'VisualEditor0'
+          Effect: 'Allow'
+          Action:
+            - 'cloudtrail:AddTags'
+            - 'cloudtrail:DeleteTrail'
+            - 'cloudtrail:UpdateTrail'
+            - 'cloudtrail:CreateTrail'
+            - 'cloudtrail:RemoveTags'
+          Resource: !Sub 'arn:aws:cloudtrail:eu-west-2:${AWS::AccountId}:trail/*'
+    Roles:
+      - Fn::If:
+          - IsFeature
+          - PL-dap-feature-deploy-DeployRole-0abf029fc6b0
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsDev
+          - PL-secure-pipelines-pipeline-DeployRole-0ac4f1a0d400
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsTest
+          - PL-dap-test-deploy-DeployRole-022c55851b0a
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsBuild
+          - PL-dap-build-deploy-DeployRole-02569a5d3e58
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsIntegration
+          - PL-dap-integration-deploy-DeployRole-023e422e7530
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsStaging
+          - PL-dap-staging-deploy-DeployRole-02e7fac29d94
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsProduction
+          - PL-dap-production-deploy-DeployRole-068116bf8a2e
+          - Ref: 'AWS::NoValue'          
+
