@@ -1,4 +1,4 @@
-INSERT INTO "environment-txma-stage"."ipv_cri_ftof" (
+INSERT INTO "environment-txma-stage"."ipv_cri_f2f" (
 	event_id,
 	client_id,
 	component_id,
