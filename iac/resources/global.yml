@@ -827,6 +827,7 @@ IAMChangeAlertSNSTopic:
 
 IAMChangeAlertSNSTopicSubscription:
   Type: 'AWS::SNS::Subscription'
+  Condition: IsProduction
   Properties:
     Protocol: 'email'
     Endpoint: 'dap-notifications@digital.cabinet-office.gov.uk'
