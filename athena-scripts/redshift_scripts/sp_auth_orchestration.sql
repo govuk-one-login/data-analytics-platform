@@ -421,7 +421,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
             ELSE 'General'
         END) = djc.channel_name
     LEFT JOIN conformed.dim_relying_party drp 
-    ON NVL(cnf.CLIENT_ID,'-1') = NVL(drp.CLIENT_ID,'-1')
+    ON cnf.CLIENT_ID = drp.CLIENT_ID
     LEFT JOIN conformed.dim_verification_route dvr 
          ON  cnf.sub_domain = dvr.verification_route_name;
 
