@@ -89,6 +89,7 @@ RedshiftAccessEC2SecurityGroup:
   Type: 'AWS::EC2::SecurityGroup'
   Properties:
     GroupDescription: 'Security Group for Redshift Access EC2'
+    VpcId: !Ref VPCForDAP
     SecurityGroupEgress:
       - IpProtocol: -1
         FromPort: -1

@@ -577,7 +577,7 @@ VpcEndpointSecurityGroup:
   Type: 'AWS::EC2::SecurityGroup'
   Properties:
     GroupDescription: 'Security Group for VPC Endpoints'
-    VpcId: !Ref YourVPCId # Replace 'YourVPCId' with the ID of your VPC or a reference to it
+    VpcId: !Ref VPCForDAP # Replace 'YourVPCId' with the ID of your VPC or a reference to it
     SecurityGroupIngress:
       - CidrIp: 10.0.0.0/16
         IpProtocol: tcp
