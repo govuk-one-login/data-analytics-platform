@@ -573,6 +573,22 @@ VPCEndpointStepFunctions:
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
 
+VpcEndpointSecurityGroup:
+  Type: 'AWS::EC2::SecurityGroup'
+  Properties:
+    GroupDescription: 'Security Group for VPC Endpoints'
+    VpcId: !Ref VPCForDAP
+    SecurityGroupIngress:
+      - Description: 'Ingress rule allowing TCP traffic on port 443 from the specified CIDR block'
+        CidrIp: 10.0.0.0/16
+        IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+    SecurityGroupEgress:
+      - Description: 'Egress rule allowing all outbound traffic'
+        CidrIp: '0.0.0.0/0'
+        IpProtocol: -1
+
 VPCEndpointSSM:
   Type: AWS::EC2::VPCEndpoint
   Properties:
@@ -584,6 +600,8 @@ VPCEndpointSSM:
       - !Ref SubnetForDAP1
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
+    SecurityGroupIds:
+      - !Ref VpcEndpointSecurityGroup
 
 VPCEndpointSSMMessages:
   Type: AWS::EC2::VPCEndpoint
@@ -596,6 +614,8 @@ VPCEndpointSSMMessages:
       - !Ref SubnetForDAP1
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
+    SecurityGroupIds:
+      - !Ref VpcEndpointSecurityGroup
 
 VPCEndpointEC2Messages:
   Type: AWS::EC2::VPCEndpoint
@@ -608,6 +628,8 @@ VPCEndpointEC2Messages:
       - !Ref SubnetForDAP1
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
+    SecurityGroupIds:
+      - !Ref VpcEndpointSecurityGroup
 
 AWSSupportReadOnlyRole:
   Type: 'AWS::IAM::Role'
