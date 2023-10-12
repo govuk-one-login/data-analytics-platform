@@ -579,12 +579,14 @@ VpcEndpointSecurityGroup:
     GroupDescription: 'Security Group for VPC Endpoints'
     VpcId: !Ref VPCForDAP
     SecurityGroupIngress:
-      - CidrIp: 10.0.0.0/16
+      - Description: 'Ingress rule allowing TCP traffic on port 443 from the specified CIDR block'
+        CidrIp: 10.0.0.0/16
         IpProtocol: tcp
         FromPort: 443
         ToPort: 443
     SecurityGroupEgress:
-      - CidrIp: '0.0.0.0/0'
+      - Description: 'Egress rule allowing all outbound traffic'
+        CidrIp: '0.0.0.0/0'
         IpProtocol: -1
 
 VPCEndpointSSM:
