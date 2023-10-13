@@ -224,9 +224,10 @@ export const productFamily = (eventName: string): string => {
     eventName === 'IPR_USER_REDIRECTED' ||
     eventName === 'IPV_F2F_CRI_VC_CONSUMED' ||
     eventName === 'IPV_F2F_CRI_VC_RECEIVED' ||
-    eventName === 'F2F_YOTI_RESPONSE_RECEIVED'
+    eventName === 'F2F_YOTI_RESPONSE_RECEIVED' ||
+    eventName === 'IPV_IDENTITY_ISSUED'
   ) {
-    productFamilyName = 'IPV_CRI_FtoF';
+    productFamilyName = 'IPV_CRI_F2F';
   }
   return productFamilyName;
 };

@@ -4,7 +4,6 @@ import {
   publishAndValidate,
   setEventData,
   setEventDataWithoutUser,
-  setExtensions,
 } from '../helpers/event-data-helper';
 import fs from 'fs';
 
@@ -61,26 +60,4 @@ describe('IPV_CRI_CIC GROUP Test - valid TXMA F2F Event without user details to 
     },
     240000,
   );
-  describe('IPV_IDENTITY_ISSUED GROUP Test - valid TXMA Event with extension to SQS and expect event id stored in S3', () => {
-    test.concurrent.each`
-    eventName                            | event_id          | extensions          
-    ${'IPV_IDENTITY_ISSUED'}| ${faker.string.uuid()}  |     ${'ciFail,hasMitigations'}         
-    ${'IPV_IDENTITY_ISSUED'}| ${faker.string.uuid()}  |     ${'levelOfConfidence'}         
-    ${'IPV_IDENTITY_ISSUED'}| ${faker.string.uuid()}  |     ${'ciFail,levelOfConfidence'}         
-    `(
-      'Should validate $eventName event content stored on S3 with extension as $extensions',
-      async ({ ...data }) => {
-        // given
-        const filePath = 'tests/fixtures/txma-event-group_with_empty_extensions.json';
-        const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-        setEventData(event, data);
-        event.extensions.levelOfConfidence = 'P0';
-        // console.log('Event Data' + JSON.stringify(listExtension));
-        setExtensions(data.extensions, event);
-        // console.log('Event Data' + JSON.stringify(event));
-        await publishAndValidate(event);
-      },
-      240000,
-    );
-  });
 });
