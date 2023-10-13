@@ -1,0 +1,54 @@
+{
+  "event_id": "6469d1af-af04-41e3-aea7-c5032c7bf5b4",
+  "event_name": "IPV_F2F_CRI_VC_RECEIVED",
+  "component_id": "https://identity.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "unknown",
+    "user_id": "7d9c876uygrbjhge65a7c336a16aa43c7ce8b012a8d1eb9a916413b198"
+  },
+  "extensions": {
+    "iss": "https://review-o.account.gov.uk",
+    "successful": true,
+    "previous_govuk_signin_journey_id": "7d9c876uygrbjhge65a7c336a16aa43c7ce8b012a8d1eb9a916413b198",
+    "evidence": [
+      {
+        "checkDetails": [
+          {
+            "biometricVerificationProcessLevel": 5,
+            "checkMethod": "vri",
+            "photoVerificationProcessLevel": 2
+          },
+          {
+            "biometricVerificationProcessLevel": 3,
+            "checkMethod": "bvr",
+            "photoVerificationProcessLevel": null
+          }
+        ],
+        "failedCheckDetails": null,
+        "strengthScore": 3,
+        "type": "IdentityCheck",
+        "validityScore": 2,
+        "verificationScore": 3
+      }
+    ]
+  },
+  "restricted": {
+    "drivingPermit": {
+      "documentType": "P"
+    },
+    "idCard": {
+      "documentType": "License"
+    },
+    "passport": {
+      "documentType": "P"
+    },
+    "residencePermit": {
+      "documentType": "BRP"
+    }
+  },
+  "timestamp": 1695109451,
+  "timestamp_formatted": "2023-09-19T07:44:11.000Z",
+  "txma": {
+    "configVersion": "1.3.9"
+  }
+}
