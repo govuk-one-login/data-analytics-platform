@@ -32,20 +32,23 @@ describe('AUTH_CODE_VERIFIED GROUP Test - validate data at stage layer', () => {
         );
         // console.log('queryStage' + JSON.stringify(athenaQueryResultsStage));
         if (data.mfa_type !== 'null' && data.mfa_type !== null && data.mfa_type !== undefined) {
-          // console.log('Map--> "' + data['mfa_type']);
-          expect(`"${data.mfa_type}"`).toEqual(athenaQueryResultsStage[0].extensions_mfatype);
+          const mfatype = athenaQueryResultsStage[0].extensions_mfatype.replaceAll('"', '');
+          // console.log('Athena Data--> ' + athenaQueryResultsStage[0].extensions_mfatype);
+          expect(data.mfa_type).toEqual(mfatype);
         }
         if (data.account_recovery !== 'null' && data.account_recovery !== null && data.account_recovery !== undefined) {
-          expect(`"${data.account_recovery}"`).toEqual(athenaQueryResultsStage[0].extensions_accountrecovery);
+          const accountRecovery = athenaQueryResultsStage[0].extensions_accountrecovery.replaceAll('"', '');
+          expect(data.account_recovery).toEqual(accountRecovery);
         }
         if (
           data.notification_type !== 'null' &&
           data.notification_type !== null &&
           data.notification_type !== undefined
         ) {
+          const notificationType = athenaQueryResultsStage[0].extensions_notificationtype.replaceAll('"', '');
           // console.log(athenaQueryResultsStage[0].extensions_mfatype);
           // console.log('Map--> ' + data['notification-type']);
-          expect(`"${data.notification_type}"`).toEqual(athenaQueryResultsStage[0].extensions_notificationtype);
+          expect(data.notification_type).toEqual(notificationType);
         }
       }
     },
