@@ -4,7 +4,6 @@ import {
   publishAndValidate,
   setEventData,
   setEventDataWithoutUser,
-  setExtensions,
 } from '../helpers/event-data-helper';
 import fs from 'fs';
 
