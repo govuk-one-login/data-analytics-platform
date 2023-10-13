@@ -30,9 +30,9 @@ jobs:
       - name: Check out checkov hooks repository code
         uses: actions/checkout@v4
         with:
-          repository: alphagov/di-devplatform-checkov-hook
+          repository: govuk-one-login/devplatform-checkov-hook
           token: ${{ secrets.CHECKOUT_REPO_PAT }}
-          path: di-devplatform-checkov-hook
+          path: devplatform-checkov-hook
       - name: Checkov actions scan
         uses: bridgecrewio/checkov-action@v12
         with:
