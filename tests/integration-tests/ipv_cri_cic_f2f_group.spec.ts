@@ -32,7 +32,7 @@ describe('IPV_CRI_CIC GROUP Test - valid TXMA F2F Event with client id to SQS an
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const filePath = 'tests/fixtures/txma-event-group_with_user_empty_extensions.json';
+      const filePath = 'tests/fixtures/txma-event-ipv-cri-cic-group.json';
       const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       setEventData(event, data);
       event.client_id = faker.string.uuid();

@@ -300,6 +300,7 @@ KmsKey:
           Principal:
             Service:
               - cloudwatch.amazonaws.com
+              - cloudtrail.amazonaws.com
               - lambda.amazonaws.com
               - s3.amazonaws.com
               - sns.amazonaws.com
@@ -572,6 +573,22 @@ VPCEndpointStepFunctions:
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
 
+VpcEndpointSecurityGroup:
+  Type: 'AWS::EC2::SecurityGroup'
+  Properties:
+    GroupDescription: 'Security Group for VPC Endpoints'
+    VpcId: !Ref VPCForDAP
+    SecurityGroupIngress:
+      - Description: 'Ingress rule allowing TCP traffic on port 443 from the specified CIDR block'
+        CidrIp: 10.0.0.0/16
+        IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+    SecurityGroupEgress:
+      - Description: 'Egress rule allowing all outbound traffic'
+        CidrIp: '0.0.0.0/0'
+        IpProtocol: -1
+
 VPCEndpointSSM:
   Type: AWS::EC2::VPCEndpoint
   Properties:
@@ -583,6 +600,8 @@ VPCEndpointSSM:
       - !Ref SubnetForDAP1
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
+    SecurityGroupIds:
+      - !Ref VpcEndpointSecurityGroup
 
 VPCEndpointSSMMessages:
   Type: AWS::EC2::VPCEndpoint
@@ -595,6 +614,8 @@ VPCEndpointSSMMessages:
       - !Ref SubnetForDAP1
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
+    SecurityGroupIds:
+      - !Ref VpcEndpointSecurityGroup
 
 VPCEndpointEC2Messages:
   Type: AWS::EC2::VPCEndpoint
@@ -607,3 +628,243 @@ VPCEndpointEC2Messages:
       - !Ref SubnetForDAP1
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
+    SecurityGroupIds:
+      - !Ref VpcEndpointSecurityGroup
+
+AWSSupportReadOnlyRole:
+  Type: 'AWS::IAM::Role'
+  Properties:
+    RoleName: 'AWS-Support-ReadOnly'
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: 'Allow'
+          Principal:
+            Service:
+              - 'support.amazonaws.com'
+          Action:
+            - 'sts:AssumeRole'
+    Path: '/'
+    Policies:
+      - PolicyName: 'ReadOnlyAccess'
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Action:
+                - 'athena:List*'
+                - 'athena:Describe*'
+                - 'states:List*'
+                - 'states:Describe*'
+                - 'redshift:Describe*'
+                - 'ec2:Describe*'
+                - 'vpc:Describe*'
+                - 'iam:List*'
+                - 'iam:Get*'
+                - 'events:Describe*'
+                - 'events:List*'
+                - 'lambda:List*'
+                - 'lambda:Get*'
+              Resource: '*'
+
+TrailBucket:
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub '${Environment}-dap-cloud-trail'
+    LoggingConfiguration:
+      DestinationBucketName: !Ref GlobalLogBucket
+      LogFilePrefix: cloudtrail/trail
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 90
+          Status: Enabled
+    NotificationConfiguration:
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+        - Event: s3:ObjectRemoved:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+
+TrailBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref TrailBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Sid: AllowCloudTrailWrites
+          Effect: Allow
+          Principal:
+            Service: cloudtrail.amazonaws.com
+          Action:
+            - s3:PutObject
+          Resource: !Sub '${TrailBucket.Arn}/*'
+          Condition:
+            Bool:
+              aws:SecureTransport: true
+        - Sid: AllowCloudTrailBucketRead
+          Effect: Allow
+          Principal:
+            Service: cloudtrail.amazonaws.com
+          Action:
+            - s3:GetBucketAcl
+          Resource: !Sub '${TrailBucket.Arn}'
+        - Sid: 'AllowSSLRequestsOnly'
+          Effect: Deny
+          Action: 's3:*'
+          Resource:
+            - !Sub '${TrailBucket.Arn}/*'
+          Principal: '*'
+          Condition:
+            Bool:
+              'aws:SecureTransport': 'false'
+
+CloudTrailForUnauthorizedAPIChanges:
+  Type: 'AWS::CloudTrail::Trail'
+  Properties:
+    S3BucketName: !Ref TrailBucket
+    IncludeGlobalServiceEvents: true
+    IsLogging: true
+    IsMultiRegionTrail: true
+    KMSKeyId: !Sub alias/${Environment}-dap-key
+    TrailName: UnauthorizedAPICallTrail
+    EventSelectors:
+      - ReadWriteType: 'All'
+    CloudWatchLogsLogGroupArn: !GetAtt UnauthorizedApiCallLogGroup.Arn
+    CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
+    EnableLogFileValidation: true
+
+UnauthorizedApiCallLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: !Sub /aws/dap-cloud-trail-log-group
+    KmsKeyId: !GetAtt KmsKey.Arn
+    RetentionInDays: 30
+
+UnauthorizedApiCallMetricFilter:
+  Type: 'AWS::Logs::MetricFilter'
+  Properties:
+    LogGroupName: !Ref UnauthorizedApiCallLogGroup
+    FilterPattern: '{($.errorCode = "AccessDenied") || ($.errorCode = "UnauthorizedOperation")}'
+    MetricTransformations:
+      - MetricValue: '1'
+        MetricNamespace: 'CloudTrailMetrics'
+        MetricName: 'UnauthorizedAPICallCount'
+
+UnauthorizedApiCallAlarm:
+  Type: 'AWS::CloudWatch::Alarm'
+  Properties:
+    AlarmName: UnauthorizedAPICallAlarm
+    MetricName: UnauthorizedAPICallCount
+    Namespace: CloudTrailMetrics
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref UnauthorizedApiCallSNSTopic
+
+CloudTrailCloudWatchLogsRole:
+  Type: 'AWS::IAM::Role'
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: 'Allow'
+          Principal:
+            Service: 'cloudtrail.amazonaws.com'
+          Action: 'sts:AssumeRole'
+    Policies:
+      - PolicyName: CloudTrailToCloudWatchLogsPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Action:
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource:
+                - !GetAtt UnauthorizedApiCallLogGroup.Arn
+                - !GetAtt IAMChangeLogGroup.Arn
+
+IAMChangeLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: !Sub /aws/dap-IAM-changes-log-group
+    KmsKeyId: !GetAtt KmsKey.Arn
+    RetentionInDays: 30
+
+CloudTrailForIAMChanges:
+  Type: 'AWS::CloudTrail::Trail'
+  Properties:
+    S3BucketName: !Ref TrailBucket
+    IncludeGlobalServiceEvents: true
+    IsLogging: true
+    IsMultiRegionTrail: true
+    KMSKeyId: !Sub alias/${Environment}-dap-key
+    TrailName: IAMPolicyChangeTrail
+    CloudWatchLogsLogGroupArn: !GetAtt IAMChangeLogGroup.Arn
+    CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
+    EnableLogFileValidation: true
+
+IAMChangeMetricFilter:
+  Type: 'AWS::Logs::MetricFilter'
+  Properties:
+    LogGroupName: !Ref IAMChangeLogGroup
+    FilterPattern: '{ ($.eventName = "CreatePolicy") || ($.eventName = "DeletePolicy") || ($.eventName = "AttachRolePolicy") || ($.eventName = "DetachRolePolicy") || ($.eventName = "AttachUserPolicy") || ($.eventName = "DetachUserPolicy") || ($.eventName = "AttachGroupPolicy") || ($.eventName = "DetachGroupPolicy") || ($.eventName = "UpdateAssumeRolePolicy") || ($.eventName = "PutRolePolicy") || ($.eventName = "PutUserPolicy") || ($.eventName = "PutGroupPolicy") }'
+    MetricTransformations:
+      - MetricValue: '1'
+        MetricNamespace: 'IAMPolicyMetrics'
+        MetricName: 'IAMPolicyChangeCount'
+
+IAMChangeAlarm:
+  Type: 'AWS::CloudWatch::Alarm'
+  Properties:
+    AlarmName: IAMPolicyChangeAlarm
+    MetricName: IAMPolicyChangeCount
+    Namespace: IAMPolicyMetrics
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref IAMChangeAlertSNSTopic
+
+IAMChangeAlertSNSTopic:
+  Type: 'AWS::SNS::Topic'
+  Properties:
+    DisplayName: 'IAM Policy Change Alert'
+    TopicName: 'IAMPolicyChangeAlert'
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+IAMChangeAlertSNSTopicSubscription:
+  Type: 'AWS::SNS::Subscription'
+  Condition: IsProduction
+  Properties:
+    Protocol: 'email'
+    Endpoint: 'dap-notifications@digital.cabinet-office.gov.uk'
+    TopicArn: !Ref IAMChangeAlertSNSTopic
+
+UnauthorizedApiCallSNSTopic:
+  Type: 'AWS::SNS::Topic'
+  Properties:
+    DisplayName: 'Unauthorized API Call Alert'
+    TopicName: 'UnauthorizedApiCallAlert'
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+UnauthorizedApiCallSNSTopicSubscription:
+  Type: 'AWS::SNS::Subscription'
+  Properties:
+    Protocol: 'email'
+    Endpoint: 'dap-notifications@digital.cabinet-office.gov.uk'
+    TopicArn: !Ref UnauthorizedApiCallSNSTopic
