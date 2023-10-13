@@ -85,6 +85,18 @@ RedshiftAccessEC2InstanceProfile:
     Roles:
       - !Ref RedshiftAccessEC2Role
 
+RedshiftAccessEC2SecurityGroup:
+  Type: 'AWS::EC2::SecurityGroup'
+  Properties:
+    GroupDescription: 'Security Group for Redshift Access EC2'
+    VpcId: !Ref VPCForDAP
+    SecurityGroupEgress:
+      - IpProtocol: -1
+        FromPort: -1
+        ToPort: -1
+        CidrIp: 0.0.0.0/0
+        Description: Allow egress to anywhere
+
 RedshiftAccessEC2LaunchTemplate:
   Type: 'AWS::EC2::LaunchTemplate'
   Properties:
@@ -94,6 +106,8 @@ RedshiftAccessEC2LaunchTemplate:
       InstanceType: 't2.nano'
       IamInstanceProfile:
         Arn: !GetAtt RedshiftAccessEC2InstanceProfile.Arn
+      SecurityGroupIds:
+        - !Ref RedshiftAccessEC2SecurityGroup
       MetadataOptions:
         HttpTokens: 'required'
         HttpPutResponseHopLimit: 1
