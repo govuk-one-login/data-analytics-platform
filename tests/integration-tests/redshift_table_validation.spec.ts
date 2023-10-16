@@ -103,10 +103,10 @@ describe('Redshift Data Model Validations', () => {
           expect(redShiftQueryResults.Records[index][1].stringValue).toEqual(data.journey_type);
         }
       }
-      // console.log('Array Results:' + JSON.stringify(actualData.sort()));
-      // console.log('Expected Results:' + JSON.stringify(expectedEvent).sort());
       actualData.sort((a, b) => a.localeCompare(b));
       expectedEvent.sort((a, b) => a.localeCompare(b));
+      // console.log('Array Results:' + JSON.stringify(actualData.sort()));
+      // console.log('Expected Results:' + JSON.stringify(expectedEvent.sort()));
       expect(JSON.stringify(actualData) === JSON.stringify(expectedEvent)).toEqual(true);
       expect(redShiftQueryResults.TotalNumRows).toEqual(expectedEvent.length);
     },
