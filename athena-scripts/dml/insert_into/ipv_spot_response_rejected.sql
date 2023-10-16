@@ -17,9 +17,9 @@ SELECT
 	user.govuk_signin_journey_id as user_govuk_signin_journey_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	case format('%s',cast("extensions"."rejectionReason" as JSON))
+	case format('%s',cast("extensions"."rejectionReason" as VARCHAR))
 		when 'null' then null
-	    else format('%s',cast("extensions"."rejectionReason" as JSON))
+	    else format('%s',cast("extensions"."rejectionReason" as VARCHAR))
 	end as extensions_rejectionreason,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,

@@ -489,7 +489,7 @@ IpvCriFtofGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref StageGlueDatabase
     TableInput:
-      Name: ipv_cri_ftof
+      Name: ipv_cri_f2f
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: processed_date, Type: string }
@@ -515,7 +515,7 @@ IpvCriFtofGlueTable:
           - { Name: month, Type: int }
           - { Name: day, Type: int }
         InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
-        Location: !Sub s3://${StageLayerBucket}/txma/IPV_CRI_FTOF/
+        Location: !Sub s3://${StageLayerBucket}/txma/IPV_CRI_F2F/
         OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
         SerdeInfo:
           Parameters:

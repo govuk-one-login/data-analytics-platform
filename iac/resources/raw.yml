@@ -597,7 +597,7 @@ FtofYotiResponseReceivedGlueTable:
 IpvCriFtofCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: ipv_cri_ftof
+    Name: ipv_cri_f2f
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       CatalogTargets:

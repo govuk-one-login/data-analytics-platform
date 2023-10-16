@@ -1,0 +1,4 @@
+DROP PROCEDURE conformed.sp_ipv_fraud_beyond_mvp;
+DROP PROCEDURE conformed.ipv_cri_address_beyond_mvp;
+DROP PROCEDURE conformed.auth_orchestration_beyond_mvp;
+DROP PROCEDURE conformed.auth_account_user_login_beyond_mvp;

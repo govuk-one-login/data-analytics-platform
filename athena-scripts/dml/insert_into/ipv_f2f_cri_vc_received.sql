@@ -1,4 +1,4 @@
-INSERT INTO "environment-txma-stage"."ipv_cri_ftof" (
+INSERT INTO "environment-txma-stage"."ipv_cri_f2f" (
 	event_id,
 	component_id,
 	user_govuk_signin_journey_id,
@@ -25,9 +25,9 @@ SELECT
 		when 'null' then null
 	    else format('%s',cast("extensions"."evidence" as JSON))
 	end as extensions_evidence,
-	case format('%s',cast("extensions"."iss" as JSON))
+	case format('%s',cast("extensions"."iss" as VARCHAR))
 		when 'null' then null
-	    else format('%s',cast("extensions"."iss" as JSON))
+	    else format('%s',cast("extensions"."iss" as VARCHAR))
 	end as extensions_iss,
 	case format('%s',cast("extensions"."successful" as JSON))
 		when 'null' then null

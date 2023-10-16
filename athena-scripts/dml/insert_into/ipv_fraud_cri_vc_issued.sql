@@ -24,9 +24,9 @@ SELECT
 		when 'null' then null
 	    else format('%s',cast("extensions"."evidence" as JSON))
 	end as extensions_evidence,
-	case format('%s',cast("extensions"."iss" as JSON))
+	case format('%s',cast("extensions"."iss" as VARCHAR))
 		when 'null' then null
-	    else format('%s',cast("extensions"."iss" as JSON))
+	    else format('%s',cast("extensions"."iss" as VARCHAR))
 	end as extensions_iss,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
