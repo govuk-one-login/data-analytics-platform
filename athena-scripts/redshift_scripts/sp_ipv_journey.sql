@@ -423,7 +423,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                         ROW_NUMBER() OVER (PARTITION BY event_id, timestamp_formatted ORDER BY timestamp_formatted) AS row_num,
                         *
                     FROM
-                         "dev_txma_stage"."ipv_journey" 
+                         "dap_txma_stage"."ipv_journey" 
                         --where event_id='5c94f844-f05d-4c32-87fe-e3b6b265223f'
                 ) auth
             JOIN  "conformed"."batchcontrol" batc ON auth.Product_family = batc.product_family
