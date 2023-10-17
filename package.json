@@ -1,9 +1,9 @@
 {
-  "name": "di-data-analytics-platform",
+  "name": "data-analytics-platform",
   "version": "0.0.1",
   "description": "Data and Analytics platform which will enable the implementation of the OneLogin reporting strategy",
   "license": "MIT",
-  "repository": "github:alphagov/di-data-analytics-platform",
+  "repository": "github:govuk-one-login/data-analytics-platform",
   "devDependencies": {
     "@aws-lambda-powertools/logger": "^1.14.0",
     "@aws-lambda-powertools/metrics": "^1.14.0",

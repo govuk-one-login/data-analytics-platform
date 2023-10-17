@@ -195,7 +195,7 @@ the real TxMA staging queue and _dev_ will get a placeholder queue
 
 Our _test_ environment is a standalone environment and can therefore be used as a sandbox.
 A dedicated GitHub Action [Deploy to the test environment](.github/workflows/deploy-to-test.yml) exists to enable this.
-It can be manually invoked on a chosen branch by finding it in the [GitHub Actions tab](https://github.com/alphagov/di-data-analytics-platform/actions) and using the _Run workflow_ button.
+It can be manually invoked on a chosen branch by finding it in the [GitHub Actions tab](https://github.com/govuk-one-login/data-analytics-platform/actions) and using the _Run workflow_ button.
 
 ###### Feature
 

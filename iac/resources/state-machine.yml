@@ -39,8 +39,8 @@ ELTMetadataUploadRole:
           Condition:
             StringLike:
               'token.actions.githubusercontent.com:sub':
-                - repo:alphagov/di-data-analytics-platform:ref:refs/heads/*
-                - repo:alphagov/di-data-analytics-platform:environment:*
+                - repo:govuk-one-login/data-analytics-platform:ref:refs/heads/*
+                - repo:govuk-one-login/data-analytics-platform:environment:*
     Policies:
       - PolicyName: dap-elt-metadata-upload-policy
         PolicyDocument:
