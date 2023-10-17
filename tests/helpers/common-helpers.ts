@@ -137,25 +137,23 @@ export function extensionToMap(value): Record<string, string> {
   return val.match(transRE).groups;
 }
 
-export function extensionToMap_IPV_IDENTITY_ISSUED(value): Record<string, string> {
+export function extensionToMapipvIdentityIssue(value): Record<string, string> {
   const transcludes = 'hasmitigations={has_mitigations}, levelofconfidence={level_of_confidence}, cifail={ci_fail}';
   const transREs = new RegExp(transcludes.replace(/\{(.*?)\}/g, '(?<$1>.*)'));
   const val = value.replace('{', '').replace('}', '');
   return val.match(transREs).groups;
 }
 
-export function event_id_list(eventid_results)  {
-  let query_string = ''
-  for (let index = 0; index <= eventid_results.length - 1; index++) 
-  {
-        query_string = query_string + `'${eventid_results[index].event_id}'`
-        if (index < eventid_results.length-1)
-        {
-          query_string = query_string + ','
-        }
+export const eventidlist = (eventidresults: string): string => {
+  let querystring = '';
+  for (let index = 0; index <= eventidresults.length - 1; index++) {
+    querystring = querystring + `'${eventidresults[index].event_id}'`;
+    if (index < eventidresults.length - 1) {
+      querystring = querystring + ',';
+    }
   }
-  return query_string
-}
+  return querystring;
+};
 
 export const productFamily = (eventName: string): string => {
   let productFamilyName = '';
@@ -222,7 +220,7 @@ export const productFamily = (eventName: string): string => {
     eventName === 'IPV_JOURNEY_END' ||
     eventName === 'IPV_JOURNEY_START' ||
     eventName === 'IPV_SPOT_RESPONSE_APPROVED' ||
-    eventName === 'IPV_SPOT_RESPONSE_REJECTED'||
+    eventName === 'IPV_SPOT_RESPONSE_REJECTED' ||
     eventName === 'IPV_IDENTITY_ISSUED'
   ) {
     productFamilyName = 'IPV_JOURNEY';
@@ -246,7 +244,7 @@ export const productFamily = (eventName: string): string => {
     eventName === 'IPR_USER_REDIRECTED' ||
     eventName === 'IPV_F2F_CRI_VC_CONSUMED' ||
     eventName === 'IPV_F2F_CRI_VC_RECEIVED' ||
-    eventName === 'F2F_YOTI_RESPONSE_RECEIVED' 
+    eventName === 'F2F_YOTI_RESPONSE_RECEIVED'
   ) {
     productFamilyName = 'IPV_CRI_F2F';
   }

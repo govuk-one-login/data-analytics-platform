@@ -1,4 +1,4 @@
-import { productFamily } from "./common-helpers";
+import { productFamily } from './common-helpers';
 
 export const DIM_DATE_COLUMNS =
   'SELECT\n' +
@@ -85,23 +85,33 @@ export const FACT_TABLE_EVENT_PROCESSED_TODAY =
 export const AUTH_CODE_VERIFIED_DATA =
   'SELECT event_id,extensions,day FROM auth_code_verified where extensions is not null';
 
-export const AUTH_ACCOUNT_MFA_DATA = (event_name: string) => {
-  const query = "SELECT event_id, extensions_notificationtype,extensions_mfatype, extensions_accountrecovery FROM auth_account_mfa where event_name='"+event_name+"'";
-  return query
-}
-
-export const IPV_JOURNEY_DATA = (event_name: string) => {
-  const query =  "SELECT event_id, extensions_hasmitigations,extensions_levelofconfidence, extensions_cifail FROM IPV_JOURNEY where event_name='"+event_name+"'";  
-  return query 
-}
-
-export const GET_EVENT_ID = (event_name: string) => {
-  const query = "SELECT event_id FROM "+productFamily(event_name)+" where event_name='"+event_name+"' order by processed_date desc limit 10;";
+export const AUTH_ACCOUNT_MFA_DATA = (eventname: string): string => {
+  const query =
+    "SELECT event_id, extensions_notificationtype,extensions_mfatype, extensions_accountrecovery FROM auth_account_mfa where event_name='" +
+    eventname +
+    "'";
   return query;
-}
-  
-export const extensions_not_null_query= (table_name: string) => {
-  const query = 'SELECT event_id,extensions,day FROM '+table_name+' where extensions is not null';  
-  return query;
-}
+};
 
+export const IPV_JOURNEY_DATA = (eventname: string): string => {
+  const query =
+    "SELECT event_id, extensions_hasmitigations,extensions_levelofconfidence, extensions_cifail FROM IPV_JOURNEY where event_name='" +
+    eventname +
+    "'";
+  return query;
+};
+
+export const GET_EVENT_ID = (eventname: string): string => {
+  const query =
+    'SELECT event_id FROM ' +
+    productFamily(eventname) +
+    " where event_name='" +
+    eventname +
+    "' order by processed_date desc limit 10;";
+  return query;
+};
+
+export const extensionsnotnullquery = (tablename: string): string => {
+  const query = 'SELECT event_id,extensions,day FROM ' + tablename + ' where extensions is not null';
+  return query;
+};
