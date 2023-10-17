@@ -47,7 +47,7 @@ ref.other_sub_domain from
            'ipv_journey' Product_family 
             ,row_number() over (partition by event_id,timestamp_formatted order by cast (day as integer) desc) as row_num,*
     FROM
-     "dev_txma_stage"."ipv_journey"
+     "dap_txma_stage"."ipv_journey"
      WHERE lower(event_name) in ('ipv_identity_issued')
     ) 
     where  row_num=1  

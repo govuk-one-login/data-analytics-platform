@@ -359,7 +359,7 @@ SELECT event_count,Product_family,event_name,event_id,timestamp_formatted,curren
                         ROW_NUMBER() OVER (PARTITION BY event_id, timestamp_formatted ORDER BY timestamp_formatted) AS row_num,
                         *
                     FROM
-                        "dev_txma_stage"."ipv_journey" 
+                        "dap_txma_stage"."ipv_journey" 
                         WHERE lower(event_name) in ('ipv_identity_issued')
                         --where event_id='5c94f844-f05d-4c32-87fe-e3b6b265223f'
                 ) auth
