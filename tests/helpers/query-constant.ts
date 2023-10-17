@@ -85,3 +85,10 @@ export const AUTH_CODE_VERIFIED_DATA =
 
 export const AUTH_ACCOUNT_MFA_DATA =
   "SELECT event_id, extensions_notificationtype,extensions_mfatype, extensions_accountrecovery FROM auth_account_mfa where event_name='AUTH_CODE_VERIFIED'";
+
+export const IPV_IDENTITY_ISSUED_DATA =
+'SELECT event_id,extensions,day FROM IPV_IDENTITY_ISSUED where extensions is not null';  
+
+export const IPV_JOURNEY_DATA =
+"SELECT event_id, extensions_notificationtype,extensions_mfatype, extensions_accountrecovery FROM IPV_JOURNEY where event_name='IPV_IDENTITY_ISSUED'";  
+  
