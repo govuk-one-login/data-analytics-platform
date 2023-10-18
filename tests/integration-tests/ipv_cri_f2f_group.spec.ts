@@ -70,7 +70,7 @@ describe('IPV_CRI_F2F GROUP Test - valid TXMA Event F2F_CRI_VC_ISSUED to SQS and
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const filePath = 'tests/fixtures/txma-event-ipv-cri-ftof-group.json';
+      const filePath = 'tests/fixtures/txma-event-ipv-cri-f2f-group.json';
       const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       setEventData(event, data);
       event.client_id = faker.string.uuid();
@@ -133,7 +133,7 @@ describe('IPV_CRI_F2F GROUP Test - valid TXMA Event with extensions to SQS and e
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const filePath = 'tests/fixtures/txma-event-ipv-cri-ftof-group.json';
+      const filePath = 'tests/fixtures/txma-event-ipv-cri-f2f-group.json';
       const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       setEventData(event, data);
       event.client_id = faker.string.uuid();

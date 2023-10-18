@@ -1,3 +1,5 @@
+import { productFamily } from './common-helpers';
+
 export const DIM_DATE_COLUMNS =
   'SELECT\n' +
   '   date_key,date,day_suffix,Weekday,Weekday_name,Weekday_name_short,Day_of_week_in_month,Day_of_year,Week_of_year,Month,Month_name,Month_name_short,Quarter,Quarter_name,Year,Is_Weekend,Created_by,Created_date,Modified_by,Modified_date,Batch_id\n' +
@@ -83,5 +85,33 @@ export const FACT_TABLE_EVENT_PROCESSED_TODAY =
 export const AUTH_CODE_VERIFIED_DATA =
   'SELECT event_id,extensions,day FROM auth_code_verified where extensions is not null';
 
-export const AUTH_ACCOUNT_MFA_DATA =
-  "SELECT event_id, extensions_notificationtype,extensions_mfatype, extensions_accountrecovery FROM auth_account_mfa where event_name='AUTH_CODE_VERIFIED'";
+export const AUTH_ACCOUNT_MFA_DATA = (eventname: string): string => {
+  const query =
+    "SELECT event_id, extensions_notificationtype,extensions_mfatype, extensions_accountrecovery FROM auth_account_mfa where event_name='" +
+    eventname +
+    "'";
+  return query;
+};
+
+export const IPV_JOURNEY_DATA = (eventname: string): string => {
+  const query =
+    "SELECT event_id, extensions_hasmitigations,extensions_levelofconfidence, extensions_cifail FROM IPV_JOURNEY where event_name='" +
+    eventname +
+    "'";
+  return query;
+};
+
+export const GET_EVENT_ID = (eventname: string): string => {
+  const query =
+    'SELECT event_id FROM ' +
+    productFamily(eventname) +
+    " where event_name='" +
+    eventname +
+    "' order by processed_date desc limit 10;";
+  return query;
+};
+
+export const extensionsnotnullquery = (tablename: string): string => {
+  const query = 'SELECT event_id,extensions,day FROM ' + tablename + ' where extensions is not null';
+  return query;
+};
