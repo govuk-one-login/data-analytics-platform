@@ -338,7 +338,7 @@ SecretsManagerAccessPolicy:
             - 'secretsmanager:GetSecretValue'
             - 'secretsmanager:ListSecrets'
             - 'secretsmanager:ListSecretVersionIds'
-          Resource: '*'
+          Resource: 'arn:aws:secretsmanager:eu-west-2:365670209853:secret:*RedshiftSecret*'
     Roles:
       - Fn::If:
           - IsProduction
@@ -375,7 +375,7 @@ QuickSightPolicy:
             - quicksight:DeleteDataSource
             - quicksight:DescribeDataSource
             - quicksight:ListDataSources
-          Resource: '*'
+          Resource: 'arn:aws:quicksight:eu-west-2:365670209853:dashboard/*'
     Roles:
       - Fn::If:
           - IsProduction
