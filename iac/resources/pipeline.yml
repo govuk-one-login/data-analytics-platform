@@ -324,8 +324,9 @@ CloudTrailPolicy:
           - PL-dap-production-deploy-DeployRole-068116bf8a2e
           - Ref: 'AWS::NoValue'
 
-SecretsManagerAccessPolicy:
+AnalystsSecretsManagerAccessPolicy:
   Type: 'AWS::IAM::ManagedPolicy'
+  Condition: IsProduction
   Properties:
     Description: 'Policy to allow specific Secrets Manager actions'
     PolicyDocument:
@@ -345,8 +346,9 @@ SecretsManagerAccessPolicy:
           - AWSReservedSSO_di-data-dap-analyst_7f240a994d452735
           - Ref: 'AWS::NoValue'
 
-QuickSightPolicy:
+AnalystsQuickSightPolicy:
   Type: AWS::IAM::Policy
+  Condition: IsProduction
   Properties:
     PolicyName: QuickSightAccessPolicy
     PolicyDocument:
