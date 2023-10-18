@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { getQueryResults } from '../helpers/db-helpers';
-import { AUTH_ACCOUNT_MFA_DATA, AUTH_CODE_VERIFIED_DATA } from '../helpers/query-constant';
+import { AUTH_ACCOUNT_MFA_DATA, GET_EVENT_ID, extensionsnotnullquery } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
-import { extensionToMap, month, year } from '../helpers/common-helpers';
+import { eventidlist, extensionToMap } from '../helpers/common-helpers';
 
 describe('AUTH_CODE_VERIFIED GROUP Test - validate data at stage layer', () => {
   test.concurrent.each`
@@ -12,18 +12,21 @@ describe('AUTH_CODE_VERIFIED GROUP Test - validate data at stage layer', () => {
     'Should validate $eventName event extensions  stored in raw and stage layer',
     async ({ ...data }) => {
       // given
-      const query = `${AUTH_CODE_VERIFIED_DATA} and month = '${month(3)}' and year = '${year(
-        1,
-      )}' order by day desc limit 10`;
-      // console.log(query);
+      const eventname = data.eventName;
+      const eventidresults = await getQueryResults(
+        GET_EVENT_ID(eventname),
+        txmaStageDatabaseName(),
+        txmaProcessingWorkGroupName(),
+      );
+
+      const querystring = eventidlist(eventidresults);
+      const query = `${extensionsnotnullquery(eventname)} and event_id in (${querystring})`;
       const athenaQueryResults = await getQueryResults(query, txmaRawDatabaseName(), txmaProcessingWorkGroupName());
-      // console.log(JSON.stringify(athenaQueryResults));
       for (let index = 0; index <= athenaQueryResults.length - 1; index++) {
         const eventId = athenaQueryResults[index].event_id;
         const stExtensions = athenaQueryResults[index].extensions;
         const data = extensionToMap(stExtensions);
-        // console.log(data);
-        const queryStage = `${AUTH_ACCOUNT_MFA_DATA} and event_id = '${eventId}'`;
+        const queryStage = `${AUTH_ACCOUNT_MFA_DATA(eventname)} and event_id = '${eventId}'`;
         // console.log(queryStage);
         const athenaQueryResultsStage = await getQueryResults(
           queryStage,
