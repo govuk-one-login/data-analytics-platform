@@ -17,7 +17,7 @@
     "@aws-sdk/client-sqs": "^3.429.0",
     "@aws-sdk/types": "^3.428.0",
     "@faker-js/faker": "^8.2.0",
-    "@smithy/util-retry": "^2.0.4",
+    "@smithy/util-retry": "^2.0.5",
     "@tsconfig/node18": "^18.2.2",
     "@types/aws-lambda": "^8.10.124",
     "@types/jest": "^29.5.5",
