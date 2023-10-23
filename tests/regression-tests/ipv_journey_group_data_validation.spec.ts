@@ -62,7 +62,6 @@ describe('IPV_IDENTITY_ISSUED GROUP Test - validate data at stage layer', () => 
         // console.log('redShiftQuery:'+queryRedShift);
         const redShiftQueryResults = await redshiftRunQuery(queryRedShift);
         // console.log('queryRedShift'+JSON.stringify(redShiftQueryResults));
-        const actualData = [];
         for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
           if (redShiftQueryResults.Records != null) {
             if (
