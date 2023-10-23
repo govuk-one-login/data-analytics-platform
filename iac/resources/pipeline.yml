@@ -227,7 +227,6 @@ StateMachinePolicy:
             - 'states:ListStateMachines'
             - 'states:ListActivities'
           Resource: '*'
-      - Fn::If:
         - Sid: 'VisualEditor1'
           Effect: 'Allow'
           Action: 'states:*'
@@ -238,6 +237,7 @@ StateMachinePolicy:
             - !Sub 'arn:aws:states:*:${AWS::AccountId}:express:*:*:*'
             - !Sub 'arn:aws:states:*:${AWS::AccountId}:stateMachine:*'
     Roles:
+      - Fn::If:
           - IsFeature
           - PL-dap-feature-deploy-DeployRole-0abf029fc6b0
           - Ref: 'AWS::NoValue'
