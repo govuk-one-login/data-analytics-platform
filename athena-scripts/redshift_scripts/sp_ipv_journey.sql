@@ -179,13 +179,22 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
     WHERE sub_domain NOT IN (SELECT VERIFICATION_ROUTE_NAME  FROM conformed.DIM_VERIFICATION_ROUTE);
 
 
-    UPDATE "dap_txma_reporting_db"."conformed"."fact_user_journey_event"
+    UPDATE  "conformed"."fact_user_journey_event"
     SET
        REJECTION_REASON=trim(st.REJECTION_REASON,'"')
       ,REASON=trim(st.REASON,'"')
       ,USER_USER_ID=st.user_user_id
       ,USER_GOVUK_SIGNIN_JOURNEY_ID=st.user_govuk_signin_journey_id
-      ,COMPONENT_ID=st.COMPONENT_ID      
+      ,COMPONENT_ID=st.COMPONENT_ID     
+      ,CI_FAIL= DECODE(lower(st.CI_FAIL), 
+             'false', '0', 
+             'true', '1' 
+             )::integer::boolean
+      ,HAS_MITIGATIONS=DECODE(lower(st.HAS_MITIGATIONS), 
+             'false', '0', 
+             'true', '1' 
+             )::integer::boolean
+      ,LEVEL_OF_CONFIDENCE=trim(st.LEVEL_OF_CONFIDENCE,'"')   
       ,NOTIFICATION_TYPE=trim(st.NOTIFICATION_TYPE,'"')
       ,MFA_TYPE=trim(st.MFA_TYPE,'"')
       ,ACCOUNT_RECOVERY=trim(st.ACCOUNT_RECOVERY,'"')
@@ -267,13 +276,13 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
       FROM conformed.v_stg_ipv_journey
       WHERE EVENT_ID IN (
         SELECT EVENT_ID
-        FROM "dap_txma_reporting_db"."conformed"."fact_user_journey_event"
+        FROM  "conformed"."fact_user_journey_event"
     ) )AS st
     WHERE fact_user_journey_event.EVENT_ID = st.EVENT_ID;
 
 
    INSERT INTO conformed.FACT_USER_JOURNEY_EVENT (EVENT_KEY,DATE_KEY,verification_route_key,journey_channel_key,relying_party_key,USER_USER_ID,
-                            EVENT_ID,EVENT_TIME,USER_GOVUK_SIGNIN_JOURNEY_ID,COMPONENT_ID,EVENT_COUNT,
+                            EVENT_ID,EVENT_TIME,USER_GOVUK_SIGNIN_JOURNEY_ID,COMPONENT_ID,EVENT_COUNT,CI_FAIL,HAS_MITIGATIONS,LEVEL_OF_CONFIDENCE, 
                             REJECTION_REASON,REASON,NOTIFICATION_TYPE,MFA_TYPE,ACCOUNT_RECOVERY,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,
                             CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,ADDRESSES_ENTERED,ACTIVITY_HISTORY_SCORE,IDENTITY_FRAUD_SCORE,DECISION_SCORE,
                             FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODE,CHECK_DETAILS_KBV_QUALITY,
@@ -292,6 +301,15 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
           ,cnf.user_govuk_signin_journey_id AS USER_GOVUK_SIGNIN_JOURNEY_ID
           ,cnf.component_id AS COMPONENT_ID
           ,EVENT_COUNT
+          , DECODE(lower(CI_FAIL), 
+             'false', '0', 
+             'true', '1' 
+             )::integer::boolean
+          ,DECODE(lower(HAS_MITIGATIONS), 
+             'false', '0', 
+             'true', '1' 
+             )::integer::boolean 
+          ,trim(LEVEL_OF_CONFIDENCE,'"') 
            ,trim(REJECTION_REASON,'"')
            ,trim(REASON,'"')
            ,trim(NOTIFICATION_TYPE,'"')
@@ -392,7 +410,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
          ON  cnf.sub_domain = dvr.verification_route_name;
 
 
-    INSERT into audit.err_duplicate_event_id_ipv_journey_10 (total_duplicate_event_count_minus_one
+    INSERT into audit.err_duplicate_event_id_ipv_identity_issued_15 (total_duplicate_event_count_minus_one
     ,product_family,event_name,event_id,timestamp_formatted,created_by,created_datetime)
     SELECT event_count,Product_family,event_name,event_id,timestamp_formatted,current_user,GETDATE() as Current_date
     FROM
@@ -405,14 +423,14 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                         ROW_NUMBER() OVER (PARTITION BY event_id, timestamp_formatted ORDER BY timestamp_formatted) AS row_num,
                         *
                     FROM
-                        "dap_txma_reporting_db"."dap_txma_stage"."ipv_journey" 
+                         "dap_txma_stage"."ipv_journey" 
                         --where event_id='5c94f844-f05d-4c32-87fe-e3b6b265223f'
                 ) auth
-            JOIN "dap_txma_reporting_db"."conformed"."batchcontrol" batc ON auth.Product_family = batc.product_family
+            JOIN  "conformed"."batchcontrol" batc ON auth.Product_family = batc.product_family
                 AND auth.processed_date > batc.maxrundate
             WHERE row_num <> 1
             AND (auth.product_family,event_name, event_id) NOT IN (SELECT product_family ,event_name, event_id 
-                                                                        FROM audit.err_duplicate_event_id_ipv_journey_10)
+                                                                        FROM audit.err_duplicate_event_id_ipv_identity_issued_15)
             GROUP BY
                 auth.Product_family,
                 event_name,

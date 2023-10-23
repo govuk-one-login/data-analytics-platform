@@ -175,6 +175,22 @@ copy the contents of the files:
 
 for each click [Run] button to create the stored procedure: 
 
+/****IPV_IDENTITY_ISSUED
+
+1.alter_fact_user_journey_event_iii.sql
+2.ref_events_insert_iii.sql(check this is added to main file)
+3.create_err_duplicate_event_id_ipv_identity_issued_15.sql
+4.v_stg_ipv_journey_ipv_identity_issued_temp.sql
+5.sp_ipv_journey_ipv_identity_issued_temp.sql
+
+--Update the daily file
+6.v_stg_ipv_journey_update.sql -- Update the daily view
+7.sp_ipv_journey_ipv_identity_issued_update.sql - update the daily proc
+
+
+**/
+
+
 
 /*
 Database object privileges to group
