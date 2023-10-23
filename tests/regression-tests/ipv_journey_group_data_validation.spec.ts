@@ -1,6 +1,11 @@
 import { faker } from '@faker-js/faker';
-import { getQueryResults } from '../helpers/db-helpers';
-import { IPV_JOURNEY_DATA, GET_EVENT_ID, extensionsnotnullquery } from '../helpers/query-constant';
+import { getQueryResults, redshiftRunQuery } from '../helpers/db-helpers';
+import {
+  IPV_JOURNEY_DATA,
+  GET_EVENT_ID,
+  extensionsnotnullquery,
+  IPV_IDENTITY_ISSUED_CONFORMED,
+} from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
 import { eventidlist, extensionToMapipvIdentityIssue } from '../helpers/common-helpers';
 
@@ -18,7 +23,6 @@ describe('IPV_IDENTITY_ISSUED GROUP Test - validate data at stage layer', () => 
         txmaStageDatabaseName(),
         txmaProcessingWorkGroupName(),
       );
-
       const querystring = eventidlist(eventidresults);
       const query = `${extensionsnotnullquery(eventname)} and event_id in (${querystring})`;
       const athenaQueryResults = await getQueryResults(query, txmaRawDatabaseName(), txmaProcessingWorkGroupName());
@@ -32,6 +36,8 @@ describe('IPV_IDENTITY_ISSUED GROUP Test - validate data at stage layer', () => 
           txmaStageDatabaseName(),
           txmaProcessingWorkGroupName(),
         );
+        // console.log("DATA: "+JSON.stringify(athenaQueryResultsStage));
+        // console.log("DATA->Map: "+JSON.stringify(data));
         if (data.has_mitigations !== 'null' && data.has_mitigations !== null && data.has_mitigations !== undefined) {
           const hasmitigations = athenaQueryResultsStage[0].extensions_hasmitigations.replaceAll('"', '');
           // console.log('Athena Data--> ' + athenaQueryResultsStage[0].extensions_hasmitigations);
@@ -50,6 +56,39 @@ describe('IPV_IDENTITY_ISSUED GROUP Test - validate data at stage layer', () => 
           // console.log(athenaQueryResultsStage[0].extensions_cifail);
           // console.log('Map--> ' + data['notification-type']);
           expect(data.ci_fail).toEqual(cifail);
+        }
+
+        const queryRedShift = `${IPV_IDENTITY_ISSUED_CONFORMED} event_id = '${eventId}'`;
+        // console.log('redShiftQuery:'+queryRedShift);
+        const redShiftQueryResults = await redshiftRunQuery(queryRedShift);
+        // console.log('queryRedShift'+JSON.stringify(redShiftQueryResults));
+        const actualData = [];
+        for (let index = 0; index <= redShiftQueryResults.Records.length - 1; index++) {
+          if (redShiftQueryResults.Records != null) {
+            if (
+              data.has_mitigations !== 'null' &&
+              data.has_mitigations !== null &&
+              data.has_mitigations !== undefined
+            ) {
+              const hasMitigations = redShiftQueryResults.Records[index][2].booleanValue;
+              // const expectHasMitigations = data.has_mitigations.replaceAll('"', '');
+              expect(data.has_mitigations.toString()).toEqual(hasMitigations.toString());
+            }
+            if (
+              data.level_of_confidence !== 'null' &&
+              data.level_of_confidence !== null &&
+              data.level_of_confidence !== undefined
+            ) {
+              const levelOfConfidence = redShiftQueryResults.Records[index][3].stringValue;
+              expect(data.level_of_confidence).toEqual(levelOfConfidence);
+            }
+            if (data.ci_fail !== 'null' && data.ci_fail !== null && data.ci_fail !== undefined) {
+              const cifail = redShiftQueryResults.Records[index][4].booleanValue;
+              // console.log(athenaQueryResultsStage[0].extensions_cifail);
+              // console.log('Map--> ' + data['notification-type']);
+              expect(data.ci_fail.toString()).toEqual(cifail.toString());
+            }
+          }
         }
       }
     },

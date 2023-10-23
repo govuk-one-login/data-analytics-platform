@@ -100,7 +100,6 @@ export const IPV_JOURNEY_DATA = (eventname: string): string => {
     "'";
   return query;
 };
-
 export const GET_EVENT_ID = (eventname: string): string => {
   const query =
     'SELECT event_id FROM ' +
@@ -115,3 +114,7 @@ export const extensionsnotnullquery = (tablename: string): string => {
   const query = 'SELECT event_id,extensions,day FROM ' + tablename + ' where extensions is not null';
   return query;
 };
+
+export const IPV_IDENTITY_ISSUED_CONFORMED =
+  'select event_id,event_name,has_mitigations,level_of_confidence,ci_fail FROM\n' +
+  '  "dap_txma_reporting_db"."conformed"."fact_user_journey_event" fct  LEFT JOIN  "dap_txma_reporting_db"."conformed".DIM_EVENT DE ON fct.event_key = de.event_key WHERE ';
