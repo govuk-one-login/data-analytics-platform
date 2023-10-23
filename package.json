@@ -21,7 +21,7 @@
     "@tsconfig/node18": "^18.2.2",
     "@types/aws-lambda": "^8.10.124",
     "@types/jest": "^29.5.5",
-    "@types/uuid": "^9.0.5",
+    "@types/uuid": "^9.0.6",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@typescript-eslint/parser": "^6.8.0",
     "aws-sdk-client-mock": "^3.0.0",
