@@ -2,6 +2,12 @@ name: ✳️ Pull request deploy and test
 
 on:
   workflow_dispatch:
+    inputs:
+      skip-tests:
+        description: Skip running the smoke and integration tests (i.e. just deploy to feature)
+        type: boolean
+        required: false
+        default: false
   pull_request_review:
     types:
       - submitted
@@ -73,6 +79,7 @@ jobs:
           sam deploy --region eu-west-2 --stack-name dap --parameter-overrides "$PARAMETER_OVERRIDES" --signing-profiles "$PROFILES" --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset
 
   run-integration-tests:
+    if: inputs.skip-tests == false
     needs: [deploy-to-feature]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
@@ -105,6 +112,7 @@ jobs:
           TXMA_QUEUE_URL: https://sqs.eu-west-2.amazonaws.com/655068466146/feature-placeholder-txma-event-queue
 
   run-smoke-tests:
+    if: inputs.skip-tests == false
     needs: [deploy-to-feature]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
