@@ -101,6 +101,14 @@ export const IPV_JOURNEY_DATA = (eventname: string): string => {
   return query;
 };
 
+export const IPV_CRI_F2F_DATA = (eventname: string): string => {
+  const query =
+    "SELECT event_id, extensions_evidence,extensions_iss, extensions_successful, extensions_previousgovuksigninjourneyid, restricted_passport, restricted_residencepermit, restricted_drivingpermit, restricted_idcard FROM IPV_CRI_F2F where event_name='" +
+    eventname +
+    "'";
+  return query;
+};
+
 export const GET_EVENT_ID = (eventname: string): string => {
   const query =
     'SELECT event_id FROM ' +
