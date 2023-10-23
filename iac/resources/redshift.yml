@@ -97,6 +97,16 @@ RedshiftAccessEC2SecurityGroup:
         CidrIp: 0.0.0.0/0
         Description: Allow egress to anywhere
 
+VPCDefaultSecurityGroupRedshiftIngress:
+  Type: AWS::EC2::SecurityGroupIngress
+  Properties:
+    GroupId: !GetAtt VPCForDAP.DefaultSecurityGroup
+    IpProtocol: tcp
+    FromPort: 5439
+    ToPort: 5439
+    SourceSecurityGroupId: !Ref RedshiftAccessEC2SecurityGroup
+    Description: Allow ingress into the VPC default security group for redshift traffic from the redshift access security group
+
 RedshiftAccessEC2LaunchTemplate:
   Type: 'AWS::EC2::LaunchTemplate'
   Properties:
@@ -137,3 +147,45 @@ RedshiftAccessEC2Role:
           Action: sts:AssumeRole
     ManagedPolicyArns:
       - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+RedshiftMigrationRole:
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: !Sub ${Environment}-dap-redshift-migrate-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+          Action: 'sts:AssumeRoleWithWebIdentity'
+          Condition:
+            StringLike:
+              'token.actions.githubusercontent.com:sub':
+                - repo:govuk-one-login/data-analytics-platform:ref:refs/heads/*
+                - repo:govuk-one-login/data-analytics-platform:environment:*
+    Policies:
+      - PolicyName: !Sub ${Environment}-dap-redshift-migrate-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action: secretsmanager:ListSecrets
+              Resource: '*'
+            - Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource: !Ref MyRedshiftSecret
+            - Effect: Allow
+              Action: redshift-serverless:GetWorkgroup
+              Resource: !GetAtt RedshiftServerlessWorkgroup.Workgroup.WorkgroupArn
+            - Effect: Allow
+              Action: kms:Decrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action: ssm:StartSession
+              Resource:
+                - arn:aws:ssm:eu-west-2::document/AWS-StartPortForwardingSessionToRemoteHost
+                - !Sub arn:aws:ec2:eu-west-2:${AWS::AccountId}:instance/${RedshiftAccessEC2}
+            - Effect: Allow
+              Action: ec2:DescribeInstances
+              Resource: '*'
