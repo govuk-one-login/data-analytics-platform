@@ -5,7 +5,7 @@ import {
   setEventData,
   setEventDataWithoutUser,
 } from '../helpers/event-data-helper';
-import fs from 'fs';
+import * as fs from 'fs';
 
 describe('IPV_CRI_CIC GROUP Test - valid TXMA F2F Event without extension to SQS and expect event id stored in S3', () => {
   test.concurrent.each`
