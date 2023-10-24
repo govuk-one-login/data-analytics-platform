@@ -4,18 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        type: string
+        type: choice
         required: true
-        description: AWS environment - one of DEV, TEST, FEATURE, BUILD, STAGING, INTEGRATION or PRODUCTION
+        description: AWS environment
+        options: [DEV, TEST, FEATURE, BUILD, STAGING, INTEGRATION, PRODUCTION]
       command:
         type: choice
         required: true
         description: Flyway command to run
-        options:
-          - info
-          - migrate
-          - clean
-          - clean migrate
+        options: [info, migrate, clean, clean migrate]
 
 jobs:
   validate-environment:
