@@ -11,6 +11,7 @@
     "@aws-sdk/client-cloudwatch-logs": "^3.433.0",
     "@aws-sdk/client-firehose": "^3.433.0",
     "@aws-sdk/client-lambda": "^3.433.0",
+    "@aws-sdk/client-quicksight": "^3.433.0",
     "@aws-sdk/client-redshift-data": "^3.433.0",
     "@aws-sdk/client-s3": "^3.433.0",
     "@aws-sdk/client-sfn": "^3.433.0",

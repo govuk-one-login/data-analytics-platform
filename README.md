@@ -132,7 +132,7 @@ Lambdas can be run locally with [sam local invoke](https://docs.aws.amazon.com/s
 * Docker is running
 * Lambda you wish to run has been built into a `.js` file (`npm run build`)
 * Lambda you wish to run is defined in CloudFormation and has been built into the top-level `template.yml` file (`npm run iac:build`)
-  * You can use the CloudFormation resource name (e.g. `AthenaGetConfigLambda` or `EventConsumerLambda`) to refer to the lambda in the invoke command
+    * You can use the CloudFormation resource name (e.g. `AthenaGetConfigLambda` or `EventConsumerLambda`) to refer to the lambda in the invoke command
 * SAM application has been built (`sam build`)
     * **Order matters here** - this command copies the lambda JS into `.aws-sam/`, so make sure `npm run build` has been run beforehand
 * You have defined a JSON file (ideally [here](sam-local-examples)) containing the event you wish to be the input event of the lambda (unless you don't need an input event)
@@ -185,7 +185,7 @@ placeholder one that we create and must put our own test events onto.
 
 &ast; Strictly speaking, `test` and `dev` do not form part of the Secure Pipelines build system which takes an application
 that is deployed to `build` all the way to `production` via the other higher environments. Our `test` and `dev` environments are
-disconnected sandboxes; however they still use Secure Pipelines to deploy directly from GitHub 
+disconnected sandboxes; however they still use Secure Pipelines to deploy directly from GitHub
 
 &ast;&ast; An important exception is that _dev_ is connected to the real TxMA staging queue. This is intended to be temporary
 since at time of writing we do not have the higher environments set up. Once our own _staging_ account is ready, it will receive
