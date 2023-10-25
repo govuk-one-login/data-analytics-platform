@@ -22,7 +22,7 @@
     {
         "event_name": "ipv_fraud_cri_third_party_request_ended",
         "product_family": "ipv_cri_fraud",
-        "enabled": false
+        "enabled": true
     }
 ]
 
