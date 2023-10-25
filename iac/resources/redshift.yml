@@ -67,7 +67,7 @@ RedshiftServerlessNamespace:
 RedshiftServerlessWorkgroup:
   Type: 'AWS::RedshiftServerless::Workgroup'
   Properties:
-    BaseCapacity: 128
+    BaseCapacity: 64
     EnhancedVpcRouting: false
     NamespaceName: !Ref RedshiftServerlessNamespace
     Port: 5439
