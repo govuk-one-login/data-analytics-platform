@@ -4,6 +4,7 @@ import { mockApiGatewayEvent } from '../../shared/utils/test-utils';
 import { mockClient } from 'aws-sdk-client-mock';
 import { GenerateEmbedUrlForRegisteredUserCommand, QuickSightClient } from '@aws-sdk/client-quicksight';
 import type { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { type AWS_ENVIRONMENTS } from '../../shared/constants';
 
 const ACCOUNT_ID = '012345678901';
 
@@ -54,32 +55,7 @@ beforeEach(async () => {
 });
 
 test('success', async () => {
-  global.fetch = jest
-    .fn()
-    .mockImplementationOnce(async (url: string, init: RequestInit) => {
-      expect(url).toEqual(`${COGNITO_DOMAIN}/oauth2/token`);
-      expect(init.headers).toEqual({
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      });
-      expect(init.body).toEqual(
-        new URLSearchParams({
-          grant_type: 'authorization_code',
-          client_id: COGNITO_CLIENT_ID,
-          redirect_uri: `https://${EVENT.requestContext.domainName}`,
-          code: CODE,
-        }),
-      );
-      return { ok: true, json: async () => TOKEN_RESPONSE };
-    })
-    .mockImplementationOnce(async (url: string, init: RequestInit) => {
-      expect(url).toEqual(`${COGNITO_DOMAIN}/oauth2/userInfo`);
-      expect(init.headers).toEqual({
-        Authorization: `Bearer ${TOKEN_RESPONSE.access_token}`,
-      });
-      expect(init.body).not.toBeDefined();
-      return { ok: true, json: async () => USER_INFO_RESPONSE };
-    });
-
+  setUpSuccessfulFetch();
   const expectedArn = `arn:aws:quicksight:${process.env.AWS_REGION}:${ACCOUNT_ID}:user/default/${USER_INFO_RESPONSE.username}`;
 
   mockQuicksightClient
@@ -214,3 +190,57 @@ test('undefined embed url', async () => {
 
   expect(mockQuicksightClient.calls()).toHaveLength(1);
 });
+
+test('session duration', async () => {
+  const expectSessionDuration = async (
+    environment: (typeof AWS_ENVIRONMENTS)[number],
+    expectedDuration: number,
+  ): Promise<void> => {
+    setUpSuccessfulFetch();
+    process.env.ENVIRONMENT = environment;
+    const response = await handler(EVENT);
+    expect(response).toBeDefined();
+    const embedUrl = (response as unknown as { headers: { Location: string } }).headers.Location;
+    expect(embedUrl).toEqual(expectedDuration.toString());
+  };
+
+  // slight abuse of the EmbedUrl to hold the minutes passed in, but it is the easiest way to test this
+  mockQuicksightClient
+    .on(GenerateEmbedUrlForRegisteredUserCommand)
+    .callsFake(async input => ({ EmbedUrl: input.SessionLifetimeInMinutes.toString() }));
+
+  await expectSessionDuration('dev', 15);
+  await expectSessionDuration('test', 15);
+  await expectSessionDuration('feature', 15);
+  await expectSessionDuration('production', 600);
+
+  expect(mockQuicksightClient.calls()).toHaveLength(4);
+});
+
+const setUpSuccessfulFetch = (): void => {
+  global.fetch = jest
+    .fn()
+    .mockImplementationOnce(async (url: string, init: RequestInit) => {
+      expect(url).toEqual(`${COGNITO_DOMAIN}/oauth2/token`);
+      expect(init.headers).toEqual({
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      });
+      expect(init.body).toEqual(
+        new URLSearchParams({
+          grant_type: 'authorization_code',
+          client_id: COGNITO_CLIENT_ID,
+          redirect_uri: `https://${EVENT.requestContext.domainName}`,
+          code: CODE,
+        }),
+      );
+      return { ok: true, json: async () => TOKEN_RESPONSE };
+    })
+    .mockImplementationOnce(async (url: string, init: RequestInit) => {
+      expect(url).toEqual(`${COGNITO_DOMAIN}/oauth2/userInfo`);
+      expect(init.headers).toEqual({
+        Authorization: `Bearer ${TOKEN_RESPONSE.access_token}`,
+      });
+      expect(init.body).not.toBeDefined();
+      return { ok: true, json: async () => USER_INFO_RESPONSE };
+    });
+};
