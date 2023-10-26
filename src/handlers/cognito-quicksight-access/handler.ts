@@ -2,7 +2,7 @@ import { getLogger } from '../../shared/powertools';
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { quicksightClient } from '../../shared/clients';
 import { GenerateEmbedUrlForRegisteredUserCommand } from '@aws-sdk/client-quicksight';
-import { getEnvironmentVariable } from '../../shared/utils/utils';
+import { getAWSEnvironment, getEnvironmentVariable } from '../../shared/utils/utils';
 
 const logger = getLogger('lambda/cognito-quicksight-redirect');
 
@@ -108,6 +108,7 @@ const getEmbedUrl = async (accountId: string, username: string): Promise<string>
   const request = new GenerateEmbedUrlForRegisteredUserCommand({
     AwsAccountId: accountId,
     UserArn: userArn,
+    SessionLifetimeInMinutes: getAWSEnvironment() === 'production' ? 600 : 15,
     ExperienceConfiguration: {
       QuickSightConsole: {
         InitialPath: '/start',
