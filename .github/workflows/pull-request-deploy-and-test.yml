@@ -47,7 +47,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Node setup
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
@@ -95,7 +95,7 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.FEATURE_ENVIRONMENT_TEAR_DOWN_ROLE_ARN }}
       - name: Node setup
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
@@ -128,7 +128,7 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.FEATURE_ENVIRONMENT_TEAR_DOWN_ROLE_ARN }}
       - name: Node setup
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
