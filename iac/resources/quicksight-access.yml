@@ -104,3 +104,45 @@ QuicksightAccessUserPoolDomain:
   Properties:
     Domain: !Sub ${Environment}-dap-quicksight-access
     UserPoolId: !Ref QuicksightAccessUserPool
+
+QuicksightSyncUsersLambdaFunction:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this is a manually invoked action
+  Type: AWS::Serverless::Function
+  Condition: IsQuicksightEnvironment
+  Properties:
+    FunctionName: quicksight-sync-users
+    Handler: quicksight-sync-users.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - cognito-idp:AdminCreateUser
+              - cognito-idp:AdminDeleteUser
+              - cognito-idp:AdminGetUser
+            Resource: !GetAtt QuicksightAccessUserPool.Arn
+          - Effect: Allow
+            Action:
+              - quicksight:DeleteUser
+              - quicksight:DescribeUser
+              - quicksight:RegisterUser
+            Resource: '*'
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        USER_POOL_ID: !Ref QuicksightAccessUserPool
+    Tags:
+      Environment: !Ref Environment
+    MemorySize: 512
+    # this lambda lives in the protected subnets of a different VPC than the other lambdas
+    # because it needs (limited) internet access to call cognito and quicksight APIs and these services do not have VPC endpoints
+    # see https://govukverify.atlassian.net/wiki/spaces/PLAT/pages/3531735041/VPC
+    VpcConfig:
+      SecurityGroupIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-AWSServicesEndpointSecurityGroupId
+      SubnetIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdA
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdB
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdC

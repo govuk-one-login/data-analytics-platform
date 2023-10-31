@@ -4,7 +4,7 @@ import { quicksightClient } from '../../shared/clients';
 import { GenerateEmbedUrlForRegisteredUserCommand } from '@aws-sdk/client-quicksight';
 import { getAWSEnvironment, getEnvironmentVariable } from '../../shared/utils/utils';
 
-const logger = getLogger('lambda/cognito-quicksight-redirect');
+const logger = getLogger('lambda/cognito-quicksight-access');
 
 // see https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-runtime
 const region = process.env.AWS_REGION ?? process.env.AWS_DEFAULT_REGION;
