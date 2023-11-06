@@ -151,6 +151,14 @@ export function extensionToMapipvIdentityIssue(value): Record<string, string> {
   return val.match(transREs).groups;
 }
 
+export function extensionToMapauthAuthorisation(value): Record<string, string> {
+  const transclude =
+    'client-name={client_name}, evidence={evidence}, clientlandingpageurl={clientlandingpageurl},  description={description}';
+  const transRE = new RegExp(transclude.replace(/\{(.*?)\}/g, '(?<$1>.*)'));
+  const val = value.replace('{', '').replace('}', '');
+  return val.match(transRE).groups;
+}
+
 export const eventidlist = (eventidresults: string): string => {
   let querystring = '';
   for (let index = 0; index <= eventidresults.length - 1; index++) {

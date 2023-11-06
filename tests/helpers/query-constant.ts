@@ -93,6 +93,14 @@ export const AUTH_ACCOUNT_MFA_DATA = (eventname: string): string => {
   return query;
 };
 
+export const AUTH_AUTHORISATION_DATA = (eventname: string): string => {
+  const query =
+    "SELECT event_id, extensions_clientname,extensions_description, extensions_clientlandingpageurl FROM auth_account_mfa where event_name='" +
+    eventname +
+    "'";
+  return query;
+};
+
 export const IPV_JOURNEY_DATA = (eventname: string): string => {
   const query =
     "SELECT event_id, extensions_hasmitigations,extensions_levelofconfidence, extensions_cifail FROM IPV_JOURNEY where event_name='" +
