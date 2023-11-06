@@ -134,9 +134,20 @@ export function extensionToMap(value): Record<string, string> {
   const transclude = 'account-recovery={account_recovery}, mfa-type={mfa_type}, notification-type={notification_type}';
   const transRE = new RegExp(transclude.replace(/\{(.*?)\}/g, '(?<$1>.*)'));
   const val = value.replace('{', '').replace('}', '');
+  console.log('Replaces ' + val);
+  console.log('transRE ' + transRE);
   return val.match(transRE).groups;
 }
-
+export function parseData(str) {
+  str = str.replace(/=/g, ':');
+  str = str.replace(/(\w+):((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/g, '$1:$2"');
+  str = str.replace(/(\w+):/g, '"$1":');
+  str = str.replace(/:([^{\d][\w\s-]+)/g, ':"$1"');
+  str = str.replace('""https"":', '"https:');
+  str = str.replace('""http"":', '"http:');
+  // console.log(str);
+  return JSON.parse(str);
+}
 export function extensionToMap1F2fCriVcIssued(value): Record<string, string> {
   const transclude =
     'passport=[{documenttype=document_type}], residencepermit=resident_permit, drivingpermit=driving_permit, idcard=id_card';
