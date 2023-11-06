@@ -9,7 +9,7 @@
     "@aws-lambda-powertools/metrics": "^1.14.0",
     "@aws-sdk/client-athena": "^3.438.0",
     "@aws-sdk/client-cloudwatch-logs": "^3.438.0",
-    "@aws-sdk/client-firehose": "^3.438.0",
+    "@aws-sdk/client-firehose": "^3.441.0",
     "@aws-sdk/client-lambda": "^3.438.0",
     "@aws-sdk/client-quicksight": "^3.438.0",
     "@aws-sdk/client-redshift-data": "^3.438.0",
