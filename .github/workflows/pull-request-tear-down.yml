@@ -2,11 +2,6 @@ name: ✳️ Pull request tear down
 
 on:
   workflow_dispatch:
-  pull_request:
-    types:
-      - closed
-    paths-ignore:
-      - '**.md'
 
 jobs:
   validate-deployment-or-teardown:
@@ -31,7 +26,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 16
       - name: Assume AWS role
@@ -40,6 +35,6 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.FEATURE_ENVIRONMENT_TEAR_DOWN_ROLE_ARN }}
       - name: Prepare for stack deletion
-        run: npm run teardown:prepare
+        run: npm run teardown:prepare -- FEATURE
       - name: Delete CF stack
         run: npm run teardown:delete-stack

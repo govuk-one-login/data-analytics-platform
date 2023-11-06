@@ -1,5 +1,6 @@
 DeployRoleExtraIAMActions:
   Type: 'AWS::IAM::ManagedPolicy'
+  Condition: IsNotFeature
   Properties:
     PolicyDocument:
       Version: '2012-10-17'
@@ -63,10 +64,6 @@ DeployRoleExtraIAMActions:
             - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*DeployRole*'
     Roles:
       - Fn::If:
-          - IsFeature
-          - PL-dap-feature-deploy-DeployRole-0abf029fc6b0
-          - Ref: 'AWS::NoValue'
-      - Fn::If:
           - IsDev
           - PL-secure-pipelines-pipeline-DeployRole-0ac4f1a0d400
           - Ref: 'AWS::NoValue'
@@ -93,6 +90,7 @@ DeployRoleExtraIAMActions:
 
 GluePolicy:
   Type: AWS::IAM::Policy
+  Condition: IsNotFeature
   Properties:
     PolicyName: 'GlueServicePolicy'
     PolicyDocument:
@@ -130,10 +128,6 @@ GluePolicy:
           Resource: '*'
     Roles:
       - Fn::If:
-          - IsFeature
-          - PL-dap-feature-deploy-DeployRole-0abf029fc6b0
-          - Ref: 'AWS::NoValue'
-      - Fn::If:
           - IsDev
           - PL-secure-pipelines-pipeline-DeployRole-0ac4f1a0d400
           - Ref: 'AWS::NoValue'
@@ -163,6 +157,7 @@ RedShiftEC2Policy:
   #  checkov:skip=CKV_AWS_109:This check is skipped due to specific reasons
   #  checkov:skip=CKV_AWS_111:This check is skipped due to specific reasons
   Type: 'AWS::IAM::ManagedPolicy'
+  Condition: IsNotFeature
   Properties:
     Description: 'My Managed Policy'
     PolicyDocument:
@@ -176,10 +171,6 @@ RedShiftEC2Policy:
             - 'scheduler:*'
           Resource: '*'
     Roles:
-      - Fn::If:
-          - IsFeature
-          - PL-dap-feature-deploy-DeployRole-0abf029fc6b0
-          - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsDev
           - PL-secure-pipelines-pipeline-DeployRole-0ac4f1a0d400
@@ -207,6 +198,7 @@ RedShiftEC2Policy:
 
 StateMachinePolicy:
   Type: 'AWS::IAM::ManagedPolicy'
+  Condition: IsNotFeature
   Properties:
     Description: 'My Managed Policy for Step Functions'
     PolicyDocument:
@@ -238,10 +230,6 @@ StateMachinePolicy:
             - !Sub 'arn:aws:states:*:${AWS::AccountId}:stateMachine:*'
     Roles:
       - Fn::If:
-          - IsFeature
-          - PL-dap-feature-deploy-DeployRole-0abf029fc6b0
-          - Ref: 'AWS::NoValue'
-      - Fn::If:
           - IsDev
           - PL-secure-pipelines-pipeline-DeployRole-0ac4f1a0d400
           - Ref: 'AWS::NoValue'
@@ -268,6 +256,7 @@ StateMachinePolicy:
 
 CloudTrailPolicy:
   Type: 'AWS::IAM::ManagedPolicy'
+  Condition: IsNotFeature
   Properties:
     Description: 'Managed policy for CloudTrail operations'
     PolicyDocument:
@@ -295,10 +284,6 @@ CloudTrailPolicy:
             - 'cloudtrail:DescribeTrails'
           Resource: '*'
     Roles:
-      - Fn::If:
-          - IsFeature
-          - PL-dap-feature-deploy-DeployRole-0abf029fc6b0
-          - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsDev
           - PL-secure-pipelines-pipeline-DeployRole-0ac4f1a0d400

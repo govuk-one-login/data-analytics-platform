@@ -1,0 +1,46 @@
+{
+  "version": "2.0",
+  "routeKey": "$default",
+  "rawPath": "/",
+  "rawQueryString": "code=6b03e97c-6698-4908-92c7-cedd60c16d9b",
+  "headers": {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "accept-encoding": "gzip, deflate, br",
+    "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+    "content-length": "0",
+    "host": "my-api-id.execute-api.eu-west-2.amazonaws.com",
+    "sec-ch-ua": "\"Google Chrome\";v=\"117\", \"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"117\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\"",
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "cross-site",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
+    "x-amzn-trace-id": "Root=1-6515b456-1482d7f67a1326b35928070a",
+    "x-forwarded-for": "12.34.56.78",
+    "x-forwarded-port": "443",
+    "x-forwarded-proto": "https"
+  },
+  "queryStringParameters": { "code": "6b03e97c-6698-4908-92c7-cedd60c16d9b" },
+  "requestContext": {
+    "accountId": "365670209853",
+    "apiId": "my-api-id",
+    "domainName": "my-api-id.execute-api.eu-west-2.amazonaws.com",
+    "domainPrefix": "my-api-id",
+    "http": {
+      "method": "GET",
+      "path": "/",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "51.149.8.49",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+    },
+    "requestId": "L-kdjj1LrPEEMiw=",
+    "routeKey": "$default",
+    "stage": "$default",
+    "time": "28/Sep/2023:17:13:58 +0000",
+    "timeEpoch": 1695921238473
+  },
+  "isBase64Encoded": false
+}

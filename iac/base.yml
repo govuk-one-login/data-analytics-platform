@@ -65,8 +65,13 @@ Conditions:
     - !Equals
       - !Ref PermissionsBoundary
       - none
+  UseTestingContainers: !Not
+    - !Equals
+      - !Ref TestRoleArn
+      - none
   IsTest: !Equals [!Ref Environment, test]
   IsFeature: !Equals [!Ref Environment, feature]
+  IsNotFeature: !Not [!Equals [!Ref Environment, feature]]
   IsDev: !Equals [!Ref Environment, dev]
   IsBuild: !Equals [!Ref Environment, build]
   IsIntegration: !Equals [!Ref Environment, integration]
@@ -78,6 +83,11 @@ Conditions:
     # todo replace line below with `- !Condition IsDev` when txma queue has been moved from dev to staging
     - !Condition IsStaging
     - !Condition IsBuild
+  IsQuicksightEnvironment: !Or
+    - !Condition IsDev
+    - !Condition IsTest
+    - !Condition IsFeature
+    - !Condition IsProduction
 
 Globals:
   Function:

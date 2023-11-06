@@ -137,11 +137,26 @@ export function extensionToMap(value): Record<string, string> {
   return val.match(transRE).groups;
 }
 
+export function extensionToMap1F2fCriVcIssued(value): Record<string, string> {
+  const transclude =
+    'passport=[{documenttype=document_type}], residencepermit=resident_permit, drivingpermit=driving_permit, idcard=id_card';
+  const transRE = new RegExp(transclude.replace(/(.*?)/g, '(?<$1>.*)'));
+  return value.match(transRE).groups;
+}
+
 export function extensionToMapipvIdentityIssue(value): Record<string, string> {
   const transcludes = 'hasmitigations={has_mitigations}, levelofconfidence={level_of_confidence}, cifail={ci_fail}';
   const transREs = new RegExp(transcludes.replace(/\{(.*?)\}/g, '(?<$1>.*)'));
   const val = value.replace('{', '').replace('}', '');
   return val.match(transREs).groups;
+}
+
+export function extensionToMapauthAuthorisation(value): Record<string, string> {
+  const transclude =
+    'client-name={client_name}, evidence={evidence}, clientlandingpageurl={clientlandingpageurl},  description={description}';
+  const transRE = new RegExp(transclude.replace(/\{(.*?)\}/g, '(?<$1>.*)'));
+  const val = value.replace('{', '').replace('}', '');
+  return val.match(transRE).groups;
 }
 
 export const eventidlist = (eventidresults: string): string => {

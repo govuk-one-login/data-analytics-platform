@@ -1,0 +1,55 @@
+name: ✳️ Run flyway command on redshift
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        required: true
+        description: AWS environment
+        options: [DEV, TEST, FEATURE, BUILD, STAGING, INTEGRATION, PRODUCTION]
+      command:
+        type: choice
+        required: true
+        description: Flyway command to run
+        options: [info, migrate, clean, clean migrate]
+
+jobs:
+  validate-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Validate input environment
+        run: scripts/validate-environment.sh ${{ inputs.environment }}
+
+  run-flyway:
+    needs: [validate-environment]
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Assume AWS DB migration role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets[format('DB_MIGRATION_ROLE_ARN_{0}', inputs.environment)] }}
+      - name: Get AWS account id
+        run: echo "account_id=$(aws sts get-caller-identity --output text --query 'Account')" >> $GITHUB_ENV
+      - name: Prepare migrations folder
+        run: scripts/prepare-redshift-migrations.sh ${{ inputs.environment }} $account_id
+      - name: Download JARs
+        run: |
+          mkdir ${{ github.workspace }}/redshift-scripts/drivers
+          cd ${{ github.workspace }}/redshift-scripts/drivers
+          wget https://s3.amazonaws.com/redshift-downloads/drivers/jdbc/2.1.0.20/redshift-jdbc42-2.1.0.20.jar
+          wget https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.15.3/jackson-databind-2.15.3.jar
+      - name: Run flyway command
+        run: |
+          ENVIRONMENT=$(echo ${{ inputs.environment }})
+          WORKGROUP_NAME="${ENVIRONMENT,,}-redshift-serverless-workgroup"
+          scripts/run-flyway-command.sh $WORKGROUP_NAME ${{ inputs.command }}

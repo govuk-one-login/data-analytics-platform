@@ -93,9 +93,25 @@ export const AUTH_ACCOUNT_MFA_DATA = (eventname: string): string => {
   return query;
 };
 
+export const AUTH_AUTHORISATION_DATA = (eventname: string): string => {
+  const query =
+    "SELECT event_id, extensions_clientname,extensions_description, extensions_clientlandingpageurl FROM auth_account_mfa where event_name='" +
+    eventname +
+    "'";
+  return query;
+};
+
 export const IPV_JOURNEY_DATA = (eventname: string): string => {
   const query =
     "SELECT event_id, extensions_hasmitigations,extensions_levelofconfidence, extensions_cifail FROM IPV_JOURNEY where event_name='" +
+    eventname +
+    "'";
+  return query;
+};
+
+export const IPV_CRI_F2F_DATA = (eventname: string): string => {
+  const query =
+    "SELECT event_id, extensions_evidence,extensions_iss, extensions_successful, extensions_previousgovuksigninjourneyid, restricted_passport, restricted_residencepermit, restricted_drivingpermit, restricted_idcard FROM IPV_CRI_F2F where event_name='" +
     eventname +
     "'";
   return query;
@@ -115,3 +131,12 @@ export const extensionsnotnullquery = (tablename: string): string => {
   const query = 'SELECT event_id,extensions,day FROM ' + tablename + ' where extensions is not null';
   return query;
 };
+
+export const restrictednotnullquery = (tablename: string): string => {
+  const query = 'SELECT event_id,	restricted,day FROM ' + tablename + ' where restricted is not null';
+  return query;
+};
+
+export const IPV_IDENTITY_ISSUED_CONFORMED =
+  'select event_id,event_name,has_mitigations,level_of_confidence,ci_fail FROM\n' +
+  '  "dap_txma_reporting_db"."conformed"."fact_user_journey_event" fct  LEFT JOIN  "dap_txma_reporting_db"."conformed".DIM_EVENT DE ON fct.event_key = de.event_key WHERE ';
