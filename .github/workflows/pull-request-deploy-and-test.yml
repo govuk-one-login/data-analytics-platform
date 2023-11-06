@@ -72,11 +72,8 @@ jobs:
       - name: Deploy stack
         env:
           AWS_RETRY_MODE: adaptive
-          PARAMETER_OVERRIDES: 'Environment=feature VpcStackName=none CodeSigningConfigArn=arn:aws:lambda:eu-west-2:655068466146:code-signing-config:csc-0e1d19d9d083bacf6 PermissionsBoundary=arn:aws:iam::655068466146:policy/dap-feature-deploy-AppProgrammaticPermissionsBoundary-0abf029fc6b0 TestRoleArn=arn:aws:iam::655068466146:role/PL-dap-feature-deploy-TestRole-0abf029fc6b0'
-          SIGNING_PROFILE_NAME: ${{ secrets.SIGNING_PROFILE_NAME_FEATURE }}
-        run: |
-          PROFILES=$(cat template.yaml | grep 'AWS::Serverless::Function' -B2 | grep -E '^  \w+' | sed -E 's/ |://g' | xargs printf -- "%s=$SIGNING_PROFILE_NAME ")
-          sam deploy --region eu-west-2 --stack-name dap --parameter-overrides "$PARAMETER_OVERRIDES" --signing-profiles "$PROFILES" --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset
+          PARAMETER_OVERRIDES: 'Environment=feature VpcStackName=none CodeSigningConfigArn=none PermissionsBoundary=none TestRoleArn=none'
+        run: sam deploy --region eu-west-2 --stack-name dap --parameter-overrides "$PARAMETER_OVERRIDES" --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset
 
   run-integration-tests:
     if: inputs.skip-tests == false
