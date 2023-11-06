@@ -279,6 +279,7 @@ TestSupportLambda:
 
 TestSupportLambdaTestingContainerPermission:
   Type: AWS::Lambda::Permission
+  Condition: UseTestingContainers
   Properties:
     Action: lambda:InvokeFunction
     FunctionName: !Ref TestSupportLambda

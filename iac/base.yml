@@ -65,8 +65,13 @@ Conditions:
     - !Equals
       - !Ref PermissionsBoundary
       - none
+  UseTestingContainers: !Not
+    - !Equals
+      - !Ref TestRoleArn
+      - none
   IsTest: !Equals [!Ref Environment, test]
   IsFeature: !Equals [!Ref Environment, feature]
+  IsNotFeature: !Not [!Equals [!Ref Environment, feature]]
   IsDev: !Equals [!Ref Environment, dev]
   IsBuild: !Equals [!Ref Environment, build]
   IsIntegration: !Equals [!Ref Environment, integration]
