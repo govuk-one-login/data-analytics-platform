@@ -136,6 +136,7 @@ export function extensionToMap(value): Record<string, string> {
   const val = value.replace('{', '').replace('}', '');
   return val.match(transRE).groups;
 }
+//eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseData(str): any {
   str = str.replace(/=/g, ':');
   str = str.replace(/(\w+):((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/g, '$1:$2"');
