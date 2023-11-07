@@ -136,7 +136,17 @@ export function extensionToMap(value): Record<string, string> {
   const val = value.replace('{', '').replace('}', '');
   return val.match(transRE).groups;
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseData(str): any {
+  str = str.replace(/=/g, ':');
+  str = str.replace(/(\w+):((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/g, '$1:$2"');
+  str = str.replace(/(\w+):/g, '"$1":');
+  str = str.replace(/:([^{\d][\w\s-]+)/g, ':"$1"');
+  str = str.replace('""https"":', '"https:');
+  str = str.replace('""http"":', '"http:');
+  // console.log(str);
+  return JSON.parse(str);
+}
 export function extensionToMap1F2fCriVcIssued(value): Record<string, string> {
   const transclude =
     'passport=[{documenttype=document_type}], residencepermit=resident_permit, drivingpermit=driving_permit, idcard=id_card';
