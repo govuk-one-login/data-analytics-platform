@@ -54,12 +54,13 @@
     "smoke-test": "scripts/integration-test-check.sh && jest ./tests/smoke-tests/smoke-tests.spec.ts --silent --maxWorkers=4",
     "regression-test": "scripts/integration-test-check.sh && jest --silent ./tests/regression-tests --maxWorkers=4",
     "iac:build": "scripts/build-sam-template.sh",
-    "iac:lint": "npm run iac:build && sam validate --lint --region eu-west-2",
-    "iac:scan": "npm run iac:build && checkov --config-file .checkov.local.yml --file template.yaml --quiet",
+    "iac:buildall": "scripts/build-sam-templates.sh",
+    "iac:lint": "npm run iac:buildall && find iac-dist -maxdepth 1 -type f -exec sam validate --lint --region eu-west-2 --template-file {} \\;",
+    "iac:scan": "npm run iac:buildall && checkov --config-file .checkov.local.yml --directory iac-dist --quiet",
     "iac:format:check": "prettier --check iac",
     "iac:format:fix": "prettier --write iac",
     "teardown:prepare": "scripts/teardown-prepare.sh",
-    "teardown:delete-stack": "sam delete --region eu-west-2 --stack-name dap --no-prompts --debug",
+    "teardown:delete-stack": "sam delete --region eu-west-2 --no-prompts --debug --stack-name",
     "husky:install": "husky install"
   },
   "lint-staged": {
