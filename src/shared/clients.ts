@@ -9,8 +9,11 @@ import { AthenaClient } from '@aws-sdk/client-athena';
 import { SFNClient } from '@aws-sdk/client-sfn';
 import { RedshiftDataClient } from '@aws-sdk/client-redshift-data';
 import { QuickSightClient } from '@aws-sdk/client-quicksight';
+import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 
 export const athenaClient = new AthenaClient(AWS_CLIENT_BASE_CONFIG);
+
+export const cognitoClient = new CognitoIdentityProviderClient(AWS_CLIENT_BASE_CONFIG);
 
 export const cloudwatchClient = new CloudWatchLogsClient(AWS_CLIENT_BASE_CONFIG);
 
