@@ -109,7 +109,7 @@ VPCFlowLogsBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 365
+        - ExpirationInDays: 30
           Status: Enabled
     NotificationConfiguration:
       LambdaConfigurations:
@@ -685,7 +685,7 @@ TrailBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 90
+        - ExpirationInDays: 30
           Status: Enabled
     NotificationConfiguration:
       LambdaConfigurations:
@@ -696,6 +696,7 @@ TrailBucket:
 
 TrailBucketPolicy:
   Type: AWS::S3::BucketPolicy
+  Condition: IsProduction
   Properties:
     Bucket: !Ref TrailBucket
     PolicyDocument:
@@ -730,6 +731,7 @@ TrailBucketPolicy:
 
 CloudTrailForUnauthorizedAPIChanges:
   Type: 'AWS::CloudTrail::Trail'
+  Condition: IsProduction
   Properties:
     S3BucketName: !Ref TrailBucket
     IncludeGlobalServiceEvents: true
@@ -745,13 +747,15 @@ CloudTrailForUnauthorizedAPIChanges:
 
 UnauthorizedApiCallLogGroup:
   Type: AWS::Logs::LogGroup
+  Condition: IsProduction
   Properties:
     LogGroupName: !Sub /aws/dap-cloud-trail-log-group
     KmsKeyId: !GetAtt KmsKey.Arn
-    RetentionInDays: 30
+    RetentionInDays: 14
 
 UnauthorizedApiCallMetricFilter:
   Type: 'AWS::Logs::MetricFilter'
+  Condition: IsProduction
   Properties:
     LogGroupName: !Ref UnauthorizedApiCallLogGroup
     FilterPattern: '{($.errorCode = "AccessDenied") || ($.errorCode = "UnauthorizedOperation")}'
@@ -762,6 +766,7 @@ UnauthorizedApiCallMetricFilter:
 
 UnauthorizedApiCallAlarm:
   Type: 'AWS::CloudWatch::Alarm'
+  Condition: IsProduction
   Properties:
     AlarmName: UnauthorizedAPICallAlarm
     MetricName: UnauthorizedAPICallCount
@@ -776,6 +781,7 @@ UnauthorizedApiCallAlarm:
 
 CloudTrailCloudWatchLogsRole:
   Type: 'AWS::IAM::Role'
+  Condition: IsProduction
   Properties:
     AssumeRolePolicyDocument:
       Version: '2012-10-17'
@@ -799,13 +805,15 @@ CloudTrailCloudWatchLogsRole:
 
 IAMChangeLogGroup:
   Type: AWS::Logs::LogGroup
+  Condition: IsProduction
   Properties:
     LogGroupName: !Sub /aws/dap-IAM-changes-log-group
     KmsKeyId: !GetAtt KmsKey.Arn
-    RetentionInDays: 30
+    RetentionInDays: 14
 
 CloudTrailForIAMChanges:
   Type: 'AWS::CloudTrail::Trail'
+  Condition: IsProduction
   Properties:
     S3BucketName: !Ref TrailBucket
     IncludeGlobalServiceEvents: true
@@ -819,6 +827,7 @@ CloudTrailForIAMChanges:
 
 IAMChangeMetricFilter:
   Type: 'AWS::Logs::MetricFilter'
+  Condition: IsProduction
   Properties:
     LogGroupName: !Ref IAMChangeLogGroup
     FilterPattern: '{ ($.eventName = "CreatePolicy") || ($.eventName = "DeletePolicy") || ($.eventName = "AttachRolePolicy") || ($.eventName = "DetachRolePolicy") || ($.eventName = "AttachUserPolicy") || ($.eventName = "DetachUserPolicy") || ($.eventName = "AttachGroupPolicy") || ($.eventName = "DetachGroupPolicy") || ($.eventName = "UpdateAssumeRolePolicy") || ($.eventName = "PutRolePolicy") || ($.eventName = "PutUserPolicy") || ($.eventName = "PutGroupPolicy") }'
@@ -829,6 +838,7 @@ IAMChangeMetricFilter:
 
 IAMChangeAlarm:
   Type: 'AWS::CloudWatch::Alarm'
+  Condition: IsProduction
   Properties:
     AlarmName: IAMPolicyChangeAlarm
     MetricName: IAMPolicyChangeCount
@@ -843,6 +853,7 @@ IAMChangeAlarm:
 
 IAMChangeAlertSNSTopic:
   Type: 'AWS::SNS::Topic'
+  Condition: IsProduction
   Properties:
     DisplayName: 'IAM Policy Change Alert'
     TopicName: 'IAMPolicyChangeAlert'
@@ -858,6 +869,7 @@ IAMChangeAlertSNSTopicSubscription:
 
 UnauthorizedApiCallSNSTopic:
   Type: 'AWS::SNS::Topic'
+  Condition: IsProduction
   Properties:
     DisplayName: 'Unauthorized API Call Alert'
     TopicName: 'UnauthorizedApiCallAlert'
@@ -865,6 +877,7 @@ UnauthorizedApiCallSNSTopic:
 
 UnauthorizedApiCallSNSTopicSubscription:
   Type: 'AWS::SNS::Subscription'
+  Condition: IsProduction
   Properties:
     Protocol: 'email'
     Endpoint: 'dap-notifications@digital.cabinet-office.gov.uk'
