@@ -3,8 +3,8 @@
 Development decisions in this repository were based primarily on existing practices within our [Data Pod](https://govukverify.atlassian.net/wiki/spaces/DID/pages/3453387679/Data+Pod+Teams)
 (composed of us, TxMA and BTM). The repositories these practices were takes from are:
 
-* [di-billing-transaction-monitoring](https://github.com/alphagov/di-billing-transaction-monitoring) (BTM)
-* [di-txma-event-processing](https://github.com/alphagov/di-txma-event-processing) (TxMA)
+* [billing-transaction-monitoring](https://github.com/govuk-one-login/billing-transaction-monitoring) (BTM)
+* [txma-event-processing](https://github.com/govuk-one-login/txma-event-processing) (TxMA) (private repo)
 
 Both repositories are very similar to ours in the sense they have TypeScript lambdas deployed with an AWS SAM application,
 using the [Platform & SRE Pod's](https://govukverify.atlassian.net/wiki/spaces/PLAT/overview) Secure Pipelines.
@@ -54,7 +54,7 @@ SAM template YAML code is split into various files under the [iac](../iac) direc
 This is based on the approach in the BTM repository, where their template YAML is split into separate files under a `cloudformation/` directory and concatenated with a TypeScript script.
 
 Having the SAM template in a `template.yaml` file at the top-level seems to be a GDS convention as several tools expect this.
-For instance, the [di-devplatform-upload-action](https://github.com/alphagov/di-devplatform-upload-action) expects this, providing optional `working-directory` and `template-file` arguments if you need to change it.
+For instance, the [devplatform-upload-action](https://github.com/govuk-one-login/devplatform-upload-action) expects this, providing optional `working-directory` and `template-file` arguments if you need to change it.
 
 In addition, [SAM itself expects this](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-build.html).
 Running `sam build` looks for a file at `template.[yaml|yml]`, and you need to add a `--template-file` flag to specify one elsewhere.
