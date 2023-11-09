@@ -7,7 +7,8 @@ ENVIRONMENT=$1
 
 if [ -z "$ENVIRONMENT" ]; then
   echo "Environment not provided"
-  echo "Usage: teardown-prepare.sh ENVIRONMENT"
+  echo "Usage (bash): teardown-prepare.sh ENVIRONMENT"
+  echo "Usage (npm): npm run teardown:prepare -- ENVIRONMENT"
   exit 1
 fi
 

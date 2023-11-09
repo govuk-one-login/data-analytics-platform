@@ -37,7 +37,7 @@ jobs:
     with:
       environment: ${{ inputs.environment }}
 
-  deploy-to-aws:
+  deploy-main-application:
     needs: [validate-environment, validate-branch-ahead]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
@@ -57,12 +57,12 @@ jobs:
       - name: Build lambdas
         run: npm run build
       - name: Build SAM template
-        run: npm run iac:build
+        run: npm run iac:build -- main
       - name: SAM setup
         uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
-          version: 1.82.0
+          version: 1.98.0
       - name: SAM build
         run: sam build
       - name: Assume AWS GitHub actions role
@@ -71,8 +71,48 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_{0}', inputs.environment)] }}
       - name: Trigger secure pipeline deployment
-        uses: alphagov/di-devplatform-upload-action@v3.3
+        uses: govuk-one-login/devplatform-upload-action@v3.3
         with:
           artifact-bucket-name: ${{ secrets[format('ARTIFACT_BUCKET_NAME_{0}', inputs.environment)] }}
+          signing-profile-name: ${{ secrets[format('SIGNING_PROFILE_NAME_{0}', inputs.environment)] }}
+          working-directory: .
+
+  deploy-quicksight-access-application:
+    needs: [validate-environment, validate-branch-ahead]
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+      - name: Install node packages
+        run: npm ci
+      - name: Build lambdas
+        run: npm run build
+      - name: Build SAM template
+        run: npm run iac:build -- quicksight-access
+      - name: SAM setup
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+          version: 1.98.0
+      - name: SAM build
+        run: sam build
+      - name: Assume AWS GitHub actions role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_QUICKSIGHT_ACCESS_{0}', inputs.environment)] }}
+      - name: Trigger secure pipeline deployment
+        uses: govuk-one-login/devplatform-upload-action@v3.3
+        with:
+          artifact-bucket-name: ${{ secrets[format('ARTIFACT_BUCKET_NAME_QUICKSIGHT_ACCESS_{0}', inputs.environment)] }}
           signing-profile-name: ${{ secrets[format('SIGNING_PROFILE_NAME_{0}', inputs.environment)] }}
           working-directory: .

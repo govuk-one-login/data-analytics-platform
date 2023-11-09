@@ -50,11 +50,15 @@ In addition, files to support running lambdas with `sam local invoke` are in the
 
 #### IaC
 
-IaC code is written in [AWS SAM](https://aws.amazon.com/serverless/sam) (a superset of [CloudFormation](https://aws.amazon.com/cloudformation) templates) and deployed as a SAM application.
+IaC code is written in [AWS SAM](https://aws.amazon.com/serverless/sam) (a superset of [CloudFormation](https://aws.amazon.com/cloudformation) templates) and deployed as SAM applications.
 
-IaC code can be found in the [iac](iac) directory. In here there is a base file, [base.yml](iac/base.yml), which contains everything except the `Resources` section.
-In the [resources subdirectory](iac/resources), there are YAML files containing all the stack resources, grouped by functional area. A `package.json` script, `iac:build`,
-(which uses [a bash script](scripts/build-sam-template.sh)) concatenates all these files into a single top-level `template.yaml` file that is expected by SAM and Secure Pipelines.
+IaC code can be found in the [iac](iac) directory. There are currently two applications, each with its own subdirectory ([main](iac/main) and [quicksight-access](iac/quicksight-access)).
+In each there is a base file, `base.yml`, which contains everything except the `Resources` section.
+In the `resources/` subdirectory, there are YAML files containing all the stack resources, grouped by functional area.
+
+A `package.json` script, `iac:build`, concatenates all these files for a particular application into a single top-level `template.yaml` file that is expected by SAM and Secure Pipelines.
+The script requires an argument for which application you wish to build, e.g. `npm run iac:build -- main`.
+To build all applications at once (useful for linting and scanning), an additional npm script, `iac:buildall`, exists which puts the template files it builds into the (git ignored) [iac-dist](iac-dist) directory.
 
 The [AWS SAM](https://aws.amazon.com/serverless/sam) config is at [samconfig.toml](samconfig.toml).
 
@@ -178,6 +182,11 @@ Deployment is done via [Secure Pipelines](https://govukverify.atlassian.net/wiki
 The deployments are done via the [Secure Pipelines SAM deployment stack](https://govukverify.atlassian.net/wiki/spaces/PLAT/pages/3059908609/How+to+deploy+a+SAM+application+with+secure+pipelines), and
 tests are run after the SAM deployment, which is done via [Secure Pipelines testing containers](https://govukverify.atlassian.net/wiki/spaces/PLAT/pages/3054010402/How+to+run+tests+against+your+deployed+application+in+a+SAM+deployment+pipeline).
 
+The deployment of the platform is currently split two applications, `main` and `quicksight-access` (each having its own subdirectory in [iac](iac)).
+This was to overcome an issue where we had hit a hard character limit for the programmatic permissions boundary (used by lambdas) caused by us having
+so many `AllowedService`s in the SAM deployment stack. The solution was to make a second SAM deployment stack to have some of the `AllowedService`s
+and split off some of the IaC to become its own application deployed by that stack (the Cognito and Quicksight functionality as it was the source of the most recent permissions we had requested that had put our permissions boundary over the limit).
+
 From a Secure Pipelines point-of-view, environments can be split into two types: 'higher' and 'lower' environments.
 The lower environments are _test_, _dev_ and _build_&ast;&ast;. The higher environments are _staging_, _integration_ and _production_.
 More information can be found using the Secure Pipelines link above, but the key differences are that the lower environments are the only ones
@@ -207,10 +216,10 @@ It can be manually invoked on a chosen branch by finding it in the [GitHub Actio
 
 The _feature_ environment is a standalone environment for the purpose of testing GitHub pull requests.
 It has a GitHub Action [Pull request deploy and test](.github/workflows/pull-request-deploy-and-test.yml) which deploys there and then runs integration tests.
-This deployment is _not_ done via Secure Pipelines, but just a manual `sam deploy` command. Likewise, the tests are
+This deployment is _not_ done via Secure Pipelines, but just manual `sam deploy` commands. Likewise, the tests are
 _not_ run with the Secure Pipelines testing container approach, but instead manually invoked with `npm run`.
 This action can be manually invoked, but will also automatically run when a pull request is opened, reopened or updated.
-Unlike other environments, _feature_ has a second GitHub Action [Pull request tear down](.github/workflows/pull-request-tear-down.yml) which completely deletes the stack.
+Unlike other environments, _feature_ has a second GitHub Action [Pull request tear down](.github/workflows/pull-request-tear-down.yml) which completely deletes the stacks.
 Like the first action it can be manually invoked, ~~but will also automatically run when a pull request is merged or otherwise closed~~.
 _Automatic running has been disabled until [DAC-1862](https://govukverify.atlassian.net/browse/DAC-1862) is done._
 
