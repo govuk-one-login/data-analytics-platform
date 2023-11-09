@@ -138,5 +138,5 @@ export const restrictednotnullquery = (tablename: string): string => {
 };
 
 export const IPV_IDENTITY_ISSUED_CONFORMED =
-  'select event_id,event_name,has_mitigations,level_of_confidence,ci_fail FROM\n' +
-  '  "dap_txma_reporting_db"."conformed"."fact_user_journey_event" fct  LEFT JOIN  "dap_txma_reporting_db"."conformed".DIM_EVENT DE ON fct.event_key = de.event_key WHERE ';
+'select event_id,event_name,has_mitigations,level_of_confidence,ci_fail,notification_type,account_recovery,mfa_type FROM\n' +
+'  "dap_txma_reporting_db"."conformed"."fact_user_journey_event" fct  LEFT JOIN  "dap_txma_reporting_db"."conformed".DIM_EVENT DE ON fct.event_key = de.event_key WHERE ';
