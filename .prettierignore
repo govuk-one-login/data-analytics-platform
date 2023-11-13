@@ -7,3 +7,4 @@ test-report/
 .prettierignore
 .husky/
 *.properties
+Dockerfile
