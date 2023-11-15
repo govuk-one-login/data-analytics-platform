@@ -1,13 +1,13 @@
 import { faker } from '@faker-js/faker';
 import { getQueryResults } from '../helpers/db-helpers';
-import { GET_EVENT_ID, extensionsnotnullquery, IPV_CRI_F2F_DATA } from '../helpers/query-constant';
+import { GET_EVENT_ID, extensionsnotnullquery, IPV_CRI_F2F_DATA, IPV_CRI_PASSPORT_DATA } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
 import { eventidlist, parseData } from '../helpers/common-helpers';
 
-describe('IPV_F2F_CRI_VC_RECEIVED data validation Test - validate data at stage and raw layer', () => {
+describe('IPV_CRI_PASSPORT data validation Test - validate data at stage and raw layer', () => {
   test.each`
-    eventName                    | event_id               | client_id              | journey_id
-    ${'IPV_F2F_CRI_VC_RECEIVED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    eventName                    
+    ${'IPV_PASSPORT_CRI_VC_ISSUED'} 
   `(
     'Should validate $eventName event extensions  stored in raw and stage layer',
     async ({ ...data }) => {
@@ -31,10 +31,12 @@ describe('IPV_F2F_CRI_VC_RECEIVED data validation Test - validate data at stage 
       for (let index = 0; index <= athenaRawQueryResults.length - 1; index++) {
         const eventId = athenaRawQueryResults[index].event_id;
         const stExtensions = athenaRawQueryResults[index].extensions;
-        // console.log(`stExtensions: ${stExtensions}`);
+        console.log(`stExtensions: ${stExtensions}`);
         const rawData = parseData(stExtensions);
+        console.log(rawData);
 
-        const queryStage = `${IPV_CRI_F2F_DATA(eventname)} and event_id = '${eventId}'`;
+
+        const queryStage = `${IPV_CRI_PASSPORT_DATA(eventname)} and event_id = '${eventId}'`;
 
         // console.log('queryStage : ' + queryStage);
         const athenaQueryResultsStage = await getQueryResults(
@@ -57,30 +59,38 @@ describe('IPV_F2F_CRI_VC_RECEIVED data validation Test - validate data at stage 
   function validateEvidenceData(
     rawData: {
       evidence: {
-        biometricverificationprocesslevel: any;
+        decisionscore: any;
+        identityfraudscore: any;
+        type: any;
         checkdetails: {
           checkmethod: any;
-          photoverificationprocesslevel: any;
+        }
+        failedcheckdetails: {
+          checkmethod: any;
         }[];
       }[];
     },
     stageData: {
+      decisionscore: any;
+      identityfraudscore: any;
+      type: any;
       checkdetails: {
         checkmethod: any;
-        biometricverificationprocesslevel: any;
-        photoverificationprocesslevel: any;
+      }
+      failedcheckdetails: {
+        checkmethod: any;
       }[];
     }[],
   ): void {
-    const biometricverificationprocesslevel = rawData.evidence[0].biometricverificationprocesslevel;
+    const rawDecisionscore = rawData.evidence[0].decisionscore;
 
     if (
-      biometricverificationprocesslevel !== 'null' &&
-      biometricverificationprocesslevel !== null &&
-      biometricverificationprocesslevel !== undefined
+      rawDecisionscore !== 'null' &&
+      rawDecisionscore !== null &&
+      rawDecisionscore !== undefined
     ) {
-      const stageBiometricverificationprocesslevel = stageData[0].checkdetails[0].biometricverificationprocesslevel;
-      expect(biometricverificationprocesslevel).toEqual(stageBiometricverificationprocesslevel);
+      const stageDecisionscore = stageData[0].decisionscore;
+      expect(rawDecisionscore).toEqual(stageDecisionscore);
     }
     const checkmethod = rawData.evidence[0].checkdetails[0].checkmethod;
     if (checkmethod !== 'null' && checkmethod !== null && checkmethod !== undefined) {
@@ -88,14 +98,14 @@ describe('IPV_F2F_CRI_VC_RECEIVED data validation Test - validate data at stage 
       expect(stageCheckmethod).toEqual(stageCheckmethod);
     }
 
-    const photoverificationprocesslevel = rawData.evidence[0].checkdetails[0].photoverificationprocesslevel;
+    const rawIdentityfraudscore = rawData.evidence[0].checkdetails[0].identityfraudscore;
     if (
-      photoverificationprocesslevel !== 'null' &&
-      photoverificationprocesslevel !== null &&
-      photoverificationprocesslevel !== undefined
+      rawIdentityfraudscore !== 'null' &&
+      rawIdentityfraudscore !== null &&
+      rawIdentityfraudscore !== undefined
     ) {
-      const stagePhotoverificationprocesslevel = stageData[0].checkdetails[0].photoverificationprocesslevel;
-      expect(photoverificationprocesslevel).toEqual(stagePhotoverificationprocesslevel);
+      const stageIdentityfraudscore = stageData[0].checkdetails[0].identityfraudscore;
+      expect(rawIdentityfraudscore).toEqual(stageIdentityfraudscore);
     }
   }
 });
