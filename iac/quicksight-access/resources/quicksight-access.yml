@@ -20,9 +20,8 @@ QuicksightAccessLambdaFunction:
         COGNITO_DOMAIN: !Sub https://${QuicksightAccessUserPoolDomain}.auth.${AWS::Region}.amazoncognito.com
     Tags:
       Environment: !Ref Environment
-    Timeout: 20
     MemorySize: 512
-    # this lambda lives in the protected subnets of a different VPC than the other lambdas
+    # this lambda lives in the protected subnets of a different VPC than the main application lambdas
     # because it needs (limited) internet access to call cognito and quicksight APIs and these services do not have VPC endpoints
     # see https://govukverify.atlassian.net/wiki/spaces/PLAT/pages/3531735041/VPC
     VpcConfig:
@@ -99,8 +98,8 @@ QuicksightAccessUserPoolClient:
     UserPoolId: !Ref QuicksightAccessUserPool
 
 QuicksightAccessUserPoolDomain:
-  Condition: IsQuicksightEnvironment
   Type: AWS::Cognito::UserPoolDomain
+  Condition: IsQuicksightEnvironment
   Properties:
     Domain: !Sub ${Environment}-dap-quicksight-access
     UserPoolId: !Ref QuicksightAccessUserPool
@@ -136,7 +135,7 @@ QuicksightSyncUsersLambdaFunction:
     Tags:
       Environment: !Ref Environment
     MemorySize: 512
-    # this lambda lives in the protected subnets of a different VPC than the other lambdas
+    # this lambda lives in the protected subnets of a different VPC than the main application lambdas
     # because it needs (limited) internet access to call cognito and quicksight APIs and these services do not have VPC endpoints
     # see https://govukverify.atlassian.net/wiki/spaces/PLAT/pages/3531735041/VPC
     VpcConfig:

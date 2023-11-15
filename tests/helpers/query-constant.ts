@@ -117,13 +117,19 @@ export const IPV_CRI_F2F_DATA = (eventname: string): string => {
   return query;
 };
 
+export const IPV_CRI_PASSPORT_DATA = (eventname: string): string => {
+  const query =
+    "SELECT event_id, extensions_evidence,extensions_iss FROM IPV_CRI_PASSPORT where event_name='" + eventname + "'";
+  return query;
+};
+
 export const GET_EVENT_ID = (eventname: string): string => {
   const query =
     'SELECT event_id FROM ' +
     productFamily(eventname) +
     " where event_name='" +
     eventname +
-    "' order by processed_date desc limit 10;";
+    "' order by processed_date desc limit 1;";
   return query;
 };
 
@@ -141,5 +147,5 @@ export const restrictednotnullquery = (tablename: string): string => {
 };
 
 export const IPV_IDENTITY_ISSUED_CONFORMED =
-  'select event_id,event_name,has_mitigations,level_of_confidence,ci_fail FROM\n' +
+  'select event_id,event_name,has_mitigations,level_of_confidence,ci_fail,notification_type,account_recovery,mfa_type FROM\n' +
   '  "dap_txma_reporting_db"."conformed"."fact_user_journey_event" fct  LEFT JOIN  "dap_txma_reporting_db"."conformed".DIM_EVENT DE ON fct.event_key = de.event_key WHERE ';
