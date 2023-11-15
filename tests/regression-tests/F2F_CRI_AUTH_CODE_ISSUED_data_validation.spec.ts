@@ -6,7 +6,7 @@ import { eventidlist, parseData } from '../helpers/common-helpers';
 
 describe('F2F_CRI_AUTH_CODE_ISSUED data validation Test - validate data at stage and raw layer', () => {
   test.each`
-    eventName                    | event_id               | client_id              | journey_id
+    eventName                     | event_id               | client_id              | journey_id
     ${'F2F_CRI_AUTH_CODE_ISSUED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
   `(
     'Should validate $eventName event extensions  stored in raw and stage layer',
@@ -42,11 +42,10 @@ describe('F2F_CRI_AUTH_CODE_ISSUED data validation Test - validate data at stage
         const stageData = athenaQueryResultsStage[0];
         // console.log(`stExtensions: ${stExtensions}`);
         // console.log('RAW Data ->Map: ' + parseData(stExtensions));
-       const rawData= parseData(stExtensions);
+        const rawData = parseData(stExtensions);
         validateData(rawData, stageData);
         expect(stExtensions.iss).toEqual(athenaQueryResultsStage[0].extensions_iss);
         // expect(rawData.successful).toEqual(athenaQueryResultsStage[0].extensions_successful);
-
       }
     },
     240000,
@@ -54,20 +53,12 @@ describe('F2F_CRI_AUTH_CODE_ISSUED data validation Test - validate data at stage
 
   function validateData(rawData, stageData): void {
     const govuksigninjourney_id = rawData.govuk_signin_journey_id;
-    if (
-      govuksigninjourney_id !== 'null' &&
-      govuksigninjourney_id !== null &&
-      govuksigninjourney_id !== undefined
-    ) {
+    if (govuksigninjourney_id !== 'null' && govuksigninjourney_id !== null && govuksigninjourney_id !== undefined) {
       const stageBiometricverificationprocesslevel = stageData.user_govuk_signin_journey_id;
       expect(govuksigninjourney_id).toEqual(stageBiometricverificationprocesslevel);
     }
     const user_id = rawData.user_id;
-    if (
-      user_id !== 'null' &&
-      user_id !== null &&
-      user_id !== undefined
-    ) {
+    if (user_id !== 'null' && user_id !== null && user_id !== undefined) {
       const stageUserId = stageData.user_user_id;
       expect(user_id).toEqual(stageUserId);
     }

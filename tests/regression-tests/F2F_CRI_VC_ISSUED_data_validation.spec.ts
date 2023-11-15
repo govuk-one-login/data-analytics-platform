@@ -6,7 +6,7 @@ import { eventidlist, parseData } from '../helpers/common-helpers';
 
 describe('F2F_CRI_VC_ISSUED data validation Test - validate data at stage and raw layer', () => {
   test.each`
-    eventName                    | event_id               | client_id              | journey_id
+    eventName              | event_id               | client_id              | journey_id
     ${'F2F_CRI_VC_ISSUED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
   `(
     'Should validate $eventName event extensions  stored in raw and stage layer',
