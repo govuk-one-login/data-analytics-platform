@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { getQueryResults } from '../helpers/db-helpers';
-import { GET_EVENT_ID, extensionsnotnullquery, IPV_CRI_F2F_DATA, usernotnullquery } from '../helpers/query-constant';
+import { GET_EVENT_ID, IPV_CRI_F2F_DATA, usernotnullquery } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
 import { eventidlist, parseData } from '../helpers/common-helpers';
 
@@ -52,15 +52,15 @@ describe('F2F_CRI_AUTH_CODE_ISSUED data validation Test - validate data at stage
   );
 
   function validateData(rawData, stageData): void {
-    const govuksigninjourney_id = rawData.govuk_signin_journey_id;
-    if (govuksigninjourney_id !== 'null' && govuksigninjourney_id !== null && govuksigninjourney_id !== undefined) {
+    const govukSigninJourneyId = rawData.govuk_signin_journey_id;
+    if (govukSigninJourneyId !== 'null' && govukSigninJourneyId !== null && govukSigninJourneyId !== undefined) {
       const stageBiometricverificationprocesslevel = stageData.user_govuk_signin_journey_id;
-      expect(govuksigninjourney_id).toEqual(stageBiometricverificationprocesslevel);
+      expect(govukSigninJourneyId).toEqual(stageBiometricverificationprocesslevel);
     }
-    const user_id = rawData.user_id;
-    if (user_id !== 'null' && user_id !== null && user_id !== undefined) {
+    const userId = rawData.user_id;
+    if (userId !== 'null' && userId !== null && userId !== undefined) {
       const stageUserId = stageData.user_user_id;
-      expect(user_id).toEqual(stageUserId);
+      expect(userId).toEqual(stageUserId);
     }
   }
 });
