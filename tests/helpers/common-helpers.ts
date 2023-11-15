@@ -142,9 +142,10 @@ export function parseData(str): any {
   str = str.replace(/(\w+):((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/g, '$1:$2"');
   str = str.replace(/(\w+):/g, '"$1":');
   str = str.replace(/:([^{\d][\w\s-]+)/g, ':"$1"');
+  str = str.replace(/:([\w-]+)/g, ':"$1"');
   str = str.replace('""https"":', '"https:');
   str = str.replace('""http"":', '"http:');
-  // console.log(str);
+  // console.log(`Here: ${str}`);
   return JSON.parse(str);
 }
 export function extensionToMap1F2fCriVcIssued(value): Record<string, string> {
