@@ -169,7 +169,7 @@ export function extensionToMapauthAuthorisation(value): Record<string, string> {
   return val.match(transRE).groups;
 }
 
-export const eventidlist = (eventidresults: string): string | unknown => {
+export const eventidlist = (eventidresults: string): string => {
   let querystring = '';
   for (let index = 0; index <= eventidresults.length - 1; index++) {
     querystring = querystring + `'${eventidresults[index].event_id}'`;

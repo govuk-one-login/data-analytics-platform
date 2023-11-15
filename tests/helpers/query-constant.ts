@@ -119,9 +119,7 @@ export const IPV_CRI_F2F_DATA = (eventname: string): string => {
 
 export const IPV_CRI_PASSPORT_DATA = (eventname: string): string => {
   const query =
-    "SELECT event_id, extensions_evidence,extensions_iss FROM IPV_CRI_PASSPORT where event_name='" +
-    eventname +
-    "'";
+    "SELECT event_id, extensions_evidence,extensions_iss FROM IPV_CRI_PASSPORT where event_name='" + eventname + "'";
   return query;
 };
 

@@ -54,24 +54,7 @@ describe('IPV_F2F_CRI_VC_RECEIVED data validation Test - validate data at stage 
     240000,
   );
 
-  function validateEvidenceData(
-    rawData: {
-      evidence: {
-        biometricverificationprocesslevel: any;
-        checkdetails: {
-          checkmethod: any;
-          photoverificationprocesslevel: any;
-        }[];
-      }[];
-    },
-    stageData: {
-      checkdetails: {
-        checkmethod: any;
-        biometricverificationprocesslevel: any;
-        photoverificationprocesslevel: any;
-      }[];
-    }[],
-  ): void {
+  function validateEvidenceData(rawData, stageData): void {
     const biometricverificationprocesslevel = rawData.evidence[0].biometricverificationprocesslevel;
 
     if (

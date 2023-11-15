@@ -1,13 +1,12 @@
-import { faker } from '@faker-js/faker';
 import { getQueryResults } from '../helpers/db-helpers';
-import { GET_EVENT_ID, extensionsnotnullquery, IPV_CRI_F2F_DATA, IPV_CRI_PASSPORT_DATA } from '../helpers/query-constant';
+import { GET_EVENT_ID, extensionsnotnullquery, IPV_CRI_PASSPORT_DATA } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
 import { eventidlist, parseData } from '../helpers/common-helpers';
 
 describe('IPV_CRI_PASSPORT data validation Test - validate data at stage and raw layer', () => {
   test.each`
-    eventName                    
-    ${'IPV_PASSPORT_CRI_VC_ISSUED'} 
+    eventName
+    ${'IPV_PASSPORT_CRI_VC_ISSUED'}
   `(
     'Should validate $eventName event extensions  stored in raw and stage layer',
     async ({ ...data }) => {
@@ -31,10 +30,9 @@ describe('IPV_CRI_PASSPORT data validation Test - validate data at stage and raw
       for (let index = 0; index <= athenaRawQueryResults.length - 1; index++) {
         const eventId = athenaRawQueryResults[index].event_id;
         const stExtensions = athenaRawQueryResults[index].extensions;
-        console.log(`stExtensions: ${stExtensions}`);
+        // console.log(`stExtensions: ${stExtensions}`);
         const rawData = parseData(stExtensions);
-        console.log(rawData);
-
+        // console.log(rawData);
 
         const queryStage = `${IPV_CRI_PASSPORT_DATA(eventname)} and event_id = '${eventId}'`;
 
@@ -56,39 +54,10 @@ describe('IPV_CRI_PASSPORT data validation Test - validate data at stage and raw
     240000,
   );
 
-  function validateEvidenceData(
-    rawData: {
-      evidence: {
-        decisionscore: any;
-        identityfraudscore: any;
-        type: any;
-        checkdetails: {
-          checkmethod: any;
-        }
-        failedcheckdetails: {
-          checkmethod: any;
-        }[];
-      }[];
-    },
-    stageData: {
-      decisionscore: any;
-      identityfraudscore: any;
-      type: any;
-      checkdetails: {
-        checkmethod: any;
-      }
-      failedcheckdetails: {
-        checkmethod: any;
-      }[];
-    }[],
-  ): void {
+  function validateEvidenceData(rawData, stageData): void {
     const rawDecisionscore = rawData.evidence[0].decisionscore;
 
-    if (
-      rawDecisionscore !== 'null' &&
-      rawDecisionscore !== null &&
-      rawDecisionscore !== undefined
-    ) {
+    if (rawDecisionscore !== 'null' && rawDecisionscore !== null && rawDecisionscore !== undefined) {
       const stageDecisionscore = stageData[0].decisionscore;
       expect(rawDecisionscore).toEqual(stageDecisionscore);
     }
@@ -99,11 +68,7 @@ describe('IPV_CRI_PASSPORT data validation Test - validate data at stage and raw
     }
 
     const rawIdentityfraudscore = rawData.evidence[0].checkdetails[0].identityfraudscore;
-    if (
-      rawIdentityfraudscore !== 'null' &&
-      rawIdentityfraudscore !== null &&
-      rawIdentityfraudscore !== undefined
-    ) {
+    if (rawIdentityfraudscore !== 'null' && rawIdentityfraudscore !== null && rawIdentityfraudscore !== undefined) {
       const stageIdentityfraudscore = stageData[0].checkdetails[0].identityfraudscore;
       expect(rawIdentityfraudscore).toEqual(stageIdentityfraudscore);
     }
