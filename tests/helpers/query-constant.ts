@@ -129,7 +129,7 @@ export const GET_EVENT_ID = (eventname: string): string => {
     productFamily(eventname) +
     " where event_name='" +
     eventname +
-    "' order by processed_date desc limit 1;";
+    "' order by processed_date desc limit 10;";
   return query;
 };
 
