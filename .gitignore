@@ -8,3 +8,4 @@ jest-stare/
 test-report/
 template.yaml
 reports
+iac-dist/
