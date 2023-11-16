@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker';
 import { getQueryResults } from '../helpers/db-helpers';
 import { GET_EVENT_ID, IPV_CRI_F2F_DATA, usernotnullquery } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
@@ -6,9 +5,9 @@ import { eventidlist, parseData } from '../helpers/common-helpers';
 
 describe('F2F_CRI_AUTH_CODE_ISSUED data validation Test - validate data at stage and raw layer', () => {
   test.each`
-    eventName                     | event_id               | client_id              | journey_id
-    ${'F2F_CRI_AUTH_CODE_ISSUED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'F2F_CRI_START'}            | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    eventName
+    ${'F2F_CRI_AUTH_CODE_ISSUED'}
+    ${'F2F_CRI_START'}
   `(
     'Should validate $eventName event extensions  stored in raw and stage layer',
     async ({ ...data }) => {
