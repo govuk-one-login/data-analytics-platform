@@ -8,7 +8,7 @@ describe('F2F_CRI_AUTH_CODE_ISSUED data validation Test - validate data at stage
   test.each`
     eventName                     | event_id               | client_id              | journey_id
     ${'F2F_CRI_AUTH_CODE_ISSUED'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
-    ${'F2F_CRI_START'} | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'F2F_CRI_START'}            | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
   `(
     'Should validate $eventName event extensions  stored in raw and stage layer',
     async ({ ...data }) => {
@@ -41,8 +41,8 @@ describe('F2F_CRI_AUTH_CODE_ISSUED data validation Test - validate data at stage
           txmaProcessingWorkGroupName(),
         );
         const stageData = athenaQueryResultsStage[0];
-        console.log(`stExtensions: ${stExtensions}`);
-        console.log('RAW Data ->Map: ' + parseData(stExtensions));
+        // console.log(`stExtensions: ${stExtensions}`);
+        // console.log('RAW Data ->Map: ' + parseData(stExtensions));
         const rawData = parseData(stExtensions);
         validateData(rawData, stageData);
         expect(stExtensions.iss).toEqual(athenaQueryResultsStage[0].extensions_iss);
