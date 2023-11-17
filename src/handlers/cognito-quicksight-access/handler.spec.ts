@@ -1,14 +1,16 @@
-import { handler } from './handler';
+import { handler, logger } from './handler';
 import type { TokenResponse, UserInfoResponse } from './handler';
 import { mockApiGatewayEvent } from '../../shared/utils/test-utils';
 import { mockClient } from 'aws-sdk-client-mock';
 import { GenerateEmbedUrlForRegisteredUserCommand, QuickSightClient } from '@aws-sdk/client-quicksight';
-import type { APIGatewayProxyEventV2 } from 'aws-lambda';
+import type { APIGatewayProxyEventV2, Context } from 'aws-lambda';
 import { type AWS_ENVIRONMENTS } from '../../shared/constants';
 
 const ACCOUNT_ID = '012345678901';
 
 const CODE = '623b206c-ec61-439b-acc2-0e4a58cde86a';
+
+const CONTEXT: Context = { awsRequestId: '0d7a96bb-3539-4492-8592-28b962794e06' } as unknown as Context;
 
 const TOKEN_RESPONSE: TokenResponse = {
   id_token: 'id_token',
@@ -47,7 +49,15 @@ const setDomain = (domain: string): void => {
   COGNITO_DOMAIN = process.env.COGNITO_DOMAIN = domain;
 };
 
+const loggerErrorSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+
+interface LogInputObject {
+  event: APIGatewayProxyEventV2;
+  error: Error;
+}
+
 beforeEach(async () => {
+  loggerErrorSpy.mockReset();
   mockQuicksightClient.reset();
   setClientId('aR4nd0MCl1EntiD');
   setDomain('https://my-cognito-domain.auth.eu-west-2.amazoncognito.com');
@@ -63,7 +73,7 @@ test('success', async () => {
     .on(GenerateEmbedUrlForRegisteredUserCommand, { AwsAccountId: ACCOUNT_ID, UserArn: expectedArn })
     .resolves({ EmbedUrl: EMBED_URL });
 
-  const response = await handler(EVENT);
+  const response = await handler(EVENT, CONTEXT);
   expect(response).toBeDefined();
   expect(response).toEqual({
     statusCode: 302,
@@ -78,14 +88,7 @@ test('success', async () => {
 test('bad query parameters', async () => {
   setEvent(await mockApiGatewayEvent({ hello: 'world' }, ACCOUNT_ID));
 
-  const response = await handler(EVENT);
-  expect(response).toBeDefined();
-  expect(response).toEqual({
-    statusCode: 400,
-    body: JSON.stringify({
-      error: 'code query param is missing or invalid - parameters are {"hello":"world"}',
-    }),
-  });
+  await verifyErrorResponseAndLogs('code query param is missing or invalid - parameters are {"hello":"world"}');
 
   expect(mockQuicksightClient.calls()).toHaveLength(0);
 });
@@ -93,14 +96,7 @@ test('bad query parameters', async () => {
 test('missing cognito client id', async () => {
   setClientId('');
 
-  const response = await handler(EVENT);
-  expect(response).toBeDefined();
-  expect(response).toEqual({
-    statusCode: 500,
-    body: JSON.stringify({
-      error: 'COGNITO_CLIENT_ID is not defined in this environment',
-    }),
-  });
+  await verifyErrorResponseAndLogs('COGNITO_CLIENT_ID is not defined in this environment');
 
   expect(mockQuicksightClient.calls()).toHaveLength(0);
 });
@@ -108,14 +104,7 @@ test('missing cognito client id', async () => {
 test('missing cognito domain', async () => {
   setDomain('');
 
-  const response = await handler(EVENT);
-  expect(response).toBeDefined();
-  expect(response).toEqual({
-    statusCode: 500,
-    body: JSON.stringify({
-      error: 'COGNITO_DOMAIN is not defined in this environment',
-    }),
-  });
+  await verifyErrorResponseAndLogs('COGNITO_DOMAIN is not defined in this environment');
 
   expect(mockQuicksightClient.calls()).toHaveLength(0);
 });
@@ -134,14 +123,9 @@ test('bad fetch', async () => {
     text: async () => error.message,
   });
 
-  const response = await handler(EVENT);
-  expect(response).toBeDefined();
-  expect(response).toEqual({
-    statusCode: 500,
-    body: JSON.stringify({
-      error: `${error.status} ${error.statusText} error calling token endpoint - ${error.message}`,
-    }),
-  });
+  await verifyErrorResponseAndLogs(
+    `${error.status} ${error.statusText} error calling token endpoint - ${error.message}`,
+  );
 
   expect(mockQuicksightClient.calls()).toHaveLength(0);
 });
@@ -157,14 +141,7 @@ test('quicksight error', async () => {
   const errorMessage = 'Quicksight error';
   mockQuicksightClient.rejects(errorMessage);
 
-  const response = await handler(EVENT);
-  expect(response).toBeDefined();
-  expect(response).toEqual({
-    statusCode: 500,
-    body: JSON.stringify({
-      error: `Error getting quicksight embed url for userArn ${expectedArn} - "${errorMessage}"`,
-    }),
-  });
+  await verifyErrorResponseAndLogs(`Error getting quicksight embed url for userArn ${expectedArn} - "${errorMessage}"`);
 
   expect(mockQuicksightClient.calls()).toHaveLength(1);
 });
@@ -179,14 +156,9 @@ test('undefined embed url', async () => {
 
   mockQuicksightClient.resolves({ EmbedUrl: undefined });
 
-  const response = await handler(EVENT);
-  expect(response).toBeDefined();
-  expect(response).toEqual({
-    statusCode: 500,
-    body: JSON.stringify({
-      error: `Error getting quicksight embed url for userArn ${expectedArn} - "EmbedUrl is undefined"`,
-    }),
-  });
+  await verifyErrorResponseAndLogs(
+    `Error getting quicksight embed url for userArn ${expectedArn} - "EmbedUrl is undefined"`,
+  );
 
   expect(mockQuicksightClient.calls()).toHaveLength(1);
 });
@@ -198,7 +170,7 @@ test('session duration', async () => {
   ): Promise<void> => {
     setUpSuccessfulFetch();
     process.env.ENVIRONMENT = environment;
-    const response = await handler(EVENT);
+    const response = await handler(EVENT, CONTEXT);
     expect(response).toBeDefined();
     const embedUrl = (response as unknown as { headers: { Location: string } }).headers.Location;
     expect(embedUrl).toEqual(expectedDuration.toString());
@@ -243,4 +215,28 @@ const setUpSuccessfulFetch = (): void => {
       expect(init.body).not.toBeDefined();
       return { ok: true, json: async () => USER_INFO_RESPONSE };
     });
+};
+
+const verifyErrorResponseAndLogs = async (expectedErrorMessage: string): Promise<void> => {
+  const response = await handler(EVENT, CONTEXT);
+  expect(response).toBeDefined();
+  expect(response).toEqual({
+    statusCode: 500,
+    body: `
+  <style>code { font-size: 1.2em; user-select: all; }</style>
+  <body>
+    <h1>Error</h1>
+    <p>
+      An error occurred - please try again or contact your administrator quoting request id
+      <code>${CONTEXT.awsRequestId}</code>
+    </p>
+  </body>
+`,
+  });
+
+  expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
+  expect(loggerErrorSpy.mock.calls[0][0]).toEqual('Error getting embed URL');
+  const logInput = loggerErrorSpy.mock.calls[0][1] as unknown as LogInputObject;
+  expect(logInput.event).toEqual(EVENT);
+  expect(logInput.error?.message).toEqual(expectedErrorMessage);
 };
