@@ -44,6 +44,9 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
     logger.error('Error getting embed URL', { error, event });
     return {
       statusCode: 500,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+      },
       body: getErrorHTML(context.awsRequestId),
     };
   }

@@ -222,6 +222,9 @@ const verifyErrorResponseAndLogs = async (expectedErrorMessage: string): Promise
   expect(response).toBeDefined();
   expect(response).toEqual({
     statusCode: 500,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+    },
     body: `
   <style>code { font-size: 1.2em; user-select: all; }</style>
   <body>
