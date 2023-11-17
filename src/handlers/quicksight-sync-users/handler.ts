@@ -154,6 +154,10 @@ const getCognitoRequest = (user: SyncUser, userPoolId: string): CognitoRequest =
           Name: 'email',
           Value: user.email,
         },
+        {
+          Name: 'email_verified',
+          Value: 'true',
+        },
       ],
       DesiredDeliveryMediums: ['EMAIL'],
     });
