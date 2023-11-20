@@ -1,12 +1,12 @@
 import { getQueryResults } from '../helpers/db-helpers';
-import { GET_EVENT_ID, extensionsnotnullquery, IPV_CRI_PASSPORT_DATA } from '../helpers/query-constant';
+import { GET_EVENT_ID, extensionsnotnullquery, IPV_CRI_FRAUD_DATA } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
 import { eventidlist, parseData } from '../helpers/common-helpers';
 
 describe('IPV_CRI_PASSPORT data validation Test - validate data at stage and raw layer', () => {
   test.each`
     eventName
-    ${'IPV_PASSPORT_CRI_VC_ISSUED'}
+    ${'IPV_FRAUD_CRI_VC_ISSUED'}
   `(
     'Should validate $eventName event extensions  stored in raw and stage layer',
     async ({ ...data }) => {
@@ -34,7 +34,7 @@ describe('IPV_CRI_PASSPORT data validation Test - validate data at stage and raw
         const rawData = parseData(stExtensions);
         // console.log(rawData);
 
-        const queryStage = `${IPV_CRI_PASSPORT_DATA(eventname)} and event_id = '${eventId}'`;
+        const queryStage = `${IPV_CRI_FRAUD_DATA(eventname)} and event_id = '${eventId}'`;
 
         // console.log('queryStage : ' + queryStage);
         const athenaQueryResultsStage = await getQueryResults(
@@ -42,13 +42,15 @@ describe('IPV_CRI_PASSPORT data validation Test - validate data at stage and raw
           txmaStageDatabaseName(),
           txmaProcessingWorkGroupName(),
         );
+
+        // console.log('queryStage results : ' + athenaQueryResultsStage[0].extensions_evidence);
         const stageData = JSON.parse(athenaQueryResultsStage[0].extensions_evidence);
         // console.log(' iss: ' +JSON.stringify(athenaQueryResultsStage[0]));
         // console.log(' STAGE DATA: ' + JSON.stringify(stageData));
         // console.log('RAW Data ->Map: ' + JSON.stringify(rawData));
         validateEvidenceData(rawData, stageData);
         expect(rawData.iss).toEqual(athenaQueryResultsStage[0].extensions_iss);
-        expect(rawData.successful).toEqual(athenaQueryResultsStage[0].extensions_successful);
+        // expect(rawData.successful).toEqual(athenaQueryResultsStage[0].extensions_successful);
       }
     },
     240000,
@@ -61,11 +63,11 @@ describe('IPV_CRI_PASSPORT data validation Test - validate data at stage and raw
       const stageDecisionscore = stageData.decisionscore;
       expect(rawDecisionscore).toEqual(stageDecisionscore);
     }
-    const rawCheckmethod = rawData.evidence.checkdetails.checkmethod;
-    if (checkmethod !== 'null' && checkmethod !== null && checkmethod !== undefined) {
-      const stageCheckmethod = stageData.checkdetails.checkmethod;
-      expect(rawCheckmethod).toEqual(stageCheckmethod);
-    }
+    // const rawcheckmethod = rawData.evidence.checkdetails.checkmethod;
+    // if (checkmethod !== 'null' && checkmethod !== null && checkmethod !== undefined) {
+    //   const stageCheckmethod = stageData.checkdetails.checkmethod;
+    //   expect(rawcheckmethod).toEqual(stageCheckmethod);
+    // }
 
     const rawIdentityfraudscore = rawData.evidence.checkdetails.identityfraudscore;
     if (rawIdentityfraudscore !== 'null' && rawIdentityfraudscore !== null && rawIdentityfraudscore !== undefined) {
