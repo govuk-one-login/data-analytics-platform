@@ -85,7 +85,7 @@ describe('IPV_CRI_F2F GROUP Test - valid TXMA Event F2F_YOTI_START to SQS and ex
         restrict['issuingCountry'] = issuingCountry;
         return restrict;
       });
-      let restrictKey = prepareDocumentKey(data.document_type);
+      const restrictKey = prepareDocumentKey(data.document_type);
       event.restricted[restrictKey] = restricts;
       // console.log('Event Data' + JSON.stringify(event));
       // when
