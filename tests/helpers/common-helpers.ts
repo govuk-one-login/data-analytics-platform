@@ -90,13 +90,13 @@ export const getTodayDateTime = (): string => {
   const time = `${today.getHours()}${today.getMinutes()}${today.getSeconds()}`;
   return date + '-' + time;
 };
-export const toCamelCase = str => {
+export const toCamelCase = (str) : string => {
   return str.toLowerCase().replace(/([-_][a-z])/gi, $1 => {
     return $1.toUpperCase().replace('-', '').replace('_', '');
   });
 };
 
-export const prepareDocumentKey = documentType => {
+export const prepareDocumentKey = (documentType) : string =>  {
   switch (documentType) {
     case 'DRIVING_LICENCE':
       return 'drivingPermit';
