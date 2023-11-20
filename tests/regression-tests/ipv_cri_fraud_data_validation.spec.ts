@@ -63,11 +63,11 @@ describe('IPV_CRI_PASSPORT data validation Test - validate data at stage and raw
       const stageDecisionscore = stageData.decisionscore;
       expect(rawDecisionscore).toEqual(stageDecisionscore);
     }
-    // const rawcheckmethod = rawData.evidence.checkdetails.checkmethod;
-    // if (checkmethod !== 'null' && checkmethod !== null && checkmethod !== undefined) {
-    //   const stageCheckmethod = stageData.checkdetails.checkmethod;
-    //   expect(rawcheckmethod).toEqual(stageCheckmethod);
-    // }
+    const rawCheckmethod = rawData.evidence.checkdetails.checkmethod;
+    if (rawCheckmethod !== 'null' && rawCheckmethod !== null && rawCheckmethod !== undefined) {
+      const stageCheckmethod = stageData.checkdetails.checkmethod;
+      expect(rawCheckmethod).toEqual(stageCheckmethod);
+    }
 
     const rawIdentityfraudscore = rawData.evidence.checkdetails.identityfraudscore;
     if (rawIdentityfraudscore !== 'null' && rawIdentityfraudscore !== null && rawIdentityfraudscore !== undefined) {

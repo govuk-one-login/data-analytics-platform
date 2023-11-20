@@ -62,7 +62,7 @@ describe('IPV_CRI_PASSPORT data validation Test - validate data at stage and raw
       expect(rawDecisionscore).toEqual(stageDecisionscore);
     }
     const rawCheckmethod = rawData.evidence.checkdetails.checkmethod;
-    if (checkmethod !== 'null' && checkmethod !== null && checkmethod !== undefined) {
+    if (rawCheckmethod !== 'null' && rawCheckmethod !== null && rawCheckmethod !== undefined) {
       const stageCheckmethod = stageData.checkdetails.checkmethod;
       expect(rawCheckmethod).toEqual(stageCheckmethod);
     }
