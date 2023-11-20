@@ -90,6 +90,22 @@ export const getTodayDateTime = (): string => {
   const time = `${today.getHours()}${today.getMinutes()}${today.getSeconds()}`;
   return date + '-' + time;
 };
+export const toCamelCase = str => {
+  return str.toLowerCase().replace(/([-_][a-z])/gi, $1 => {
+    return $1.toUpperCase().replace('-', '').replace('_', '');
+  });
+};
+
+export const prepareDocumentKey = documentType => {
+  switch (documentType) {
+    case 'DRIVING_LICENCE':
+      return 'drivingPermit';
+    case 'RESIDENCE_PERMIT':
+      return 'residencePermit';
+    default:
+      return 'passport';
+  }
+};
 
 export async function delay(min: number): Promise<unknown> {
   const ms = min * 60 * 1000;
