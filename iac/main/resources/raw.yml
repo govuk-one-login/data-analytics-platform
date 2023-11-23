@@ -156,6 +156,7 @@ DcmawCriCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_PASSPORT_SELECTED'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_WEB_END/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_BRP_SELECTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_SESSION_RECOVERED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -307,7 +308,7 @@ FtofCriVcIssuedGlueTable:
             }
           - {
               Name: restricted,
-              Type: 'struct<passport:array<struct<documentType:string>>,residencePermit:array<struct<documentType:string>>,drivingPermit:array<struct<documentType:string>>,idCard:array<struct<documentType:string>>>',
+              Type: 'struct<passport:array<struct<documentType:string,issuingCountry:string>>,residencePermit:array<struct<documentType:string,issuingCountry:string>>,drivingPermit:array<struct<documentType:string,issuingCountry:string>>,idCard:array<struct<documentType:string,issuingCountry:string>>>',
             }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         Location: !Sub s3://${RawLayerBucket}/txma/F2F_CRI_VC_ISSUED/
@@ -431,7 +432,7 @@ FtofYotiStartGlueTable:
           - { Name: txma, Type: 'struct<configVersion:string>' }
           - {
               Name: restricted,
-              Type: 'struct<passport:array<struct<documentType:string>>,residencePermit:array<struct<documentType:string>>,drivingPermit:array<struct<documentType:string>>,idCard:array<struct<documentType:string>>>',
+              Type: 'struct<passport:array<struct<documentType:string,issuingCountry:string>>,residencePermit:array<struct<documentType:string,issuingCountry:string>>,drivingPermit:array<struct<documentType:string,issuingCountry:string>>,idCard:array<struct<documentType:string,issuingCountry:string>>>',
             }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         Location: !Sub s3://${RawLayerBucket}/txma/F2F_YOTI_START/
