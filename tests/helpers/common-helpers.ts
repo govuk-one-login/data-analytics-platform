@@ -90,6 +90,22 @@ export const getTodayDateTime = (): string => {
   const time = `${today.getHours()}${today.getMinutes()}${today.getSeconds()}`;
   return date + '-' + time;
 };
+export const toCamelCase = (str): string => {
+  return str.toLowerCase().replace(/([-_][a-z])/gi, $1 => {
+    return $1.toUpperCase().replace('-', '').replace('_', '');
+  });
+};
+
+export const prepareDocumentKey = (documentType): string => {
+  switch (documentType) {
+    case 'DRIVING_LICENCE':
+      return 'drivingPermit';
+    case 'RESIDENCE_PERMIT':
+      return 'residencePermit';
+    default:
+      return 'passport';
+  }
+};
 
 export async function delay(min: number): Promise<unknown> {
   const ms = min * 60 * 1000;
@@ -142,9 +158,10 @@ export function parseData(str): any {
   str = str.replace(/(\w+):((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/g, '$1:$2"');
   str = str.replace(/(\w+):/g, '"$1":');
   str = str.replace(/:([^{\d][\w\s-]+)/g, ':"$1"');
+  str = str.replace(/:([\w-]+)/g, ':"$1"');
   str = str.replace('""https"":', '"https:');
   str = str.replace('""http"":', '"http:');
-  // console.log(str);
+  // console.log(`Here: ${str}`);
   return JSON.parse(str);
 }
 export function extensionToMap1F2fCriVcIssued(value): Record<string, string> {

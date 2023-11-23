@@ -61,16 +61,15 @@ describe('IPV_CRI_F2F GROUP Test - valid TXMA Event with previous signin journey
     240000,
   );
 });
-
-describe('IPV_CRI_F2F GROUP Test - valid TXMA Event F2F_CRI_VC_ISSUED to SQS and expect event id stored in S3', () => {
+describe('IPV_CRI_F2F GROUP Test - valid TXMA Event IPV_F2F_CRI_VC_RECEIVED to SQS and expect event id stored in S3', () => {
   test.concurrent.each`
     eventName                    | event_id               | client_id              | journey_id
-    ${'F2F_CRI_VC_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'IPV_FRAUD_CRI_VC_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const filePath = 'tests/fixtures/txma-event-ipv-cri-f2f-group.json';
+      const filePath = 'tests/fixtures/txma_event_ipv_fraud_cri_vc_issued.json';
       const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       setEventData(event, data);
       event.client_id = faker.string.uuid();
@@ -83,22 +82,24 @@ describe('IPV_CRI_F2F GROUP Test - valid TXMA Event F2F_CRI_VC_ISSUED to SQS and
 describe('IPV_CRI_F2F GROUP Test - valid TXMA Event IPV_F2F_CRI_VC_RECEIVED to SQS and expect event id stored in S3', () => {
   test.concurrent.each`
     eventName                    | event_id               | client_id              | journey_id
-    ${'IPV_F2F_CRI_VC_RECEIVED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
+    ${'DCMAW_SESSION_RECOVERED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
       // given
-      const filePath = 'tests/fixtures/txma-event-group_f2f_cri_vc_issued.json';
+      const filePath = 'tests/fixtures/txma-event-group_with_empty_extensions.json';
       const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       setEventData(event, data);
-      event.client_id = faker.string.uuid();
+      event.extensions.previous_govuk_signin_journey_id = data.client_id;
+      event.client_id = data.client_id;
       // when
+      // console.log('Event Data' + JSON.stringify(event));
       await publishAndValidate(event);
     },
     240000,
   );
 });
-describe('IPV_CRI_F2F GROUP Test - valid TXMA F2F Event without user details to SQS and expect event id stored in S3', () => {
+describe('IPV_CRI_F2F GROUP Test - valid TXMA F2F_CRI_AUTH_CODE_ISSUED Event without user details to SQS and expect event id stored in S3', () => {
   test.concurrent.each`
     eventName                    | event_id               | client_id              | journey_id
     ${'F2F_CRI_AUTH_CODE_ISSUED'}     | ${faker.string.uuid()} | ${faker.string.uuid()} | ${faker.string.uuid()}

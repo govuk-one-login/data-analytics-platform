@@ -6,7 +6,7 @@ import { CopyObjectCommand, DeleteObjectCommand, PutObjectCommand, S3Client } fr
 import type { PutObjectCommandOutput } from '@aws-sdk/client-s3';
 import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
 import { Uint8ArrayBlobAdapter } from '@smithy/util-stream';
-import type { GetQueryResultsOutput } from '@aws-sdk/client-athena';
+import type { GetQueryExecutionCommandOutput, GetQueryResultsOutput } from '@aws-sdk/client-athena';
 import { AthenaClient } from '@aws-sdk/client-athena';
 import type { Context } from 'aws-lambda';
 import type { StartExecutionCommand, StartExecutionOutput } from '@aws-sdk/client-sfn';
@@ -223,7 +223,9 @@ test('athena success', async () => {
 test('athena wait', async () => {
   const queryExecutionId = '1234';
   const timeoutMs = 1000;
-  const runningResponse = { QueryExecution: { Status: { State: 'RUNNING' } } };
+  const runningResponse = {
+    QueryExecution: { Status: { State: 'RUNNING' } },
+  } as unknown as GetQueryExecutionCommandOutput;
 
   mockAthenaClient.resolvesOnce({ QueryExecutionId: queryExecutionId }).resolves(runningResponse);
 
@@ -233,7 +235,7 @@ test('athena wait', async () => {
   });
   await expect(handler(event, CONTEXT)).rejects.toThrow(
     `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify({
-      status: runningResponse.QueryExecution.Status.State,
+      status: runningResponse.QueryExecution?.Status?.State,
       extraInfo: {},
     })}`,
   );
@@ -244,7 +246,9 @@ test('athena wait', async () => {
 test('athena wait cancellation', async () => {
   const queryExecutionId = '1234';
   const timeoutMs = 5000;
-  const cancelledResponse = { QueryExecution: { Status: { State: 'CANCELLED' } } };
+  const cancelledResponse = {
+    QueryExecution: { Status: { State: 'CANCELLED' } },
+  } as unknown as GetQueryExecutionCommandOutput;
 
   mockAthenaClient
     .resolvesOnce({ QueryExecutionId: queryExecutionId })
@@ -259,7 +263,7 @@ test('athena wait cancellation', async () => {
   });
   await expect(handler(event, CONTEXT)).rejects.toThrow(
     `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify({
-      status: cancelledResponse.QueryExecution.Status.State,
+      status: cancelledResponse.QueryExecution?.Status?.State,
       extraInfo: {},
     })}`,
   );
@@ -271,7 +275,9 @@ test('athena wait cancellation', async () => {
 test('athena wait failure', async () => {
   const queryExecutionId = '1234';
   const timeoutMs = 1000;
-  const failedResponse = { QueryExecution: { Status: { State: 'FAILED', StateChangeReason: 'athena error' } } };
+  const failedResponse = {
+    QueryExecution: { Status: { State: 'FAILED', StateChangeReason: 'athena error' } },
+  } as unknown as GetQueryExecutionCommandOutput;
 
   mockAthenaClient
     .resolvesOnce({ QueryExecutionId: queryExecutionId })
@@ -286,8 +292,8 @@ test('athena wait failure', async () => {
   });
   await expect(handler(event, CONTEXT)).rejects.toThrow(
     `Query did not complete in ${timeoutMs}ms - final status was ${JSON.stringify({
-      status: failedResponse.QueryExecution.Status.State,
-      extraInfo: { reason: failedResponse.QueryExecution.Status.StateChangeReason },
+      status: failedResponse.QueryExecution?.Status?.State,
+      extraInfo: { reason: failedResponse.QueryExecution?.Status?.StateChangeReason },
     })}`,
   );
 

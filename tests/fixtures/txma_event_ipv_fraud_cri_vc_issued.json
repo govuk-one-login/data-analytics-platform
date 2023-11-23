@@ -1,0 +1,43 @@
+{
+  "event_id": "3344ad74-439f-4aa7-b948-8aeec632b38d",
+  "event_name": "IPV_FRAUD_CRI_VC_ISSUED",
+  "component_id": "https://review-f.account.gov.uk",
+  "extensions": {
+    "iss": "https://review-f.account.gov.uk",
+    "evidence": [
+      {
+        "checkDetails": [
+          {
+            "checkMethod": "data"
+          },
+          {
+            "checkMethod": "data"
+          },
+          {
+            "checkMethod": "data"
+          },
+          {
+            "checkMethod": "data"
+          },
+          {
+            "checkMethod": "data"
+          }
+        ],
+        "failedCheckDetails": null,
+        "decisionScore": "55",
+        "identityFraudScore": 2,
+        "type": "IdentityCheck",
+        "activityHistoryScore": 1
+      }
+    ]
+  },
+  "user": {
+    "govuk_signin_journey_id": "ojn6flLegPv6F47ihLJlBLK10PM",
+    "user_id": "64670bcba090dd55f1b376989e583084018665e7b1343f116fd9257c3018f27b"
+  },
+  "timestamp": 1700094260,
+  "timestamp_formatted": "2023-11-16T00:24:20.000Z",
+  "txma": {
+    "configVersion": "1.3.14"
+  }
+}

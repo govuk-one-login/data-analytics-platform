@@ -1,10 +1,10 @@
 import { getLogger } from '../../shared/powertools';
-import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
+import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context } from 'aws-lambda';
 import { quicksightClient } from '../../shared/clients';
 import { GenerateEmbedUrlForRegisteredUserCommand } from '@aws-sdk/client-quicksight';
 import { getAWSEnvironment, getEnvironmentVariable } from '../../shared/utils/utils';
 
-const logger = getLogger('lambda/cognito-quicksight-access');
+export const logger = getLogger('lambda/cognito-quicksight-access');
 
 // see https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-runtime
 const region = process.env.AWS_REGION ?? process.env.AWS_DEFAULT_REGION;
@@ -28,18 +28,9 @@ export interface UserInfoResponse {
   username: string;
 }
 
-export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
-  const code = event?.queryStringParameters?.code;
-  if (code === null || code === undefined || code.length === 0) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        error: `code query param is missing or invalid - parameters are ${JSON.stringify(event.queryStringParameters)}`,
-      }),
-    };
-  }
-
+export const handler = async (event: APIGatewayProxyEventV2, context: Context): Promise<APIGatewayProxyResultV2> => {
   try {
+    const code = await getCode(event);
     const tokens = await callTokenEndpoint(event.requestContext.domainName, code);
     const userInfo = await callUserInfoEndpoint(tokens);
     const embedUrl = await getEmbedUrl(event.requestContext.accountId, userInfo.username);
@@ -50,12 +41,25 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
       },
     };
   } catch (error) {
-    logger.error('Error getting embed URL', { error });
+    logger.error('Error getting embed URL', { error, event });
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error instanceof Error ? error.message : error }),
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+      },
+      body: getErrorHTML(context.awsRequestId),
     };
   }
+};
+
+const getCode = async (event: APIGatewayProxyEventV2): Promise<string> => {
+  const code = event?.queryStringParameters?.code;
+  if (code === null || code === undefined || code.length === 0) {
+    throw new Error(
+      `code query param is missing or invalid - parameters are ${JSON.stringify(event.queryStringParameters)}`,
+    );
+  }
+  return code;
 };
 
 // see https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
@@ -111,7 +115,7 @@ const getEmbedUrl = async (accountId: string, username: string): Promise<string>
     SessionLifetimeInMinutes: getAWSEnvironment() === 'production' ? 600 : 15,
     ExperienceConfiguration: {
       QuickSightConsole: {
-        InitialPath: '/start',
+        InitialPath: '/start/dashboards',
         FeatureConfigurations: {
           StatePersistence: {
             Enabled: true,
@@ -139,3 +143,14 @@ const makeUrlRequest = async (request: GenerateEmbedUrlForRegisteredUserCommand)
   }
   return url;
 };
+
+const getErrorHTML = (requestId: string): string => `
+  <style>code { font-size: 1.2em; user-select: all; }</style>
+  <body>
+    <h1>Error</h1>
+    <p>
+      An error occurred - please try again or contact your administrator quoting request id
+      <code>${requestId}</code>
+    </p>
+  </body>
+`;

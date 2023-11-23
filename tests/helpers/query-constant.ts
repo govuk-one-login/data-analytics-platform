@@ -111,9 +111,21 @@ export const IPV_JOURNEY_DATA = (eventname: string): string => {
 
 export const IPV_CRI_F2F_DATA = (eventname: string): string => {
   const query =
-    "SELECT event_id, extensions_evidence,extensions_iss, extensions_successful, extensions_previousgovuksigninjourneyid, restricted_passport, restricted_residencepermit, restricted_drivingpermit, restricted_idcard FROM IPV_CRI_F2F where event_name='" +
+    "SELECT event_id, extensions_evidence,extensions_iss, extensions_successful, extensions_previousgovuksigninjourneyid, restricted_passport, restricted_residencepermit, restricted_drivingpermit, restricted_idcard, user_user_id, user_govuk_signin_journey_id FROM IPV_CRI_F2F where event_name='" +
     eventname +
     "'";
+  return query;
+};
+
+export const IPV_CRI_PASSPORT_DATA = (eventname: string): string => {
+  const query =
+    "SELECT event_id, extensions_evidence,extensions_iss FROM IPV_CRI_PASSPORT where event_name='" + eventname + "'";
+  return query;
+};
+
+export const IPV_CRI_FRAUD_DATA = (eventname: string): string => {
+  const query =
+    "SELECT event_id, extensions_evidence,extensions_iss FROM IPV_CRI_FRAUD where event_name='" + eventname + "'";
   return query;
 };
 
@@ -123,7 +135,7 @@ export const GET_EVENT_ID = (eventname: string): string => {
     productFamily(eventname) +
     " where event_name='" +
     eventname +
-    "' order by processed_date desc limit 10;";
+    "'order by processed_date desc limit 10;";
   return query;
 };
 
@@ -131,7 +143,10 @@ export const extensionsnotnullquery = (tablename: string): string => {
   const query = 'SELECT event_id,extensions,day FROM ' + tablename + ' where extensions is not null';
   return query;
 };
-
+export const usernotnullquery = (tablename: string): string => {
+  const query = 'SELECT event_id,user,day FROM ' + tablename + ' where user is not null';
+  return query;
+};
 export const restrictednotnullquery = (tablename: string): string => {
   const query = 'SELECT event_id,	restricted,day FROM ' + tablename + ' where restricted is not null';
   return query;
