@@ -43,5 +43,10 @@
         "event_name": "dcmaw_brp_selected",
         "product_family": "dcmaw_cri",
         "enabled": true
+    },
+    {
+        "event_name": "dcmaw_session_recovered",
+        "product_family": "dcmaw_cri",
+        "enabled": true
     }
 ]
