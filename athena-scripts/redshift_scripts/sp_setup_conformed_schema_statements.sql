@@ -88,8 +88,7 @@ INSERT INTO conformed.REF_RELYING_PARTIES(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME)
 ('KcKmx2g1GH6ersWFvzMi1bhehq4',	'production-account-management','production-account-management'),
 ('MjQc1h7nFVbNM05iawAdkkZ2W89uloDK',	'di-auth-smoketest-microclient-production','SMOKE TEST'),
 ('zFeCxrwpLCUHFm-C4_CztwWtLfQ',	'Veterans','Veterans'),
-('tya4DoMpw_B7FK5YvuMAj3asc0A',	'Find a Grant','GMF'),
-('bGAwNKM0XvnxCAuDQ_rMhhP3dxM',	'Ministry of Justice','CCIC');
+('tya4DoMpw_B7FK5YvuMAj3asc0A',	'Find a Grant','GMF');
 
 
     raise info 'Setup of conformed layer ran successfully';

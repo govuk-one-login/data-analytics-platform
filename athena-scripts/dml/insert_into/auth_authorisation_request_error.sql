@@ -19,10 +19,7 @@ SELECT
 	user.govuk_signin_journey_id as user_govuk_signin_journey_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
-	case format('%s',cast("extensions"."description" as VARCHAR)) 
-		when 'null' then null
-	    else format('%s',cast("extensions"."description" as VARCHAR)) 
-	end as extensions_description,
+	null as extensions_description,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
