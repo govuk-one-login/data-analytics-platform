@@ -13,6 +13,7 @@ import type { AttributeType } from '@aws-sdk/client-cognito-identity-provider';
 import {
   DeleteUserCommand,
   DescribeUserCommand,
+  ListUserGroupsCommand,
   QuickSightClient,
   RegisterUserCommand,
   ResourceNotFoundException,
@@ -31,7 +32,13 @@ const mockQuicksightClient = mockClient(QuickSightClient);
 
 beforeEach(() => {
   mockCognitoClient.reset();
+  mockCognitoClient.callsFake(input => {
+    throw new Error(`Unexpected Cognito request - ${JSON.stringify(input)}`);
+  });
   mockQuicksightClient.reset();
+  mockQuicksightClient.callsFake(input => {
+    throw new Error(`Unexpected Quicksight request - ${JSON.stringify(input)}`);
+  });
   process.env.USER_POOL_ID = USER_POOL_ID;
 });
 
@@ -106,7 +113,10 @@ test('add user', async () => {
     .on(AdminCreateUserCommand, {
       Username: username,
       UserPoolId: USER_POOL_ID,
-      UserAttributes: [{ Name: 'email', Value: email }],
+      UserAttributes: [
+        { Name: 'email', Value: email },
+        { Name: 'email_verified', Value: 'true' },
+      ],
     })
     .resolvesOnce({})
     .rejects();
@@ -114,6 +124,8 @@ test('add user', async () => {
   mockQuicksightClient
     .on(DescribeUserCommand, { UserName: username, AwsAccountId: ACCOUNT_ID })
     .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .on(ListUserGroupsCommand, { UserName: username })
+    .resolvesOnce({ GroupList: [] })
     .on(RegisterUserCommand, { UserName: username, Email: email, AwsAccountId: ACCOUNT_ID })
     .resolvesOnce({})
     .rejects();
@@ -125,7 +137,7 @@ test('add user', async () => {
   expect(response[0].error).toBeUndefined();
 
   expect(mockCognitoClient.calls()).toHaveLength(2);
-  expect(mockQuicksightClient.calls()).toHaveLength(2);
+  expect(mockQuicksightClient.calls()).toHaveLength(3);
 });
 
 test('remove user', async () => {
@@ -142,6 +154,8 @@ test('remove user', async () => {
   mockQuicksightClient
     .on(DescribeUserCommand, { UserName: username, AwsAccountId: ACCOUNT_ID })
     .resolvesOnce({ User: { UserName: username, Email: email } })
+    .on(ListUserGroupsCommand, { UserName: username })
+    .resolvesOnce({ GroupList: [] })
     .on(DeleteUserCommand, { UserName: username, AwsAccountId: ACCOUNT_ID })
     .resolvesOnce({})
     .rejects();
@@ -153,7 +167,7 @@ test('remove user', async () => {
   expect(response[0].error).toBeUndefined();
 
   expect(mockCognitoClient.calls()).toHaveLength(2);
-  expect(mockQuicksightClient.calls()).toHaveLength(2);
+  expect(mockQuicksightClient.calls()).toHaveLength(3);
 });
 
 test('error in sync', async () => {
@@ -170,6 +184,8 @@ test('error in sync', async () => {
   mockQuicksightClient
     .on(DescribeUserCommand, { UserName: username, AwsAccountId: ACCOUNT_ID })
     .resolvesOnce({ User: { UserName: username, Email: email } })
+    .on(ListUserGroupsCommand, { UserName: username })
+    .resolvesOnce({ GroupList: [] })
     .on(DeleteUserCommand, { UserName: username, AwsAccountId: ACCOUNT_ID })
     .resolvesOnce({})
     .rejects();
@@ -181,7 +197,7 @@ test('error in sync', async () => {
   expect(response[0].error).toEqual('Cognito delete user error');
 
   expect(mockCognitoClient.calls()).toHaveLength(2);
-  expect(mockQuicksightClient.calls()).toHaveLength(1);
+  expect(mockQuicksightClient.calls()).toHaveLength(2);
 });
 
 test('user exists in only one place', async () => {
@@ -196,6 +212,8 @@ test('user exists in only one place', async () => {
   mockQuicksightClient
     .on(DescribeUserCommand, { UserName: username, AwsAccountId: ACCOUNT_ID })
     .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .on(ListUserGroupsCommand, { UserName: username })
+    .resolvesOnce({ GroupList: [] })
     .rejects();
 
   const response = await handler(getEvent([{ username, email, add: true }]), CONTEXT);
@@ -205,7 +223,7 @@ test('user exists in only one place', async () => {
   expect(response[0].error).toEqual('User exists in Cognito but not in Quicksight - please resolve manually');
 
   expect(mockCognitoClient.calls()).toHaveLength(1);
-  expect(mockQuicksightClient.calls()).toHaveLength(1);
+  expect(mockQuicksightClient.calls()).toHaveLength(2);
 });
 
 test('add requested but user already exists in both', async () => {
@@ -220,6 +238,8 @@ test('add requested but user already exists in both', async () => {
   mockQuicksightClient
     .on(DescribeUserCommand, { UserName: username, AwsAccountId: ACCOUNT_ID })
     .resolvesOnce({ User: { UserName: username, Email: email } })
+    .on(ListUserGroupsCommand, { UserName: username })
+    .resolvesOnce({ GroupList: [] })
     .rejects();
 
   const response = await handler(getEvent([{ username, email, add: true }]), CONTEXT);
@@ -229,7 +249,7 @@ test('add requested but user already exists in both', async () => {
   expect(response[0].error).toEqual('User to ADD already exists in Cognito and Quicksight');
 
   expect(mockCognitoClient.calls()).toHaveLength(1);
-  expect(mockQuicksightClient.calls()).toHaveLength(1);
+  expect(mockQuicksightClient.calls()).toHaveLength(2);
 });
 
 test('remove requested but user does not exist in either', async () => {
@@ -244,6 +264,8 @@ test('remove requested but user does not exist in either', async () => {
   mockQuicksightClient
     .on(DescribeUserCommand, { UserName: username, AwsAccountId: ACCOUNT_ID })
     .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .on(ListUserGroupsCommand, { UserName: username })
+    .resolvesOnce({ GroupList: [] })
     .rejects();
 
   const response = await handler(getEvent([{ username, email, add: false }]), CONTEXT);
@@ -253,7 +275,7 @@ test('remove requested but user does not exist in either', async () => {
   expect(response[0].error).toEqual('User to REMOVE does not exist in Cognito or Quicksight');
 
   expect(mockCognitoClient.calls()).toHaveLength(1);
-  expect(mockQuicksightClient.calls()).toHaveLength(1);
+  expect(mockQuicksightClient.calls()).toHaveLength(2);
 });
 
 test('multiple users', async () => {
@@ -281,6 +303,8 @@ test('multiple users', async () => {
     .rejects();
 
   mockQuicksightClient
+    .on(ListUserGroupsCommand)
+    .resolves({ GroupList: [] })
     .on(DescribeUserCommand, { UserName: 'user-a' })
     .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
@@ -300,7 +324,6 @@ test('multiple users', async () => {
     .on(DeleteUserCommand, { UserName: 'user-b', AwsAccountId: ACCOUNT_ID })
     .resolvesOnce({})
     .on(RegisterUserCommand, { UserName: 'user-e', AwsAccountId: ACCOUNT_ID })
-    .resolvesOnce({})
     .resolvesOnce({})
     .rejects();
 
@@ -345,7 +368,7 @@ test('multiple users', async () => {
   });
 
   expect(mockCognitoClient.calls()).toHaveLength(10);
-  expect(mockQuicksightClient.calls()).toHaveLength(10);
+  expect(mockQuicksightClient.calls()).toHaveLength(17);
 });
 
 const cognitoUser = (username: string, email: string): { Username: string; UserAttributes: AttributeType[] } => {
