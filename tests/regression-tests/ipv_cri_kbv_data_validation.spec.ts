@@ -22,9 +22,7 @@ describe('IPV_CRI_KBV data validation Test - validate data at stage and raw laye
       const querystring = eventidlist(stageEventIds);
       const query = `${extensionsnotnullquery(eventname)} and event_id in (${querystring})`;
 
-
       const athenaRawQueryResults = await getQueryResults(query, txmaRawDatabaseName(), txmaProcessingWorkGroupName());
-
 
       for (let index = 0; index <= athenaRawQueryResults.length - 1; index++) {
         const eventId = athenaRawQueryResults[index].event_id;
