@@ -1,5 +1,5 @@
 import { getQueryResults } from '../helpers/db-helpers';
-import { GET_EVENT_ID, extensionsnotnullquery, IPV_CRI_FRAUD_DATA, IPV_CRI_KBV_DATA } from '../helpers/query-constant';
+import { GET_EVENT_ID, extensionsnotnullquery, IPV_CRI_KBV_DATA } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
 import { eventidlist, parseData } from '../helpers/common-helpers';
 
