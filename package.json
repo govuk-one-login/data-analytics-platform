@@ -39,7 +39,7 @@
     "lint-staged": "^15.1.0",
     "prettier": "^3.1.0",
     "prettier-plugin-sh": "^0.13.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.2"
   },
   "scripts": {
     "build": "scripts/build-lambdas.sh",
