@@ -152,6 +152,11 @@ export function extensionToMap(value): Record<string, string> {
   const val = value.replace('{', '').replace('}', '');
   return val.match(transRE).groups;
 }
+export function extensionToMapWithParam(value, transclude): Record<string, string> {
+  const transRE = new RegExp(transclude.replace(/\{(.*?)\}/g, '(?<$1>.*)'));
+  const val = value.replace('{', '').replace('}', '');
+  return val.match(transRE).groups;
+}
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseData(str): any {
   str = str.replace(/=/g, ':');

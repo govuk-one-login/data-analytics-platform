@@ -93,6 +93,14 @@ export const AUTH_ACCOUNT_MFA_DATA = (eventname: string): string => {
   return query;
 };
 
+export const IPV_CRI_ADDRESS_DATA = (eventname: string): string => {
+  const query =
+    "SELECT event_id, extensions_addressesentered,extensions_iss FROM ipv_cri_address where event_name='" +
+    eventname +
+    "'";
+  return query;
+};
+
 export const AUTH_AUTHORISATION_DATA = (eventname: string): string => {
   const query =
     "SELECT event_id, extensions_clientname,extensions_description, extensions_clientlandingpageurl FROM auth_account_mfa where event_name='" +
@@ -146,7 +154,7 @@ export const GET_EVENT_ID = (eventname: string): string => {
 };
 
 export const extensionsnotnullquery = (tablename: string): string => {
-  const query = 'SELECT event_id,extensions,day FROM ' + tablename + ' where extensions is not null';
+  const query = 'SELECT event_id,extensions,day,user FROM ' + tablename + ' where extensions is not null';
   return query;
 };
 export const usernotnullquery = (tablename: string): string => {
@@ -160,4 +168,8 @@ export const restrictednotnullquery = (tablename: string): string => {
 
 export const IPV_IDENTITY_ISSUED_CONFORMED =
   'select event_id,event_name,has_mitigations,level_of_confidence,ci_fail,notification_type,account_recovery,mfa_type FROM\n' +
+  '  "dap_txma_reporting_db"."conformed"."fact_user_journey_event" fct  LEFT JOIN  "dap_txma_reporting_db"."conformed".DIM_EVENT DE ON fct.event_key = de.event_key WHERE ';
+
+export const IPV_CRI_ADDRESS_DATA_CONFORMED =
+  'select event_id,event_name,iss,addresses_entered,user_user_id FROM\n' +
   '  "dap_txma_reporting_db"."conformed"."fact_user_journey_event" fct  LEFT JOIN  "dap_txma_reporting_db"."conformed".DIM_EVENT DE ON fct.event_key = de.event_key WHERE ';
