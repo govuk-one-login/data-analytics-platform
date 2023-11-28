@@ -7,7 +7,7 @@ import {
   IPV_CRI_ADDRESS_DATA_CONFORMED,
 } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
-import { eventidlist, extensionToMapWithParam, parseData } from '../helpers/common-helpers';
+import { eventidlist, extensionToMapWithParam } from '../helpers/common-helpers';
 
 describe('IPV_ADDRESS_CRI_START Data validation Test', () => {
   test.concurrent.each`
