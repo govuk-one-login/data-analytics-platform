@@ -1,19 +1,10 @@
 import { getLogger } from '../../shared/powertools';
 import type { Context } from 'aws-lambda';
 import { cognitoClient, quicksightClient } from '../../shared/clients';
-import {
-  DeleteUserCommand,
-  DescribeUserCommand,
-  RegisterUserCommand,
-  ResourceNotFoundException,
-} from '@aws-sdk/client-quicksight';
+import { DeleteUserCommand, RegisterUserCommand } from '@aws-sdk/client-quicksight';
 import { getAccountId, getEnvironmentVariable } from '../../shared/utils/utils';
-import {
-  AdminCreateUserCommand,
-  AdminDeleteUserCommand,
-  AdminGetUserCommand,
-  UserNotFoundException,
-} from '@aws-sdk/client-cognito-identity-provider';
+import { AdminCreateUserCommand, AdminDeleteUserCommand } from '@aws-sdk/client-cognito-identity-provider';
+import { getUserStatus } from '../../shared/quicksight-access/user-status';
 
 const logger = getLogger('lambda/quicksight-sync-users');
 
@@ -28,23 +19,6 @@ export interface SyncUser {
 }
 
 type SyncAction = 'ADD' | 'REMOVE';
-
-class SyncStatus {
-  existsInCognito: boolean;
-  existsInQuicksight: boolean;
-
-  constructor(existsInCognito: boolean, existsInQuicksight: boolean) {
-    this.existsInCognito = existsInCognito;
-    this.existsInQuicksight = existsInQuicksight;
-  }
-
-  existsInBoth = (): boolean => this.existsInCognito && this.existsInQuicksight;
-
-  existsInOnlyOne = (): boolean =>
-    (this.existsInCognito && !this.existsInQuicksight) || (!this.existsInCognito && this.existsInQuicksight);
-
-  existsInNeither = (): boolean => !this.existsInCognito && !this.existsInQuicksight;
-}
 
 interface SyncResult {
   user: SyncUser;
@@ -64,11 +38,9 @@ export const handler = async (event: SyncEvent, context: Context): Promise<SyncR
 };
 
 const syncUser = async (user: SyncUser, userPoolId: string, accountId: string): Promise<SyncResult> => {
-  const status = await getUserStatus(user, userPoolId, accountId);
+  const status = await getUserStatus(user.username, userPoolId, accountId);
   if (status.existsInOnlyOne()) {
-    const existsIn = status.existsInQuicksight ? 'Quicksight' : 'Cognito';
-    const missingIn = existsIn === 'Cognito' ? 'Quicksight' : 'Cognito';
-    return { user, error: `User exists in ${existsIn} but not in ${missingIn} - please resolve manually` };
+    return { user, error: `${status.existenceMessage()} - please resolve manually` };
   } else if (status.existsInBoth() && user.action === 'ADD') {
     return { user, error: `User to ADD already exists in Cognito and Quicksight` };
   } else if (status.existsInNeither() && user.action === 'REMOVE') {
@@ -84,43 +56,6 @@ const syncUser = async (user: SyncUser, userPoolId: string, accountId: string): 
     return { user };
   } catch (error) {
     return { user, error: error instanceof Error ? error.message : JSON.stringify(error) };
-  }
-};
-
-const getUserStatus = async (user: SyncUser, userPoolId: string, accountId: string): Promise<SyncStatus> => {
-  const cognito = await existsInCognito(user.username, userPoolId);
-  const quicksight = await existsInQuicksight(user.username, accountId);
-  return new SyncStatus(cognito, quicksight);
-};
-
-const existsInCognito = async (username: string, userPoolId: string): Promise<boolean> => {
-  const request = new AdminGetUserCommand({
-    UserPoolId: userPoolId,
-    Username: username,
-  });
-  try {
-    return await cognitoClient.send(request).then(response => response.Username !== undefined);
-  } catch (error) {
-    if (error instanceof UserNotFoundException) {
-      return false;
-    }
-    throw error;
-  }
-};
-
-const existsInQuicksight = async (username: string, accountId: string): Promise<boolean> => {
-  const request = new DescribeUserCommand({
-    UserName: username,
-    AwsAccountId: accountId,
-    Namespace: 'default',
-  });
-  try {
-    return await quicksightClient.send(request).then(response => response.User?.UserName !== undefined);
-  } catch (error) {
-    if (error instanceof ResourceNotFoundException) {
-      return false;
-    }
-    throw error;
   }
 };
 
