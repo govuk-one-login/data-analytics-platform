@@ -320,10 +320,10 @@ cloudwatchLogsGroup:
       - IsProduction
       - !GetAtt WAFLoggingKmsKey.Arn
       - !Ref AWS::NoValue
-  
+
 WebAclAssociation:
   Type: 'AWS::WAFv2::WebACLAssociation'
-   Properties:
+  Properties:
     ResourceArn: !Ref QuicksightAccessApiGateway
     WebACLArn: !GetAtt webAcl.Arn
 
@@ -386,4 +386,3 @@ WAFLoggingKmsKey:
           Condition:
             ArnLike:
               'kms:EncryptionContext:aws:logs:arn': !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
-
