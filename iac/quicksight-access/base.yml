@@ -42,6 +42,9 @@ Conditions:
     - !Condition IsTest
     - !Condition IsFeature
     - !Condition IsProduction
+  IsDevOrProd: !Or
+    - !Condition IsDev
+    - !Condition IsProduction
 
 Globals:
   Function:
