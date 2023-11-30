@@ -320,14 +320,12 @@ cloudwatchLogsGroup:
       - IsProduction
       - !GetAtt WAFLoggingKmsKey.Arn
       - !Ref AWS::NoValue
-
-  # CSLScloudwatchLogsGroup:
-  #   Type: AWS::Logs::SubscriptionFilter
-  #   Condition: IsProduction
-  #   Properties:
-  #     DestinationArn: !FindInMap [ PlatformConfiguration, !Ref Environment, CSLSEGRESS ]
-  #     FilterPattern: ""
-  #     LogGroupName: !Ref cloudwatchLogsGroup
+  
+WebAclAssociation:
+  Type: 'AWS::WAFv2::WebACLAssociation'
+   Properties:
+    ResourceArn: !Ref QuicksightAccessApiGateway
+    WebACLArn: !GetAtt webAcl.Arn
 
 webAcllogging:
   Type: 'AWS::WAFv2::LoggingConfiguration'
@@ -350,6 +348,7 @@ webAcllogging:
     RedactedFields:
       - SingleHeader:
           Name: password
+
 WafAclSSM:
   Type: AWS::SSM::Parameter
   Properties:
@@ -387,16 +386,4 @@ WAFLoggingKmsKey:
           Condition:
             ArnLike:
               'kms:EncryptionContext:aws:logs:arn': !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
-# Outputs:
-#   OWASPWebAclARN:
-#     Description: ARN of WebACL
-#     Value: !GetAtt
-#       - webAcl
-#       - Arn
-#     Export:
-#       Name: !Sub 'dap-Waf-WebAcl-arn'
-#   CloudwatchLogsGroupARN:
-#     Description: ARN of CloudWatch Logs Group
-#     Value: !GetAtt
-#       - cloudwatchLogsGroup
-#       - Arn
+
