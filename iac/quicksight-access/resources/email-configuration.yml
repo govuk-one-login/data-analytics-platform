@@ -1,0 +1,7 @@
+HostedZone:
+  Type: AWS::Route53::HostedZone
+  Condition: IsDevOrProd
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
+  Properties:
+    Name: !If [IsDev, dap.dev.account.gov.uk, dap.account.gov.uk]
