@@ -231,8 +231,9 @@ webAcl:
           SampledRequestsEnabled: true
           CloudWatchMetricsEnabled: true
           MetricName: !Sub '${Environment}-dap-aws-crs-metric'
-
+      
       - Name: Bad-Inputs
+        #checkov:skip=CKV_AWS_192:log4j is needed
         Priority: 1
         Statement:
           ManagedRuleGroupStatement:
