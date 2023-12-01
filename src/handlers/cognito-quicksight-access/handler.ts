@@ -112,7 +112,7 @@ const getEmbedUrl = async (accountId: string, username: string): Promise<string>
   const request = new GenerateEmbedUrlForRegisteredUserCommand({
     AwsAccountId: accountId,
     UserArn: userArn,
-    SessionLifetimeInMinutes: getAWSEnvironment() === 'production' ? 600 : 15,
+    SessionLifetimeInMinutes: getAWSEnvironment() === 'production' ? 55 : 15,
     ExperienceConfiguration: {
       QuickSightConsole: {
         InitialPath: '/start/dashboards',
