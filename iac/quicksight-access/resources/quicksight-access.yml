@@ -187,3 +187,203 @@ QuicksightAddUsersLambdaFunction:
         - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdA
         - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdB
         - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdC
+
+webAcl:
+  Type: 'AWS::WAFv2::WebACL'
+  Properties:
+    Description: Web ACL
+    DefaultAction:
+      Allow: {}
+
+    Rules:
+      - Name: AWS-CRS
+        Priority: 0
+        Statement:
+          ManagedRuleGroupStatement:
+            VendorName: AWS
+            Name: AWSManagedRulesCommonRuleSet
+            ExcludedRules:
+              - Name: CrossSiteScripting_BODY
+              - Name: CrossSiteScripting_COOKIE
+              - Name: CrossSiteScripting_QUERYARGUMENTS
+              - Name: CrossSiteScripting_URIPATH
+              - Name: EC2MetaDataSSRF_BODY
+              - Name: EC2MetaDataSSRF_COOKIE
+              - Name: EC2MetaDataSSRF_QUERYARGUMENTS
+              - Name: EC2MetaDataSSRF_URIPATH
+              - Name: GenericLFI_BODY
+              - Name: GenericLFI_QUERYARGUMENTS
+              - Name: GenericLFI_URIPATH
+              - Name: GenericRFI_BODY
+              - Name: GenericRFI_QUERYARGUMENTS
+              - Name: GenericRFI_URIPATH
+              - Name: NoUserAgent_HEADER
+              - Name: RestrictedExtensions_QUERYARGUMENTS
+              - Name: RestrictedExtensions_URIPATH
+              - Name: SizeRestrictions_BODY
+              - Name: SizeRestrictions_Cookie_HEADER
+              - Name: SizeRestrictions_QUERYSTRING
+              - Name: SizeRestrictions_URIPATH
+              - Name: UserAgent_BadBots_HEADER
+        OverrideAction:
+          None: {}
+        VisibilityConfig:
+          SampledRequestsEnabled: true
+          CloudWatchMetricsEnabled: true
+          MetricName: !Sub '${Environment}-dap-aws-crs-metric'
+
+      - Name: Bad-Inputs
+        #checkov:skip=CKV_AWS_192:log4j is needed
+        Priority: 1
+        Statement:
+          ManagedRuleGroupStatement:
+            VendorName: AWS
+            Name: AWSManagedRulesKnownBadInputsRuleSet
+            ExcludedRules:
+              - Name: ExploitablePaths_URIPATH
+              - Name: Host_localhost_HEADER
+              - Name: JavaDeserializationRCE_BODY
+              - Name: JavaDeserializationRCE_HEADER
+              - Name: JavaDeserializationRCE_QUERYSTRING
+              - Name: JavaDeserializationRCE_URIPATH
+              - Name: Log4JRCE
+              - Name: PROPFIND_METHOD
+        OverrideAction:
+          None: {}
+        VisibilityConfig:
+          SampledRequestsEnabled: true
+          CloudWatchMetricsEnabled: true
+          MetricName: !Sub '${Environment}-dap-bad-inputs-metric'
+
+      - Name: Anonymous-IpList
+        Priority: 2
+        Statement:
+          ManagedRuleGroupStatement:
+            VendorName: AWS
+            Name: AWSManagedRulesAnonymousIpList
+            ExcludedRules:
+              - Name: AnonymousIPList
+              - Name: HostingProviderIPList
+        OverrideAction:
+          None: {}
+        VisibilityConfig:
+          SampledRequestsEnabled: true
+          CloudWatchMetricsEnabled: true
+          MetricName: !Sub '${Environment}-dap-anonymous-iplist-metric'
+
+      - Name: SQLInject-RuleSet
+        Priority: 3
+        Statement:
+          ManagedRuleGroupStatement:
+            VendorName: AWS
+            Name: AWSManagedRulesSQLiRuleSet
+            ExcludedRules:
+              - Name: SQLiExtendedPatterns_QUERYARGUMENTS
+              - Name: SQLi_BODY
+              - Name: SQLi_COOKIE
+              - Name: SQLi_QUERYARGUMENTS
+              - Name: SQLi_URIPATH
+        OverrideAction:
+          None: {}
+        VisibilityConfig:
+          SampledRequestsEnabled: true
+          CloudWatchMetricsEnabled: true
+          MetricName: !Sub '${Environment}-dap-SQLinjection-ruleset-metric'
+
+      - Name: RateBased-CountIpRule
+        Priority: 4
+        Statement:
+          RateBasedStatement:
+            Limit: 100
+            AggregateKeyType: IP
+        Action:
+          Count: {}
+        VisibilityConfig:
+          CloudWatchMetricsEnabled: true
+          SampledRequestsEnabled: true
+          MetricName: !Sub '${Environment}-dap-RateBased-CountIp-ruleset-metric'
+
+    Scope: REGIONAL
+    Tags:
+      - Key: Name
+        Value: !Sub '${Environment}-dap'
+    VisibilityConfig:
+      SampledRequestsEnabled: true
+      CloudWatchMetricsEnabled: true
+      MetricName: !Sub '${Environment}-dap-metric'
+
+cloudwatchLogsGroup:
+  Type: 'AWS::Logs::LogGroup'
+  Properties:
+    LogGroupName: !Sub '${Environment}-dap-aws-waf-logs-cloudWatchLog'
+    RetentionInDays: 180
+    KmsKeyId: !If
+      - IsProduction
+      - !GetAtt WAFLoggingKmsKey.Arn
+      - !Ref AWS::NoValue
+
+WebAclAssociation:
+  Type: 'AWS::WAFv2::WebACLAssociation'
+  Properties:
+    ResourceArn: !Ref QuicksightAccessApiGateway
+    WebACLArn: !GetAtt webAcl.Arn
+
+webAcllogging:
+  Type: 'AWS::WAFv2::LoggingConfiguration'
+  Properties:
+    ResourceArn: !GetAtt
+      - webAcl
+      - Arn
+    LogDestinationConfigs:
+      - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:aws-waf-logs-${Environment}-dap-cloudWatchLog
+    LoggingFilter:
+      DefaultBehavior: KEEP
+      Filters:
+        - Behavior: KEEP
+          Conditions:
+            - ActionCondition:
+                Action: BLOCK
+            - ActionCondition:
+                Action: COUNT
+          Requirement: MEETS_ANY
+    RedactedFields:
+      - SingleHeader:
+          Name: password
+
+WafAclSSM:
+  Type: AWS::SSM::Parameter
+  Properties:
+    Description: The ARN of webACL
+    Name: !Sub '/${Environment}/dap/Security/WafArn'
+    Type: String
+    Value: !GetAtt
+      - webAcl
+      - Arn
+
+WAFLoggingKmsKey:
+  Type: AWS::KMS::Key
+  Condition: IsProduction
+  Properties:
+    EnableKeyRotation: true
+    KeyPolicy:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+          Action:
+            - kms:*
+          Resource: '*'
+        - Effect: Allow
+          Principal:
+            Service: !Sub 'logs.${AWS::Region}.amazonaws.com'
+          Action:
+            - 'kms:Encrypt*'
+            - 'kms:Decrypt*'
+            - 'kms:ReEncrypt*'
+            - 'kms:GenerateDataKey*'
+            - 'kms:Describe*'
+          Resource: '*'
+          Condition:
+            ArnLike:
+              'kms:EncryptionContext:aws:logs:arn': !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
