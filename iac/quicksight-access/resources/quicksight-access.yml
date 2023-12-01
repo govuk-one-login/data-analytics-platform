@@ -190,6 +190,7 @@ QuicksightAddUsersLambdaFunction:
 
 webAcl:
   Type: 'AWS::WAFv2::WebACL'
+  Condition: IsQuicksightEnvironment
   Properties:
     Description: Web ACL
     DefaultAction:
@@ -314,6 +315,7 @@ webAcl:
 
 cloudwatchLogsGroup:
   Type: 'AWS::Logs::LogGroup'
+  Condition: IsQuicksightEnvironment
   Properties:
     LogGroupName: !Sub '${Environment}-dap-aws-waf-logs-cloudWatchLog'
     RetentionInDays: 180
@@ -324,12 +326,14 @@ cloudwatchLogsGroup:
 
 WebAclAssociation:
   Type: 'AWS::WAFv2::WebACLAssociation'
+  Condition: IsQuicksightEnvironment
   Properties:
     ResourceArn: !Ref QuicksightAccessApiGateway
     WebACLArn: !GetAtt webAcl.Arn
 
 webAcllogging:
   Type: 'AWS::WAFv2::LoggingConfiguration'
+  Condition: IsQuicksightEnvironment
   Properties:
     ResourceArn: !GetAtt
       - webAcl
@@ -352,6 +356,7 @@ webAcllogging:
 
 WafAclSSM:
   Type: AWS::SSM::Parameter
+  Condition: IsQuicksightEnvironment
   Properties:
     Description: The ARN of webACL
     Name: !Sub '/${Environment}/dap/Security/WafArn'
