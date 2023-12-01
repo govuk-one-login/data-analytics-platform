@@ -245,7 +245,7 @@ webAcl:
               - Name: JavaDeserializationRCE_HEADER
               - Name: JavaDeserializationRCE_QUERYSTRING
               - Name: JavaDeserializationRCE_URIPATH
-              # - Name: Log4JRCE
+              - Name: Log4JRCE
               - Name: PROPFIND_METHOD
         OverrideAction:
           None: {}
