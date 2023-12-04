@@ -196,7 +196,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
 
 
     
-    UPDATE "dap_txma_reporting_db"."conformed"."fact_user_journey_event"
+UPDATE "dap_txma_reporting_db"."conformed"."fact_user_journey_event"
     SET
       REJECTION_REASON=trim(st.REJECTION_REASON,'"')
       ,REASON=trim(st.REASON,'"')
@@ -219,8 +219,9 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                             JSON_SERIALIZE(st.CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL)
                                         END,'"')
       ,ADDRESSES_ENTERED=trim(st.ADDRESSES_ENTERED ,'"') 
-      ,ACTIVITY_HISTORY_SCORE=--CAST(st.ACTIVITY_HISTORY_SCORE AS INTEGER)
-                              CAST(case when trim(st.ACTIVITY_HISTORY_SCORE,'"') ~ '^[0-9]+$' then trim(st.ACTIVITY_HISTORY_SCORE,'"')
+     ,ACTIVITY_HISTORY_SCORE=--CAST(st.ACTIVITY_HISTORY_SCORE AS INTEGER)
+                              CAST(case when trim(JSON_SERIALIZE(st.ACTIVITY_HISTORY_SCORE),'"') ~ '^[0-9]+$' 
+                                         then trim(JSON_SERIALIZE(st.ACTIVITY_HISTORY_SCORE),'"')
                               else null
                               end AS INTEGER)
       ,IDENTITY_FRAUD_SCORE=--CAST(JSON_SERIALIZE(st.IDENTITY_FRAUD_SCORE) AS INTEGER)
@@ -293,7 +294,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
     WHERE fact_user_journey_event.EVENT_ID = st.EVENT_ID;
     
     
-   INSERT INTO conformed.FACT_USER_JOURNEY_EVENT (EVENT_KEY,DATE_KEY,verification_route_key,journey_channel_key,relying_party_key,USER_USER_ID,
+      INSERT INTO conformed.FACT_USER_JOURNEY_EVENT (EVENT_KEY,DATE_KEY,verification_route_key,journey_channel_key,relying_party_key,USER_USER_ID,
                             EVENT_ID,EVENT_TIME,USER_GOVUK_SIGNIN_JOURNEY_ID,COMPONENT_ID,EVENT_COUNT,
                             REJECTION_REASON,REASON,NOTIFICATION_TYPE,MFA_TYPE,ACCOUNT_RECOVERY,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,
                             CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,ADDRESSES_ENTERED,ACTIVITY_HISTORY_SCORE,IDENTITY_FRAUD_SCORE,DECISION_SCORE,
@@ -332,7 +333,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                         END,'"')
            ,trim(ADDRESSES_ENTERED ,'"')
            --,CAST(ACTIVITY_HISTORY_SCORE AS INTEGER)
-           ,CAST(case when trim(ACTIVITY_HISTORY_SCORE,'"') ~ '^[0-9]+$' then trim(ACTIVITY_HISTORY_SCORE,'"') 
+           ,CAST(case when trim(JSON_SERIALIZE(ACTIVITY_HISTORY_SCORE),'"') ~ '^[0-9]+$' then trim(JSON_SERIALIZE(ACTIVITY_HISTORY_SCORE),'"') 
             else null
             end AS INTEGER)
            --,CAST(JSON_SERIALIZE(IDENTITY_FRAUD_SCORE) AS INTEGER)
