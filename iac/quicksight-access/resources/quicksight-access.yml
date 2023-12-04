@@ -328,7 +328,7 @@ WebAclAssociation:
   Type: 'AWS::WAFv2::WebACLAssociation'
   Condition: IsQuicksightEnvironment
   Properties:
-    ResourceArn: !Ref QuicksightAccessApiGateway
+    ResourceArn: !Ref QuicksightAccessUserPool
     WebACLArn: !GetAtt webAcl.Arn
 
 webAcllogging:
