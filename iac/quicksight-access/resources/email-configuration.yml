@@ -5,3 +5,64 @@ HostedZone:
   UpdateReplacePolicy: Retain
   Properties:
     Name: !If [IsDev, dap.dev.account.gov.uk, dap.account.gov.uk]
+
+DKIMRecords:
+  Type: AWS::Route53::RecordSetGroup
+  Condition: IsDevOrProd
+  Properties:
+    HostedZoneId: !Ref HostedZone
+    RecordSets:
+      - Type: CNAME
+        TTL: 3600
+        Name: !FindInMap
+          - DKIMRecordMap
+          - !Ref Environment
+          - Name1
+        ResourceRecords:
+          - !FindInMap
+            - DKIMRecordMap
+            - !Ref Environment
+            - Value1
+      - Type: CNAME
+        TTL: 3600
+        Name: !FindInMap
+          - DKIMRecordMap
+          - !Ref Environment
+          - Name2
+        ResourceRecords:
+          - !FindInMap
+            - DKIMRecordMap
+            - !Ref Environment
+            - Value2
+      - Type: CNAME
+        TTL: 3600
+        Name: !FindInMap
+          - DKIMRecordMap
+          - !Ref Environment
+          - Name3
+        ResourceRecords:
+          - !FindInMap
+            - DKIMRecordMap
+            - !Ref Environment
+            - Value3
+
+MAILFROMRecords:
+  Type: AWS::Route53::RecordSetGroup
+  Condition: IsDevOrProd
+  Properties:
+    HostedZoneId: !Ref HostedZone
+    RecordSets:
+      - Type: MX
+        TTL: 3600
+        Name: !Sub
+          - 'noreply.${Domain}'
+          - Domain: !If [IsDev, dap.dev.account.gov.uk, dap.account.gov.uk]
+        ResourceRecords:
+          - '10 feedback-smtp.eu-west-2.amazonses.com'
+      - Type: TXT
+        TTL: 3600
+        Name: !Sub
+          - 'noreply.${Domain}'
+          - Domain: !If [IsDev, dap.dev.account.gov.uk, dap.account.gov.uk]
+        ResourceRecords:
+          - '"v=spf1 include:amazonses.com ~all!"' # the double quotation marks are a needed part of the TXT record
