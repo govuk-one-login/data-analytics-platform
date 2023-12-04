@@ -392,3 +392,4 @@ WAFLoggingKmsKey:
           Condition:
             ArnLike:
               'kms:EncryptionContext:aws:logs:arn': !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+
