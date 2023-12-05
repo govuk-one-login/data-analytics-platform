@@ -63,7 +63,6 @@ QuicksightAccessUserPool:
       InviteMessageTemplate:
         EmailMessage: "<!doctypehtml><html lang=en><title></title><style>table,td,th{border:1px solid #000;border-collapse:collapse}td,th{padding:5px;text-align:left}</style><p>Hi,<p>Welcome to QuickSight where you can log in and see the One Login Dashboards.<p>Please find your login details below. These will expire in 7 days. You will have to change your password and set up Multi Factor Authentication when you first log in.<table><tr><th>Url<td><a href='https://eu-west-2.quicksight.aws.amazon.com/sn/auth/signin?enable-sso=1'>https://eu-west-2.quicksight.aws.amazon.com/sn/auth/signin?enable-sso=1</a><tr><th>Account name<td>dap-production<tr><th>Username<td>{username}<tr><th>Password<td><code>{####}</code></table><p>Please find more detailed instructions <a href=https://google.com target=_blank>here</a>.<p>If you need further support please send an email to <a href=mailto:data-analytics-one-login@digital.cabinet-office.gov.uk>data-analytics-one-login@digital.cabinet-office.gov.uk</a>.<div><div>Thank you</div><div>Data & Analytics Team</div></div>"
         EmailSubject: Welcome to One Login Data & Analytics Dashboards
-      UnusedAccountValidityDays: 30
     AutoVerifiedAttributes:
       - email
     EmailConfiguration:
