@@ -328,17 +328,16 @@ WebAclAssociation:
   Type: 'AWS::WAFv2::WebACLAssociation'
   Condition: IsQuicksightEnvironment
   Properties:
-    ResourceArn: !Ref QuicksightAccessUserPool
+    ResourceArn: !GetAtt QuicksightAccessUserPool.Arn
     WebACLArn: !GetAtt webAcl.Arn
 
 webAcllogging:
   Type: 'AWS::WAFv2::LoggingConfiguration'
   Condition: IsQuicksightEnvironment
   Properties:
-    ResourceArn: !GetAtt
-      - webAcl
-      - Arn
-    LogDestinationConfigs: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/waf/${Environment}-dap-aws-waf-logs-cloudWatchLog'
+    ResourceArn: !GetAtt webAcl.Arn
+    LogDestinationConfigs:
+      - !GetAtt cloudwatchLogsGroup.Arn
     LoggingFilter:
       DefaultBehavior: KEEP
       Filters:
