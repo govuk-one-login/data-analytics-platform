@@ -324,11 +324,11 @@ cloudwatchLogsGroup:
       - !GetAtt WAFLoggingKmsKey.Arn
       - !Ref AWS::NoValue
 
-WAFToCWLogsPolicyV2:
+WAFToCWLogsPolicy:
   Type: AWS::Logs::ResourcePolicy
   Condition: IsQuicksightEnvironment
   Properties:
-    PolicyName: WAFToCWLogsPolicyV2
+    PolicyName: WAFToCWLogsPolicy
     PolicyDocument:
       Fn::Sub:
         - |
