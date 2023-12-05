@@ -323,7 +323,40 @@ cloudwatchLogsGroup:
       - IsProduction
       - !GetAtt WAFLoggingKmsKey.Arn
       - !Ref AWS::NoValue
-
+      
+WAFToCWLogsPolicy:
+  Type: AWS::Logs::ResourcePolicy
+  Condition: IsQuicksightEnvironment
+  Properties:
+    PolicyName: WAFToCWLogsPolicy
+    PolicyDocument: 
+      Fn::Sub:
+        - |
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "delivery.logs.amazonaws.com"
+                },
+                "Action": [
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents"
+                ],
+                "Resource": "${CloudWatchLogsLogGroupArn}",
+                "Condition": {
+                  "StringEquals": {
+                    "aws:SourceAccount": ${AWS::AccountId}
+                  },
+                  "ArnLike": {
+                    "aws:SourceArn": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+                  }
+                }
+              }
+            ]
+          }
+        - CloudWatchLogsLogGroupArn: !GetAtt cloudwatchLogsGroup.Arn      
 WebAclAssociation:
   Type: 'AWS::WAFv2::WebACLAssociation'
   Condition: IsQuicksightEnvironment
