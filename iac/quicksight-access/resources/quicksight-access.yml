@@ -339,7 +339,7 @@ webAcllogging:
       - webAcl
       - Arn
     LogDestinationConfigs:
-      - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${Environment}-dap-aws-waf-logs-cloudWatchLog
+      - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/waf/${Environment}-dap-aws-waf-logs-cloudWatchLog
     LoggingFilter:
       DefaultBehavior: KEEP
       Filters:
