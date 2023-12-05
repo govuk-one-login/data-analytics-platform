@@ -323,13 +323,13 @@ cloudwatchLogsGroup:
       - IsProduction
       - !GetAtt WAFLoggingKmsKey.Arn
       - !Ref AWS::NoValue
-      
+
 WAFToCWLogsPolicy:
   Type: AWS::Logs::ResourcePolicy
   Condition: IsQuicksightEnvironment
   Properties:
     PolicyName: WAFToCWLogsPolicy
-    PolicyDocument: 
+    PolicyDocument:
       Fn::Sub:
         - |
           {
@@ -356,7 +356,7 @@ WAFToCWLogsPolicy:
               }
             ]
           }
-        - CloudWatchLogsLogGroupArn: !GetAtt cloudwatchLogsGroup.Arn      
+        - CloudWatchLogsLogGroupArn: !GetAtt cloudwatchLogsGroup.Arn
 WebAclAssociation:
   Type: 'AWS::WAFv2::WebACLAssociation'
   Condition: IsQuicksightEnvironment
