@@ -338,8 +338,7 @@ webAcllogging:
     ResourceArn: !GetAtt
       - webAcl
       - Arn
-    LogDestinationConfigs:
-      - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/waf/${Environment}-dap-aws-waf-logs-cloudWatchLog
+    LogDestinationConfigs: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/waf/${Environment}-dap-aws-waf-logs-cloudWatchLog'
     LoggingFilter:
       DefaultBehavior: KEEP
       Filters:
