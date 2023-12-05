@@ -317,7 +317,7 @@ cloudwatchLogsGroup:
   Type: 'AWS::Logs::LogGroup'
   Condition: IsQuicksightEnvironment
   Properties:
-    LogGroupName: !Sub '${Environment}-dap-aws-waf-logs-cloudWatchLog'
+    LogGroupName: !Sub '/waf/${Environment}-dap-aws-waf-logs-cloudWatchLog'
     RetentionInDays: 180
     KmsKeyId: !If
       - IsProduction
