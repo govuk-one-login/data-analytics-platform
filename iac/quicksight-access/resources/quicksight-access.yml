@@ -342,7 +342,7 @@ WAFCWLogsPolicy:
                 },
                 "Action": [
                   "logs:CreateLogStream",
-                  "logs:PutLogEvents",
+                  "logs:PutLogEvents"
                 ],
                 "Resource": "${CloudWatchLogsLogGroupArn}",
                 "Condition": {
