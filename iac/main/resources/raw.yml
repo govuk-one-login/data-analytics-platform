@@ -1065,6 +1065,10 @@ IpvVcReceivedGlueTable:
           - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
+          - {
+              Name: extensions,
+              Type: 'struct<iss:string,successful:boolean,evidence:array<struct<checkDetails:array<struct<checkMethod:string,kbvResponseMode:string,kbvQuality:int,biometricVerificationProcessLevel:int>>,failedCheckDetails:array<struct<checkMethod:string,kbvResponseMode:string>>,activityHistoryScore:int,identityFraudScore:int,strengthScore:int,type:string,validityScore:int,verificationScore:int>>>',
+            }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         Location: !Sub s3://${RawLayerBucket}/txma/IPV_VC_RECEIVED/
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
