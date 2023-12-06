@@ -195,6 +195,9 @@ IpvCriDrivingLicenseCrawler:
       S3Targets:
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_DL_CRI_START/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_DL_CRI_VC_ISSUED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_DL_CRI_END/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_DL_CRI_REQUEST_SENT/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_DL_CRI_RESPONSE_RECEIVED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -216,6 +219,7 @@ IpvCriFraudCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_REQUEST_SENT/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_RESPONSE_RECEIVED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_FRAUD_CRI_END/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -234,6 +238,9 @@ IpvCriKbvCrawler:
       S3Targets:
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_START/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_VC_ISSUED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_END/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_REQUEST_SENT/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_KBV_CRI_RESPONSE_RECEIVED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -252,6 +259,9 @@ IpvCriPassportCrawler:
       S3Targets:
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_START/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_VC_ISSUED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_END/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_REQUEST_SENT/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/IPV_PASSPORT_CRI_RESPONSE_RECEIVED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
