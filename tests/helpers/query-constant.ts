@@ -157,6 +157,13 @@ export const extensionsnotnullquery = (tablename: string): string => {
   const query = 'SELECT event_id,extensions,day,user FROM ' + tablename + ' where extensions is not null';
   return query;
 };
+export const extensionsandrestrictionnotnullquery = (tablename: string): string => {
+  const query =
+    'SELECT event_id,extensions,restricted,day,user FROM ' +
+    tablename +
+    ' where extensions is not null and restricted is not null';
+  return query;
+};
 export const usernotnullquery = (tablename: string): string => {
   const query = 'SELECT event_id,user,day FROM ' + tablename + ' where user is not null';
   return query;
@@ -172,4 +179,8 @@ export const IPV_IDENTITY_ISSUED_CONFORMED =
 
 export const IPV_CRI_ADDRESS_DATA_CONFORMED =
   'select event_id,event_name,iss,addresses_entered,user_user_id FROM\n' +
+  '  "dap_txma_reporting_db"."conformed"."fact_user_journey_event" fct  LEFT JOIN  "dap_txma_reporting_db"."conformed".DIM_EVENT DE ON fct.event_key = de.event_key WHERE ';
+
+export const IPV_CRI_F2F_CONFORMED =
+  'select event_id,event_name,user_user_id,driving_permit, id_card, passport, residence_permit,activity_history_score FROM\n' +
   '  "dap_txma_reporting_db"."conformed"."fact_user_journey_event" fct  LEFT JOIN  "dap_txma_reporting_db"."conformed".DIM_EVENT DE ON fct.event_key = de.event_key WHERE ';
