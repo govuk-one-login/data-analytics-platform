@@ -26,4 +26,9 @@ for file in "$RESOURCE_DIR"/*; do
   echo >> "$OUTFILE"
 done
 
+# fill in email templates when building the quicksight-access stack
+if [ "$APP_NAME" == "quicksight-access" ]; then
+  node "$ROOT/scripts/minify-and-add-emails.mjs"
+fi
+
 prettier "$OUTFILE" --write > /dev/null
