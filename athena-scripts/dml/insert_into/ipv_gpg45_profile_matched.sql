@@ -5,6 +5,7 @@ INSERT INTO "environment-txma-stage"."ipv_journey" (
 	user_user_id,
 	timestamp,
 	timestamp_formatted,
+	extensions_gpg45scores,
 	year,
 	month,
 	day,
@@ -18,6 +19,10 @@ SELECT
 	user.user_id as user_user_id,
 	timestamp as timestamp,
 	timestamp_formatted as timestamp_formatted,
+	case format('%s',cast("extensions"."gpg45Scores" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."gpg45Scores" as JSON))
+	end  as extensions_gpg45scores,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
