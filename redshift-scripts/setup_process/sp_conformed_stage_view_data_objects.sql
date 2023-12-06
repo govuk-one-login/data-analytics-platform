@@ -178,10 +178,9 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
 
     ---
 
-    Create or replace view conformed.v_stg_dcmaw_cri
-    AS
-    select DISTINCT 
-    Auth.product_family,
+Create or replace view conformed.v_stg_dcmaw_cri AS
+select
+    DISTINCT Auth.product_family,
     Auth.event_id,
     Auth.client_id,
     Auth.component_id,
@@ -201,6 +200,7 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
     failedcheckdetails_biometricverificationprocesslevel FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,
     checkdetails_biometricverificationprocesslevel CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,
     strengthscore strength_score,
+    extensions_previousgovuksigninjourneyid,
     Null ADDRESSES_ENTERED,
     activityhistoryscore ACTIVITY_HISTORY_SCORE,
     Null IDENTITY_FRAUD_SCORE,
@@ -219,36 +219,159 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
     ref.product_family ref_product_family,
     ref.domain,
     ref.sub_domain,
-    ref.other_sub_domain from 
-    ( select * from 
-        (SELECT
-            'dcmaw_cri' Product_family 
-                ,row_number() over (partition by event_id,timestamp_formatted order by cast (day as integer) desc) as row_num
-                ,*
-        FROM
-                    (with base_data as
-                (SELECT
-                    event_id,
-                    event_name,
-                    client_id,
-                    component_id,
-                    "timestamp",
-                    timestamp_formatted,
-                    user_govuk_signin_journey_id,
-                    user_user_id,
-                    year,
-                    month,
-                    day,
-                    processed_date,
-                    extensions_evidence,
-                    nvl2(valid_json_data,valid_json_data.activityHistoryScore ,valid_json_data) AS activityhistoryscore,
-                    nvl2(valid_json_data,valid_json_data.checkdetails,valid_json_data) AS checkdetails,
-                    nvl2(valid_json_data,valid_json_data.failedcheckdetails,valid_json_data) AS failedcheckdetails,
-                    nvl2(valid_json_data,valid_json_data.strengthscore,valid_json_data) AS strengthscore,
-                    nvl2(valid_json_data,valid_json_data.type,valid_json_data) AS type,
-                    nvl2(valid_json_data,valid_json_data.validityscore,valid_json_data) AS validityscore    
-                    FROM (
-                        SELECT
+    ref.other_sub_domain
+from
+    (
+        select
+            *
+        from
+            (
+                SELECT
+                    'dcmaw_cri' Product_family,
+                    row_number() over (
+                        partition by event_id,
+                        timestamp_formatted
+                        order by
+                            cast (day as integer) desc
+                    ) as row_num,
+                    *
+                FROM
+                    (
+                        with base_data as (
+                            SELECT
+                                event_id,
+                                event_name,
+                                client_id,
+                                component_id,
+                                "timestamp",
+                                timestamp_formatted,
+                                user_govuk_signin_journey_id,
+                                user_user_id,
+                                year,
+                                month,
+                                day,
+                                processed_date,
+                                extensions_evidence,
+                                extensions_previousgovuksigninjourneyid,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.activityHistoryScore,
+                                    valid_json_data
+                                ) AS activityhistoryscore,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.checkdetails,
+                                    valid_json_data
+                                ) AS checkdetails,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.failedcheckdetails,
+                                    valid_json_data
+                                ) AS failedcheckdetails,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.strengthscore,
+                                    valid_json_data
+                                ) AS strengthscore,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.type,
+                                    valid_json_data
+                                ) AS type,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.validityscore,
+                                    valid_json_data
+                                ) AS validityscore
+                            FROM
+                                (
+                                    SELECT
+                                        event_id,
+                                        event_name,
+                                        client_id,
+                                        component_id,
+                                        "timestamp",
+                                        timestamp_formatted,
+                                        user_govuk_signin_journey_id,
+                                        FIRST_VALUE(extensions_previousgovuksigninjourneyid) 
+                                        OVER (PARTITION BY event_id ORDER BY event_id ROWS UNBOUNDED PRECEDING) AS extensions_previousgovuksigninjourneyid,
+                                        user_user_id,
+                                        year,
+                                        month,
+                                        day,
+                                        processed_date,
+                                        extensions_evidence,
+                                        case extensions_evidence != ''
+                                        and is_valid_json_array(extensions_evidence)
+                                        when true then json_parse(
+                                            json_extract_array_element_text(extensions_evidence, 0)
+                                        )
+                                        else null end as valid_json_data
+                                    FROM
+                                        "dap_txma_reporting_db"."dap_txma_stage"."dcmaw_cri"
+                                )
+                        ),
+                        level_1_data as (
+                            SELECT
+                                event_id,
+                                event_name,
+                                client_id,
+                                component_id,
+                                "timestamp",
+                                timestamp_formatted,
+                                user_govuk_signin_journey_id,
+                                extensions_previousgovuksigninjourneyid,
+                                user_user_id,
+                                year,
+                                month,
+                                day,
+                                processed_date,
+                                activityhistoryscore,
+                                strengthscore,
+                                json_serialize(checkdetails) checkdetails_final,
+                                json_serialize(failedcheckdetails) failedcheckdetails_final,
+                                type,
+                                validityscore
+                            FROM
+                                base_data
+                            where
+                                json_serialize(failedcheckdetails) != ''
+                        ),
+                        level_2_data as (
+                            select
+                                event_id,
+                                event_name,
+                                client_id,
+                                component_id,
+                                "timestamp",
+                                timestamp_formatted,
+                                user_govuk_signin_journey_id,
+                                extensions_previousgovuksigninjourneyid,
+                                user_user_id,
+                                year,
+                                month,
+                                day,
+                                processed_date,
+                                activityhistoryscore,
+                                strengthscore,
+                                type,
+                                validityscore,
+                                case failedcheckdetails_final != ''
+                                and is_valid_json_array(failedcheckdetails_final)
+                                when true then json_parse(
+                                    json_extract_array_element_text(failedcheckdetails_final, 0)
+                                )
+                                else null end as valid_json_failedcheckdetails_data,
+                                case checkdetails_final != ''
+                                and is_valid_json_array(checkdetails_final)
+                                when true then json_parse(
+                                    json_extract_array_element_text(checkdetails_final, 0)
+                                )
+                                else null end as valid_json_checkdetails_data
+                            from
+                                level_1_data
+                        )
+                        select
                             event_id,
                             event_name,
                             client_id,
@@ -256,31 +379,7 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
                             "timestamp",
                             timestamp_formatted,
                             user_govuk_signin_journey_id,
-                            user_user_id,
-                            year,
-                            month,
-                            day,
-                            processed_date,
-                            extensions_evidence,
-                            case extensions_evidence != ''
-                            and is_valid_json_array(extensions_evidence)
-                            when true then json_parse(
-                                json_extract_array_element_text(extensions_evidence, 0)
-                            )
-                            else null end as valid_json_data
-                        FROM
-                            "dap_txma_reporting_db"."dap_txma_stage"."dcmaw_cri"
-                            --where extensions_evidence != ''
-                            --and event_id='f6eb0bef-98dc-4a71-ac33-d6bc1725f11d'
-                    )), level_1_data as
-                (SELECT
-                            event_id,
-                            event_name,
-                            client_id,
-                            component_id,
-                            "timestamp",
-                            timestamp_formatted,
-                            user_govuk_signin_journey_id,
+                            extensions_previousgovuksigninjourneyid,
                             user_user_id,
                             year,
                             month,
@@ -288,79 +387,39 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
                             processed_date,
                             activityhistoryscore,
                             strengthscore,
-                            json_serialize(checkdetails) checkdetails_final,
-                            json_serialize(failedcheckdetails) failedcheckdetails_final,
                             type,
-                            validityscore
-                        FROM
-                            base_data
-                            where json_serialize(failedcheckdetails) != ''
-                ),level_2_data as
-                (select 
-                        event_id,
-                        event_name,
-                        client_id,
-                        component_id,
-                        "timestamp",
-                        timestamp_formatted,
-                        user_govuk_signin_journey_id,
-                        user_user_id,
-                        year,
-                        month,
-                        day,
-                        processed_date,
-                        activityhistoryscore,
-                        strengthscore,
-                        type,
-                        validityscore,
-                        case failedcheckdetails_final != ''
-                            and is_valid_json_array(failedcheckdetails_final)
-                            when true then json_parse(
-                                json_extract_array_element_text(failedcheckdetails_final, 0)
-                            )
-                        else null end as valid_json_failedcheckdetails_data,
-                        case checkdetails_final != ''
-                            and is_valid_json_array(checkdetails_final)
-                            when true then json_parse(
-                                json_extract_array_element_text(checkdetails_final, 0)
-                            )
-                        else null end as valid_json_checkdetails_data  
-                from level_1_data
-                )
-                select 
-                    event_id,
-                    event_name,
-                    client_id,
-                    component_id,
-                    "timestamp",
-                    timestamp_formatted,
-                    user_govuk_signin_journey_id,
-                    user_user_id,
-                    year,
-                    month,
-                    day,
-                    processed_date,
-                    activityhistoryscore,
-                    strengthscore,
-                    type,
-                    validityscore,
-                    nvl2(valid_json_failedcheckdetails_data,valid_json_failedcheckdetails_data.checkmethod,valid_json_failedcheckdetails_data) AS failedcheckdetails_checkmethod,
-                    nvl2(valid_json_failedcheckdetails_data,valid_json_failedcheckdetails_data.biometricverificationprocesslevel,valid_json_failedcheckdetails_data) AS        
-                    failedcheckdetails_biometricverificationprocesslevel,
-                    nvl2(valid_json_checkdetails_data,valid_json_checkdetails_data.checkmethod,valid_json_checkdetails_data) AS checkdetails_checkmethod,
-                    nvl2(valid_json_checkdetails_data,valid_json_checkdetails_data.biometricverificationprocesslevel,valid_json_checkdetails_data) AS      
-                    checkdetails_biometricverificationprocesslevel
-                from  level_2_data 
-        ) 
-        )
-        where  row_num=1  
-        ) Auth
-        join conformed.BatchControl BatC
-        On Auth.Product_family=BatC.Product_family
-        and to_date(processed_date,'YYYYMMDD')  > NVL(MaxRunDate,null)
-        join conformed.REF_EVENTS ref
-        on Auth.EVENT_NAME=ref.event_name
-        with no schema binding;
+                            validityscore,
+                            nvl2(
+                                valid_json_failedcheckdetails_data,
+                                valid_json_failedcheckdetails_data.checkmethod,
+                                valid_json_failedcheckdetails_data
+                            ) AS failedcheckdetails_checkmethod,
+                            nvl2(
+                                valid_json_failedcheckdetails_data,
+                                valid_json_failedcheckdetails_data.biometricverificationprocesslevel,
+                                valid_json_failedcheckdetails_data
+                            ) AS failedcheckdetails_biometricverificationprocesslevel,
+                            nvl2(
+                                valid_json_checkdetails_data,
+                                valid_json_checkdetails_data.checkmethod,
+                                valid_json_checkdetails_data
+                            ) AS checkdetails_checkmethod,
+                            nvl2(
+                                valid_json_checkdetails_data,
+                                valid_json_checkdetails_data.biometricverificationprocesslevel,
+                                valid_json_checkdetails_data
+                            ) AS checkdetails_biometricverificationprocesslevel
+                        from
+                            level_2_data
+                    )
+            )
+        where
+            row_num = 1
+    ) Auth
+    join conformed.BatchControl BatC On Auth.Product_family = BatC.Product_family
+    and to_date(processed_date, 'YYYYMMDD') > NVL(MaxRunDate, null)
+    join conformed.REF_EVENTS ref on Auth.EVENT_NAME = ref.event_name
+    with no schema binding;
 
     ---
 
@@ -729,10 +788,9 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
 
     ---
 
-    Create or replace view conformed.v_stg_ipv_cri_fraud
-    AS
-    select DISTINCT
-    Auth.product_family,
+Create or replace view conformed.v_stg_ipv_cri_fraud AS
+select
+    DISTINCT Auth.product_family,
     Auth.event_id,
     Auth.client_id,
     Auth.component_id,
@@ -770,161 +828,217 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
     ref.product_family ref_product_family,
     ref.domain,
     ref.sub_domain,
-    ref.other_sub_domain from
-    ( select * from
-    (SELECT
-        'ipv_cri_fraud' Product_family
-        ,row_number() over (partition by event_id,timestamp_formatted order by cast (day as integer) desc) as row_num
-        ,*
-    FROM
-            (with base_data as
-        (SELECT
-            event_id,
-            event_name,
-            client_id,
-            component_id,
-            "timestamp",
-            timestamp_formatted,
-            user_govuk_signin_journey_id,
-            user_user_id,
-            year,
-            month,
-            day,
-            iss,
-            processed_date,
-            extensions_evidence,
-            null AS activityhistoryscore,
-            nvl2(valid_json_data,valid_json_data.checkdetails,valid_json_data) AS checkdetails,
-            nvl2(valid_json_data,valid_json_data.failedcheckdetails,valid_json_data) AS failedcheckdetails,
-            nvl2(valid_json_data,valid_json_data.decisionscore,valid_json_data) AS decisionscore,
-            nvl2(valid_json_data,valid_json_data.identityfraudscore,valid_json_data) AS identityfraudscore,
-            null as strengthscore,
-            nvl2(valid_json_data,valid_json_data.type,valid_json_data) AS type,
-            null AS validityscore
-            FROM (
-            SELECT
-                event_id,
-                event_name,
-                client_id,
-                component_id,
-                "timestamp",
-                timestamp_formatted,
-                user_govuk_signin_journey_id,
-                user_user_id,
-                year,
-                month,
-                day,
-                processed_date,
-                extensions_evidence,
-                extensions_iss as iss,
-                case extensions_evidence != ''
-                and is_valid_json_array(extensions_evidence)
-                when true then json_parse(
-                json_extract_array_element_text(extensions_evidence, 0)
-                )
-                else null end as valid_json_data
-            FROM
-                "dap_txma_reporting_db"."dap_txma_stage"."ipv_cri_fraud"
-                --where event_name='IPV_FRAUD_CRI_VC_ISSUED'
-                --and event_id='f6eb0bef-98dc-4a71-ac33-d6bc1725f11d'
-            )), level_1_data as
-        (SELECT
-                event_id,
-                event_name,
-                client_id,
-                component_id,
-                "timestamp",
-                timestamp_formatted,
-                user_govuk_signin_journey_id,
-                user_user_id,
-                year,
-                month,
-                day,
-                iss,
-                processed_date,
-                activityhistoryscore,
-                strengthscore,
-                identityfraudscore ,
-                decisionscore ,
-                json_serialize(checkdetails) checkdetails_final,
-                json_serialize(failedcheckdetails) failedcheckdetails_final,
-                type,
-                validityscore
-            FROM
-                base_data
-                where json_serialize(failedcheckdetails) != ''
-        ),level_2_data as
-        (select
-            event_id,
-            event_name,
-            client_id,
-            component_id,
-            "timestamp",
-            timestamp_formatted,
-            user_govuk_signin_journey_id,
-            user_user_id,
-            year,
-            month,
-            day,
-            iss,
-            processed_date,
-            activityhistoryscore,
-            strengthscore,
-            identityfraudscore ,
-            decisionscore ,
-            type,
-            validityscore,
-            case failedcheckdetails_final != ''
-                and is_valid_json_array(failedcheckdetails_final)
-                when true then json_parse(
-                json_extract_array_element_text(failedcheckdetails_final, 0)
-                )
-            else null end as valid_json_failedcheckdetails_data,
-            case checkdetails_final != ''
-                and is_valid_json_array(checkdetails_final)
-                when true then json_parse(
-                json_extract_array_element_text(checkdetails_final, 0)
-                )
-            else null end as valid_json_checkdetails_data
-        from level_1_data
-        )
+    ref.other_sub_domain
+from
+    (
         select
-            event_id,
-            event_name,
-            client_id,
-            component_id,
-            "timestamp",
-            timestamp_formatted,
-            user_govuk_signin_journey_id,
-            user_user_id,
-            year,
-            month,
-            day,
-            iss,
-            processed_date,
-            activityhistoryscore,
-            strengthscore,
-            identityfraudscore ,
-            decisionscore ,
-            type,
-            validityscore,
-            nvl2(valid_json_failedcheckdetails_data,valid_json_failedcheckdetails_data.checkmethod,valid_json_failedcheckdetails_data) AS failedcheckdetails_checkmethod,
-            nvl2(valid_json_failedcheckdetails_data,valid_json_failedcheckdetails_data.biometricverificationprocesslevel,valid_json_failedcheckdetails_data) AS
-            failedcheckdetails_biometricverificationprocesslevel,
-            nvl2(valid_json_checkdetails_data,valid_json_checkdetails_data.checkmethod,valid_json_checkdetails_data) AS checkdetails_checkmethod,
-            nvl2(valid_json_checkdetails_data,valid_json_checkdetails_data.biometricverificationprocesslevel,valid_json_checkdetails_data) AS
-            checkdetails_biometricverificationprocesslevel
-        from level_2_data
-    )
-    )
-    where row_num=1
+            *
+        from
+            (
+                SELECT
+                    'ipv_cri_fraud' Product_family,
+                    row_number() over (
+                        partition by event_id,
+                        timestamp_formatted
+                        order by
+                            cast (day as integer) desc
+                    ) as row_num,
+                    *
+                FROM
+                    (
+                        with base_data as (
+                            SELECT
+                                event_id,
+                                event_name,
+                                client_id,
+                                component_id,
+                                "timestamp",
+                                timestamp_formatted,
+                                user_govuk_signin_journey_id,
+                                user_user_id,
+                                year,
+                                month,
+                                day,
+                                iss,
+                                processed_date,
+                                extensions_evidence,
+                            nvl2(
+                                    valid_json_data,
+                                    valid_json_data.activityhistoryscore,
+                                    valid_json_data
+                                ) AS activityhistoryscore,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.checkdetails,
+                                    valid_json_data
+                                ) AS checkdetails,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.failedcheckdetails,
+                                    valid_json_data
+                                ) AS failedcheckdetails,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.decisionscore,
+                                    valid_json_data
+                                ) AS decisionscore,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.identityfraudscore,
+                                    valid_json_data
+                                ) AS identityfraudscore,
+                            null as
+                                strengthscore,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.type,
+                                    valid_json_data
+                                ) AS type,
+                            null AS
+                                validityscore
+                            FROM
+                                (
+                                    SELECT
+                                        event_id,
+                                        event_name,
+                                        client_id,
+                                        component_id,
+                                        "timestamp",
+                                        timestamp_formatted,
+                                        user_govuk_signin_journey_id,
+                                        user_user_id,
+                                        year,
+                                        month,
+                                        day,
+                                        processed_date,
+                                        extensions_evidence,
+                                        extensions_iss as iss,
+                                        case extensions_evidence != ''
+                                        and is_valid_json_array(extensions_evidence)
+                                        when true then json_parse(
+                                            json_extract_array_element_text(extensions_evidence, 0)
+                                        )
+                                        else null end as valid_json_data
+                                    FROM
+                                        "dap_txma_reporting_db"."dap_txma_stage"."ipv_cri_fraud"
+                                )
+                        ),
+                        level_1_data as (
+                            SELECT
+                                event_id,
+                                event_name,
+                                client_id,
+                                component_id,
+                                "timestamp",
+                                timestamp_formatted,
+                                user_govuk_signin_journey_id,
+                                user_user_id,
+                                year,
+                                month,
+                                day,
+                                iss,
+                                processed_date,
+                                activityhistoryscore,
+                                strengthscore,
+                                identityfraudscore,
+                                decisionscore,
+                                json_serialize(checkdetails) checkdetails_final,
+                                json_serialize(failedcheckdetails) failedcheckdetails_final,
+                                type,
+                                validityscore
+                            FROM
+                                base_data
+                            where
+                                json_serialize(failedcheckdetails) != ''
+                        ),
+                        level_2_data as (
+                            select
+                                event_id,
+                                event_name,
+                                client_id,
+                                component_id,
+                                "timestamp",
+                                timestamp_formatted,
+                                user_govuk_signin_journey_id,
+                                user_user_id,
+                                year,
+                                month,
+                                day,
+                                iss,
+                                processed_date,
+                                activityhistoryscore,
+                                strengthscore,
+                                identityfraudscore,
+                                decisionscore,
+                                type,
+                                validityscore,
+                                case failedcheckdetails_final != ''
+                                and is_valid_json_array(failedcheckdetails_final)
+                                when true then json_parse(
+                                    json_extract_array_element_text(failedcheckdetails_final, 0)
+                                )
+                                else null end as valid_json_failedcheckdetails_data,
+                                case checkdetails_final != ''
+                                and is_valid_json_array(checkdetails_final)
+                                when true then json_parse(
+                                    json_extract_array_element_text(checkdetails_final, 0)
+                                )
+                                else null end as valid_json_checkdetails_data
+                            from
+                                level_1_data
+                        )
+                        select
+                            event_id,
+                            event_name,
+                            client_id,
+                            component_id,
+                            "timestamp",
+                            timestamp_formatted,
+                            user_govuk_signin_journey_id,
+                            user_user_id,
+                            year,
+                            month,
+                            day,
+                            iss,
+                            processed_date,
+                            activityhistoryscore,
+                            strengthscore,
+                            identityfraudscore,
+                            decisionscore,
+                            type,
+                            validityscore,
+                            nvl2(
+                                valid_json_failedcheckdetails_data,
+                                valid_json_failedcheckdetails_data.checkmethod,
+                                valid_json_failedcheckdetails_data
+                            ) AS failedcheckdetails_checkmethod,
+                            nvl2(
+                                valid_json_failedcheckdetails_data,
+                                valid_json_failedcheckdetails_data.biometricverificationprocesslevel,
+                                valid_json_failedcheckdetails_data
+                            ) AS failedcheckdetails_biometricverificationprocesslevel,
+                            nvl2(
+                                valid_json_checkdetails_data,
+                                valid_json_checkdetails_data.checkmethod,
+                                valid_json_checkdetails_data
+                            ) AS checkdetails_checkmethod,
+                            nvl2(
+                                valid_json_checkdetails_data,
+                                valid_json_checkdetails_data.biometricverificationprocesslevel,
+                                valid_json_checkdetails_data
+                            ) AS checkdetails_biometricverificationprocesslevel
+                        from
+                            level_2_data
+                    )
+            )
+        where
+            row_num = 1
     ) Auth
-    join conformed.BatchControl BatC
-    On Auth.Product_family=BatC.Product_family
-    and to_date(processed_date,'YYYYMMDD') > NVL(MaxRunDate,null)
-    join conformed.REF_EVENTS ref
-    on Auth.EVENT_NAME=ref.event_name
+    join conformed.BatchControl BatC On Auth.Product_family = BatC.Product_family
+    and to_date(processed_date, 'YYYYMMDD') > NVL(MaxRunDate, null)
+    join conformed.REF_EVENTS ref on Auth.EVENT_NAME = ref.event_name
     with no schema binding;
+ 
 
     ---
 
@@ -945,9 +1059,6 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
     1 EVENT_COUNT,
     extensions_rejectionreason REJECTION_REASON,
     extensions_reason REASON,
-    extensions_hasmitigations HAS_mitigations,
-    extensions_levelofconfidence LEVEL_OF_CONFIDENCE,
-    extensions_cifail CI_FAIL,
     null NOTIFICATION_TYPE,
     null MFA_TYPE,
     null ACCOUNT_RECOVERY,

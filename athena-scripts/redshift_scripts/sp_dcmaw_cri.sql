@@ -1,5 +1,6 @@
-CREATE OR replace PROCEDURE conformed.sp_dcmaw_cri ()
-AS $$
+CREATE OR REPLACE PROCEDURE conformed.sp_dcmaw_cri()
+ LANGUAGE plpgsql
+AS $_$
 BEGIN
 /*
 Name       Date         Notes
@@ -251,6 +252,11 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                     ELSE
                                         st.CHECK_DETAILS_KBV_QUALITY
                                     END ,'"') 
+    ,PREVIOUS_GOVUK_SIGNIN_JOURNEY_ID=trim(CASE when st.extensions_previousgovuksigninjourneyid='null'
+                                        then NULL
+                                        ELSE
+                                           st.extensions_previousgovuksigninjourneyid
+                                        END,'"')                                       
       ,VERIFICATION_SCORE=--CAST(st.VERIFICATION_SCORE AS INTEGER)
                           CAST(case when trim(st.VERIFICATION_SCORE,'"') ~ '^[0-9]+$' then trim(st.VERIFICATION_SCORE,'"') 
                                         else null
@@ -296,7 +302,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                             REJECTION_REASON,REASON,NOTIFICATION_TYPE,MFA_TYPE,ACCOUNT_RECOVERY,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,
                             CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,ADDRESSES_ENTERED,ACTIVITY_HISTORY_SCORE,IDENTITY_FRAUD_SCORE,DECISION_SCORE,
                             FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODE,CHECK_DETAILS_KBV_QUALITY,
-                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,STRENGTH_SCORE,"TYPE", PROCESSED_DATE,
+                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,STRENGTH_SCORE,"TYPE", PREVIOUS_GOVUK_SIGNIN_JOURNEY_ID,PROCESSED_DATE,
                             CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT NVL(DE.event_key,-1) AS event_key
           ,dd.date_key
@@ -390,6 +396,11 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                             ELSE
                                 JSON_SERIALIZE("TYPE") 
                             END  ,'"')
+           ,trim(CASE when extensions_previousgovuksigninjourneyid='null'
+                      then NULL
+                                        ELSE
+                                            extensions_previousgovuksigninjourneyid
+                                        END,'"')                   
            ,PROCESSED_DATE
            ,current_user
            , CURRENT_DATE
@@ -464,4 +475,4 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
 
 END;
 
-$$ LANGUAGE plpgsql;
+$_$
