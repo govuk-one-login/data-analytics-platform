@@ -849,6 +849,230 @@ IpvSpotResponseRejectedGlueTable:
             serialiazation.format: 1
           SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
 
+IpvCriAuthResponseReceivedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_cri_auth_response_received
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_CRI_AUTH_RESPONSE_RECEIVED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvDeleteUserDataGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_delete_user_data
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_DELETE_USER_DATA/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvRedirectToCriGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_redirect_to_cri
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_REDIRECT_TO_CRI/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvSpotRequestReceivedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_spot_request_received
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_SPOT_REQUEST_RECEIVED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvSpotRequestValidationFailureGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_spot_request_validation_failure
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_SPOT_REQUEST_VALIDATION_FAILURE/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvCoreCriResourceRetrievedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_core_cri_resource_retrieved
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_CORE_CRI_RESOURCE_RETRIEVED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvGpg45ProfileMatchedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_gpg45_profile_matched
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_GPG45_PROFILE_MATCHED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
+IpvVcReceivedGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_vc_received
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_VC_RECEIVED/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
 IpvJourneyCrawler:
   Type: AWS::Glue::Crawler
   Properties:
@@ -865,6 +1089,14 @@ IpvJourneyCrawler:
             - !Ref IpvJourneyStartGlueTable
             - !Ref IpvSpotResponseApprovedGlueTable
             - !Ref IpvSpotResponseRejectedGlueTable
+            - !Ref IpvCriAuthResponseReceivedGlueTable
+            - !Ref IpvDeleteUserDataGlueTable
+            - !Ref IpvRedirectToCriGlueTable
+            - !Ref IpvSpotRequestReceivedGlueTable
+            - !Ref IpvSpotRequestValidationFailureGlueTable
+            - !Ref IpvCoreCriResourceRetrievedGlueTable
+            - !Ref IpvGpg45ProfileMatchedGlueTable
+            - !Ref IpvVcReceivedGlueTable
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
