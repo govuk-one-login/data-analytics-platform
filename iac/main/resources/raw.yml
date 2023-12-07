@@ -157,6 +157,18 @@ DcmawCriCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_WEB_END/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_BRP_SELECTED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_SESSION_RECOVERED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_ABORT_APP/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_ABORT_WEB/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_CRI_4XXERROR/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_CRI_5XXERROR/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_CRI_END/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_HYBRID_BILLING_STARTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_IPROOV_BILLING_STARTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_MISSING_CONTEXT_AFTER_ABORT/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_MISSING_CONTEXT_AFTER_COMPLETION/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_READID_NFC_BILLING_STARTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_REDIRECT_ABORT/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_REDIRECT_SUCCESS/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
