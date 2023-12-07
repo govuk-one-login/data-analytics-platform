@@ -153,7 +153,7 @@ DcmawCriCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_CRI_START'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_CRI_VC_ISSUED'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_DRIVING_LICENCE_SELECTED'
-        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_PASSPORT_SELECTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_PASSPORT_SELECTED'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_WEB_END/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_BRP_SELECTED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/DCMAW_SESSION_RECOVERED/'
