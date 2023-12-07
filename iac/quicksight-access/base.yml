@@ -42,6 +42,9 @@ Conditions:
     - !Condition IsTest
     - !Condition IsFeature
     - !Condition IsProduction
+  IsDevOrProd: !Or
+    - !Condition IsDev
+    - !Condition IsProduction
 
 Globals:
   Function:
@@ -59,3 +62,20 @@ Globals:
     Environment:
       Variables:
         NODE_OPTIONS: '--enable-source-maps'
+
+Mappings:
+  DKIMRecordMap:
+    dev:
+      Name1: zs2dfseiiy7xvwdswfyxccyvtzqdytv3._domainkey.dap.dev.account.gov.uk
+      Name2: 4sg43w2i5nt4gbemquvgfagfldax6g4u._domainkey.dap.dev.account.gov.uk
+      Name3: ms7qqbyvkfjeoxhzjdsn3fyhqg6t5kmx._domainkey.dap.dev.account.gov.uk
+      Value1: zs2dfseiiy7xvwdswfyxccyvtzqdytv3.dkim.amazonses.com
+      Value2: 4sg43w2i5nt4gbemquvgfagfldax6g4u.dkim.amazonses.com
+      Value3: ms7qqbyvkfjeoxhzjdsn3fyhqg6t5kmx.dkim.amazonses.com
+    production:
+      Name1: o5b7hzt6in42sxz4fubsutlp4v72myre._domainkey.dap.account.gov.uk
+      Name2: 2oycgq2ysih3clrmbel4u2xa6w52k26k._domainkey.dap.account.gov.uk
+      Name3: dur4gqp5mqm63drleftnpvdjkjvofepy._domainkey.dap.account.gov.uk
+      Value1: o5b7hzt6in42sxz4fubsutlp4v72myre.dkim.amazonses.com
+      Value2: 2oycgq2ysih3clrmbel4u2xa6w52k26k.dkim.amazonses.com
+      Value3: dur4gqp5mqm63drleftnpvdjkjvofepy.dkim.amazonses.com

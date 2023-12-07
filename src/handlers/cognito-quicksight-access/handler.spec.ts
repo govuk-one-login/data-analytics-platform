@@ -184,7 +184,7 @@ test('session duration', async () => {
   await expectSessionDuration('dev', 15);
   await expectSessionDuration('test', 15);
   await expectSessionDuration('feature', 15);
-  await expectSessionDuration('production', 600);
+  await expectSessionDuration('production', 55);
 
   expect(mockQuicksightClient.calls()).toHaveLength(4);
 });

@@ -1,5 +1,6 @@
-CREATE OR replace PROCEDURE conformed.sp_ipv_cri_f2f ()
-AS $$
+CREATE OR REPLACE PROCEDURE conformed.sp_ipv_cri_f2f()
+ LANGUAGE plpgsql
+AS $_$
 BEGIN  
 
 UPDATE conformed.DIM_EVENT
@@ -204,22 +205,22 @@ SET
   ,DRIVING_PERMIT=trim(CASE when st.restricted_drivingpermit='null'
                                         then NULL
                                         ELSE
-                                            replace(trim(trim(trim(trim(trim(st.restricted_residencepermit,'['),']'),'{'),'}'),'"'),'":"',':') 
+                                        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(st.restricted_drivingpermit,'"',''),'[',''),']',''),'{',''  ) ,'}',''),',',';')
                                         END,'"') 
   ,ID_CARD=trim(CASE when st.restricted_idcard='null'
                                         then NULL
                                         ELSE
-                                            replace(trim(trim(trim(trim(trim(st.restricted_idcard,'['),']'),'{'),'}'),'"'),'":"',':')  
+                                        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(st.restricted_idcard,'"',''),'[',''),']',''),'{',''  ) ,'}',''),',',';')
                                         END,'"') 
   ,PASSPORT=trim(CASE when st.restricted_passport='null'
                                         then NULL
                                         ELSE
-                                           replace(trim(trim(trim(trim(trim(st.restricted_passport,'['),']'),'{'),'}'),'"'),'":"',':')   
+                                        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(st.restricted_passport,'"',''),'[',''),']',''),'{',''  ) ,'}',''),',',';')
                                         END,'"')  
   ,RESIDENCE_PERMIT=trim(CASE when st.restricted_residencepermit='null'
                                         then NULL
                                         ELSE
-                                           replace(trim(trim(trim(trim(trim(st.restricted_residencepermit,'['),']'),'{'),'}'),'"'),'":"',':')    
+                                        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(st.restricted_residencepermit,'"',''),'[',''),']',''),'{',''  ) ,'}',''),',',';')
                                         END,'"')   
   ,PREVIOUS_GOVUK_SIGNIN_JOURNEY_ID=trim(CASE when st.extensions_previousgovuksigninjourneyid='null'
                                         then NULL
@@ -384,22 +385,22 @@ SELECT NVL(DE.event_key,-1) AS event_key
        ,trim(CASE when restricted_drivingpermit='null'
                                         then NULL
                                         ELSE
-                                            replace(trim(trim(trim(trim(trim(restricted_drivingpermit,'['),']'),'{'),'}'),'"'),'":"',':') 
+                                        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(restricted_drivingpermit,'"',''),'[',''),']',''),'{',''  ) ,'}',''),',',';')
                                         END,'"') 
        ,trim(CASE when restricted_idcard='null'
                                         then NULL
                                         ELSE
-                                            replace(trim(trim(trim(trim(trim(restricted_idcard,'['),']'),'{'),'}'),'"'),'":"',':') 
+                                        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(restricted_idcard,'"',''),'[',''),']',''),'{',''  ) ,'}',''),',',';')
                                         END,'"') 
        ,trim(CASE when restricted_passport='null'
                                         then NULL
                                         ELSE
-                                            replace(trim(trim(trim(trim(trim(restricted_passport,'['),']'),'{'),'}'),'"'),'":"',':') 
+                                        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(restricted_passport,'"',''),'[',''),']',''),'{',''  ) ,'}',''),',',';')
                                         END,'"')  
        ,trim(CASE when restricted_residencepermit='null'
                                         then NULL
                                         ELSE
-                                            replace(trim(trim(trim(trim(trim(restricted_residencepermit,'['),']'),'{'),'}'),'"'),'":"',':') 
+                                        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(restricted_residencepermit,'"',''),'[',''),']',''),'{',''  ) ,'}',''),',',';')
                                         END,'"')  
        ,trim(CASE when extensions_previousgovuksigninjourneyid='null'
                                         then NULL
@@ -476,4 +477,4 @@ LEFT JOIN conformed.dim_verification_route dvr
 
 END;
 
-$$ LANGUAGE plpgsql;    
+$_$
