@@ -1,0 +1,51 @@
+WAFCognitoPolicy:
+  Type: 'AWS::IAM::Policy'
+  Properties:
+    PolicyName: WAF-Cognito-Policy
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: 'Statement1'
+          Effect: 'Allow'
+          Action:
+            - 'logs:DeleteResourcePolicy'
+          Resource: '*'
+        - Sid: 'Statement2'
+          Effect: 'Allow'
+          Action:
+            - 'wafv2:AssociateWebACL'
+            - 'wafv2:GetWebACL'
+            - 'wafv2:GetWebACLForResource'
+            - 'wafv2:ListTagsForResource'
+            - 's3:GetBucketAcl'
+            - 'cognito-idp:GetWebACLForResource'
+            - 'cognito-idp:AssociateWebACL'
+            - 'cognito-idp:DisassociateWebACL'
+            - 'cognito-idp:ListResourcesForWebACL'
+          Resource: '*'
+        - Sid: 'LoggingConfigurationAPI'
+          Effect: 'Allow'
+          Action:
+            - 'wafv2:PutLoggingConfiguration'
+            - 'wafv2:DeleteLoggingConfiguration'
+            - 'wafv2:GetLoggingConfiguration'
+            - 'secretsmanager:GetSecretValue'
+          Resource: '*'
+        - Sid: 'WebACLLoggingCWL'
+          Effect: 'Allow'
+          Action:
+            - 'logs:CreateLogDelivery'
+            - 'logs:DeleteLogDelivery'
+            - 'logs:PutResourcePolicy'
+            - 'logs:DescribeResourcePolicies'
+            - 'logs:DescribeLogGroups'
+          Resource: '*'
+    Roles:
+      - Fn::If:
+          - IsDev
+          - PL-dap-dev-deploy-quicksight-access-DeployRole-0a6f4770887a
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsProduction
+          - dap-production-deploy-quicksight-a-CodePipelineRole-9a3DMwlxauM2
+          - Ref: 'AWS::NoValue'
