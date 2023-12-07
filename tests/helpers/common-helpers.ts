@@ -171,10 +171,12 @@ export function parseData(str): any {
   // console.log(`Here: ${str}`);
   return JSON.parse(str);
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseDataWithExtraQuotes(value: string): any {
   value = value.replaceAll('""', '"').replace('""', '"');
   return parseData('{' + value + '}');
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseConformedDocType(value: string): any {
   value = value.replace(';', ',');
   return parseData('{' + value + '}');
