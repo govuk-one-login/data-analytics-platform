@@ -7,11 +7,7 @@ import {
   extensionsandrestrictionnotnullquery,
 } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
-import {
-  eventidlist,
-  parseConformedDocType,
-  parseData,
-} from '../helpers/common-helpers';
+import { eventidlist, parseConformedDocType, parseData } from '../helpers/common-helpers';
 
 describe('F2F_CRI_VC_ISSUED data validation Test - validate data at stage and raw layer', () => {
   test.each`
