@@ -9,8 +9,6 @@ import {
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
 import {
   eventidlist,
-  extensionToMap1F2fCriVcIssued,
-  extensionToMapWithParam,
   parseConformedDocType,
   parseData,
 } from '../helpers/common-helpers';

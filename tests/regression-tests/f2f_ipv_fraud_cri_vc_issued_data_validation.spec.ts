@@ -4,7 +4,6 @@ import {
   GET_EVENT_ID,
   extensionsnotnullquery,
   IPV_CRI_FRAUD_DATA,
-  IPV_CRI_F2F_CONFORMED,
 } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
 import { eventidlist, parseData } from '../helpers/common-helpers';
