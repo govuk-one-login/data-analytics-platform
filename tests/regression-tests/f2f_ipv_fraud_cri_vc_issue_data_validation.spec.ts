@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { getQueryResults, redshiftRunQuery } from '../helpers/db-helpers';
+import { getQueryResults } from '../helpers/db-helpers';
 import { GET_EVENT_ID, extensionsnotnullquery, IPV_CRI_FRAUD_DATA } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
 import { eventidlist, parseData } from '../helpers/common-helpers';
