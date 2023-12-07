@@ -166,8 +166,18 @@ export function parseData(str): any {
   str = str.replace(/:([\w-]+)/g, ':"$1"');
   str = str.replace('""https"":', '"https:');
   str = str.replace('""http"":', '"http:');
+  str = str.replace('""w+"":', '"w+"');
+  str = str.replaceAll('""', '"').replace('""', '"');
   // console.log(`Here: ${str}`);
   return JSON.parse(str);
+}
+export function parseDataWithExtraQuotes(value: string): any {
+  value = value.replaceAll('""', '"').replace('""', '"');
+  return parseData('{' + value + '}');
+}
+export function parseConformedDocType(value: string): any {
+  value = value.replace(';', ',');
+  return parseData('{' + value + '}');
 }
 export function extensionToMap1F2fCriVcIssued(value): Record<string, string> {
   const transclude =
