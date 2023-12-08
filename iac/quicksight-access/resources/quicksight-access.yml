@@ -60,6 +60,9 @@ QuicksightAccessUserPool:
           Priority: 1
     AdminCreateUserConfig:
       AllowAdminCreateUserOnly: true
+      InviteMessageTemplate:
+        EmailMessage: <invitation-email> # replaced with a template from ../templates during iac:build and iac:buildall
+        EmailSubject: Welcome to One Login Data & Analytics Dashboards
     AutoVerifiedAttributes:
       - email
     EmailConfiguration:
@@ -71,6 +74,10 @@ QuicksightAccessUserPool:
       AttributesRequireVerificationBeforeUpdate:
         - email
     UserPoolName: !Sub ${Environment}-dap-quicksight-access-pool
+    VerificationMessageTemplate:
+      DefaultEmailOption: CONFIRM_WITH_CODE
+      EmailMessage: <verification-email> # replaced with a template from ../templates during iac:build and iac:buildall
+      EmailSubject: Verification Code for One Login Data & Analytics Dashboards
 
 QuicksightAccessUserPoolClient:
   Type: AWS::Cognito::UserPoolClient
