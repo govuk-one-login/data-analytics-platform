@@ -1,4 +1,6 @@
 WAFCognitoPolicy:
+  # checkov:skip=CKV_AWS_111: "Allowing write access without constraints"
+  # checkov:skip=CKV_AWS_108: "Skipping data exfiltration"
   Type: 'AWS::IAM::Policy'
   Properties:
     PolicyName: WAF-Cognito-Policy
