@@ -4,7 +4,6 @@ WAFCognitoPolicy:
   Type: 'AWS::IAM::Policy'
   Condition: IsQuicksightEnvironment
   Properties:
-    PolicyName: WAF-Cognito-Policy
     PolicyDocument:
       Version: '2012-10-17'
       Statement:
