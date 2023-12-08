@@ -2,6 +2,7 @@ WAFCognitoPolicy:
   # checkov:skip=CKV_AWS_111: "Allowing write access without constraints"
   # checkov:skip=CKV_AWS_108: "Skipping data exfiltration"
   Type: 'AWS::IAM::Policy'
+  Condition: IsQuicksightEnvironment  
   Properties:
     PolicyName: WAF-Cognito-Policy
     PolicyDocument:
@@ -42,6 +43,80 @@ WAFCognitoPolicy:
             - 'logs:DescribeResourcePolicies'
             - 'logs:DescribeLogGroups'
           Resource: '*'
+    Roles:
+      - Fn::If:
+          - IsDev
+          - PL-dap-dev-deploy-quicksight-access-DeployRole-0a6f4770887a
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsProduction
+          - dap-production-deploy-quicksight-a-CodePipelineRole-9a3DMwlxauM2
+          - Ref: 'AWS::NoValue'
+
+QuickSightDeployRoleExtraIAMActions:
+  Type: 'AWS::IAM::ManagedPolicy'
+  Condition: IsQuicksightEnvironment
+  Properties:
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: 'VisualEditor0'
+          Effect: 'Allow'
+          Action:
+            - 'iam:ListPolicies'
+            - 'iam:ListRoles'
+          Resource: '*'
+        - Sid: 'VisualEditor1'
+          Effect: 'Allow'
+          Action:
+            - 'iam:UpdateAssumeRolePolicy'
+            - 'iam:GetPolicyVersion'
+            - 'iam:ListRoleTags'
+            - 'iam:UntagRole'
+            - 'iam:TagRole'
+            - 'iam:DeletePolicy'
+            - 'iam:CreateRole'
+            - 'iam:AttachRolePolicy'
+            - 'iam:PutRolePolicy'
+            - 'iam:ListInstanceProfilesForRole'
+            - 'iam:PassRole'
+            - 'iam:DetachRolePolicy'
+            - 'iam:DeleteRolePolicy'
+            - 'iam:ListAttachedRolePolicies'
+            - 'iam:DetachGroupPolicy'
+            - 'iam:ListPolicyTags'
+            - 'iam:ListRolePolicies'
+            - 'iam:CreatePolicyVersion'
+            - 'iam:PutGroupPolicy'
+            - 'iam:GetRole'
+            - 'iam:GetPolicy'
+            - 'iam:DeleteRole'
+            - 'iam:UpdateRoleDescription'
+            - 'iam:TagPolicy'
+            - 'iam:CreatePolicy'
+            - 'iam:ListPolicyVersions'
+            - 'iam:AttachGroupPolicy'
+            - 'iam:UntagPolicy'
+            - 'iam:UpdateRole'
+            - 'iam:GetGroupPolicy'
+            - 'iam:DeleteGroupPolicy'
+            - 'iam:GetRolePolicy'
+            - 'iam:DeletePolicyVersion'
+            - 'iam:GetInstanceProfile'
+            - 'iam:DeleteRolePolicy'
+            - 'iam:AddRoleToInstanceProfile'
+            - 'iam:CreateInstanceProfile'
+            - 'iam:DeleteInstanceProfile'
+            - 'iam:RemoveRoleFromInstanceProfile'
+          Resource:
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:role/${Environment}*'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/${Environment}*'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:role/dap*'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:role/AWS*'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:policy/dap*'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:instance-profile/${Environment}*'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole'
+            - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*DeployRole*'
     Roles:
       - Fn::If:
           - IsDev
