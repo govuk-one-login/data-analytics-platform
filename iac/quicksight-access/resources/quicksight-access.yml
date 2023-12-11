@@ -66,7 +66,19 @@ QuicksightAccessUserPool:
     AutoVerifiedAttributes:
       - email
     EmailConfiguration:
-      EmailSendingAccount: COGNITO_DEFAULT
+      EmailSendingAccount: !If [IsDevOrProd, DEVELOPER, COGNITO_DEFAULT]
+      From: !If
+        - IsDevOrProd
+        - !Sub
+          - 'Data & Analytics One Login <noreply@${Domain}>'
+          - Domain: !If [IsDev, dap.dev.account.gov.uk, dap.account.gov.uk]
+        - !Ref 'AWS::NoValue'
+      SourceArn: !If
+        - IsDevOrProd
+        - !Sub
+          - arn:aws:ses:eu-west-2:${AWS::AccountId}:identity/${Domain}
+          - Domain: !If [IsDev, dap.dev.account.gov.uk, dap.account.gov.uk]
+        - !Ref 'AWS::NoValue'
     EnabledMfas:
       - SOFTWARE_TOKEN_MFA
     MfaConfiguration: 'ON'
