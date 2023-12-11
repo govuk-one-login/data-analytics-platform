@@ -58,6 +58,7 @@ RedshiftServerlessNamespace:
     DefaultIamRoleArn: !GetAtt IAMRoleRedshiftServerless.Arn
     IamRoles:
       - !GetAtt IAMRoleRedshiftServerless.Arn
+    KmsKeyId: !Ref KmsKey
     FinalSnapshotName: !Sub '${Environment}-redshift-snapshot'
     FinalSnapshotRetentionPeriod: 30
     LogExports:
