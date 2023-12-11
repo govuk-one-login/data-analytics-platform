@@ -15,7 +15,7 @@
     "@aws-sdk/client-quicksight": "^3.465.0",
     "@aws-sdk/client-redshift-data": "^3.465.0",
     "@aws-sdk/client-s3": "^3.465.0",
-    "@aws-sdk/client-sfn": "^3.465.0",
+    "@aws-sdk/client-sfn": "^3.470.0",
     "@aws-sdk/client-sqs": "^3.465.0",
     "@aws-sdk/types": "^3.465.0",
     "@faker-js/faker": "^8.3.1",
