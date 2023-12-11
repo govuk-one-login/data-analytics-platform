@@ -1,9 +1,10 @@
 WAFCognitoPolicy:
   # checkov:skip=CKV_AWS_111: "Allowing write access without constraints"
   # checkov:skip=CKV_AWS_108: "Skipping data exfiltration"
-  Type: 'AWS::IAM::ManagedPolicy'
+  Type: 'AWS::IAM::Policy'
   Condition: IsQuicksightEnvironmentAndIsNotFeature
   Properties:
+    PolicyName: WAFCognitoPolicy
     PolicyDocument:
       Version: '2012-10-17'
       Statement:
