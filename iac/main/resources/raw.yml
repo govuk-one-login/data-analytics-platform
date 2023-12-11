@@ -1049,6 +1049,10 @@ IpvGpg45ProfileMatchedGlueTable:
           - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
+          - {
+              Name: extensions,
+              Type: 'struct<gpg45Scores:struct<evidences:array<struct<strength:int,validity:int>>,activity:int,fraud:int,verification:int>>',
+            }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         Location: !Sub s3://${RawLayerBucket}/txma/IPV_GPG45_PROFILE_MATCHED/
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
