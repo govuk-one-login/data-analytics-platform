@@ -54,7 +54,7 @@ WAFCognitoPolicy:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
-          - dap-production-deploy-quicksight-a-CodePipelineRole-9a3DMwlxauM2
+          - PL-dap-prod-deploy-qsa-DeployRole-0639afdddfd2
           - Ref: 'AWS::NoValue'
 
 QuickSightDeployRoleExtraIAMActions:
@@ -132,5 +132,5 @@ QuickSightDeployRoleExtraIAMActions:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
-          - dap-production-deploy-quicksight-a-CodePipelineRole-9a3DMwlxauM2
+          - PL-dap-prod-deploy-qsa-DeployRole-0639afdddfd2
           - Ref: 'AWS::NoValue'
