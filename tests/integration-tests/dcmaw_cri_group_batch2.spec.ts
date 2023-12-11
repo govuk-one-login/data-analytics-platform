@@ -1,9 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { publishAndValidate, setEventData } from '../helpers/event-data-helper';
 import * as fs from 'fs';
-import { publishToTxmaQueue } from '../helpers/lambda-helpers';
-import { getErrorFilePrefix } from '../helpers/common-helpers';
-import { checkFileCreatedOnS3kinesis } from '../helpers/s3-helpers';
 
 // todo this passes but takes over 100 seconds. do we need to rethink this/can we remove firehose buffering in test?
 describe('DCMAW_CRI GROUP batch 2 Test - valid TXMA Event to SQS and expect event id stored in S3', () => {
