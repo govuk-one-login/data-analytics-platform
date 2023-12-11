@@ -37,6 +37,7 @@ Conditions:
   IsFeature: !Equals [!Ref Environment, feature]
   IsDev: !Equals [!Ref Environment, dev]
   IsProduction: !Equals [!Ref Environment, production]
+  IsNotFeature: !Not [!Equals [!Ref Environment, feature]]
   IsQuicksightEnvironment: !Or
     - !Condition IsDev
     - !Condition IsTest
