@@ -45,6 +45,10 @@ Conditions:
   IsDevOrProd: !Or
     - !Condition IsDev
     - !Condition IsProduction
+  IsQuicksightEnvironmentAndIsNotFeature:
+    Fn::And:
+      - Condition: IsQuicksightEnvironment
+      - Condition: IsNotFeature
 
 Globals:
   Function:

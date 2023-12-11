@@ -2,7 +2,7 @@ WAFCognitoPolicy:
   # checkov:skip=CKV_AWS_111: "Allowing write access without constraints"
   # checkov:skip=CKV_AWS_108: "Skipping data exfiltration"
   Type: 'AWS::IAM::Policy'
-  Condition: IsQuicksightEnvironment
+  Condition: IsQuicksightEnvironmentAndIsNotFeature
   Properties:
     PolicyDocument:
       Version: '2012-10-17'
@@ -48,13 +48,17 @@ WAFCognitoPolicy:
           - PL-dap-dev-deploy-quicksight-access-DeployRole-0a6f4770887a
           - Ref: 'AWS::NoValue'
       - Fn::If:
+          - IsTest
+          - PL-dap-test-deploy-quicksight-access-DeployRole-06f06c770454
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
           - IsProduction
           - dap-production-deploy-quicksight-a-CodePipelineRole-9a3DMwlxauM2
           - Ref: 'AWS::NoValue'
 
 QuickSightDeployRoleExtraIAMActions:
   Type: 'AWS::IAM::ManagedPolicy'
-  Condition: IsQuicksightEnvironment
+  Condition: IsQuicksightEnvironmentAndIsNotFeature
   Properties:
     PolicyDocument:
       Version: '2012-10-17'
@@ -120,6 +124,10 @@ QuickSightDeployRoleExtraIAMActions:
       - Fn::If:
           - IsDev
           - PL-dap-dev-deploy-quicksight-access-DeployRole-0a6f4770887a
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsTest
+          - PL-dap-test-deploy-quicksight-access-DeployRole-06f06c770454
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
