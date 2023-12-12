@@ -8,5 +8,6 @@ module.exports = {
   root: true,
   rules: {
     'no-console': 'error',
+    '@typescript-eslint/no-unsafe-argument': 'off',
   },
 };
