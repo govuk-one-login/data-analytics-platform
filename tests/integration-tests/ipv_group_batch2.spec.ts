@@ -27,8 +27,11 @@ describe('IPV GROUP batch 2 Test - valid TXMA Event to SQS and expect event id s
     `(
     'Should validate $eventName event content stored on S3',
     async ({ ...data }) => {
-      const filePath = 'tests/fixtures/txma-event-group_without_extensions.json';
-      const event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      let filePath = 'tests/fixtures/txma-event-group_without_extensions.json';
+      if ((data.eventName = 'IPV_GPG45_PROFILE_MATCHED')) {
+        filePath = 'tests/fixtures/txma-event-ipv-gpg45-profile-matched.json';
+      }
+      let event = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       setEventData(event, data);
       event.client_id = data.client_id;
       event.user.govuk_signin_journey_id = faker.string.uuid();
