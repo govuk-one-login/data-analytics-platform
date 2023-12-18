@@ -1,0 +1,28 @@
+{
+  "event_id": "2471b9b6-0865-4dde-84dd-a807b6132e7f",
+  "event_name": "IPV_GPG45_PROFILE_MATCHED",
+  "client_id": "C910A762-4BB2-400D-8F3D-4D7E6C84E342",
+  "component_id": "https://review-o.account.gov.uk",
+  "user": {
+    "user_id": "e4930a15d687d2a428dfc959d1e2820b9c1c21b2d5cd5734664a2eb78b5ca984"
+  },
+  "extensions": {
+    "gpg45Scores": {
+      "activity": 1,
+      "evidences": [
+        {
+          "strength": 3,
+          "validity": 2
+        }
+      ],
+      "fraud": 2,
+      "verification": 3
+    }
+  },
+  "timestamp": 1700124711,
+  "timestamp_formatted": "2023-11-16T08:51:51.000Z",
+  "restricted": {},
+  "txma": {
+    "configVersion": "1.3.14"
+  }
+}
