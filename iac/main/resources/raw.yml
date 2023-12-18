@@ -911,7 +911,6 @@ RawGlueDatabase:
     DatabaseInput:
       Name: !Sub ${Environment}-${RawGlueDatabaseName}
 
-
 RawLayerSingleTableCrawler:
   Type: AWS::Glue::Crawler
   Properties:
