@@ -247,6 +247,7 @@ StepFunctionRole:
               Resource:
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-raw-to-stage-process'
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-processing'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-txma-raw-consolidated-schema-to-stage-process'
               Action:
                 - states:ListExecutions
                 - states:StartExecution
@@ -660,3 +661,24 @@ StepFunctionRedshiftProcessRole:
                 - redshift-data:GetStatementResult
                 - redshift-data:DescribeStatement
                 - redshift-data:ListStatements
+
+TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
+  Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+  Properties:
+    DefinitionUri: statemachine/txma_raw_layer_consolidated_schema_processing.asl.json
+    Name: !Sub ${Environment}-dap-txma-raw-consolidated-schema-to-stage-process
+    Role: !GetAtt StepFunctionRole.Arn
+    Logging:
+      Destinations:
+        - CloudWatchLogsLogGroup:
+            LogGroupArn: !GetAtt AthenaRawLayerProcessingLogGroup.Arn
+      IncludeExecutionData: true
+      Level: ALL
+    DefinitionSubstitutions:
+      GlueCrawlerRawName: !Ref RawLayerSingleTableCrawler
+    Events:
+      DailySchedule:
+        Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
+        Properties:
+          Enabled: !Not IsTest
+          Schedule: cron(0 6 * * ? *)
