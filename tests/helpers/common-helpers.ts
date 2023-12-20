@@ -1,4 +1,5 @@
 import { describeExecution } from './step-helpers';
+
 const formatNumberInTwoDigits = (num: number): string => {
   return `0${num}`.slice(-2);
 };
@@ -146,17 +147,20 @@ export const year = (param: number): string => {
   const year = date.toLocaleString('default', { year: 'numeric' });
   return year;
 };
+
 export function extensionToMap(value): Record<string, string> {
   const transclude = 'account-recovery={account_recovery}, mfa-type={mfa_type}, notification-type={notification_type}';
   const transRE = new RegExp(transclude.replace(/\{(.*?)\}/g, '(?<$1>.*)'));
   const val = value.replace('{', '').replace('}', '');
   return val.match(transRE).groups;
 }
+
 export function extensionToMapWithParam(value, transclude): Record<string, string> {
   const transRE = new RegExp(transclude.replace(/\{(.*?)\}/g, '(?<$1>.*)'));
   const val = value.replace('{', '').replace('}', '');
   return val.match(transRE).groups;
 }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseData(str): any {
   str = str.replace(/=/g, ':');
@@ -171,16 +175,19 @@ export function parseData(str): any {
   // console.log(`Here: ${str}`);
   return JSON.parse(str);
 }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseDataWithExtraQuotes(value: string): any {
   value = value.replaceAll('""', '"').replace('""', '"');
   return parseData('{' + value + '}');
 }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseConformedDocType(value: string): any {
   value = value.replace(';', ',');
   return parseData('{' + value + '}');
 }
+
 export function extensionToMap1F2fCriVcIssued(value): Record<string, string> {
   const transclude =
     'passport=[{documenttype=document_type}], residencepermit=resident_permit, drivingpermit=driving_permit, idcard=id_card';
@@ -249,7 +256,20 @@ export const productFamily = (eventName: string): string => {
     eventName === 'DCMAW_BRP_SELECTED' ||
     eventName === 'DCMAW_CRI_VC_ISSUED' ||
     eventName === 'DCMAW_PASSPORT_SELECTED' ||
-    eventName === 'DCMAW_WEB_END'
+    eventName === 'DCMAW_ABORT_APP' ||
+    eventName === 'DCMAW_ABORT_WEB' ||
+    eventName === 'DCMAW_CRI_4XXERROR' ||
+    eventName === 'DCMAW_CRI_5XXERROR' ||
+    eventName === 'DCMAW_CRI_END' ||
+    eventName === 'DCMAW_HYBRID_BILLING_STARTED' ||
+    eventName === 'DCMAW_IPROOV_BILLING_STARTED' ||
+    eventName === 'DCMAW_IPROOV_BILLING_STARTED' ||
+    eventName === 'DCMAW_MISSING_CONTEXT_AFTER_ABORT' ||
+    eventName === 'DCMAW_MISSING_CONTEXT_AFTER_COMPLETION' ||
+    eventName === 'DCMAW_MISSING_CONTEXT_AFTER_COMPLETION' ||
+    eventName === 'DCMAW_READID_NFC_BILLING_STARTED' ||
+    eventName === 'DCMAW_REDIRECT_SUCCESS' ||
+    eventName === 'DCMAW_REDIRECT_ABORT'
   ) {
     productFamilyName = 'DCMAW_CRI';
   }
@@ -261,7 +281,13 @@ export const productFamily = (eventName: string): string => {
   ) {
     productFamilyName = 'IPV_CRI_ADDRESS';
   }
-  if (eventName === 'IPV_DL_CRI_VC_ISSUED' || eventName === 'IPV_DL_CRI_START') {
+  if (
+    eventName === 'IPV_DL_CRI_VC_ISSUED' ||
+    eventName === 'IPV_DL_CRI_START' ||
+    eventName === 'IPV_DL_CRI_REQUEST_SENT' ||
+    eventName === 'IPV_DL_CRI_RESPONSE_RECEIVED' ||
+    eventName === 'IPV_DL_CRI_END'
+  ) {
     productFamilyName = 'IPV_CRI_DRIVING_LICENSE';
   }
   if (
