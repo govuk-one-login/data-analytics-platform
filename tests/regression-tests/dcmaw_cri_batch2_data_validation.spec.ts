@@ -1,7 +1,7 @@
 import { getQueryResults } from '../helpers/db-helpers';
 import { DCMAW_CRI_DATA, GET_EVENT_ID, getDataUserIdNotNull } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
-import { eventidlist, parseData, parseDataWithExtraQuotes } from '../helpers/common-helpers';
+import { eventidlist, parseData } from '../helpers/common-helpers';
 
 describe('DCMAW_CRI data validation Test - validate data at stage and raw layer', () => {
   test.each`
@@ -32,18 +32,18 @@ describe('DCMAW_CRI data validation Test - validate data at stage and raw layer'
         txmaProcessingWorkGroupName(),
       );
 
-      console.log('StageData ->Map: ' + JSON.stringify(stageEventIds));
+      // console.log('StageData ->Map: ' + JSON.stringify(stageEventIds));
 
       const querystring = eventidlist(stageEventIds);
       const query = `${getDataUserIdNotNull(eventname)} and event_id in (${querystring})`;
-      console.log('Athena query-> Map: ' + JSON.stringify(query));
+      // console.log('Athena query-> Map: ' + JSON.stringify(query));
       const athenaRawQueryResults = await getQueryResults(query, txmaRawDatabaseName(), txmaProcessingWorkGroupName());
-      console.log('Athena athenaRawQueryResults->Map: ' + JSON.stringify(athenaRawQueryResults));
+      // console.log('Athena athenaRawQueryResults->Map: ' + JSON.stringify(athenaRawQueryResults));
 
       for (let index = 0; index <= athenaRawQueryResults.length - 1; index++) {
         const eventId = athenaRawQueryResults[index].event_id;
         const queryStage = `${DCMAW_CRI_DATA(eventname)} and event_id = '${eventId}'`;
-        console.log('queryStage : ' + queryStage);
+        // console.log('queryStage : ' + queryStage);
         const athenaQueryResultsStage = await getQueryResults(
           queryStage,
           txmaStageDatabaseName(),
@@ -51,7 +51,7 @@ describe('DCMAW_CRI data validation Test - validate data at stage and raw layer'
         );
         const stageData = athenaQueryResultsStage[0];
 
-        console.log('stageDataParse ->Map: ' + JSON.stringify(stageData));
+        // console.log('stageDataParse ->Map: ' + JSON.stringify(stageData));
         validateData(athenaRawQueryResults[index], stageData);
         // expect(stExtensions.iss).toEqual(athenaQueryResultsStage[0].extensions_iss);
         // expect(rawData.successful).toEqual(athenaQueryResultsStage[0].extensions_successful);
