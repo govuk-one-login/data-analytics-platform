@@ -24,7 +24,7 @@ describe('DCMAW_CRI data validation Test - validate data at stage and raw layer'
     async ({ ...data }) => {
       // given
       const eventname = data.eventName;
-      console.log('Query: ' + JSON.stringify(GET_EVENT_ID(eventname)));
+      // console.log('Query: ' + JSON.stringify(GET_EVENT_ID(eventname)));
 
       const stageEventIds = await getQueryResults(
         GET_EVENT_ID(eventname),
