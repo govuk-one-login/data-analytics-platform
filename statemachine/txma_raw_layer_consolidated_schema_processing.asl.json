@@ -1,0 +1,97 @@
+{
+  "Comment": "AWS Step Functions state machine that processes raw datasets (consolidated schema) from TxMA into the staging layer of Athena",
+  "StartAt": "ListExecutions",
+  "States": {
+    "ListExecutions": {
+      "Type": "Task",
+      "Next": "ValidateRunningInstances",
+      "Parameters": {
+        "StateMachineArn.$": "$$.StateMachine.Id",
+        "StatusFilter": "RUNNING"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:sfn:listExecutions",
+      "ResultSelector": {
+        "runningExecutionsCount.$": "States.ArrayLength($.Executions)"
+      }
+    },
+    "ValidateRunningInstances": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.runningExecutionsCount",
+          "NumericGreaterThan": 1,
+          "Next": "RunningInstanceDetected"
+        }
+      ],
+      "Default": "StartRawCrawler"
+    },
+    "RunningInstanceDetected": {
+      "Type": "Fail",
+      "Error": "RunningInstanceDetected"
+    },
+    "StartRawCrawler": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+      "Parameters": {
+        "Name": "${GlueCrawlerRawName}"
+      },
+      "Next": "MonitorRawCrawlerStatus",
+      "ResultPath": "$.rawCrawlerResult"
+    },
+    "MonitorRawCrawlerStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:glue:getCrawler",
+      "Parameters": {
+        "Name": "${GlueCrawlerRawName}"
+      },
+      "ResultPath": "$.crawlerRawStatus",
+      "Next": "CheckRawCrawlerStatus"
+    },
+    "CheckRawCrawlerStatus": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.crawlerRawStatus.Crawler.State",
+          "StringEquals": "READY",
+          "Next": "RawCrawlerFinished"
+        },
+        {
+          "Or": [
+            {
+              "Variable": "$.crawlerRawStatus.Crawler.State",
+              "StringEquals": "RUNNING"
+            },
+            {
+              "Variable": "$.crawlerRawStatus.Crawler.State",
+              "StringEquals": "STOPPING"
+            },
+            {
+              "Variable": "$.crawlerRawStatus.Crawler.State",
+              "StringEquals": "STARTED"
+            }
+          ],
+          "Next": "WaitForRawCrawler"
+        }
+      ],
+      "Default": "CrawlerFailed"
+    },
+    "WaitForRawCrawler": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "MonitorRawCrawlerStatus"
+    },
+    "RawCrawlerFinished": {
+      "Type": "Pass",
+      "Next": "StopProcessing"
+    },
+    "StopProcessing": {
+      "Type": "Pass",
+      "End": true
+    },
+    "CrawlerFailed": {
+      "Type": "Fail",
+      "Error": "CrawlerFailed",
+      "Cause": "The Glue crawler execution failed."
+    }
+  }
+}
