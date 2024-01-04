@@ -438,14 +438,14 @@ DAPAnalystsAssetsBucket:
 
 DAPAnalystsAssetsBucketPolicy:
   Type: AWS::S3::BucketPolicy
-  Condition: IsQuicksightEnvironment  
+  Condition: IsQuicksightEnvironment
   Properties:
     Bucket: !Ref DAPAnalystsAssetsBucket
     PolicyDocument:
       Version: 2012-10-17
       Statement:
         - Sid: DenyNonSSLAccess
-          Effect: Deny        
+          Effect: Deny
           Action: 's3:*'
           Resource: !Sub ${DAPAnalystsAssetsBucket.Arn}/*
           Principal: '*'
@@ -464,7 +464,7 @@ DAPAnalystsAssetsBucketPolicy:
 
 CloudFrontOriginAccessControl:
   Type: AWS::CloudFront::OriginAccessControl
-  Condition: IsQuicksightEnvironment  
+  Condition: IsQuicksightEnvironment
   Properties:
     OriginAccessControlConfig:
       Name: DAPOriginAccessControl
@@ -474,7 +474,7 @@ CloudFrontOriginAccessControl:
 
 DAPCloudFrontDistribution:
   Type: AWS::CloudFront::Distribution
-  Condition: IsQuicksightEnvironment  
+  Condition: IsQuicksightEnvironment
   Properties:
     DistributionConfig:
       Enabled: true

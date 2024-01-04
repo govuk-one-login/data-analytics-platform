@@ -869,7 +869,6 @@ UnauthorizedApiCallSNSTopicSubscription:
     Protocol: 'email'
     Endpoint: 'dap-notifications@digital.cabinet-office.gov.uk'
     TopicArn: !Ref UnauthorizedApiCallSNSTopic
-
 # Outputs:
 #   GlobalLogBucketName:
 #     Description: This bucket logs S3 events
@@ -880,7 +879,5 @@ UnauthorizedApiCallSNSTopicSubscription:
 #     Description: This lambda logs S3 notifications
 #     Value: !Ref S3NotificationsLoggerLambda
 #     Export:
-#       Name: S3NotificationLambda  
-         
-
+#       Name: S3NotificationLambda
 
