@@ -6,7 +6,7 @@
     },
     "event_processing_testing_criteria": {
       "enabled": false,
-      "filter": "event_id in ('5c5c4d25-d150-4a12-b24b-e56d2ea560df','869a3db5-c585-4685-a716-ec858c3319e7')"
+      "filter": "event_id in ('xxxx','xxxx')"
     }
   },
   "data_cleaning": {
