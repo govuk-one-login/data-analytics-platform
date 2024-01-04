@@ -473,7 +473,7 @@ CloudFrontOriginAccessControl:
       SigningProtocol: sigv4
 
 DAPCloudFrontDistribution:
-# checkov:skip=CKV_AWS_86: To be enabled
+  # checkov:skip=CKV_AWS_86: To be enabled
   Type: AWS::CloudFront::Distribution
   Condition: IsQuicksightEnvironment
   Properties:
@@ -498,4 +498,3 @@ DAPCloudFrontDistribution:
       ViewerCertificate:
         CloudFrontDefaultCertificate: true
         MinimumProtocolVersion: TLSv1.2_2018
-
