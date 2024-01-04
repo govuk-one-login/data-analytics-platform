@@ -417,7 +417,7 @@ WAFLoggingKmsKey:
 
 DAPAnalystsAssetsBucket:
   Type: 'AWS::S3::Bucket'
-  Condition: IsProduction
+  Condition: IsQuicksightEnvironment
   Properties:
     AccessControl: Private
     BucketName: !Sub '${Environment}-dap-analysts-assets'
@@ -438,7 +438,7 @@ DAPAnalystsAssetsBucket:
 
 DAPAnalystsAssetsBucketPolicy:
   Type: AWS::S3::BucketPolicy
-  Condition: IsProduction  
+  Condition: IsQuicksightEnvironment  
   Properties:
     Bucket: !Ref DAPAnalystsAssetsBucket
     PolicyDocument:
@@ -464,7 +464,7 @@ DAPAnalystsAssetsBucketPolicy:
 
 CloudFrontOriginAccessControl:
   Type: AWS::CloudFront::OriginAccessControl
-  Condition: IsProduction  
+  Condition: IsQuicksightEnvironment  
   Properties:
     OriginAccessControlConfig:
       Name: DAPOriginAccessControl
@@ -474,7 +474,7 @@ CloudFrontOriginAccessControl:
 
 DAPCloudFrontDistribution:
   Type: AWS::CloudFront::Distribution
-  Condition: IsProduction  
+  Condition: IsQuicksightEnvironment  
   Properties:
     DistributionConfig:
       Enabled: true
