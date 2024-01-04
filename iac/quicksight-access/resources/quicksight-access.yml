@@ -1,3 +1,8 @@
+# S3NotificationsLoggerLambda:
+#    Type: AWS::Serverless::Function
+#    Properties:
+#     LambdaArn: !ImportValue S3NotificationLambda
+
 QuicksightAccessLambdaFunction:
   # checkov:skip=CKV_AWS_116: DLQ not needed as credentials would be out of date when retried
   Type: AWS::Serverless::Function
@@ -409,3 +414,85 @@ WAFLoggingKmsKey:
           Condition:
             ArnLike:
               'kms:EncryptionContext:aws:logs:arn': !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+
+DAPAnalystsAssetsBucket:
+  Type: 'AWS::S3::Bucket'
+  Condition: IsProduction
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub '${Environment}-dap-analysts-assets'
+    LoggingConfiguration:
+      DestinationBucketName: !ImportValue dap-GlobalLogBucketName
+      LogFilePrefix: dap-analysts-assets/log
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 365
+          Status: Enabled
+
+DAPAnalystsAssetsBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Condition: IsProduction  
+  Properties:
+    Bucket: !Ref DAPAnalystsAssetsBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Sid: DenyNonSSLAccess
+          Effect: Deny        
+          Action: 's3:*'
+          Resource: !Sub ${DAPAnalystsAssetsBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Sid: AllowCloudFrontServicePrincipal
+          Effect: Allow
+          Principal:
+            Service: cloudfront.amazonaws.com
+          Action: s3:GetObject
+          Resource: arn:aws:s3:::dap-analysts/*
+          Condition:
+            StringEquals:
+              AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${DAPCloudFrontDistribution}
+
+CloudFrontOriginAccessControl:
+  Type: AWS::CloudFront::OriginAccessControl
+  Condition: IsProduction  
+  Properties:
+    OriginAccessControlConfig:
+      Name: DAPOriginAccessControl
+      OriginAccessControlOriginType: s3
+      SigningBehavior: always
+      SigningProtocol: sigv4
+
+DAPCloudFrontDistribution:
+  Type: AWS::CloudFront::Distribution
+  Condition: IsProduction  
+  Properties:
+    DistributionConfig:
+      Enabled: true
+      Origins:
+        - DomainName: !GetAtt DAPAnalystsAssetsBucket.DomainName
+          Id: S3Origin
+          S3OriginConfig:
+            OriginAccessIdentity: !Ref CloudFrontOriginAccessControl
+      DefaultCacheBehavior:
+        TargetOriginId: S3Origin
+        ViewerProtocolPolicy: redirect-to-https
+        AllowedMethods:
+          - GET
+          - HEAD
+        ForwardedValues:
+          QueryString: false
+          Cookies:
+            Forward: none
+      WebACLId: !Ref webAcl
+      ViewerCertificate:
+        CloudFrontDefaultCertificate: true
