@@ -1,0 +1,87 @@
+{
+  "event_record_selection": {
+    "event_processing_selection_criteria": {
+      "filter": "CAST(concat(year, month, day) AS INT) > processed_dt AND CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)",
+      "limit": 0
+    },
+    "event_processing_testing_criteria": {
+      "enabled": false,
+      "filter": "event_id in ('xxxx','xxxx')"
+    }
+  },
+  "data_cleaning": {
+    "duplicate_row_removal_criteria_fields": [
+      "event_id",
+      "timestamp"
+    ],
+    "mandatory_row_removal_criteria_fields": [
+      "event_id",
+      "event_name",
+      "timestamp"
+    ],
+    "empty_string_replacement": [
+      "client_id"
+    ]
+  },
+  "data_transformations": {
+    "rename_column": {
+      "partition_0": "partition_event_name"
+    },
+    "new_column": {
+      "processed_dt": "%Y%m%d"
+    },
+    "new_column_struct_extract": {
+      "user": [
+        "user_id",
+        "govuk_signin_journey_id"
+      ]
+    },
+    "key_value_record_generation_column_exclusion_list": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user",
+      "year",
+      "month",
+      "day",
+      "processed_dt",
+      "partition_0"
+    ]
+  },
+  "stage_schema": {
+    "columns": {
+      "event_id": "string",
+      "event_name": "string",
+      "client_id": "string",
+      "component_id": "string",
+      "timestamp": "int",
+      "timestamp_formatted": "string",
+      "user_govuk_signin_journey_id": "string",
+      "user_user_id": "string",
+      "partition_event_name": "string",
+      "year": "int",
+      "month": "int",
+      "day": "int",
+      "processed_dt": "int"
+    },
+    "partition_columns": [
+      "event_name",
+      "processed_dt"
+    ]
+  },
+  "key_value_schema": {
+    "columns": {
+      "event_id": "string",
+      "parent_column_name": "string",
+      "key": "string",
+      "value": "string",
+      "processed_dt": "int"
+    },
+    "partition_columns": [
+      "processed_dt"
+    ]
+  }
+}
