@@ -871,6 +871,7 @@ UnauthorizedApiCallSNSTopicSubscription:
     TopicArn: !Ref UnauthorizedApiCallSNSTopic
 # Outputs:
 #   GlobalLogBucketName:
+#     Type: 'AWS::S3::Bucket'
 #     Description: This bucket logs S3 events
 #     Value: !Ref GlobalLogBucket
 #     Export:

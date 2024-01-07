@@ -1,7 +1,20 @@
-# S3NotificationsLoggerLambda:
-#    Type: AWS::Serverless::Function
-#    Properties:
-#     LambdaArn: !ImportValue S3NotificationLambda
+QuickSightlLogBucket:
+  # checkov:skip=CKV_AWS_18: This is the log bucket to log quicksight access
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub '${Environment}-dap-quicksight-s3-logs'
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 365
+          Status: Enabled
 
 QuicksightAccessLambdaFunction:
   # checkov:skip=CKV_AWS_116: DLQ not needed as credentials would be out of date when retried
@@ -422,7 +435,7 @@ DAPAnalystsAssetsBucket:
     AccessControl: Private
     BucketName: !Sub '${Environment}-dap-analysts-assets'
     LoggingConfiguration:
-      DestinationBucketName: !ImportValue dap-GlobalLogBucketName
+      DestinationBucketName: !Ref QuickSightlLogBucket
       LogFilePrefix: dap-analysts-assets/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
