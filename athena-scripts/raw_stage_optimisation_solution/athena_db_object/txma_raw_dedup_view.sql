@@ -1,5 +1,4 @@
--- This script should be run against the same database the txma (raw) table resides within
-CREATE OR REPLACE VIEW "txma_deduplicated" AS 
+CREATE OR REPLACE VIEW "raw_database"."txma_deduplicated" AS 
 SELECT *
 FROM
   (
@@ -7,6 +6,6 @@ FROM
      row_number() OVER (PARTITION BY event_id, timestamp ORDER BY CAST(concat(concat(year, month), day) AS integer) ASC) row_num
    , *
    FROM
-     txma
+     "raw_database"."txma"
 ) 
-WHERE (row_num = 1)
+WHERE (row_num = 1);
