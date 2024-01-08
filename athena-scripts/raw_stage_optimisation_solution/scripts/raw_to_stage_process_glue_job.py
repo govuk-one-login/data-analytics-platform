@@ -4,6 +4,8 @@ import time
 import gc
 from datetime import datetime
 
+import pandas as pd
+
 from awsglue.utils import getResolvedOptions
 from S3ReadWrite import S3ReadWrite
 from GlueTableQueryAndWrite import GlueTableQueryAndWrite
@@ -94,6 +96,10 @@ def main():
 
             # Record the start time
             start_time = time.time()
+
+            if not isinstance(df_raw, pd.DataFrame):
+                print("No raw records returned for processing. Program is stopping.")
+                return    
         
             if df_raw.empty:
                 print("No raw records returned for processing. Program is stopping.")
