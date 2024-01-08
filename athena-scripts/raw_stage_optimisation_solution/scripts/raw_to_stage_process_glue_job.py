@@ -10,6 +10,7 @@ from awsglue.utils import getResolvedOptions
 from S3ReadWrite import S3ReadWrite
 from GlueTableQueryAndWrite import GlueTableQueryAndWrite
 from DataPreprocessing import DataPreprocessing
+from AthenaReadWrite import AthenaReadWrite
 
 from core_preprocessing_functions import *
 
@@ -36,6 +37,8 @@ def main():
                           ['JOB_NAME',
                            'config_bucket',
                            'config_key_path',
+                           'txma_raw_dedup_view_key_path',
+                           'workgroup',
                            'raw_database',
                            'raw_source_table',
                            'stage_database',
@@ -52,7 +55,26 @@ def main():
 
         # Data transformation class
         preprocessing = DataPreprocessing()
+
+        # Data transformation class
+        athena_app = AthenaReadWrite()       
         
+        # Trigger regeneration of raw layer deduplication view
+        # Required to avoid "stale" view error, which occurs when new fields
+        # are introduced within the txma table, hence the view definition is out of date
+        # Read deduplication view definition sql
+        
+        view_sql = s3_app.read_file(args['config_bucket'], args['txma_raw_dedup_view_key_path'])
+        if view_sql is None:
+            raise ValueError("Class 's3_json_reader' returned None, which is not allowed.")
+        
+        view_generation_sql = view_sql.replace('raw_database', str(args['raw_database']))
+        print(view_generation_sql)
+
+        # Execute the view script which recreates the Athena view definition
+        athena_query_response = athena_app.run_query(args['raw_database'],view_generation_sql,args['workgroup'])
+        if not athena_query_response:
+            raise ValueError(f"Class 'athena_app' returned False when executing query {str(view_generation_sql)}")
         
         # Read config rules json
         json_data = s3_app.read_json(args['config_bucket'], args['config_key_path'])
