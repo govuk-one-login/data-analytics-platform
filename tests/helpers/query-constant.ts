@@ -111,7 +111,7 @@ export const AUTH_AUTHORISATION_DATA = (eventname: string): string => {
 
 export const IPV_JOURNEY_DATA = (eventname: string): string => {
   const query =
-    "SELECT event_id, extensions_hasmitigations,extensions_levelofconfidence, extensions_cifail FROM IPV_JOURNEY where event_name='" +
+    "SELECT event_id,component_id, user_govuk_signin_journey_id, user_user_id, extensions_hasmitigations,extensions_levelofconfidence, extensions_cifail FROM IPV_JOURNEY where event_name='" +
     eventname +
     "'";
   return query;
@@ -185,7 +185,7 @@ export const usernotnullquery = (tablename: string): string => {
 };
 
 export const getDataUserIdNotNull = (tablename: string): string => {
-  const query = 'SELECT event_id,user,client_id,component_id,day FROM ' + tablename + ' where user is not null';
+  const query = 'SELECT event_id,user,component_id,day FROM ' + tablename + ' where user is not null';
   return query;
 };
 
