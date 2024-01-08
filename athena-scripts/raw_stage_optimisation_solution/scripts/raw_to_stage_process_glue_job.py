@@ -124,6 +124,10 @@ def main():
                 return
             #print(df_raw)
 
+            # Extract a list of column names from the original df_raw dataframe
+            df_raw_col_names_original = list(df_raw.columns)
+            #print(f"df_raw cols: {df_raw_col_names_original}")
+
             # Rename column(s)
             df_raw = rename_column_names(preprocessing, json_data, df_raw)
             if df_raw is None:
@@ -171,11 +175,7 @@ def main():
                 raise ValueError("dtypes value for stage_schema is not found within config rules")
             print(f'stage layer schema:\n{json.dumps(stage_schema_columns, indent=4)}')
 
-            # Generate list object with column names only
-            # Enables selecting specific columns from df_raw
-            # Extract column names as list
-            stage_select_col_names_list = list(stage_schema_columns.keys())
-            df_raw = df_raw[stage_select_col_names_list]
+            
 
             # Retrieve partition columns - for stage table
             stage_schema_partition_columns = extract_element_by_name(json_data, "partition_columns", "stage_schema")
@@ -190,7 +190,8 @@ def main():
             print(f'stage layer key/value schema:\n{json.dumps(stage_key_value_schema_columns, indent=4)}')
 
             # Generate key/value pairs
-            df_keys = generate_key_value_records(preprocessing, json_data, df_raw, stage_key_value_schema_columns)
+            df_keys = generate_key_value_records(preprocessing, json_data, df_raw, stage_key_value_schema_columns, df_raw_col_names_original)
+
             if df_keys is None:
                 raise ValueError(f"Function: generate_key_value_records returned None.")
             
@@ -205,6 +206,13 @@ def main():
             if stage_key_value_schema_partition_columns is None:
                 raise ValueError("partition columns value for key_value_schema is not found within config rules")
             print(f'stage layer key/value partition column: {stage_key_value_schema_partition_columns}')
+
+            # Generate list object with column names only
+            # Enables selecting specific columns from df_raw
+            # Extract column names as list
+            stage_select_col_names_list = list(stage_schema_columns.keys())
+            df_raw = df_raw[stage_select_col_names_list]
+
 
             ## write to glue database
             #1. Key/value table

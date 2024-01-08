@@ -389,7 +389,7 @@ def empty_string_to_null(preprocessing, json_data, df_raw):
         return None
     
 
-def generate_key_value_records(preprocessing, json_data, df_raw, key_value_schema_columns):
+def generate_key_value_records(preprocessing, json_data, df_raw, key_value_schema_columns, df_raw_col_names_original):
 
     """
     Generate key/value pairs in a DataFrame based on JSON configuration.
@@ -399,6 +399,7 @@ def generate_key_value_records(preprocessing, json_data, df_raw, key_value_schem
     json_data (dict or list): The JSON configuration data.
     df_raw (DataFrame): The raw DataFrame.
     key_value_schema_columns (dict): A dictionary specifying column names for the resulting DataFrame.
+    df_raw_col_names_original: Original list of raw layer column names
 
     Returns:
     DataFrame: The DataFrame with key/value pairs extracted from the raw DataFrame.
@@ -409,15 +410,22 @@ def generate_key_value_records(preprocessing, json_data, df_raw, key_value_schem
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
         
-        data_transformations_generate_key_value_records = extract_element_by_name(json_data, "generate_key_value_records", "data_transformations")
-        if data_transformations_generate_key_value_records is None:
+        data_transformations_key_value_cols_exclusion_list = extract_element_by_name(json_data, "key_value_record_generation_column_exclusion_list", "data_transformations")
+        if data_transformations_key_value_cols_exclusion_list is None:
             raise ValueError("generate_key_value_records value for data_transformations is not found within config rules")
-        print(f'config rule: data_transformations | generate_key_value_records: {data_transformations_generate_key_value_records}')
+        print(f'config rule: data_transformations | key_value_record_generation_column_exclusion_list: {data_transformations_key_value_cols_exclusion_list}')
 
         # Extract column names as list
         col_names_list = list(key_value_schema_columns.keys())
 
-        df_keys = preprocessing.generate_key_value_records(df_raw, data_transformations_generate_key_value_records, col_names_list)
+        # Generate a set of column names to generate key/value record(s)
+        # Logic: df_raw original column names minus the key/value exclusion columns list
+        #        convert set to list object to aid processing
+        process_columns_set = set(df_raw_col_names_original) - set(data_transformations_key_value_cols_exclusion_list)
+        process_columns_list = list(process_columns_set)
+        #print(f"process_columns_list: {process_columns_list}")
+
+        df_keys = preprocessing.generate_key_value_records(df_raw, process_columns_list, col_names_list)
         if df_keys is None:
             raise ValueError("Class: preprocessing method: extract_key_values returned None object")
         return df_keys

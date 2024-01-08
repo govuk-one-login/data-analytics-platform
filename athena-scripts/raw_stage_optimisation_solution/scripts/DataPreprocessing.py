@@ -144,42 +144,46 @@ class DataPreprocessing:
         
 
     
-    def extract_key_values(self, obj, parent_key='', sep='.'):
+    def extract_key_values(self, obj, parent_key='', sep='.', field_name=''):
         """
-        Extract key-value pairs recursively from a nested dictionary.
+        Generate Key/Value records for provided object.
 
         Parameters:
-        obj (dict): The input dictionary to extract key-value pairs from.
+        obj (dict, primitive (i.e. str, int): The input to extract key-value pairs from (can be of any type)
         parent_key (str): The parent key used for recursion.
         sep (str): The separator used to join parent and child keys.
+        field_name (str): Name of the field from the raw df, that the input obj is associated to
 
         Returns:
-        list: A list of (key, value) pairs extracted from the dictionary.
+        list: A list of (key, value) pairs generated from the input obj argument.
         """
         try:
         
             items = []
-            for key, value in obj.items():
-                if value is None:
-                    pass
-                else:
-                    new_key = f"{parent_key}{sep}{key}" if parent_key else key
-                    if isinstance(value, dict):
-                        items.extend(self.extract_key_values(value, new_key))
-                    elif isinstance(value, list):
-                        for i, item in enumerate(value):
-                            if isinstance(item, (dict, list)):
-                                items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
-                            else:
-                                items.append((new_key, item))
-                    elif isinstance(value, np.ndarray):
-                        for i, item in enumerate(value):
-                            if isinstance(item, (dict, list)):
-                                items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
-                            else:
-                                items.append((new_key, item))
+            if not isinstance(obj, (dict, list)):
+                items.append((field_name, obj))
+            else:
+                for key, value in obj.items():
+                    if value is None:
+                        pass
                     else:
-                        items.append((new_key, value))
+                        new_key = f"{parent_key}{sep}{key}" if parent_key else key
+                        if isinstance(value, dict):
+                            items.extend(self.extract_key_values(value, new_key))
+                        elif isinstance(value, list):
+                            for i, item in enumerate(value):
+                                if isinstance(item, (dict, list)):
+                                    items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
+                                else:
+                                    items.append((new_key, item))
+                        elif isinstance(value, np.ndarray):
+                            for i, item in enumerate(value):
+                                if isinstance(item, (dict, list)):
+                                    items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
+                                else:
+                                    items.append((new_key, item))
+                        else:
+                            items.append((new_key, value))
             return items
         
         except Exception as e:
@@ -207,7 +211,7 @@ class DataPreprocessing:
             dfs = []
             
             for column_name in fields:
-                df_key_value = df.apply(lambda row: [(row['event_id'], column_name, key, value) for key, value in self.extract_key_values(row[column_name])] if row[column_name] is not None else [], axis=1)
+                df_key_value = df.apply(lambda row: [(row['event_id'], column_name, key, value) for key, value in self.extract_key_values(row[column_name], field_name=column_name)] if pd.notna(row[column_name]) else [], axis=1)
                 dfs.append(df_key_value)
                 
             print(f'class: DataPreprocessing | method=generate_key_value_records | dfs row count: {len(dfs)}')
