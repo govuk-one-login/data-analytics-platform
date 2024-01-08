@@ -423,7 +423,7 @@ def generate_key_value_records(preprocessing, json_data, df_raw, key_value_schem
         #        convert set to list object to aid processing
         process_columns_set = set(df_raw_col_names_original) - set(data_transformations_key_value_cols_exclusion_list)
         process_columns_list = list(process_columns_set)
-        #print(f"process_columns_list: {process_columns_list}")
+        print(f"key/value records to be created for the following columns: {process_columns_list}")
 
         df_keys = preprocessing.generate_key_value_records(df_raw, process_columns_list, col_names_list)
         if df_keys is None:
