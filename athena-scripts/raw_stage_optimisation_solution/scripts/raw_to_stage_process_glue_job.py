@@ -21,6 +21,7 @@ def main():
     insert_mode = 'append'
     dataset = True
     metadata_root_folder = 'txma_raw_stage_metadata'
+    row_num = 'row_num'
     athena_query_chunksize = 1000000
     df_process_counter = 0
     df_raw_row_count = 0
@@ -154,7 +155,9 @@ def main():
 
             # Extract a list of column names from the original df_raw dataframe
             df_raw_col_names_original = list(df_raw.columns)
-            #print(f"df_raw cols: {df_raw_col_names_original}")
+            if row_num in df_raw_col_names_original:
+                df_raw_col_names_original.remove(row_num)
+            print(f"df_raw cols: {df_raw_col_names_original}")
 
             # Rename column(s)
             df_raw = rename_column_names(preprocessing, json_data, df_raw)
