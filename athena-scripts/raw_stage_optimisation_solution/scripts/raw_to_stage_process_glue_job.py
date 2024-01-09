@@ -56,7 +56,7 @@ def main():
         # Data transformation class
         preprocessing = DataPreprocessing()
 
-        # Data transformation class
+        # Athena processing class
         athena_app = AthenaReadWrite()       
         
         # Trigger regeneration of raw layer deduplication view
