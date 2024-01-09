@@ -495,8 +495,9 @@ DAPCloudFrontDistribution:
       Origins:
         - DomainName: !GetAtt DAPAnalystsAssetsBucket.DomainName
           Id: S3Origin
-          S3OriginConfig:
-            OriginAccessIdentity: !Ref CloudFrontOriginAccessControl
+          OriginAccessControlId: !Ref CloudFrontOriginAccessControl
+          S3OriginConfig: {}
+
       DefaultCacheBehavior:
         TargetOriginId: S3Origin
         ViewerProtocolPolicy: redirect-to-https
