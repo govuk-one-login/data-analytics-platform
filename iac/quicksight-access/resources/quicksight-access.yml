@@ -230,6 +230,7 @@ webAcl:
   Condition: IsQuicksightEnvironment
   Properties:
     Description: Web ACL
+    Name: DAP-WebACL
     DefaultAction:
       Allow: {}
 
@@ -508,7 +509,8 @@ DAPCloudFrontDistribution:
           QueryString: false
           Cookies:
             Forward: none
-      WebACLId: !Ref webAcl
+      WebACLId: !Sub 'arn:aws:wafv2:eu-west-2:${AWS::AccountId}:type/scope/DAP-WebACL/web-acl-id'
+
       ViewerCertificate:
         CloudFrontDefaultCertificate: true
         MinimumProtocolVersion: TLSv1.2_2018
