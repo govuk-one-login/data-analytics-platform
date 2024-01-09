@@ -56,10 +56,10 @@ class AthenaReadWrite:
                 time.sleep(5)  # Wait for 5 seconds before checking again
 
             if status == 'SUCCEEDED':
-                print("View created successfully!")
+                print("Athena query successfully completed")
                 return True
             else:
-                print(f"Error creating view. Status: {status}")
+                print(f"Error running Athena query. Status: {status}")
                 return False
         except Exception as e:
             print(f"Exception when running Athena query: {str(e)}")
