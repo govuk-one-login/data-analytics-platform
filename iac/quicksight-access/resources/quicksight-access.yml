@@ -509,7 +509,7 @@ DAPCloudFrontDistribution:
           QueryString: false
           Cookies:
             Forward: none
-      WebACLId: !Sub 'arn:aws:wafv2:eu-west-2:${AWS::AccountId}:type/scope/DAP-WebACL/web-acl-id'
+      WebACLId: !Sub 'arn:aws:wafv2:eu-west-2:${AWS::AccountId}:global/webacl/DAP-WebACL/web-acl-id'
 
       ViewerCertificate:
         CloudFrontDefaultCertificate: true
