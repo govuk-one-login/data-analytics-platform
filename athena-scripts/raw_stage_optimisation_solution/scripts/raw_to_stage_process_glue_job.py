@@ -74,7 +74,7 @@ def main():
         # Execute the view script which recreates the Athena view definition
         athena_query_response = athena_app.run_query(args['raw_database'],view_generation_sql,args['workgroup'])
         if not athena_query_response:
-            raise ValueError(f"Class 'athena_app' returned False when executing query {str(view_generation_sql)}")
+            sys.exit(f"Class 'athena_app' returned False when executing query {str(view_generation_sql)}")
         
         # Read config rules json
         json_data = s3_app.read_json(args['config_bucket'], args['config_key_path'])

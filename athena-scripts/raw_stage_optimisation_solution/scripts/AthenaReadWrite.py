@@ -62,6 +62,6 @@ class AthenaReadWrite:
                 print(f"Error creating view. Status: {status}")
                 return False
         except Exception as e:
-            print(f"Error reading JSON from S3: {str(e)}")
+            print(f"Exception when running Athena query: {str(e)}")
             return False
         
