@@ -709,11 +709,11 @@ RawStageTransformProcessPythonGlueJob:
         !Join [
           ',',
           [
-            !Sub 's3://${ELTMetadataBucket}//txma/raw_stage_optimisation_solution/scripts/AthenaReadWrite.py',
-            !Sub 's3://${ELTMetadataBucket}//txma/raw_stage_optimisation_solution/scripts/core_preprocessing_functions.py',
-            !Sub 's3://${ELTMetadataBucket}//txma/raw_stage_optimisation_solution/scripts/DataPreprocessing.py',
-            !Sub 's3://${ELTMetadataBucket}//txma/raw_stage_optimisation_solution/scripts/GlueTableQueryAndWrite.py',
-            !Sub 's3://${ELTMetadataBucket}//txma/raw_stage_optimisation_solution/scripts/S3ReadWrite.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/AthenaReadWrite.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/core_preprocessing_functions.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/DataPreprocessing.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/GlueTableQueryAndWrite.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/S3ReadWrite.py',
           ],
         ]
     ExecutionProperty:
