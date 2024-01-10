@@ -1,7 +1,14 @@
 import { getLogger } from '../../shared/powertools';
 import type { sheets_v4 } from 'googleapis';
 import { InvokeCommand } from '@aws-sdk/client-lambda';
-import { getAccountId, getEnvironmentVariable, getErrorMessage, lambdaInvokeResponse } from '../../shared/utils/utils';
+import {
+  arrayPartition,
+  getAccountId,
+  getEnvironmentVariable,
+  getErrorMessage,
+  lambdaInvokeResponse,
+  sleep,
+} from '../../shared/utils/utils';
 import type { LambdaInvokeResponse } from '../../shared/utils/utils';
 import { lambdaClient } from '../../shared/clients';
 import { getUserStatus } from '../../shared/quicksight-access/user-status';
@@ -38,8 +45,9 @@ export const handler = async (
   try {
     const rowData = getSpreadsheetRows(event.spreadsheet);
     const users = getUsersFromRows(rowData);
-    logger.info('Parsed user rows from spreadsheet', { users });
+    logger.info('Parsed user rows from spreadsheet', { users, usersSize: users.length });
     const toBeAdded = await getUsersWithoutAccounts(users, context);
+    logger.info('After filtering out users with accounts', { users: toBeAdded, usersSize: toBeAdded.length });
     return await sendToAddUsersLambda(toBeAdded, event.dryRun);
   } catch (error) {
     logger.error('Error preparing to add users', { error });
@@ -86,12 +94,21 @@ const getUsersWithoutAccounts = async (users: SpreadsheetRow[], context: Context
   try {
     const accountId = getAccountId(context);
     const userPoolId = getEnvironmentVariable('USER_POOL_ID');
-    const maybeUsers = await Promise.all(
-      users.map(async user => {
-        const status = await getUserStatus(user.Email, userPoolId, accountId);
-        return status.existsInBoth() ? undefined : user;
-      }),
-    );
+
+    // have to do in batches to avoid Quicksight ThrottlingExceptions
+    const maybeUsers: Array<SpreadsheetRow | undefined> = [];
+    const batches = arrayPartition(users, 20);
+    for (const batch of batches) {
+      const maybeUser = await Promise.all(
+        batch.map(async user => {
+          const status = await getUserStatus(user.Email, userPoolId, accountId);
+          return status.existsInBoth() ? undefined : user;
+        }),
+      );
+      maybeUser.forEach(u => maybeUsers.push(u));
+      await sleep(100);
+    }
+
     // have to use the type guard otherwise typescript thinks the filter() output is (SpreadsheetRow | undefined)[]
     // see https://www.benmvp.com/blog/filtering-undefined-elements-from-array-typescript
     return maybeUsers.filter((user): user is SpreadsheetRow => user !== undefined);

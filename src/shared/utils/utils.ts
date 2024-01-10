@@ -112,6 +112,16 @@ export const getErrorMessage = (error: unknown): string => {
   return error instanceof Error ? error.message : JSON.stringify(error);
 };
 
+export const arrayPartition = <T>(array: T[], partitionSize: number): T[][] => {
+  if (partitionSize < 1) {
+    throw new Error('Partition size must be greater than zero');
+  }
+  return [...Array(Math.round(array.length / partitionSize) + 1).keys()]
+    .map(i => i * partitionSize)
+    .map(i => array.slice(i, i + partitionSize))
+    .filter(chunk => chunk.length > 0);
+};
+
 // see https://stackoverflow.com/a/65666402
 const throwExpression = (message: string): never => {
   throw new Error(message);
