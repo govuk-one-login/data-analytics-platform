@@ -1,7 +1,6 @@
 import { handler } from './handler';
 import type { Context } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
-import type { AttributeType } from '@aws-sdk/client-cognito-identity-provider';
 import {
   AdminCreateUserCommand,
   AdminGetUserCommand,
@@ -16,6 +15,7 @@ import {
   RegisterUserCommand,
   ResourceNotFoundException,
 } from '@aws-sdk/client-quicksight';
+import { mockCognitoUser } from '../../shared/utils/test-utils';
 
 const ACCOUNT_ID = '123456789012';
 
@@ -128,11 +128,11 @@ test('user existence failures', async () => {
     })
 
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
-    .resolvesOnce(cognitoUser('user-a', 'a@a.com'))
+    .resolvesOnce(mockCognitoUser('user-a', 'a@a.com'))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-b' })
     .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-c' })
-    .resolvesOnce(cognitoUser('user-c', 'c@c.com'));
+    .resolvesOnce(mockCognitoUser('user-c', 'c@c.com'));
 
   mockQuicksightClient
     .callsFake(input => {
@@ -347,7 +347,3 @@ test('user and group add errors', async () => {
   expect(mockCognitoClient.calls()).toHaveLength(6);
   expect(mockQuicksightClient.calls()).toHaveLength(9);
 });
-
-const cognitoUser = (username: string, email: string): { Username: string; UserAttributes: AttributeType[] } => {
-  return { Username: username, UserAttributes: [{ Name: 'email', Value: email }] };
-};
