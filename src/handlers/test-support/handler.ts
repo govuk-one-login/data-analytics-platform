@@ -1,7 +1,6 @@
 import { AWS_ENVIRONMENTS } from '../../shared/constants';
-import { decodeObject, getAccountId, getRequiredParams } from '../../shared/utils/utils';
+import { getAccountId, getRequiredParams, lambdaInvokeResponse } from '../../shared/utils/utils';
 import { DescribeLogStreamsCommand, GetLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
-import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 import { InvokeCommand, ListEventSourceMappingsCommand } from '@aws-sdk/client-lambda';
 import type { CopyObjectCommandOutput, DeleteObjectCommandOutput, GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import {
@@ -180,17 +179,6 @@ const s3GetResponse = async (response: GetObjectCommandOutput): Promise<Record<s
     contentEncoding,
     eTag: response.ETag,
     lastModified: response.LastModified,
-  };
-};
-
-// custom response as real response LogResult is base64 encoded and Payload is encoded as a UintArray
-const lambdaInvokeResponse = async (response: InvokeCommandOutput): Promise<Record<string, unknown>> => {
-  return {
-    executedVersion: response.ExecutedVersion,
-    statusCode: response.StatusCode,
-    functionError: response.FunctionError,
-    logResult: Buffer.from(response.LogResult ?? '', 'base64').toString('utf-8'),
-    payload: decodeObject(response.Payload ?? new Uint8Array([0x7b, 0x7d])),
   };
 };
 

@@ -1,6 +1,7 @@
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { AWS_ENVIRONMENTS } from '../constants';
 import type { Context } from 'aws-lambda';
+import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 
 /**
  * Requires that an object has the specified properties (and they are not null or undefined), throwing an error if not.
@@ -85,6 +86,30 @@ export const getAccountId = (context: Context): string => {
     context?.invokedFunctionArn.match(/:(\d+):function/)?.at(1) ??
     throwExpression('Error extracting account id from lambda ARN')
   );
+};
+
+export interface LambdaInvokeResponse {
+  executedVersion?: string;
+  statusCode?: number;
+  functionError?: string;
+  logResult: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload: Record<string, any>;
+}
+
+// custom response as real response LogResult is base64 encoded and Payload is encoded as a UintArray
+export const lambdaInvokeResponse = (response: InvokeCommandOutput): LambdaInvokeResponse => {
+  return {
+    executedVersion: response.ExecutedVersion,
+    statusCode: response.StatusCode,
+    functionError: response.FunctionError,
+    logResult: Buffer.from(response.LogResult ?? '', 'base64').toString('utf-8'),
+    payload: decodeObject(response.Payload ?? new Uint8Array([0x7b, 0x7d])),
+  };
+};
+
+export const getErrorMessage = (error: unknown): string => {
+  return error instanceof Error ? error.message : JSON.stringify(error);
 };
 
 // see https://stackoverflow.com/a/65666402
