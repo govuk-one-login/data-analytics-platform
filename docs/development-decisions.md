@@ -63,7 +63,7 @@ and assembled into a single `template.yaml` by a build step).
 
 ## GitHub Policies
 
-Commit signing, branch protection and mandatory pull requests are taken from the [DI best practices](https://di-team-manual.london.cloudapps.digital/github-policies/#github-policies).
+Commit signing, branch protection and mandatory pull requests are taken from the [DI best practices](https://team-manual.account.gov.uk/github-policies/#github-policies).
 
 ## Deployment Config
 
