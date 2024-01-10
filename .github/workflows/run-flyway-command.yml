@@ -7,7 +7,7 @@ on:
         type: choice
         required: true
         description: AWS environment
-        options: [DEV, TEST, FEATURE, BUILD, STAGING, INTEGRATION, PRODUCTION]
+        options: [DEV, TEST, FEATURE, BUILD, STAGING, INTEGRATION, PRODUCTION, PRODUCTION-PREVIEW]
       command:
         type: choice
         required: true

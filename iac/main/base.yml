@@ -24,6 +24,7 @@ Parameters:
       - staging
       - integration
       - production
+      - production-preview
   CodeSigningConfigArn:
     Description: ARN of Code Signing Config from deployment pipeline
     Type: String
@@ -77,12 +78,20 @@ Conditions:
   IsIntegration: !Equals [!Ref Environment, integration]
   IsStaging: !Equals [!Ref Environment, staging]
   IsProduction: !Equals [!Ref Environment, production]
+  IsProductionPreview: !Equals [!Ref Environment, production-preview]
+  IsNotProductionPreview: !Not [!Equals [!Ref Environment, production-preview]]
   UsePlaceholderTxMAQueue: !Or
     - !Condition IsTest
     - !Condition IsFeature
     # todo replace line below with `- !Condition IsDev` when txma queue has been moved from dev to staging
     - !Condition IsStaging
     - !Condition IsBuild
+    - !Condition IsProductionPreview
+  # is this an environment that uses secure pipelines for deployments (feature and production-preview do direct sam deploys)
+  # used to determine if extra policies need to be added to the secure pipelines deploy role in pipeline.yml
+  IsSecurePipelinesEnvironment: !And
+    - !Condition IsNotFeature
+    - !Condition IsNotProductionPreview
 
 Globals:
   Function:

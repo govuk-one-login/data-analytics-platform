@@ -1,6 +1,6 @@
 DeployRoleExtraIAMActions:
   Type: 'AWS::IAM::ManagedPolicy'
-  Condition: IsNotFeature
+  Condition: IsSecurePipelinesEnvironment
   Properties:
     PolicyDocument:
       Version: '2012-10-17'
@@ -90,7 +90,7 @@ DeployRoleExtraIAMActions:
 
 GluePolicy:
   Type: AWS::IAM::Policy
-  Condition: IsNotFeature
+  Condition: IsSecurePipelinesEnvironment
   Properties:
     PolicyName: 'GlueServicePolicy'
     PolicyDocument:
@@ -157,7 +157,7 @@ RedShiftEC2Policy:
   #  checkov:skip=CKV_AWS_109:This check is skipped due to specific reasons
   #  checkov:skip=CKV_AWS_111:This check is skipped due to specific reasons
   Type: 'AWS::IAM::ManagedPolicy'
-  Condition: IsNotFeature
+  Condition: IsSecurePipelinesEnvironment
   Properties:
     Description: 'My Managed Policy'
     PolicyDocument:
@@ -198,7 +198,7 @@ RedShiftEC2Policy:
 
 StateMachinePolicy:
   Type: 'AWS::IAM::ManagedPolicy'
-  Condition: IsNotFeature
+  Condition: IsSecurePipelinesEnvironment
   Properties:
     Description: 'My Managed Policy for Step Functions'
     PolicyDocument:
@@ -256,7 +256,7 @@ StateMachinePolicy:
 
 CloudTrailPolicy:
   Type: 'AWS::IAM::ManagedPolicy'
-  Condition: IsNotFeature
+  Condition: IsSecurePipelinesEnvironment
   Properties:
     Description: 'Managed policy for CloudTrail operations'
     PolicyDocument:
