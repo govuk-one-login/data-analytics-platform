@@ -1,26 +1,29 @@
-name: ✳️ Add users to Quicksight from spreadsheet
+name: ✳️ Add user to Quicksight
 
 on:
   workflow_dispatch:
     inputs:
-      dryRun:
-        type: boolean
-        required: true
-        description: If true, this action only prints the users it thinks need adding
-        default: false
       environment:
         type: string
         required: true
         description: AWS Environment
         options: [DEV, TEST, FEATURE, PRODUCTION]
-      type:
+      email:
+        type: string
+        required: true
+        description: Email address
+      username:
+        type: string
+        required: false
+        description: Username (defaults to email address)
+      group:
         type: choice
         required: true
-        description: Type of user (determines which spreadsheet sheet to read)
-        options: [GDS, RP]
+        description: Quicksight group
+        options: [gds-users, dbs, dvsa, hmlr, swe, veterans]
 
 jobs:
-  get-spreadsheet-users-and-invoke-lambda:
+  invoke-add-users-lambda:
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
@@ -36,8 +39,6 @@ jobs:
           cache: npm
       - name: Install node packages
         run: npm ci
-      - name: Create users file
-        run: node scripts/get-quicksight-user-spreadsheet.mjs ${{ inputs.type }} ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS }} > spreadsheet.json
       - name: Assume AWS add users lambda invoke role
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -45,7 +46,11 @@ jobs:
           role-to-assume: ${{ secrets[format('ADD_USERS_LAMBDAS_INVOKE_ROLE_{0}', inputs.environment)] }}
       - name: Invoke lambda
         run: |
-          PAYLOAD=$(echo "{\"dryRun\": ${{ inputs.dryRun }}, \"spreadsheet\": $(cat spreadsheet.json)}")
-          ENCODED=$(echo "$PAYLOAD" | openssl base64)
-          aws --region eu-west-2 lambda invoke --function-name quicksight-add-users-from-spreadsheet --payload "$ENCODED" out.json
-          cat out.json
+          echo ${{ inputs.username }}
+          echo ${{ inputs.email }}
+          USERNAME=$(if [ -z ${{ inputs.username }} ]; then echo ${{ inputs.email }}; else echo ${{ inputs.username }}; fi)
+          PAYLOAD=$(echo "{\"requests\": [{ \"username\": \"$USERNAME\", \"email\": \"${{ inputs.email }}\", \"quicksightGroups\": [\"${{ inputs.group }}\"] }] }")
+          echo "$PAYLOAD" | jq
+          #ENCODED=$(echo "$PAYLOAD" | openssl base64)
+          #aws --region eu-west-2 lambda invoke --function-name quicksight-add-users --payload "$ENCODED" out.json
+          #cat out.json
