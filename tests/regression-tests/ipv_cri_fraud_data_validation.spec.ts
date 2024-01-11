@@ -7,6 +7,7 @@ describe('IPV_CRI_PASSPORT data validation Test - validate data at stage and raw
   test.each`
     eventName
     ${'IPV_FRAUD_CRI_VC_ISSUED'}
+    ${'IPV_FRAUD_CRI_END'}
   `(
     'Should validate $eventName event extensions  stored in raw and stage layer',
     async ({ ...data }) => {

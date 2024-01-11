@@ -2,7 +2,7 @@ import { getLogger } from '../../shared/powertools';
 import type { Context } from 'aws-lambda';
 import { cognitoClient, quicksightClient } from '../../shared/clients';
 import { DeleteUserCommand, RegisterUserCommand } from '@aws-sdk/client-quicksight';
-import { getAccountId, getEnvironmentVariable } from '../../shared/utils/utils';
+import { getAccountId, getEnvironmentVariable, getErrorMessage } from '../../shared/utils/utils';
 import { AdminCreateUserCommand, AdminDeleteUserCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { getUserStatus } from '../../shared/quicksight-access/user-status';
 
@@ -55,7 +55,7 @@ const syncUser = async (user: SyncUser, userPoolId: string, accountId: string): 
     await quicksightClient.send(getQuicksightRequest(user, accountId));
     return { user };
   } catch (error) {
-    return { user, error: error instanceof Error ? error.message : JSON.stringify(error) };
+    return { user, error: getErrorMessage(error) };
   }
 };
 

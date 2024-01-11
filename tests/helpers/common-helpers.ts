@@ -286,7 +286,9 @@ export const productFamily = (eventName: string): string => {
     eventName === 'IPV_DL_CRI_START' ||
     eventName === 'IPV_DL_CRI_REQUEST_SENT' ||
     eventName === 'IPV_DL_CRI_RESPONSE_RECEIVED' ||
-    eventName === 'IPV_DL_CRI_END'
+    eventName === 'IPV_DL_CRI_END' ||
+    eventName === 'IPV_DL_CRI_REQUEST_SENT' ||
+    eventName === 'IPV_DL_CRI_RESPONSE_RECEIVED'
   ) {
     productFamilyName = 'IPV_CRI_DRIVING_LICENSE';
   }
@@ -295,7 +297,8 @@ export const productFamily = (eventName: string): string => {
     eventName === 'IPV_FRAUD_CRI_VC_ISSUED' ||
     eventName === 'IPV_FRAUD_CRI_REQUEST_SENT' ||
     eventName === 'IPV_FRAUD_CRI_RESPONSE_RECEIVED' ||
-    eventName === 'IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED'
+    eventName === 'IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED' ||
+    eventName === 'IPV_FRAUD_CRI_END'
   ) {
     productFamilyName = 'IPV_CRI_FRAUD';
   }
@@ -306,7 +309,15 @@ export const productFamily = (eventName: string): string => {
     eventName === 'IPV_JOURNEY_START' ||
     eventName === 'IPV_SPOT_RESPONSE_APPROVED' ||
     eventName === 'IPV_SPOT_RESPONSE_REJECTED' ||
-    eventName === 'IPV_IDENTITY_ISSUED'
+    eventName === 'IPV_IDENTITY_ISSUED' ||
+    eventName === 'IPV_CORE_CRI_RESOURCE_RETRIEVED' ||
+    eventName === 'IPV_CRI_AUTH_RESPONSE_RECEIVED' ||
+    eventName === 'IPV_DELETE_USER_DATA' ||
+    eventName === 'IPV_GPG45_PROFILE_MATCHED' ||
+    eventName === 'IPV_REDIRECT_TO_CRI' ||
+    eventName === 'IPV_SPOT_REQUEST_RECEIVED' ||
+    eventName === 'IPV_SPOT_REQUEST_VALIDATION_FAILURE' ||
+    eventName === 'IPV_VC_RECEIVED'
   ) {
     productFamilyName = 'IPV_JOURNEY';
   }

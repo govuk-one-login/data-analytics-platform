@@ -5,7 +5,7 @@ import { CreateGroupMembershipCommand, RegisterUserCommand } from '@aws-sdk/clie
 import type { CreateGroupMembershipCommandOutput, RegisterUserCommandOutput } from '@aws-sdk/client-quicksight';
 import { AdminCreateUserCommand } from '@aws-sdk/client-cognito-identity-provider';
 import type { AdminCreateUserCommandOutput } from '@aws-sdk/client-cognito-identity-provider';
-import { getAccountId, getEnvironmentVariable } from '../../shared/utils/utils';
+import { getAccountId, getEnvironmentVariable, getErrorMessage } from '../../shared/utils/utils';
 import { getUserStatus } from '../../shared/quicksight-access/user-status';
 
 const logger = getLogger('lambda/quicksight-add-users');
@@ -16,11 +16,11 @@ interface AddUserRequest {
   quicksightGroups: string[];
 }
 
-interface AddUsersEvent {
+export interface AddUsersEvent {
   requests: AddUserRequest[];
 }
 
-interface AddUserResult extends AddUserRequest {
+export interface AddUserResult extends AddUserRequest {
   error?: string;
 }
 
@@ -58,7 +58,7 @@ const addUser = async (request: AddUserRequest, userPoolId: string, accountId: s
     }
     return { ...request };
   } catch (error) {
-    return { ...request, error: error instanceof Error ? error.message : JSON.stringify(error) };
+    return { ...request, error: getErrorMessage(error) };
   }
 };
 

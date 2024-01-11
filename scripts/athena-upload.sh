@@ -18,3 +18,4 @@ aws --region="$REGION" s3 cp "$FILES_ROOT"/dml/insert_into "$S3_BUCKET"/txma/ins
 aws --region="$REGION" s3 cp "$FILES_ROOT"/process_scripts "$S3_BUCKET"/txma/process_config/ --recursive --include "*.json"
 aws --region="$REGION" s3 cp "$FILES_ROOT"/data_quality_scripts "$S3_BUCKET"/txma/data_quality_metrics_script/ --recursive --include "*.py"
 aws --region="$REGION" s3 cp "$FILES_ROOT"/redshift_scripts "$S3_BUCKET"/txma/redshift_scripts/ --recursive --include "*.sql" --include "*.json"
+aws --region="$REGION" s3 cp "$FILES_ROOT"/raw_stage_optimisation_solution/configuration_rules "$S3_BUCKET"/txma/raw_stage_optimisation_solution/configuration_rules --recursive --include "*.json"

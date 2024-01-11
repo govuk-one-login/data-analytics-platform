@@ -207,6 +207,77 @@ QuicksightAddUsersLambdaFunction:
         - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdB
         - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdC
 
+QuicksightAddUsersFromSpreadsheetLambdaFunction:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this is a manually invoked action
+  Type: AWS::Serverless::Function
+  Condition: IsQuicksightEnvironment
+  Properties:
+    FunctionName: quicksight-add-users-from-spreadsheet
+    Handler: quicksight-add-users-from-spreadsheet.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action: lambda:InvokeFunction
+            Resource: !GetAtt QuicksightAddUsersLambdaFunction.Arn
+          - Effect: Allow
+            Action: cognito-idp:AdminGetUser
+            Resource: !GetAtt QuicksightAccessUserPool.Arn
+          - Effect: Allow
+            Action:
+              - quicksight:DescribeUser
+              - quicksight:ListUserGroups
+            Resource: '*'
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        USER_POOL_ID: !Ref QuicksightAccessUserPool
+    Tags:
+      Environment: !Ref Environment
+    MemorySize: 512
+    # this lambda lives in the protected subnets of a different VPC than the main application lambdas
+    # because it needs (limited) internet access to call cognito and quicksight APIs and these services do not have VPC endpoints
+    # it also needs to invoke the quicksight-add-users lambda and must be in this VPC to use the lambda VPC endpoint
+    # see https://govukverify.atlassian.net/wiki/spaces/PLAT/pages/3531735041/VPC
+    VpcConfig:
+      SecurityGroupIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-AWSServicesEndpointSecurityGroupId
+      SubnetIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdA
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdB
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdC
+
+# Role to allow invoking the two quicksight add users lambdas (quicksight-add-users and quicksight-add-users-from-spreadsheet) from GitHub Actions
+QuicksightAddUsersLambdasInvokeRole:
+  Type: AWS::IAM::Role
+  Condition: IsQuicksightEnvironment
+  Properties:
+    RoleName: !Sub ${Environment}-dap-quicksight-add-users-lambdas-invoke-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+          Action: 'sts:AssumeRoleWithWebIdentity'
+          Condition:
+            StringLike:
+              'token.actions.githubusercontent.com:sub':
+                - repo:govuk-one-login/data-analytics-platform:ref:refs/heads/*
+                - repo:govuk-one-login/data-analytics-platform:environment:*
+    Policies:
+      - PolicyName: !Sub ${Environment}-dap-quicksight-add-users-invoke-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action: lambda:InvokeFunction
+              Resource:
+                - !GetAtt QuicksightAddUsersLambdaFunction.Arn
+                - !GetAtt QuicksightAddUsersFromSpreadsheetLambdaFunction.Arn
+
 webAcl:
   Type: 'AWS::WAFv2::WebACL'
   Condition: IsQuicksightEnvironment
