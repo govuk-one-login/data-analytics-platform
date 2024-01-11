@@ -192,6 +192,120 @@ test('dry run', async () => {
   expect(mockLambdaClient.calls()).toHaveLength(0);
 });
 
+test('user status batching', async () => {
+  const users = Array(100)
+    .fill(0)
+    .map(i => ({ Email: `${Math.random().toString(36).substring(2)}@example.com` }));
+
+  // set up cognito and quicksight responses indicating every other user has an account in both which should mean they are filtered out
+  mockCognitoClient.reset();
+  mockQuicksightClient.reset();
+  mockCognitoClient.on(AdminGetUserCommand).rejects(new UserNotFoundException({ message: '', $metadata: {} }));
+
+  mockQuicksightClient
+    .on(DescribeUserCommand)
+    .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .on(ListUserGroupsCommand)
+    .resolves({ GroupList: [] });
+
+  const expectedEmails: string[] = [];
+  users.forEach((user, index) => {
+    if (index % 2 === 0) {
+      mockCognitoClient
+        .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: user.Email })
+        .resolvesOnce(mockCognitoUser(user.Email, user.Email));
+      mockQuicksightClient
+        .on(DescribeUserCommand, { UserName: user.Email })
+        .resolvesOnce({ User: { UserName: user.Email, Email: user.Email } });
+    } else {
+      expectedEmails.push(user.Email);
+    }
+  });
+
+  interface RowValue {
+    userEnteredValue: { stringValue: string };
+    userEnteredFormat?: unknown;
+  }
+
+  const headerRow: { values: RowValue[] } = {
+    values: [
+      {
+        userEnteredValue: {
+          stringValue: 'Name',
+        },
+        userEnteredFormat: {
+          textFormat: {
+            bold: true,
+          },
+        },
+      },
+      {
+        userEnteredValue: {
+          stringValue: 'Email',
+        },
+        userEnteredFormat: {
+          textFormat: {
+            bold: true,
+          },
+        },
+      },
+      {
+        userEnteredValue: {
+          stringValue: 'Type',
+        },
+        userEnteredFormat: {
+          textFormat: {
+            bold: true,
+          },
+        },
+      },
+    ],
+  };
+
+  const restOfRows: Array<{ values: RowValue[] }> = users.map(user => {
+    return {
+      values: [
+        {
+          userEnteredValue: {
+            stringValue: `${user.Email}`,
+          },
+        },
+        {
+          userEnteredValue: {
+            stringValue: `${user.Email}`,
+          },
+        },
+        {
+          userEnteredValue: {
+            stringValue: 'Reader',
+          },
+        },
+      ],
+    };
+  });
+
+  const sheet = {
+    sheets: [
+      {
+        data: [
+          {
+            rowData: [headerRow].concat(restOfRows),
+          },
+        ],
+      },
+    ],
+  } as unknown as sheets_v4.Schema$Spreadsheet;
+
+  expect(sheet?.sheets?.at(0)?.data?.at(0)?.rowData).toBeDefined();
+  expect(sheet?.sheets?.at(0)?.data?.at(0)?.rowData).toHaveLength(101);
+
+  const payload = await getLambdaPayload(sheet);
+  expect(payload).toBeDefined();
+  expect(payload).toHaveLength(50);
+  expect(payload.map(request => request.username)).toEqual(expect.arrayContaining(expectedEmails));
+  expect(payload.map(request => request.email)).toEqual(expect.arrayContaining(expectedEmails));
+});
+
 const getLambdaPayload = async (sheet: sheets_v4.Schema$Spreadsheet): Promise<AddUserResult[]> => {
   const lambdaInput = await handler({ spreadsheet: sheet }, CONTEXT);
   expect(lambdaInput).toBeDefined();
