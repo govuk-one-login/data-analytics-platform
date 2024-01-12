@@ -63,7 +63,7 @@ const syncUser = async (user: SyncUser, userPoolId: string, accountId: string): 
 export const getUsersFromDiff = (event: SyncEvent): SyncUser[] => {
   return event.diff
     .split('\n')
-    .filter(line => line.match(/^[+-][^+-].*$/))
+    .filter(line => /^[+-][^+-].*$/.exec(line))
     .map(line => [line.charAt(0), line.substring(1).split(',')].flat())
     .map(([diffChar, username, email]) => ({
       username: username.trim(),
