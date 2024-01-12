@@ -52,6 +52,7 @@
     "lint:check": "eslint src tests",
     "lint:fix": "eslint --fix src tests",
     "test": "jest --silent src",
+    "test:coverage": "jest --coverage --silent src",
     "integration-test": "scripts/integration-test-check.sh && jest --silent ./tests/integration-tests --maxWorkers=4",
     "e2e-test": "scripts/integration-test-check.sh && jest --silent ./tests/e2e-tests --maxWorkers=4",
     "smoke-test": "scripts/integration-test-check.sh && jest ./tests/smoke-tests/smoke-tests.spec.ts --silent --maxWorkers=4",
