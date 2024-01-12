@@ -68,8 +68,8 @@
       "processed_dt": "int"
     },
     "partition_columns": [
-      "event_name",
-      "processed_dt"
+      "processed_dt",
+      "event_name"
     ]
   },
   "key_value_schema": {
