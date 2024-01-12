@@ -6,10 +6,10 @@ on:
       dryRun:
         type: boolean
         required: true
-        description: If true, this action only prints the users it thinks need adding
+        description: Dry run (if true only print the users to add without actually adding them)
         default: false
       environment:
-        type: string
+        type: choice
         required: true
         description: AWS Environment
         options: [DEV, TEST, FEATURE, PRODUCTION]
