@@ -130,7 +130,7 @@ test('add user', async () => {
     .resolvesOnce({})
     .rejects();
 
-  const response = await handler(getEvent([{ username, email, add: true }]), CONTEXT);
+  const response = await handler(getEvent([{ username, email, action: 'ADD' }]), CONTEXT);
   expect(response).toBeDefined();
   expect(response).toHaveLength(1);
   expect(response[0].user).toEqual({ username, email, action: 'ADD' });
@@ -160,7 +160,7 @@ test('remove user', async () => {
     .resolvesOnce({})
     .rejects();
 
-  const response = await handler(getEvent([{ username, email, add: false }]), CONTEXT);
+  const response = await handler(getEvent([{ username, email, action: 'REMOVE' }]), CONTEXT);
   expect(response).toBeDefined();
   expect(response).toHaveLength(1);
   expect(response[0].user).toEqual({ username, email, action: 'REMOVE' });
@@ -190,7 +190,7 @@ test('error in sync', async () => {
     .resolvesOnce({})
     .rejects();
 
-  const response = await handler(getEvent([{ username, email, add: false }]), CONTEXT);
+  const response = await handler(getEvent([{ username, email, action: 'REMOVE' }]), CONTEXT);
   expect(response).toBeDefined();
   expect(response).toHaveLength(1);
   expect(response[0].user).toEqual({ username, email, action: 'REMOVE' });
@@ -216,7 +216,7 @@ test('user exists in only one place', async () => {
     .resolvesOnce({ GroupList: [] })
     .rejects();
 
-  const response = await handler(getEvent([{ username, email, add: true }]), CONTEXT);
+  const response = await handler(getEvent([{ username, email, action: 'ADD' }]), CONTEXT);
   expect(response).toBeDefined();
   expect(response).toHaveLength(1);
   expect(response[0].user).toEqual({ username, email, action: 'ADD' });
@@ -242,7 +242,7 @@ test('add requested but user already exists in both', async () => {
     .resolvesOnce({ GroupList: [] })
     .rejects();
 
-  const response = await handler(getEvent([{ username, email, add: true }]), CONTEXT);
+  const response = await handler(getEvent([{ username, email, action: 'ADD' }]), CONTEXT);
   expect(response).toBeDefined();
   expect(response).toHaveLength(1);
   expect(response[0].user).toEqual({ username, email, action: 'ADD' });
@@ -268,7 +268,7 @@ test('remove requested but user does not exist in either', async () => {
     .resolvesOnce({ GroupList: [] })
     .rejects();
 
-  const response = await handler(getEvent([{ username, email, add: false }]), CONTEXT);
+  const response = await handler(getEvent([{ username, email, action: 'REMOVE' }]), CONTEXT);
   expect(response).toBeDefined();
   expect(response).toHaveLength(1);
   expect(response[0].user).toEqual({ username, email, action: 'REMOVE' });
@@ -335,13 +335,13 @@ test('multiple users', async () => {
   // user f should be added but already exists
   // user g should be removed but does not exist
   const event = getEvent([
-    { username: 'user-a', email: 'a@a.com', add: true },
-    { username: 'user-b', email: 'b@b.com', add: false },
-    { username: 'user-c', email: 'c@c.com', add: true },
-    { username: 'user-d', email: 'd@d.com', add: true },
-    { username: 'user-e', email: 'e@e.com', add: true },
-    { username: 'user-f', email: 'f@f.com', add: true },
-    { username: 'user-g', email: 'g@g.com', add: false },
+    { username: 'user-a', email: 'a@a.com', action: 'ADD' },
+    { username: 'user-b', email: 'b@b.com', action: 'REMOVE' },
+    { username: 'user-c', email: 'c@c.com', action: 'ADD' },
+    { username: 'user-d', email: 'd@d.com', action: 'ADD' },
+    { username: 'user-e', email: 'e@e.com', action: 'ADD' },
+    { username: 'user-f', email: 'f@f.com', action: 'ADD' },
+    { username: 'user-g', email: 'g@g.com', action: 'REMOVE' },
   ]);
 
   const response = await handler(event, CONTEXT);
@@ -375,7 +375,8 @@ const cognitoUser = (username: string, email: string): { Username: string; UserA
   return { Username: username, UserAttributes: [{ Name: 'email', Value: email }] };
 };
 
-const getEvent = (users?: Array<{ username: string; email: string; add: boolean }>): SyncEvent => {
+const getEvent = (users?: SyncUser[]): SyncEvent => {
+  const toDiffLine = (user: SyncUser): string => `${user.action === 'ADD' ? '+' : '-'}${user.username},${user.email}`;
   return {
     diff: `
 diff --git a/user-list.txt b/user-list.txt
@@ -383,6 +384,6 @@ index e184bab..1f2e647 100644
 --- a/user-list.txt
 +++ b/user-list.txt
 @@ -1,6 +1,6 @@
-${users?.map(u => `${u.add ? '+' : '-'}${u.username},${u.email}`).join(`\n`)}`,
+${users?.map(toDiffLine).join('\n')}`,
   };
 };

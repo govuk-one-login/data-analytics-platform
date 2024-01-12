@@ -83,7 +83,7 @@ export const isNullUndefinedOrEmpty = (obj: unknown): boolean => {
 
 export const getAccountId = (context: Context): string => {
   return (
-    context?.invokedFunctionArn.match(/:(\d+):function/)?.at(1) ??
+    /:(\d+):function/.exec(context?.invokedFunctionArn)?.at(1) ??
     throwExpression('Error extracting account id from lambda ARN')
   );
 };

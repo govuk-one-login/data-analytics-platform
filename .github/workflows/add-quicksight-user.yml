@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        type: string
+        type: choice
         required: true
         description: AWS Environment
         options: [DEV, TEST, FEATURE, PRODUCTION]
@@ -46,11 +46,9 @@ jobs:
           role-to-assume: ${{ secrets[format('ADD_USERS_LAMBDAS_INVOKE_ROLE_{0}', inputs.environment)] }}
       - name: Invoke lambda
         run: |
-          echo ${{ inputs.username }}
-          echo ${{ inputs.email }}
           USERNAME=$(if [ -z ${{ inputs.username }} ]; then echo ${{ inputs.email }}; else echo ${{ inputs.username }}; fi)
           PAYLOAD=$(echo "{\"requests\": [{ \"username\": \"$USERNAME\", \"email\": \"${{ inputs.email }}\", \"quicksightGroups\": [\"${{ inputs.group }}\"] }] }")
           echo "$PAYLOAD" | jq
-          #ENCODED=$(echo "$PAYLOAD" | openssl base64)
-          #aws --region eu-west-2 lambda invoke --function-name quicksight-add-users --payload "$ENCODED" out.json
-          #cat out.json
+          ENCODED=$(echo "$PAYLOAD" | openssl base64)
+          aws --region eu-west-2 lambda invoke --function-name quicksight-add-users --payload "$ENCODED" out.json
+          cat out.json
