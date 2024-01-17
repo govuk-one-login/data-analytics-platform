@@ -82,6 +82,14 @@
     },
     "RawCrawlerFinished": {
       "Type": "Pass",
+      "Next": "RawToStageGlueStartJobRun"
+    },
+    "RawToStageGlueStartJobRun": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "${RawToStageProcessingGlueJobname}"
+      },
       "Next": "StopProcessing"
     },
     "StopProcessing": {
