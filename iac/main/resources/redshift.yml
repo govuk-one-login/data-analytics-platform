@@ -48,6 +48,9 @@ RedshiftSecret:
       PasswordLength: 16
       ExcludeCharacters: '"''@/\'
     KmsKeyId: !Ref KmsKey
+    Tags:
+      - Key: RedshiftUser
+        Value: admin
 
 RedshiftServerlessNamespace:
   Type: 'AWS::RedshiftServerless::Namespace'
