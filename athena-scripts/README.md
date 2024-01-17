@@ -7,7 +7,7 @@ The overall solution architecture covering the ingestion and raw -> stage data t
 <u>Source data objects can be considered at two levels</u>
 
 - Product family
-    * collection of related TxMA events
+    * collection of related TxMA events.
 - TxMA event
     * discrete TxMA event, consisting of a set of source data attributes requested via a TxMA configuration file.
 
