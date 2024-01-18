@@ -38,7 +38,7 @@ IAMRoleRedshiftServerless:
                 - 'glue:GetDatabases'
                 - 'glue:GetPartitions'
 
-MyRedshiftSecret:
+RedshiftSecret:
   Type: 'AWS::SecretsManager::Secret'
   Properties:
     Description: This is a Secrets Manager secret for a Redshift cluster
@@ -48,12 +48,15 @@ MyRedshiftSecret:
       PasswordLength: 16
       ExcludeCharacters: '"''@/\'
     KmsKeyId: !Ref KmsKey
+    Tags:
+      - Key: RedshiftUser
+        Value: admin
 
 RedshiftServerlessNamespace:
   Type: 'AWS::RedshiftServerless::Namespace'
   Properties:
-    AdminUsername: !Sub '{{resolve:secretsmanager:${MyRedshiftSecret}::username}}'
-    AdminUserPassword: !Sub '{{resolve:secretsmanager:${MyRedshiftSecret}::password}}'
+    AdminUsername: !Sub '{{resolve:secretsmanager:${RedshiftSecret}::username}}'
+    AdminUserPassword: !Sub '{{resolve:secretsmanager:${RedshiftSecret}::password}}'
     DbName: !Sub '${Environment}-redshift'
     DefaultIamRoleArn: !GetAtt IAMRoleRedshiftServerless.Arn
     IamRoles:
@@ -175,7 +178,7 @@ RedshiftMigrationRole:
               Resource: '*'
             - Effect: Allow
               Action: secretsmanager:GetSecretValue
-              Resource: !Ref MyRedshiftSecret
+              Resource: !Ref RedshiftSecret
             - Effect: Allow
               Action: redshift-serverless:GetWorkgroup
               Resource: !GetAtt RedshiftServerlessWorkgroup.Workgroup.WorkgroupArn
