@@ -791,9 +791,8 @@ TopicRoutingPolicy:
           Principal:
             Service: 'events.amazonaws.com'
           Action:
-            - kms:Decrypt*
-            - kms:GenerateDataKey*
-            - kms:Encrypt*
+            - kms:Decrypt
+            - kms:GenerateDataKey
           Resource: !GetAtt KmsKey.Arn
     Topics:
       - !Ref SNSAlertTopic
