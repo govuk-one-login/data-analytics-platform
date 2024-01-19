@@ -724,3 +724,72 @@ RawStageTransformProcessPythonGlueJob:
     SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-raw-stage-transform-process
     Role: !Ref GlueScriptsExecutionRole
+
+StatemachineFailuerEventRule: 
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: "ELT State Machine Failure EventRule Trigger"
+      EventPattern: 
+        source:
+          - aws.states
+        detail-type:
+          - "Step Functions Execution Status Change" 
+        detail: 
+          status:
+            - FAILED
+            - ABORTED
+            - TIMED_OUT
+      State: "ENABLED"
+      Targets: 
+        - Arn: !Ref SNSAlertTopic
+          Id: "SendToSnsTopic"
+          InputTransformer:
+            InputPathsMap:
+              executionArn: $.detail.executionArn
+              startDate: $.time
+              stateMachineArn: $.detail.stateMachineArn
+              status: $.detail.status
+            InputTemplate: |-
+              {
+                  "version": "1.0",
+                  "source": "custom",
+                  "id": "elt_step_function_alert",
+                  "content": {
+                    "textType": "client-markdown",
+                    "title": ":Alert: ELT Step Function Failure Alert",
+                    "description": "ELT step function process has failed, please review failed process.",
+                    "nextSteps": [
+                      "stateMachineArn <stateMachineArn>",
+                      "executionArn: <executionArn>",
+                      "status: <status>",
+                      "startDate: <startDate>",
+                      "DAP team please review!"
+                    ],
+                    "keywords": [
+                      "ELT Step Function failure alert",
+                      "Warning",
+                      "Review action required"
+                    ]
+                  }
+                }
+
+  TopicRoutingPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: Events_publish
+            Effect: Allow
+            Principal:
+              Service: 'events.amazonaws.com'
+            Action:
+              - SNS:Publish
+            Resource: !Ref SNSAlertTopic
+      Topics:
+        - !Ref SNSAlertTopic
+
+  SNSAlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "dap-elt-support-management-topic"
