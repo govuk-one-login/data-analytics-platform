@@ -312,6 +312,7 @@ KmsKey:
               - redshift.amazonaws.com
               - redshift-serverless.amazonaws.com
               - chatbot.amazonaws.com
+              - events.amazonaws.com
             AWS:
               - !GetAtt RawGlueCrawlerRole.Arn
               - !GetAtt StageGlueCrawlerRole.Arn

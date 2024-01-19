@@ -786,14 +786,6 @@ TopicRoutingPolicy:
           Action:
             - SNS:Publish
           Resource: !Ref SNSAlertTopic
-        - Sid: Events_KMS_use
-          Effect: Allow
-          Principal:
-            Service: 'events.amazonaws.com'
-          Action:
-            - kms:Decrypt
-            - kms:GenerateDataKey
-          Resource: !GetAtt KmsKey.Arn
     Topics:
       - !Ref SNSAlertTopic
 
