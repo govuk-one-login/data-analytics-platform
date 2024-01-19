@@ -792,4 +792,4 @@ TopicRoutingPolicy:
 SNSAlertTopic:
   Type: AWS::SNS::Topic
   Properties:
-    TopicName: 'dap-elt-support-management-topic'
+    TopicName: !Sub ${Environment}-dap-elt-support-management-topic
