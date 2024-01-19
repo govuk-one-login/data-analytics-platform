@@ -793,3 +793,4 @@ SNSAlertTopic:
   Type: AWS::SNS::Topic
   Properties:
     TopicName: !Sub ${Environment}-dap-elt-support-management-topic
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
