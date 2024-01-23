@@ -9,3 +9,4 @@ test-report/
 template.yaml
 reports
 iac-dist/
+.vscode
