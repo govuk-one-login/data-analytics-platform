@@ -95,7 +95,12 @@ QuicksightAccessLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
     LogGroupName: !Sub /aws/apigateway/${Environment}-dap-quicksight-access
-
+    RetentionInDays: 180
+    KmsKeyId: !If
+      - IsProduction
+      - !GetAtt WAFLoggingKmsKey.Arn
+      - !Ref AWS::NoValue
+      
 QuicksightAccessApiGatewayStage:
   Type: AWS::ApiGatewayV2::Stage
   Properties:
