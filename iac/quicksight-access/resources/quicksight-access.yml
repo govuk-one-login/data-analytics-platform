@@ -100,7 +100,7 @@ QuicksightAccessLogGroup:
       - IsProduction
       - !GetAtt WAFLoggingKmsKey.Arn
       - !Ref AWS::NoValue
-      
+
 QuicksightAccessApiGatewayStage:
   Type: AWS::ApiGatewayV2::Stage
   Properties:
