@@ -94,7 +94,7 @@ QuicksightAccessUserPool:
 QuicksightAccessLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: !Sub /aws/apigateway/${Environment}-dap-quicksight-access      
+    LogGroupName: !Sub /aws/apigateway/${Environment}-dap-quicksight-access
 
 QuicksightAccessApiGatewayStage:
   Type: AWS::ApiGatewayV2::Stage
@@ -104,7 +104,7 @@ QuicksightAccessApiGatewayStage:
     AutoDeploy: true
     AccessLogSettings:
       DestinationArn: !GetAtt QuicksightAccessLogGroup.Arn
-      Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "caller":"$context.identity.caller", "user":"$context.identity.user", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod", "resourcePath":"$context.resourcePath", "status":"$context.status", "protocol":"$context.protocol", "responseLength":"$context.responseLength" }'      
+      Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "caller":"$context.identity.caller", "user":"$context.identity.user", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod", "resourcePath":"$context.resourcePath", "status":"$context.status", "protocol":"$context.protocol", "responseLength":"$context.responseLength" }'
 
 QuicksightAccessUserPoolClient:
   Type: AWS::Cognito::UserPoolClient
