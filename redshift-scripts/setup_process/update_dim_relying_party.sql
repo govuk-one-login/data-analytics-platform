@@ -22,3 +22,8 @@ UPDATE "dap_txma_reporting_db"."conformed"."dim_relying_party"
 SET relying_party_name='Apprenticeship assessment service',
     display_name='AAS'
 WHERE client_id='MJ8nBsh32LHweUjb6x3p7qf-_TE';
+
+UPDATE "dap_txma_reporting_db"."conformed"."dim_relying_party"
+SET relying_party_name='Early Years Child Development Training',
+    display_name='Early Years Child Development Training'
+WHERE client_id='txsGLvMYYCPaWPZRq2L7XxEnyro';
