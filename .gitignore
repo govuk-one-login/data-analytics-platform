@@ -10,3 +10,4 @@ template.yaml
 reports
 iac-dist/
 .vscode
+layer-dist/
