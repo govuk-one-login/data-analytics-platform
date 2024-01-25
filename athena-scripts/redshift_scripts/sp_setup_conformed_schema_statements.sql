@@ -119,7 +119,12 @@ INSERT INTO conformed.REF_RELYING_PARTIES(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME)
 ('KcKmx2g1GH6ersWFvzMi1bhehq4',	'production-account-management','production-account-management'),
 ('MjQc1h7nFVbNM05iawAdkkZ2W89uloDK',	'di-auth-smoketest-microclient-production','SMOKE TEST'),
 ('zFeCxrwpLCUHFm-C4_CztwWtLfQ',	'Veterans','Veterans'),
-('tya4DoMpw_B7FK5YvuMAj3asc0A',	'Find a Grant','GMF');
+('tya4DoMpw_B7FK5YvuMAj3asc0A',	'Find a Grant','GMF'),
+('9fduJ6KAE8WwCb1VCKp788BC8mM',	'Manage conformity assessment bodies on the register','UKMCAB'),
+('zbNToJPcre4BXEap0na8kOjniKg',	'Manage Family Hubs','DFE'),
+('FakIq5aYsHQ02dBOc6XwyA1wRRs',	'Great British Insulation Scheme','GBIS'),
+('2nAxHa72OqhE6eKymHZIx-sV3vI',	'Apprenticeship provider and assessment register service','APAR'),
+('MJ8nBsh32LHweUjb6x3p7qf-_TE',	'Apprenticeship assessment service','AAS');
 
 
     raise info 'Setup of conformed layer ran successfully';
