@@ -2,6 +2,7 @@ import {
   arrayPartition,
   decodeObject,
   encodeObject,
+  ensureDefined,
   getAccountId,
   getAWSEnvironment,
   getEnvironmentVariable,
@@ -169,6 +170,12 @@ test('array partition', () => {
     ]),
   );
   expect(arrayPartition([1, 2, 3, 4, 5, 6], 5)).toEqual(expect.arrayContaining([[1, 2, 3, 4, 5], [6]]));
+});
+
+test('ensure defined', () => {
+  const response = { one: 'one', two: undefined };
+  expect(ensureDefined(() => response.one)).toEqual('one');
+  expect(() => ensureDefined(() => response.two)).toThrow('two is undefined');
 });
 
 const mockS3Response = (body: unknown): GetObjectCommandOutput => {
