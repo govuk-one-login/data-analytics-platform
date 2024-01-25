@@ -68,5 +68,10 @@
         "event_name": "ipv_core_cri_resource_retrieved",
         "product_family": "ipv_journey",
         "enabled": true
+    },
+    {
+        "event_name": "ipv_identity_issued",
+        "product_family": "ipv_journey",
+        "enabled": true
     }
 ]
