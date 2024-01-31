@@ -484,6 +484,7 @@ GlueScriptsExecutionRole:
                 - logs:PutResourcePolicy
                 - logs:DescribeResourcePolicies
                 - logs:DescribeLogGroups
+                - logs:AssociateKmsKey
 
             - Effect: Allow
               Resource: '*'
@@ -628,7 +629,6 @@ StepFunctionRedshiftProcessRole:
                 - logs:PutResourcePolicy
                 - logs:DescribeResourcePolicies
                 - logs:DescribeLogGroups
-                - logs:AssociateKmsKey
 
             - Effect: Allow
               Resource:
