@@ -16,7 +16,7 @@ WHERE client_id='VsAkrtMBzAosSveAv4xsuUDyiSs';
 UPDATE "dap_txma_reporting_db"."conformed"."dim_relying_party"
 SET relying_party_name='Government Gateway',
     display_name='HMRC - Government Gateway'
-WHERE client_id='7y-bchtHDfucVR5kcAe8KaM80wgs';
+WHERE client_id='7y-bchtHDfucVR5kcAe8KaM80wg';
 
 UPDATE "dap_txma_reporting_db"."conformed"."dim_relying_party"
 SET relying_party_name='Modern Slavery Statement Register',
@@ -101,7 +101,7 @@ WHERE client_id='9fduJ6KAE8WwCb1VCKp788BC8mM';
 
 UPDATE "dap_txma_reporting_db"."conformed"."dim_relying_party"
 SET relying_party_name='Manage Family Hubs',
-    display_name='DDFE - Manage Family HubsFE'
+    display_name='DFE - Manage Family Hubs'
 WHERE client_id='zbNToJPcre4BXEap0na8kOjniKg';
 
 UPDATE "dap_txma_reporting_db"."conformed"."dim_relying_party"
