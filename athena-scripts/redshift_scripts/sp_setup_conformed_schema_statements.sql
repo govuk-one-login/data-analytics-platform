@@ -92,7 +92,8 @@ BEGIN
     ('IPV_REDIRECT_TO_CRI','IPV_JOURNEY','IPV','IPV Journey',' '),
     ('IPV_SPOT_REQUEST_RECEIVED','IPV_JOURNEY','IPV','IPV Journey','SPOT'),
     ('IPV_SPOT_REQUEST_VALIDATION_FAILURE','IPV_JOURNEY','IPV','SPOT',' '),
-    ('IPV_VC_RECEIVED','IPV_JOURNEY','IPV','IPV Journey',' ');
+    ('IPV_VC_RECEIVED','IPV_JOURNEY','IPV','IPV Journey',' '),
+    ('AUTH_DOC_APP_AUTHORISATION_REQUESTED','AUTH_ORCHESTRATION','Authentication','Relying Parties Connect',' ');
 
 
     --
