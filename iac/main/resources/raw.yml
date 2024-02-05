@@ -131,6 +131,7 @@ AuthOrchestrationCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTHORISATION_REQUEST_ERROR/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTHORISATION_REQUEST_RECEIVED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_IPV_AUTHORISATION_REQUESTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_DOC_APP_AUTHORISATION_REQUESTED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
