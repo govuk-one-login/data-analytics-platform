@@ -796,7 +796,6 @@ SNSAlertTopic:
     TopicName: !Sub ${Environment}-dap-elt-support-management-topic
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
-
 DataQualityStageLayerOptimisedPythonGlueJob:
   Type: AWS::Glue::Job
   Properties:
