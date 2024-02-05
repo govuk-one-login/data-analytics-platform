@@ -678,6 +678,7 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
     DefinitionSubstitutions:
       GlueCrawlerRawName: !Ref RawLayerSingleTableCrawler
       RawToStageProcessingGlueJobname: !Ref RawStageTransformProcessPythonGlueJob
+      DataQualityGlueJobname: !Ref DataQualityStageLayerOptimisedPythonGlueJob
     Events:
       DailySchedule:
         Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
