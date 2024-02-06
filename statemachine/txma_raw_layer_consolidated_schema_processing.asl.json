@@ -90,6 +90,14 @@
       "Parameters": {
         "JobName": "${RawToStageProcessingGlueJobname}"
       },
+      "Next": "DataQualityGlueStartJobRun"
+    },
+    "DataQualityGlueStartJobRun": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun",
+      "Parameters": {
+        "JobName": "${DataQualityGlueJobname}"
+      },
       "Next": "StopProcessing"
     },
     "StopProcessing": {
