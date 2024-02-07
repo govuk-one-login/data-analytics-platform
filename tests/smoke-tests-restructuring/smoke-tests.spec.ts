@@ -47,9 +47,8 @@ describe('smoke tests for DAP services', () => {
   });
 
   test('Verify latest day data has been processed ', async () => {
-    const today_date = TodayDate()
     const athenaQueryResults = await getQueryResults(
-      'SELECT * from txma_stage_layer_key_values where processed_dt = '+ today_date +' limit 10',
+      'SELECT * from txma_stage_layer_key_values where processed_dt = ' + TodayDate() + ' limit 10',
       txmaStageDatabaseName(),
       txmaProcessingWorkGroupName(),
     );
