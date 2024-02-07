@@ -1,3 +1,4 @@
+import { TodayDate } from '../helpers/common-helpers';
 import { getQueryResults, redshiftRunQuery } from '../helpers/db-helpers';
 import {
   deliveryStreamName,
@@ -38,7 +39,17 @@ describe('smoke tests for DAP services', () => {
 
   test('Verify Athena queries are executable ', async () => {
     const athenaQueryResults = await getQueryResults(
-      'SELECT * from auth_account_creation limit 10',
+      'SELECT * from txma_stage_layer_key_values limit 10',
+      txmaStageDatabaseName(),
+      txmaProcessingWorkGroupName(),
+    );
+    expect(JSON.stringify(athenaQueryResults)).not.toBeNull();
+  });
+
+  test('Verify latest day data has been processed ', async () => {
+    const today_date = TodayDate()
+    const athenaQueryResults = await getQueryResults(
+      'SELECT * from txma_stage_layer_key_values where processed_dt = '+ today_date +' limit 10',
       txmaStageDatabaseName(),
       txmaProcessingWorkGroupName(),
     );
