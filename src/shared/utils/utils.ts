@@ -122,6 +122,15 @@ export const arrayPartition = <T>(array: T[], partitionSize: number): T[][] => {
     .filter(chunk => chunk.length > 0);
 };
 
+export const ensureDefined = (supplier: () => string | undefined): string => {
+  const value = supplier();
+  if (value === undefined) {
+    const key = supplier.toString().replace('() => ', '');
+    throw new Error(`${key} is undefined`);
+  }
+  return value;
+};
+
 // see https://stackoverflow.com/a/65666402
 const throwExpression = (message: string): never => {
   throw new Error(message);
