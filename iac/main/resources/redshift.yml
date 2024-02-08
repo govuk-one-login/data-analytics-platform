@@ -62,6 +62,7 @@ RedshiftSecret:
 
 RedshiftSecretRotationSchedule:
   Type: AWS::SecretsManager::RotationSchedule
+  DependsOn: RedshiftSecretRotationLambdaPermission
   Properties:
     RotationLambdaARN: !GetAtt RedshiftSecretRotationLambda.Arn
     RotationRules:
