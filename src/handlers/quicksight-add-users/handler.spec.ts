@@ -30,7 +30,14 @@ const mockQuicksightClient = mockClient(QuickSightClient);
 
 beforeEach(() => {
   mockCognitoClient.reset();
+  mockCognitoClient.callsFake(input => {
+    throw new Error(`Unexpected Cognito request - ${JSON.stringify(input)}`);
+  });
+
   mockQuicksightClient.reset();
+  mockQuicksightClient.callsFake(input => {
+    throw new Error(`Unexpected Quicksight request - ${JSON.stringify(input)}`);
+  });
   process.env.USER_POOL_ID = USER_POOL_ID;
 });
 
@@ -47,10 +54,6 @@ test('missing user pool id', async () => {
 
 test('successes', async () => {
   mockCognitoClient
-    .callsFake(input => {
-      throw new Error(`Unexpected Cognito request - ${JSON.stringify(input)}`);
-    })
-
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
     .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-b' })
@@ -66,10 +69,6 @@ test('successes', async () => {
     .resolvesOnce({});
 
   mockQuicksightClient
-    .callsFake(input => {
-      throw new Error(`Unexpected Quicksight request - ${JSON.stringify(input)}`);
-    })
-
     .on(DescribeUserCommand, { UserName: 'user-a' })
     .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
@@ -123,10 +122,6 @@ test('successes', async () => {
 
 test('user existence failures', async () => {
   mockCognitoClient
-    .callsFake(input => {
-      throw new Error(`Unexpected Cognito request - ${JSON.stringify(input)}`);
-    })
-
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
     .resolvesOnce(mockCognitoUser('user-a', 'a@a.com'))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-b' })
@@ -135,10 +130,6 @@ test('user existence failures', async () => {
     .resolvesOnce(mockCognitoUser('user-c', 'c@c.com'));
 
   mockQuicksightClient
-    .callsFake(input => {
-      throw new Error(`Unexpected Quicksight request - ${JSON.stringify(input)}`);
-    })
-
     .on(DescribeUserCommand, { UserName: 'user-a' })
     .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
@@ -189,10 +180,6 @@ test('user existence failures', async () => {
 
 test('user status errors', async () => {
   mockCognitoClient
-    .callsFake(input => {
-      throw new Error(`Unexpected Cognito request - ${JSON.stringify(input)}`);
-    })
-
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
     .rejectsOnce('Cognito get user error')
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-b' })
@@ -201,10 +188,6 @@ test('user status errors', async () => {
     .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }));
 
   mockQuicksightClient
-    .callsFake(input => {
-      throw new Error(`Unexpected Quicksight request - ${JSON.stringify(input)}`);
-    })
-
     .on(DescribeUserCommand, { UserName: 'user-a' })
     .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
@@ -259,10 +242,6 @@ test('user status errors', async () => {
 
 test('user and group add errors', async () => {
   mockCognitoClient
-    .callsFake(input => {
-      throw new Error(`Unexpected Cognito request - ${JSON.stringify(input)}`);
-    })
-
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
     .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-b' })
@@ -278,10 +257,6 @@ test('user and group add errors', async () => {
     .resolvesOnce({});
 
   mockQuicksightClient
-    .callsFake(input => {
-      throw new Error(`Unexpected Quicksight request - ${JSON.stringify(input)}`);
-    })
-
     .on(DescribeUserCommand, { UserName: 'user-a' })
     .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
