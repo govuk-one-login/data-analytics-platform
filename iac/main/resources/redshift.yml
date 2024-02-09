@@ -39,6 +39,14 @@ IAMRoleRedshiftServerless:
                 - 'glue:GetDatabase'
                 - 'glue:GetDatabases'
                 - 'glue:GetPartitions'
+            - Effect: Allow
+              Resource: !GetAtt KmsKey.Arn
+              Action:
+                - 'kms:Decrypt'
+                - 'kms:Encrypt'
+                - 'kms:DescribeKey'
+                - 'kms:ReEncrypt'
+                - 'kms:GenerateDataKey'
 
 RedshiftSecret:
   Type: 'AWS::SecretsManager::Secret'
