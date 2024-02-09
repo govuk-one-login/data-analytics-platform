@@ -46,8 +46,7 @@ IAMRoleRedshiftServerless:
                 - 'kms:Encrypt'
                 - 'kms:DescribeKey'
                 - 'kms:ReEncrypt'
-                - 'kms:GenerateDataKey'                     
-
+                - 'kms:GenerateDataKey'
 
 RedshiftSecret:
   Type: 'AWS::SecretsManager::Secret'
