@@ -1,0 +1,15 @@
+{
+  "event_id": "ef9a3c9d-0e31-47e7-98b5-d3e9bf498b99",
+  "event_name": "DCMAW_MISSING_CONTEXT_AFTER_COMPLETION",
+  "client_id": "authOrchestratorDocApp",
+  "component_id": "https://www.review-b.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "Oa7APcpT0EI_IndRT_H77aVCMPw",
+    "user_id": "10fc7121a59aae7ad34b7ca4e04e99e8acbbbba736c8fae730c9b30657a295bf"
+  },
+  "timestamp": 1707612322,
+  "timestamp_formatted": "2024-02-11T00:45:22.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

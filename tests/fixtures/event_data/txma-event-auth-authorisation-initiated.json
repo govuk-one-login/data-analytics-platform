@@ -1,0 +1,17 @@
+{
+  "event_id": "6418d901-b380-4bd3-a989-0539b3f608e2",
+  "event_name": "AUTH_AUTHORISATION_INITIATED",
+  "client_id": "tya4DoMpw_B7FK5YvuMAj3asc0A",
+  "component_id": "https://oidc.account.gov.uk/",
+  "extensions": {
+    "client-name": "Find and Apply for a Grant"
+  },
+  "user": {
+    "govuk_signin_journey_id": "rGpsIqdJ1Jc-Wp0YIKW0nDoi5jk"
+  },
+  "timestamp": 1707695995,
+  "timestamp_formatted": "2024-02-11T23:59:55.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

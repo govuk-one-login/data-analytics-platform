@@ -1,0 +1,15 @@
+{
+  "event_id": "73076d87-7f44-4a99-a60f-e7fe4118b53b",
+  "event_name": "F2F_YOTI_PDF_EMAILED",
+  "component_id": "https://review-o.account.gov.uk",
+  "client_id": "C910A762-4BB2-400D-8F3D-4D7E6C84E342",
+  "user": {
+    "govuk_signin_journey_id": "JD8psyObAwY5XNjJwqzvwKOAO-4",
+    "user_id": "094fb886a3aacb7d36adcc7e8a7bda7abdeb3c9bb703ece4ef7181bed807ede1"
+  },
+  "timestamp": 1707551752,
+  "timestamp_formatted": "2024-02-10T07:55:52.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}
