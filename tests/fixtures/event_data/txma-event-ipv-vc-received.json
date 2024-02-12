@@ -1,0 +1,43 @@
+{
+  "event_id": "1a212ba5-e7cc-40a2-b022-93e20d85dac2",
+  "event_name": "IPV_VC_RECEIVED",
+  "component_id": "https://identity.account.gov.uk",
+  "extensions": {
+    "iss": "https://www.review-b.account.gov.uk",
+    "successful": true,
+    "evidence": [
+      {
+        "checkDetails": [
+          {
+            "checkMethod": "vri",
+            "kbvResponseMode": null,
+            "kbvQuality": null,
+            "biometricVerificationProcessLevel": null
+          },
+          {
+            "checkMethod": "bvr",
+            "kbvResponseMode": null,
+            "kbvQuality": null,
+            "biometricVerificationProcessLevel": 3
+          }
+        ],
+        "failedCheckDetails": null,
+        "activityHistoryScore": 1,
+        "identityFraudScore": null,
+        "strengthScore": 3,
+        "type": "IdentityCheck",
+        "validityScore": 2,
+        "verificationScore": null
+      }
+    ]
+  },
+  "user": {
+    "govuk_signin_journey_id": "GqryFo4wC3IcXlwEIA63Ky7KdBE",
+    "user_id": "9448d88084c00b91fbd3d605f83f603784dff8b917d3ad0f069a763250df9baa"
+  },
+  "timestamp": 1707611003,
+  "timestamp_formatted": "2024-02-11T00:23:23.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

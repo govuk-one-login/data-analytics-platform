@@ -1,0 +1,16 @@
+{
+  "event_id": "edade0b1-e15a-4636-8915-083344d9fe8f",
+  "event_name": "IPV_SPOT_RESPONSE_REJECTED",
+  "component_id": "SPOT",
+  "extensions": {
+    "rejectionReason": "NO_GPG45_PROFILE_MATCH_MULTIPLE_CREDENTIAL_GROUPS"
+  },
+  "user": {
+    "govuk_signin_journey_id": "vNMhQDxtDiyt-l4e7WJdOUDva_8"
+  },
+  "timestamp": 1706705128,
+  "timestamp_formatted": "2024-01-31T12:45:28.000Z",
+  "txma": {
+    "configVersion": "1.3.17"
+  }
+}

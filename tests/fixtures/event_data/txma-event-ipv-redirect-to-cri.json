@@ -1,0 +1,14 @@
+{
+  "event_id": "6a5dca4b-13e9-4613-9cfb-2e67f5024056",
+  "event_name": "IPV_REDIRECT_TO_CRI",
+  "component_id": "https://identity.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "GqryFo4wC3IcXlwEIA63Ky7KdBE",
+    "user_id": "9448d88084c00b91fbd3d605f83f603784dff8b917d3ad0f069a763250df9baa"
+  },
+  "timestamp": 1707611014,
+  "timestamp_formatted": "2024-02-11T00:23:34.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

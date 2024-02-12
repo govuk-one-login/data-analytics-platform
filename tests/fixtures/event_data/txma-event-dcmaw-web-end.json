@@ -1,0 +1,15 @@
+{
+  "event_id": "58dde18e-5862-4915-a31f-a4978ecc2f08",
+  "client_id": "authOrchestratorDocApp",
+  "component_id": "https://www.review-b.account.gov.uk",
+  "event_name": "DCMAW_WEB_END",
+  "timestamp": 1681233109,
+  "timestamp_formatted": "2023-04-11T17:11:49.000Z",
+  "user": {
+    "user_id": "3ff8fe81301b59d5eaf3061ff897076584466b52de13a7c4abf2bc43466d2bd8",
+    "govuk_signin_journey_id": "wx9UwO8xuT1vRBo87qEcCMIisG4"
+  },
+  "txma": {
+    "obfuscated": true
+  }
+}

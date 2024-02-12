@@ -1,0 +1,19 @@
+{
+  "event_id": "be6be1c9-cd69-4af0-89d5-2fc7eb8abc0d",
+  "event_name": "IPV_IDENTITY_ISSUED",
+  "component_id": "https://identity.account.gov.uk",
+  "extensions": {
+    "ciFail": false,
+    "hasMitigations": true,
+    "levelOfConfidence": "P2"
+  },
+  "user": {
+    "govuk_signin_journey_id": "8raA25miQQuZBm9mdm8Ur3pspD0",
+    "user_id": "c61cccb10f6d4291003f3b0f8949e78b12a48ff00c579b0a29f8fa0a0019ad6f"
+  },
+  "timestamp": 1707610210,
+  "timestamp_formatted": "2024-02-11T00:10:10.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

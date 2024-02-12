@@ -16,6 +16,7 @@ export const athenaRunQuery = async (
         Database: database,
       },
       WorkGroup: workGroup,
+      timeoutMs: 100000,
     },
   };
 
