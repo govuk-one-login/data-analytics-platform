@@ -1,0 +1,31 @@
+{
+  "event_id": "72054868-b242-4473-92d1-7726b45a5851",
+  "event_name": "IPV_DL_CRI_VC_ISSUED",
+  "component_id": "https://review-d.account.gov.uk",
+  "extensions": {
+    "iss": "https://review-d.account.gov.uk",
+    "evidence": [
+      {
+        "checkDetails": [
+          {
+            "checkMethod": "data"
+          }
+        ],
+        "failedCheckDetails": null,
+        "activityHistoryScore": 1,
+        "strengthScore": 3,
+        "type": "IdentityCheck",
+        "validityScore": 2
+      }
+    ]
+  },
+  "user": {
+    "govuk_signin_journey_id": "TrirDotBcEV7PtuEplLt3X6e7QI",
+    "user_id": "74432b498d0eccb0f4928bebd8cacf788a849d6ad095242cc91fa6f26ee15e20"
+  },
+  "timestamp": 1707621059,
+  "timestamp_formatted": "2024-02-11T03:10:59.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

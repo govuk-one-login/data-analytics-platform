@@ -1,0 +1,14 @@
+{
+  "event_id": "53effb25-a001-47ff-a634-4bc303860794",
+  "event_name": "IPV_FRAUD_CRI_START",
+  "component_id": "https://review-f.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "GqryFo4wC3IcXlwEIA63Ky7KdBE",
+    "user_id": "9448d88084c00b91fbd3d605f83f603784dff8b917d3ad0f069a763250df9baa"
+  },
+  "timestamp": 1707611073,
+  "timestamp_formatted": "2024-02-11T00:24:33.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

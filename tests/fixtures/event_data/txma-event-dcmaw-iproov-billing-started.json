@@ -1,0 +1,15 @@
+{
+  "event_id": "1ed384c3-40c3-4a8e-8cca-41b2b4404c23",
+  "event_name": "DCMAW_IPROOV_BILLING_STARTED",
+  "client_id": "authOrchestratorDocApp",
+  "component_id": "https://www.review-b.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "WztzYcjcsDcowkd5Fyc4wmN6bBY",
+    "user_id": "3b85f274a462834b6f242792ce0bbce98b9d9aa104e81d901dc4f33ca0faada4"
+  },
+  "timestamp": 1707612397,
+  "timestamp_formatted": "2024-02-11T00:46:37.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "event_id": "74300f38-9b44-4947-8b27-fb9b8ebe65e2",
+  "event_name": "IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED",
+  "component_id": "https://review-f.account.gov.uk",
+  "timestamp": 1670530517,
+  "timestamp_formatted": "2022-12-08T20:15:17.000Z",
+  "client_id": "",
+  "reIngestCount": 0,
+  "user": {
+    "govuk_signin_journey_id": "fNsp09P3Ofpbuc6I6VuN-28mm1M"
+  }
+}

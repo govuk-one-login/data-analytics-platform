@@ -1,0 +1,15 @@
+{
+  "event_id": "b0d812c1-339d-4298-9645-b06d61830fef",
+  "event_name": "DCMAW_DRIVING_LICENCE_SELECTED",
+  "client_id": "authOrchestratorDocApp",
+  "component_id": "https://www.review-b.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "UCGhj6K3Ec1qNcrE5fIXV2DP_uc",
+    "user_id": "e11523130717ec5f90b34f55d5face6d8e23d8ffeaacbe4f53013cb27f080100"
+  },
+  "timestamp": 1707609970,
+  "timestamp_formatted": "2024-02-11T00:06:10.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

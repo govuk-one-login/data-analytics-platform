@@ -1,0 +1,15 @@
+{
+  "event_id": "e4655987-3e61-49ef-9f28-c3de50ed09a9",
+  "event_name": "AUTH_LOG_IN_SUCCESS",
+  "client_id": "MjQc1h7nFVbNM05iawAdkkZ2W89uloDK",
+  "component_id": "UNKNOWN",
+  "user": {
+    "govuk_signin_journey_id": "dIKmD-s4Hp96I8e_QQphjUM28Ko",
+    "user_id": "c34dd5e58ed6e2261bbf3235a31a070711ed981ad7d07fcdcf8e7e9b50475fb7"
+  },
+  "timestamp": 1707697297,
+  "timestamp_formatted": "2024-02-12T00:21:37.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

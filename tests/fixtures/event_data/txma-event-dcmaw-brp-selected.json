@@ -1,0 +1,15 @@
+{
+  "event_id": "2f6e56d9-aef8-4bcd-bf23-c6f29a93a2d4",
+  "event_name": "DCMAW_BRP_SELECTED",
+  "client_id": "authOrchestratorDocApp",
+  "component_id": "https://www.review-b.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "QKTMaWYrQss0qsHzOxjSHUE52hU",
+    "user_id": "057b26907ab8294e4715265098a1302ef649e60139bf0d0fb74afa037eb0b508"
+  },
+  "timestamp": 1707695996,
+  "timestamp_formatted": "2024-02-11T23:59:56.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

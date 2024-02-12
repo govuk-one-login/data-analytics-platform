@@ -1,0 +1,14 @@
+{
+  "event_id": "02512e42-b38a-4ba2-a5d9-ac635aabaa15",
+  "event_name": "IPV_KBV_CRI_END",
+  "component_id": "https://review-k.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "T_RMgsNKHJDAzOe3LA_g_DnNoeQ",
+    "user_id": "7a3e3a891b9a5f9b2860489d27985274e05b8a2e82d6945b8a7b9885a1287886"
+  },
+  "timestamp": 1707610419,
+  "timestamp_formatted": "2024-02-11T00:13:39.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

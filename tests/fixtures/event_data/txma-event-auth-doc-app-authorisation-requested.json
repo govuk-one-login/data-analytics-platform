@@ -1,0 +1,15 @@
+{
+  "event_id": "1714d679-aa00-4b52-bc1c-67738d72f781",
+  "event_name": "AUTH_DOC_APP_AUTHORISATION_REQUESTED",
+  "component_id": "https://oidc.account.gov.uk/",
+  "client_id": "7y-bchtHDfucVR5kcAe8KaM80wg",
+  "timestamp": 1707696028,
+  "timestamp_formatted": "2024-02-12T00:00:28.000Z",
+  "user": {
+    "govuk_signin_journey_id": "o3V_h1jE4OiAHSJfmGv1X4B5g2U",
+    "user_id": "469cc085b20e115f9036e44bd6477ce42123c4017820d7b9031f69b5edd262f5"
+  },
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

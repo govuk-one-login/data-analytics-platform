@@ -1,0 +1,14 @@
+{
+  "event_id": "1b0283be-6d10-4538-a39c-efe87f797490",
+  "event_name": "IPV_SPOT_RESPONSE_APPROVED",
+  "client_id": "zFeCxrwpLCUHFm-C4_CztwWtLfQ",
+  "component_id": "SPOT",
+  "user": {
+    "govuk_signin_journey_id": "lHB31O6rpDLF7d6_VM_SowK5yOM"
+  },
+  "timestamp": 1707611327,
+  "timestamp_formatted": "2024-02-11T00:28:47.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

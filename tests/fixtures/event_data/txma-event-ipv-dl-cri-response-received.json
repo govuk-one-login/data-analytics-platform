@@ -1,0 +1,14 @@
+{
+  "event_id": "40206134-e13b-4538-a285-7d68f336ab2b",
+  "event_name": "IPV_DL_CRI_RESPONSE_RECEIVED",
+  "component_id": "https://review-d.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "TrirDotBcEV7PtuEplLt3X6e7QI",
+    "user_id": "74432b498d0eccb0f4928bebd8cacf788a849d6ad095242cc91fa6f26ee15e20"
+  },
+  "timestamp": 1707621041,
+  "timestamp_formatted": "2024-02-11T03:10:41.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

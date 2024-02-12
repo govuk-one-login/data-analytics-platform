@@ -1,0 +1,14 @@
+{
+  "event_id": "2fbaca2a-a57f-4a0a-a4f3-1b7505f1cbe7",
+  "event_name": "IPV_JOURNEY_START",
+  "component_id": "https://identity.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "sKRSf2OMrDEHE8wo8dIBEyjIf7M",
+    "user_id": "e4d5d9b17b16e970bc50dde306ca166adbd546cafa4fa35cdaa981ed307e42fb"
+  },
+  "timestamp": 1707611385,
+  "timestamp_formatted": "2024-02-11T00:29:45.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

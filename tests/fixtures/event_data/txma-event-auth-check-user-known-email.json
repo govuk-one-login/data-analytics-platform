@@ -1,0 +1,15 @@
+{
+  "event_id": "7667c07b-51db-4156-9f07-51745fbf8694",
+  "event_name": "AUTH_CHECK_USER_KNOWN_EMAIL",
+  "client_id": "MjQc1h7nFVbNM05iawAdkkZ2W89uloDK",
+  "component_id": "UNKNOWN",
+  "user": {
+    "govuk_signin_journey_id": "yJsUSP42pMG5uuNT8hss4egaJus",
+    "user_id": "c34dd5e58ed6e2261bbf3235a31a070711ed981ad7d07fcdcf8e7e9b50475fb7"
+  },
+  "timestamp": 1707696214,
+  "timestamp_formatted": "2024-02-12T00:03:34.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

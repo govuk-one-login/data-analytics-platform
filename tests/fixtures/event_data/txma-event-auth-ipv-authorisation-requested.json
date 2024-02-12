@@ -1,0 +1,18 @@
+{
+  "event_id": "37c8ae8c-0ad7-43ac-af7b-d62458d55b0a",
+  "event_name": "AUTH_IPV_AUTHORISATION_REQUESTED",
+  "component_id": "https://oidc.account.gov.uk/",
+  "client_id": "zFeCxrwpLCUHFm-C4_CztwWtLfQ",
+  "extensions": {
+    "clientLandingPageUrl": "https://apply-for-a-veterans-card.service.gov.uk/"
+  },
+  "user": {
+    "govuk_signin_journey_id": "x3QZf873KE9d50pinVQNKnjO0hQ",
+    "user_id": "d2dcdfeba883f98138e7213f6e3d29b28856b60b4d423ac53df9c98c653c83dc"
+  },
+  "timestamp": 1707696073,
+  "timestamp_formatted": "2024-02-12T00:01:13.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}
