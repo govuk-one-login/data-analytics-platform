@@ -1112,7 +1112,7 @@ IpvVcReceivedGlueTable:
           - { Name: timestamp_formatted, Type: string }
           - {
               Name: extensions,
-              Type: 'struct<iss:string,age:int,isUkIssued:boolean,successful:boolean,evidence:array<struct<checkDetails:array<struct<checkMethod:string,kbvResponseMode:string,kbvQuality:int,biometricVerificationProcessLevel:int>>,failedCheckDetails:array<struct<checkMethod:string,kbvResponseMode:string>>,activityHistoryScore:int,identityFraudScore:int,strengthScore:int,type:string,validityScore:int,verificationScore:int>>>',
+              Type: 'struct<iss:string,successful:boolean,evidence:array<struct<checkDetails:array<struct<checkMethod:string,kbvResponseMode:string,kbvQuality:int,biometricVerificationProcessLevel:int>>,failedCheckDetails:array<struct<checkMethod:string,kbvResponseMode:string>>,activityHistoryScore:int,identityFraudScore:int,strengthScore:int,type:string,validityScore:int,verificationScore:int>>,age:int,isUkIssued:boolean>',
             }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         Location: !Sub s3://${RawLayerBucket}/txma/IPV_VC_RECEIVED/
