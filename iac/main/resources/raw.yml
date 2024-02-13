@@ -1146,7 +1146,7 @@ IpvJourneyCrawler:
             - !Ref IpvCoreCriResourceRetrievedGlueTable
             - !Ref IpvGpg45ProfileMatchedGlueTable
             - !Ref IpvVcReceivedGlueTable
-            - !Ref IpvMitigationStartGlueTables
+            - !Ref IpvMitigationStartGlueTable
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
