@@ -1,0 +1,14 @@
+{
+  "event_id": "9bdd1d87-7f90-4bac-94c2-07ab2c2e5d40",
+  "event_name": "IPV_F2F_CRI_VC_CONSUMED",
+  "component_id": "https://identity.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "unknown",
+    "user_id": "a4f88470c65231eb4d2722d449c18ad6bef060cf3ada16c04e1f36a2a482b85c"
+  },
+  "timestamp": 1707470884,
+  "timestamp_formatted": "2024-02-09T09:28:04.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "event_id": "965acb54-7427-4795-8194-872be57f6567",
+  "event_name": "IPR_USER_REDIRECTED",
+  "component_id": "UNKNOWN",
+  "extensions": {
+    "previous_govuk_signin_journey_id": "wafU0sUPpIs4ynpN-tkw7IFGFKU"
+  },
+  "user": {
+    "user_id": "cb7b8ffa94cd41ce253c736f9a431be3fa3e24fce6e1601d487bcce0b55839d7"
+  },
+  "timestamp": 1707631732,
+  "timestamp_formatted": "2024-02-11T06:08:52.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

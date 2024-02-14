@@ -56,6 +56,14 @@ Parameters:
     Description: The ARN of the role that will used by secure pipelines to run integration tests
     Default: none
     AllowedPattern: (none)|(arn:aws:iam::.*:role/.*)
+  RedshiftSecretLength:
+    Type: Number
+    Description: Length of the redshift password stored in secretsmanager
+    Default: 16
+  RedshiftSecretExcludeCharacters:
+    Type: String
+    Description: String of characters to exclude from the redshift password stored in secretsmanager
+    Default: '"''@/\'
 
 Conditions:
   UseCodeSigning: !Not

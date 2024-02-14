@@ -1,0 +1,16 @@
+{
+  "event_id": "319a17a8-d320-4463-96d7-a5baa9516058",
+  "event_name": "AUTH_AUTHORISATION_REQUEST_ERROR",
+  "component_id": "https://oidc.account.gov.uk/",
+  "user": {
+    "govuk_signin_journey_id": "Hl26SfMiJz1Oc4qsjqwQ0dbp4ME"
+  },
+  "extensions": {
+    "description": "Invalid request: The scope must include an openid value"
+  },
+  "timestamp": 1707702098,
+  "timestamp_formatted": "2024-02-12T01:41:38.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

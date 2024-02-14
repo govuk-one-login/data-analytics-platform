@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { getQueryResults, redshiftRunQuery } from '../helpers/db-helpers';
-import { TodayDate, getEventFilePrefix, productFamily, waitForStepFunction } from '../helpers/common-helpers';
+import { TodayDate, getEventFilePrefix, waitForStepFunction } from '../helpers/common-helpers';
 import { checkFileCreatedOnS3, copyFilesFromBucket } from '../helpers/s3-helpers';
 import { startStepFunction, stepFunctionListExecutions } from '../helpers/step-helpers';
 import {
@@ -21,9 +21,8 @@ describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → C
 
   test('Events from SQS to Raw Layer is processed, Step Functions Executed, verify Events in fact_user_journey_event table using the Event_id', async () => {
     for (let index = 0; index <= data.length - 1; index++) {
-      const productFamilyGroup = productFamily(data[index]).replaceAll('_', '-');
       const event = JSON.parse(
-        fs.readFileSync('tests/fixtures/txma-event-' + productFamilyGroup + '-group.json', 'utf-8'),
+        fs.readFileSync('tests/fixtures/event_data/txma-event-' + data[index] + '.json', 'utf-8'),
       );
       event.event_id = faker.string.uuid();
       event.client_id = faker.string.uuid();
@@ -60,11 +59,8 @@ describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → C
 
     // ******************** Run Athena queries ************************************
     for (let index = 0; index <= data.length - 1; index++) {
-      const productFamilyGroupName = productFamily(data[index]);
       const athenaQueryResults = await getQueryResults(
-        'SELECT * FROM ' +
-          productFamilyGroupName +
-          " where event_id = '" +
+        "SELECT * FROM txma_stage_layer_key_values where event_id = '" +
           String(organization.get(data[index])) +
           "' and processed_date = '" +
           String(TodayDate()) +

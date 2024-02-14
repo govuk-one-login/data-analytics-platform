@@ -29,6 +29,8 @@ IAMRoleRedshiftServerless:
                 - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}'
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'
+                - !Sub 'arn:aws:s3:::${ELTMetadataBucket}'
+                - !Sub 'arn:aws:s3:::${ELTMetadataBucket}/*'
             - Effect: Allow
               Resource: !Sub arn:aws:glue:eu-west-2:${AWS::AccountId}:*
               Action:
@@ -37,27 +39,115 @@ IAMRoleRedshiftServerless:
                 - 'glue:GetDatabase'
                 - 'glue:GetDatabases'
                 - 'glue:GetPartitions'
+            - Effect: Allow
+              Resource: !GetAtt KmsKey.Arn
+              Action:
+                - 'kms:Decrypt'
+                - 'kms:Encrypt'
+                - 'kms:DescribeKey'
+                - 'kms:ReEncrypt'
+                - 'kms:GenerateDataKey'
 
 RedshiftSecret:
   Type: 'AWS::SecretsManager::Secret'
   Properties:
     Description: This is a Secrets Manager secret for a Redshift cluster
     GenerateSecretString:
-      SecretStringTemplate: '{"username": "admin"}'
+      # based on https://docs.aws.amazon.com/secretsmanager/latest/userguide/reference_secret_json_structure.html#reference_secret_json_structure_RS
+      SecretStringTemplate: !Sub |
+        {
+          "engine": "redshift",
+          "host": "${Environment}-redshift-serverless-workgroup.${AWS::AccountId}.${AWS::Region}.redshift-serverless.amazonaws.com",
+          "username": "admin",
+          "dbname": "${Environment}-redshift",
+          "port": "5439"
+        }
       GenerateStringKey: password
-      PasswordLength: 16
-      ExcludeCharacters: '"''@/\'
+      PasswordLength: !Ref RedshiftSecretLength
+      ExcludeCharacters: !Ref RedshiftSecretExcludeCharacters
     KmsKeyId: !Ref KmsKey
     Tags:
       - Key: RedshiftUser
         Value: admin
+
+RedshiftSecretRotationSchedule:
+  Type: AWS::SecretsManager::RotationSchedule
+  DependsOn: RedshiftSecretRotationLambdaPermission
+  Properties:
+    RotationLambdaARN: !GetAtt RedshiftSecretRotationLambda.Arn
+    RotationRules:
+      ScheduleExpression: cron(0 2 1 * ? *) # the first day of every month at 2am
+    SecretId: !Ref RedshiftSecret
+
+RedshiftSecretRotationLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed
+  Type: AWS::Serverless::Function
+  Properties:
+    # todo remove this once secretsmanager permissions have been added to secure pipelines permissions boundary
+    PermissionsBoundary: !Ref AWS::NoValue
+    FunctionName: redshift-rotate-secret
+    Handler: redshift-rotate-secret.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - 'sqs:DeleteMessage'
+              - 'sqs:GetQueueAttributes'
+              - 'sqs:ReceiveMessage'
+            Resource: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
+          - Effect: Allow
+            Action:
+              - secretsmanager:DescribeSecret
+              - secretsmanager:GetSecretValue
+              - secretsmanager:PutSecretValue
+              - secretsmanager:UpdateSecretVersionStage
+            Resource: !Ref RedshiftSecret
+          - Effect: Allow
+            Action: secretsmanager:GetRandomPassword
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:GenerateDataKey
+            Resource: !GetAtt KmsKey.Arn
+            Condition:
+              StringEquals:
+                kms:EncryptionContext:SecretARN: !Ref RedshiftSecret
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        PASSWORD_LENGTH: !Ref RedshiftSecretLength
+        PASSWORD_EXCLUDE_CHARS: !Ref RedshiftSecretExcludeCharacters
+        ENVIRONMENT: !Ref Environment
+    Tags:
+      Environment: !Ref Environment
+    MemorySize: 256
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+        - !Ref RedshiftAccessEC2SecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
+
+RedshiftSecretRotationLambdaPermission:
+  Type: AWS::Lambda::Permission
+  Properties:
+    FunctionName: !Ref RedshiftSecretRotationLambda
+    Action: lambda:InvokeFunction
+    Principal: secretsmanager.amazonaws.com
+    SourceArn: !Ref RedshiftSecret
 
 RedshiftServerlessNamespace:
   Type: 'AWS::RedshiftServerless::Namespace'
   Properties:
     AdminUsername: !Sub '{{resolve:secretsmanager:${RedshiftSecret}::username}}'
     AdminUserPassword: !Sub '{{resolve:secretsmanager:${RedshiftSecret}::password}}'
-    DbName: !Sub '${Environment}-redshift'
+    DbName: !Sub '{{resolve:secretsmanager:${RedshiftSecret}::dbname}}'
     DefaultIamRoleArn: !GetAtt IAMRoleRedshiftServerless.Arn
     IamRoles:
       - !GetAtt IAMRoleRedshiftServerless.Arn
@@ -74,7 +164,7 @@ RedshiftServerlessWorkgroup:
     BaseCapacity: 64
     EnhancedVpcRouting: false
     NamespaceName: !Ref RedshiftServerlessNamespace
-    Port: 5439
+    Port: !Sub '{{resolve:secretsmanager:${RedshiftSecret}::port}}'
     PubliclyAccessible: false
     SubnetIds:
       - !Ref SubnetForDAP1

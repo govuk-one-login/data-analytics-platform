@@ -18,5 +18,10 @@
         "event_name": "auth_ipv_authorisation_requested",
         "product_family": "auth_orchestration",
         "enabled": true
+    },
+    {
+        "event_name": "auth_doc_app_authorisation_requested",
+        "product_family": "auth_orchestration",
+        "enabled": true
     }
 ]

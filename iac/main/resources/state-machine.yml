@@ -484,6 +484,7 @@ GlueScriptsExecutionRole:
                 - logs:PutResourcePolicy
                 - logs:DescribeResourcePolicies
                 - logs:DescribeLogGroups
+                - logs:AssociateKmsKey
 
             - Effect: Allow
               Resource: '*'
@@ -677,6 +678,7 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
     DefinitionSubstitutions:
       GlueCrawlerRawName: !Ref RawLayerSingleTableCrawler
       RawToStageProcessingGlueJobname: !Ref RawStageTransformProcessPythonGlueJob
+      DataQualityGlueJobname: !Ref DataQualityStageLayerOptimisedPythonGlueJob
     Events:
       DailySchedule:
         Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
@@ -794,3 +796,27 @@ SNSAlertTopic:
   Properties:
     TopicName: !Sub ${Environment}-dap-elt-support-management-topic
     KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+DataQualityStageLayerOptimisedPythonGlueJob:
+  Type: AWS::Glue::Job
+  Properties:
+    Command:
+      Name: pythonshell
+      PythonVersion: '3.9'
+      ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/data_quality_metrics_script/data_quality_new_stage_metrics_generation.py
+    DefaultArguments:
+      '--JOB_NAME': !Sub ${Environment}-dap-data-quality-new-stage-metrics-generation
+      '--additional-python-modules': 'awswrangler'
+      '--env': !Sub ${Environment}
+      '--stage_db': !Sub ${Environment}-txma-stage
+      '--stage_parent_tbl': 'txma_stage_layer'
+      '--reconcilation_db': !Ref DataQualityGlueDatabase
+      '--reconcilation_tbl': !Ref DataQualityMetricsGlueTable
+      '--s3_path': !Sub s3://${DataQualityMetricsBucket}/data_quality_metrics/
+      '--TempDir': !Sub s3://${DataQualityMetricsBucket}/temporary/
+    ExecutionProperty:
+      MaxConcurrentRuns: 1
+    MaxRetries: 0
+    SecurityConfiguration: !Ref GlueSecurityConfig
+    Name: !Sub ${Environment}-dap-data-quality-new-stage-metrics-generation
+    Role: !Ref GlueScriptsExecutionRole
