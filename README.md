@@ -274,7 +274,7 @@ The difference between them and `staging` is that the promotion bucket `integrat
 
 #### Other Environments
 
-Blah not in secure pipelines
+The following accounts are not in secure pipelines.
 
 ###### Feature
 
@@ -298,6 +298,15 @@ The _production preview_ environment is another standalone environment that exis
 It has a GitHub Action [Deploy to the production preview environment](.github/workflows/deploy-to-production-preview.yml) but no corresponding tear down one.
 
 The deployments use a special role in the _production preview_ environment, `dap-production-preview-deploy-role`, much like the role in _feature_.
+
+#### Config for cross account data sync
+
+Because _production preview_ and _staging_ are used for cross account data sync, they have a single SSM parameter holding the name of the cross account data sync role.
+They use this to allow access to their SQS queues and usage of their KMS keys to enable the cross account data sync process.
+
+| Name                        | Description                                      |
+|-----------------------------|--------------------------------------------------|
+| CrossAccountDataSyncRoleARN | ARN of the role allowing cross account data sync |
 
 ## Additional Documents
 
