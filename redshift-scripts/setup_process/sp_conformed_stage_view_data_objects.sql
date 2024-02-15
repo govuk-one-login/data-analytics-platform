@@ -1109,7 +1109,7 @@ from
 
     ---
 
-    Create
+Create
 or replace view conformed.v_stg_ipv_journey AS
  select DISTINCT
     Auth.product_family,
@@ -1160,6 +1160,8 @@ or replace view conformed.v_stg_ipv_journey AS
     gpg45_activity_score,
     gpg45_fraud_score,
     gpg45_verification_score,
+    extensions_age,
+    extensions_isukissued ,
     extensions_successful
     from
     ( select * from
@@ -1221,7 +1223,9 @@ or replace view conformed.v_stg_ipv_journey AS
                     gpg45_validity_score,
                     gpg45_activity_score,
                     gpg45_fraud_score,
-                    gpg45_verification_score
+                    gpg45_verification_score,
+                    extensions_age,
+                    extensions_isukissued 
                     FROM (
                         SELECT
                             event_id,
@@ -1256,10 +1260,12 @@ or replace view conformed.v_stg_ipv_journey AS
                                         json_extract_path_text(extensions_gpg45scores, 'evidences', '0', 'validity') AS gpg45_validity_score,
                                         json_extract_path_text(extensions_gpg45scores, 'activity') AS gpg45_activity_score,
                                         json_extract_path_text(extensions_gpg45scores, 'fraud') AS gpg45_fraud_score,
-                                        json_extract_path_text(extensions_gpg45scores, 'verification') AS gpg45_verification_score
+                                        json_extract_path_text(extensions_gpg45scores, 'verification') AS gpg45_verification_score,
+                            extensions_age,
+                            extensions_isukissued         
                         FROM
                             "dap_txma_reporting_db"."dap_txma_stage"."ipv_journey"
-                        --WHERE event_name in ('IPV_VC_RECEIVED') and event_id='d6a86a25-0f2a-4ec4-bf04-8d751b296916'
+                        --WHERE event_name in ('IPV_VC_RECEIVED','IPV_MITIGATION_START') 
                     )
     ), level_1_data as
                 (SELECT
@@ -1285,6 +1291,8 @@ or replace view conformed.v_stg_ipv_journey AS
                             gpg45_activity_score,
                             gpg45_fraud_score,
                             gpg45_verification_score,
+                            extensions_age,
+                            extensions_isukissued ,
                             month,
                             day,
                             processed_date,
@@ -1330,6 +1338,8 @@ or replace view conformed.v_stg_ipv_journey AS
                         gpg45_activity_score,
                         gpg45_fraud_score,
                         gpg45_verification_score,
+                        extensions_age,
+                        extensions_isukissued,
                         verificationscore,
                         extensions_evidence,
                         extensions_iss,
@@ -1380,6 +1390,8 @@ or replace view conformed.v_stg_ipv_journey AS
                     gpg45_activity_score,
                     gpg45_fraud_score,
                     gpg45_verification_score,
+                    extensions_age,
+                    extensions_isukissued,
                     type,
                     nvl2(
                                 valid_json_failedcheckdetails_data,
