@@ -38,11 +38,17 @@ QuicksightAccessApiGateway:
   Properties:
     Name: !Sub ${Environment}-dap-quicksight-access
     ProtocolType: HTTP
-    Target: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
-    DefaultStage:
-      AccessLogSettings:
-        DestinationArn: !GetAtt QuicksightAccessLogGroup.Arn
-        Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "caller":"$context.identity.caller", "user":"$context.identity.user", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod", "resourcePath":"$context.resourcePath", "status":"$context.status", "protocol":"$context.protocol", "responseLength":"$context.responseLength" }'
+
+QuicksightAccessApiGatewayStage:    
+  Type: AWS::ApiGatewayV2::Stage
+  Condition: IsQuicksightEnvironment
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway
+    StageName: '$default'
+    AutoDeploy: true
+    AccessLogSettings:
+      DestinationArn: !GetAtt QuicksightAccessLogGroup.Arn
+      Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "caller":"$context.identity.caller", "user":"$context.identity.user", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod", "resourcePath":"$context.resourcePath", "status":"$context.status", "protocol":"$context.protocol", "responseLength":"$context.responseLength" }'
 
 QuicksightAccessApiGatewayLambdaPermission:
   Type: AWS::Lambda::Permission
