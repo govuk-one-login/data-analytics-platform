@@ -39,7 +39,7 @@ QuicksightAccessApiGateway:
     Name: !Sub ${Environment}-dap-quicksight-access
     ProtocolType: HTTP
 
-QuicksightAccessApiGatewayStage:    
+QuicksightAccessApiGatewayStage:
   Type: AWS::ApiGatewayV2::Stage
   Condition: IsQuicksightEnvironment
   Properties:
