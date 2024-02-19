@@ -88,6 +88,9 @@ Conditions:
   IsProduction: !Equals [!Ref Environment, production]
   IsProductionPreview: !Equals [!Ref Environment, production-preview]
   IsNotProductionPreview: !Not [!Equals [!Ref Environment, production-preview]]
+  IsCrossAccountDataSyncEnvironment: !Or
+    - !Condition IsStaging
+    - !Condition IsProductionPreview
   UsePlaceholderTxMAQueue: !Or
     - !Condition IsTest
     - !Condition IsFeature
