@@ -5,12 +5,13 @@ import type { DescribeSecretCommandOutput } from '@aws-sdk/client-secrets-manage
 import {
   DescribeSecretCommand,
   GetRandomPasswordCommand,
-  GetSecretValueCommand,
   PutSecretValueCommand,
   UpdateSecretVersionStageCommand,
 } from '@aws-sdk/client-secrets-manager';
 import * as crypto from 'node:crypto';
 import { DatabaseAccess } from './database-access';
+import { getSecret } from '../../shared/secrets-manager/get-secret';
+import type { RedshiftSecret, SecretRotationStage } from '../../shared/types/secrets-manager';
 
 const logger = getLogger('lambda/redshift-rotate-secret');
 
@@ -21,18 +22,6 @@ interface RotateSecretEvent {
   SecretId: string;
   ClientRequestToken: string;
 }
-
-// based on https://docs.aws.amazon.com/secretsmanager/latest/userguide/reference_secret_json_structure.html#reference_secret_json_structure_RS
-export interface RedshiftSecret {
-  engine: 'redshift';
-  host: string;
-  username: string;
-  password: string;
-  dbname: string;
-  port: string;
-}
-
-export type SecretRotationStage = 'AWSPREVIOUS' | 'AWSCURRENT' | 'AWSPENDING';
 
 export const databaseAccess = new DatabaseAccess(logger);
 
@@ -88,7 +77,7 @@ const rotateSecret = async (event: RotateSecretEvent): Promise<void> => {
 // generate a new secret
 const createSecret = async (event: RotateSecretEvent): Promise<void> => {
   try {
-    await getSecret(event, 'AWSPENDING');
+    await getRedshiftSecret(event, 'AWSPENDING');
     logger.info('createSecret: Successfully retrieved secret');
   } catch (error) {
     await updateSecretPassword(event);
@@ -98,7 +87,7 @@ const createSecret = async (event: RotateSecretEvent): Promise<void> => {
 
 // set the pending secret in the database
 const setSecret = async (event: RotateSecretEvent): Promise<void> => {
-  const pendingSecret = await getSecret(event, 'AWSPENDING');
+  const pendingSecret = await getRedshiftSecret(event, 'AWSPENDING');
   let loginSecret = pendingSecret;
   logger.info('setSecret: Trying connection with AWSPENDING secret');
   let connection = await databaseAccess.getDatabaseConnection(loginSecret);
@@ -107,12 +96,12 @@ const setSecret = async (event: RotateSecretEvent): Promise<void> => {
     return;
   }
 
-  loginSecret = await getSecret(event, 'AWSCURRENT');
+  loginSecret = await getRedshiftSecret(event, 'AWSCURRENT');
   logger.info('setSecret: Trying connection with AWSCURRENT secret');
   connection = await databaseAccess.getDatabaseConnection(loginSecret);
 
   if (connection === null) {
-    loginSecret = await getSecret(event, 'AWSPREVIOUS');
+    loginSecret = await getRedshiftSecret(event, 'AWSPREVIOUS');
     logger.info('setSecret: Trying connection with AWSPREVIOUS secret');
     connection = await databaseAccess.getDatabaseConnection(loginSecret);
 
@@ -135,7 +124,7 @@ const setSecret = async (event: RotateSecretEvent): Promise<void> => {
 
 // test the pending secret against the database
 const testSecret = async (event: RotateSecretEvent): Promise<void> => {
-  const secret = await getSecret(event, 'AWSPENDING');
+  const secret = await getRedshiftSecret(event, 'AWSPENDING');
   const connection = await databaseAccess.getDatabaseConnection(secret);
   if (connection === null) {
     logAndThrow('testSecret: Unable to log into database with pending secret');
@@ -163,21 +152,8 @@ const finishSecret = async (event: RotateSecretEvent, versions: Record<string, s
   logger.info(`finishSecret: Successfully set AWSCURRENT stage to version ${event.ClientRequestToken} for secret`);
 };
 
-const getSecret = async (event: RotateSecretEvent, stage: SecretRotationStage): Promise<RedshiftSecret> => {
-  try {
-    const secretString = await secretsManagerClient
-      .send(
-        new GetSecretValueCommand({
-          SecretId: event.SecretId,
-          VersionStage: stage,
-          ...(stage === 'AWSPENDING' ? { VersionId: event.ClientRequestToken } : {}),
-        }),
-      )
-      .then(response => ensureDefined(() => response.SecretString));
-    return JSON.parse(secretString);
-  } catch (error) {
-    throw new Error(`Error getting secret - ${getErrorMessage(error)}`);
-  }
+const getRedshiftSecret = async (event: RotateSecretEvent, stage: SecretRotationStage): Promise<RedshiftSecret> => {
+  return await getSecret(event.SecretId, stage, event.ClientRequestToken);
 };
 
 const describeSecret = async (event: RotateSecretEvent): Promise<DescribeSecretCommandOutput> => {
@@ -211,7 +187,7 @@ const getRandomPassword = async (): Promise<string> => {
 
 const updateSecretPassword = async (event: RotateSecretEvent): Promise<void> => {
   try {
-    const currentSecret = await getSecret(event, 'AWSCURRENT');
+    const currentSecret = await getRedshiftSecret(event, 'AWSCURRENT');
     const newPassword = await getRandomPassword();
     await secretsManagerClient.send(
       new PutSecretValueCommand({
