@@ -5,6 +5,28 @@ EventConsumerQueue:
     QueueName: !Sub ${Environment}-placeholder-txma-event-queue
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
+EventConsumerQueuePolicy:
+  Type: AWS::SQS::QueuePolicy
+  Condition: IsCrossAccountDataSyncEnvironment
+  Properties:
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Sid: __owner_statement
+          Effect: Allow
+          Action: 'sqs:*'
+          Resource: !GetAtt EventConsumerQueue.Arn
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+        - Sid: __sender_statement
+          Effect: Allow
+          Action: sqs:SendMessage
+          Resource: !GetAtt EventConsumerQueue.Arn
+          Principal:
+            AWS: '{{resolve:ssm:CrossAccountDataSyncRoleARN}}'
+    Queues:
+      - !Ref EventConsumerQueue
+
 EventConsumerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
   Type: AWS::Serverless::Function
