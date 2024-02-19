@@ -1,4 +1,4 @@
-import { handler } from from './handler';
+import { handler } from './handler';
 
 describe('Lambda Function', () => {
     it('should handle the Cross Account Lambda invocation correctly', async () => {
