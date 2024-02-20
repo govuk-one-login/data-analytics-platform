@@ -73,5 +73,10 @@
         "event_name": "ipv_identity_issued",
         "product_family": "ipv_journey",
         "enabled": true
+    },
+    {
+        "event_name": "ipv_mitigation_start",
+        "product_family": "ipv_journey",
+        "enabled": true
     }
 ]
