@@ -70,13 +70,12 @@ export const handler = async (event: Event): Promise<{ statusCode: number; body:
 
     return { statusCode: 200, body: JSON.stringify('Messages sent to SQS successfully!') };
   } catch (error) {
-    console.error('Error:', error);
     return { statusCode: 500, body: JSON.stringify('Error sending messages to SQS') };
   }
 };
 
 async function getDecompressedContent(objectResponse: { Body: NodeJS.ReadableStream }): Promise<string> {
-  return new Promise((resolve, reject) => {
+  return await new Promise((resolve, reject) => {
     const chunks: Uint8Array[] = [];
     const decompressor = createGunzip();
     objectResponse.Body.pipe(decompressor);
