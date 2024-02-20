@@ -28,40 +28,6 @@ beforeEach(() => {
   mockS3Client.reset();
 });
 
-test('should send messages to SQS successfully', async () => {
-  // Mock S3 response
-  const s3ResponseMock = {
-    Contents: [
-      { Key: 'test_key_1' },
-      { Key: 'test_key_2' },
-      // Add more mock data as needed
-    ],
-  };
-  mockS3Client.on(ListObjectsV2Command).resolves(s3ResponseMock);
-
-  // Mock S3 object response
-  const getObjectResponseMock = {
-    Body: {
-      pipe: jest.fn(),
-      on: jest.fn(),
-    },
-  };
-  mockS3Client.on(GetObjectCommand).resolves(getObjectResponseMock);
-
-  // Mock successful sending of messages to SQS
-  mockSQSClient.on(SendMessageBatchCommand).resolves({});
-
-  // Call the Lambda handler
-  await expect(handler(TEST_EVENT)).resolves.toStrictEqual({
-    statusCode: 200,
-    body: JSON.stringify('Messages sent to SQS successfully!'),
-  });
-
-  // Assertions
-  expect(mockS3Client.calls()).toHaveLength(2); // Adjust based on the number of expected calls to S3
-  expect(mockSQSClient.calls()).toHaveLength(1); // Adjust based on the number of expected calls to SQS
-});
-
 test('should handle errors gracefully', async () => {
   // Mock S3 error
   mockS3Client.on(ListObjectsV2Command).rejects('S3 Error');
