@@ -1,4 +1,5 @@
 import { handler, logger } from './handler';
+import type { Event } from './handler';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
