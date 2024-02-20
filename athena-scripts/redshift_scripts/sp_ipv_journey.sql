@@ -299,6 +299,14 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
       ,gpg45_Verification_Score=CAST(case when trim(st.gpg45_Verification_Score,'"') ~ '^[0-9]+$' then trim(st.gpg45_Verification_Score,'"')
                                               else null
                                          end AS INTEGER) 
+      ,nationality_is_UK_Issued= DECODE(lower(st.extensions_isukissued), 
+                    'false', '0', 
+                    'true', '1' 
+                    )::integer::boolean
+      ,age
+                                =CAST(case when trim(st.extensions_age,'"') ~ '^[0-9]+$' then trim(st.extensions_age,'"')
+                                             else null
+                                         end AS INTEGER) 
       ,PROCESSED_DATE=st.PROCESSED_DATE
       ,MODIFIED_BY=current_user
       ,MODIFIED_DATE=CURRENT_DATE
@@ -321,7 +329,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                             DECISION_SCORE,
                             FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODE,CHECK_DETAILS_KBV_QUALITY,
                             VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE",successful,strength_score,gpg45_Activity_Score,
-                            gpg45_evidences_Strength_Score,gpg45_evidence_Validity_Score,gpg45_Fraud_Score,gpg45_Verification_Score,
+                            gpg45_evidences_Strength_Score,gpg45_evidence_Validity_Score,gpg45_Fraud_Score,gpg45_Verification_Score,nationality_is_UK_Issued,Age,
                             PROCESSED_DATE,
                             CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT NVL(DE.event_key,-1) AS event_key
@@ -448,7 +456,14 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                           end AS INTEGER)    
             , CAST(case when trim(gpg45_Verification_Score,'"') ~ '^[0-9]+$' then trim(gpg45_Verification_Score,'"')
                                               else null
-                                         end AS INTEGER)      
+                                         end AS INTEGER)   
+             ,DECODE(lower(extensions_isukissued), 
+             'false', '0', 
+             'true', '1' 
+             )::integer::boolean
+             , CAST(case when trim(extensions_age,'"') ~ '^[0-9]+$' then trim(extensions_age,'"')
+                                              else null
+                                         end AS INTEGER)                               
          ,PROCESSED_DATE
            ,current_user
            , CURRENT_DATE
