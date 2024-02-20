@@ -1,6 +1,6 @@
 import { handler } from './handler'; // Update the path to match your Lambda function file
-import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
-import { S3Client, ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
+import { SQSClient } from '@aws-sdk/client-sqs';
+import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
 
 const mockSQSClient = mockClient(SQSClient);

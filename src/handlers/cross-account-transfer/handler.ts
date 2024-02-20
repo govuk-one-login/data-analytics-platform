@@ -18,7 +18,7 @@ interface Event {
   queue_url: string;
 }
 
-export const handler = async (event: Event) => {
+export const handler = async (event: Event): Promise<{ statusCode: number; body: string }> => {
   try {
     for (const eventConfig of event.config) {
       const eventName = eventConfig.event_name;
@@ -70,31 +70,26 @@ export const handler = async (event: Event) => {
 
     return { statusCode: 200, body: JSON.stringify('Messages sent to SQS successfully!') };
   } catch (error) {
+    console.error('Error:', error);
     return { statusCode: 500, body: JSON.stringify('Error sending messages to SQS') };
   }
 };
 
-async function getDecompressedContent(objectResponse: any): Promise<string> {
-  return await new Promise((resolve, reject) => {
+async function getDecompressedContent(objectResponse: { Body: NodeJS.ReadableStream }): Promise<string> {
+  return new Promise((resolve, reject) => {
     const chunks: Uint8Array[] = [];
     const decompressor = createGunzip();
     objectResponse.Body.pipe(decompressor);
 
-    decompressor.on('data', (chunk: Uint8Array) => {
-      chunks.push(chunk);
-    });
-    decompressor.on('end', () => {
-      resolve(Buffer.concat(chunks).toString('utf-8'));
-    });
-    decompressor.on('error', (error: any) => {
-      reject(error);
-    });
+    decompressor.on('data', (chunk: Uint8Array) => { chunks.push(chunk); });
+    decompressor.on('end', () => { resolve(Buffer.concat(chunks).toString('utf-8')); });
+    decompressor.on('error', (error: Error) => { reject(error); });
   });
 }
 
 function generateDateRange(startDate: string, endDate: string): string[] {
   const dateRange: string[] = [];
-  const currentDate = new Date(startDate);
+  let currentDate = new Date(startDate);
 
   while (currentDate <= new Date(endDate)) {
     dateRange.push(currentDate.toISOString().slice(0, 10));
