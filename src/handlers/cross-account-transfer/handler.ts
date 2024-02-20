@@ -81,9 +81,15 @@ async function getDecompressedContent(objectResponse: { Body: NodeJS.ReadableStr
     const decompressor = createGunzip();
     objectResponse.Body.pipe(decompressor);
 
-    decompressor.on('data', (chunk: Uint8Array) => { chunks.push(chunk); });
-    decompressor.on('end', () => { resolve(Buffer.concat(chunks).toString('utf-8')); });
-    decompressor.on('error', (error: Error) => { reject(error); });
+    decompressor.on('data', (chunk: Uint8Array) => {
+      chunks.push(chunk);
+    });
+    decompressor.on('end', () => {
+      resolve(Buffer.concat(chunks).toString('utf-8'));
+    });
+    decompressor.on('error', (error: Error) => {
+      reject(error);
+    });
   });
 }
 
