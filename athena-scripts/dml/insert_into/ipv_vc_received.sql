@@ -8,6 +8,8 @@ INSERT INTO "environment-txma-stage"."ipv_journey" (
 	extensions_evidence,
 	extensions_iss,
 	extensions_successful,
+	extensions_age,
+	extensions_isukissued,
 	year,
 	month,
 	day,
@@ -33,6 +35,14 @@ SELECT
 		when 'null' then null
 	    else format('%s',cast("extensions"."successful" as JSON))
 	end as extensions_successful,
+	case format('%s',cast("extensions"."age" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."age" as JSON))
+	end as extensions_age,
+	case format('%s',cast("extensions"."isUkIssued" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."isUkIssued" as JSON))
+	end as extensions_isukissued,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
