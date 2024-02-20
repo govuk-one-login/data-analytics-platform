@@ -5,7 +5,7 @@ import { createGunzip } from 'zlib';
 import { v4 as uuidv4 } from 'uuid';
 import { getLogger } from '../../shared/powertools';
 
-export const { logger, metrics } = getLogger('lambda/cross-account-transfer');
+export const { logger } = getLogger('lambda/cross-account-transfer');
 
 interface EventConfig {
   event_name: string;
