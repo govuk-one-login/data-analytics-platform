@@ -8,7 +8,8 @@ import {
   UpdateSecretVersionStageCommand,
 } from '@aws-sdk/client-secrets-manager';
 import { databaseAccess, handler } from './handler';
-import type { RedshiftSecret, RotateSecretStep, SecretRotationStage } from './handler';
+import type { RotateSecretStep } from './handler';
+import type { RedshiftSecret, SecretRotationStage } from '../../shared/types/secrets-manager';
 import type { Database } from './database-access';
 
 const mockSecretsManagerClient = mockClient(SecretsManagerClient);

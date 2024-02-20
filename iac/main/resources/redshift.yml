@@ -92,12 +92,6 @@ RedshiftSecretRotationLambda:
       - Statement:
           - Effect: Allow
             Action:
-              - 'sqs:DeleteMessage'
-              - 'sqs:GetQueueAttributes'
-              - 'sqs:ReceiveMessage'
-            Resource: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
-          - Effect: Allow
-            Action:
               - secretsmanager:DescribeSecret
               - secretsmanager:GetSecretValue
               - secretsmanager:PutSecretValue
@@ -264,22 +258,54 @@ RedshiftMigrationRole:
           Version: 2012-10-17
           Statement:
             - Effect: Allow
-              Action: secretsmanager:ListSecrets
-              Resource: '*'
-            - Effect: Allow
-              Action: secretsmanager:GetSecretValue
-              Resource: !Ref RedshiftSecret
-            - Effect: Allow
-              Action: redshift-serverless:GetWorkgroup
-              Resource: !GetAtt RedshiftServerlessWorkgroup.Workgroup.WorkgroupArn
-            - Effect: Allow
-              Action: kms:Decrypt
-              Resource: !GetAtt KmsKey.Arn
-            - Effect: Allow
-              Action: ssm:StartSession
-              Resource:
-                - arn:aws:ssm:eu-west-2::document/AWS-StartPortForwardingSessionToRemoteHost
-                - !Sub arn:aws:ec2:eu-west-2:${AWS::AccountId}:instance/${RedshiftAccessEC2}
-            - Effect: Allow
-              Action: ec2:DescribeInstances
-              Resource: '*'
+              Action: lambda:InvokeFunction
+              Resource: !GetAtt RunFlywayCommandLambda.Arn
+
+RunFlywayCommandLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: run-flyway-command
+    Handler: run-flyway-command.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action: secretsmanager:GetSecretValue
+            Resource: !Ref RedshiftSecret
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:GenerateDataKey
+            Resource: !GetAtt KmsKey.Arn
+            Condition:
+              StringEquals:
+                kms:EncryptionContext:SecretARN: !Ref RedshiftSecret
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        REDSHIFT_SECRET_ID: !Ref RedshiftSecret
+        ENVIRONMENT: !Ref Environment
+    Tags:
+      Environment: !Ref Environment
+    MemorySize: 512
+    Timeout: 600
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+        - !Ref RedshiftAccessEC2SecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
+    Layers:
+      - !Ref FlywayLayer
+
+FlywayLayer:
+  Type: AWS::Serverless::LayerVersion
+  Properties:
+    ContentUri: layer-dist/flyway
+    LayerName: !Sub ${Environment}-dap-lambda-layer-flyway
+    RetentionPolicy: Delete

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": null,
+  "schemaName": "",
+  "migrations": [
+    {
+      "category": "Versioned",
+      "version": "1",
+      "rawVersion": "1",
+      "description": "add hello table",
+      "type": "SQL",
+      "installedOnUTC": "",
+      "state": "Pending",
+      "undoable": "No",
+      "filepath": "/opt/bin/flyway-10.7.2/sql/V1__add_hello_table.sql",
+      "undoFilepath": "",
+      "installedBy": "",
+      "executionTime": 0
+    }
+  ],
+  "flywayVersion": "10.7.2",
+  "database": "dap_txma_reporting_db",
+  "allSchemasEmpty": true,
+  "timestamp": "2024-02-16T14:17:16.433837243",
+  "operation": "info",
+  "exception": null,
+  "licenseFailed": false
+}

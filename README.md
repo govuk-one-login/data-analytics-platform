@@ -30,12 +30,27 @@ You may need to install `gpg` first - on a GDS Mac open the terminal and run `br
 #### Set up husky hooks
 
 [Husky](https://typicode.github.io/husky) is used to run [githooks](https://git-scm.com/docs/githooks), specifically `pre-commit` and `pre-push`.
-To install the hooks run `npm run husky:install`. After this, the hooks defined under the [.husky](.husky) directory will automatically run when you commit or push.
+To install the hooks run `npm run husky:install`. After this, the hooks defined under the [.husky](.husky) directory will automatically run when you commit or push.&ast;
 The [lint-staged](https://github.com/okonet/lint-staged) library is used to only run certain tasks if certain files are modified.
 
 Config can be found in the `lint-staged` block in [package.json](package.json). Note that `lint-staged` works by passing
 a list of the matched staged files to the command defined, which is why the commands in `package.json` are e.g. `prettier --write`, with no file, directory or glob arguments.
 (usually if you wanted to run prettier you would need such an argument, e.g.`prettier --write .` or `prettier --check src`. More information can be found [here](https://github.com/okonet/lint-staged#configuration).
+
+&ast; Git LFS hooks also live in this directory - see section below
+
+#### Set up Git LFS
+
+If you intend to make changes to any of the large binary files in this repository (currently just `*.tar.gz` and `*.jar`) then you will need to install [Git LFS](https://git-lfs.com).
+This is necessary as [GitHub blocks files larger than 100 MiB](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github).
+
+If you do not install Git LFS you will only get the pointer files and not the actual data. **This is not a problem unless you want to edit these files.**
+See [this section of the GitHub docs](https://docs.github.com/en/repositories/working-with-files/managing-large-files) for more information
+
+Git LFS also uses hooks, specifically `post-checkout`, `post-commit`, `post-merge` and `pre-push`.
+In the case of the latter, husky also uses this hook which is why the file at [.husky/_/pre-push](.husky/_/pre-push) contains both husky and Git LFS code.
+Note that the Git LFS hooks are in the husky directory because husky was installed in the repository before Git LFS and so that directory structure was already in place.
+Manually editing the hooks was necessary due to the clash on `pre-push`, and [this comment](https://github.com/typicode/husky/issues/108#issuecomment-1432554983) was the general direction taken.
 
 ## Repository structure
 
@@ -45,6 +60,7 @@ The lambdas and supporting code are written in [TypeScript](https://www.typescri
 
 Individual lambda handlers (and unit tests) can be found in subdirectories of the [src/handlers](src/handlers) directory.
 Common and utility code can be found in the [src/shared](src/shared) directory.
+Lambda layers can be found in subdirectories of the [src/layers](src/layers) directory.
 
 In addition, files to support running lambdas with `sam local invoke` are in the [sam-local-examples](sam-local-examples) directory.
 
@@ -133,7 +149,7 @@ In addition, [checkov](https://www.checkov.io) can find misconfigurations. Prett
 
 #### Lambdas
 
-* `npm run build` - build (transpile, bundle, etc.) lambdas into the [dist](dist) directory
+* `npm run build` - build (transpile, bundle, etc.) lambdas into the [dist](dist) directory and build the flyway lambda layer into the [layer-dist](layer-dist) directory
 
 Lambdas can be run locally with [sam local invoke](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-invoke.html). A few prerequisites:
 
@@ -274,7 +290,7 @@ The difference between them and `staging` is that the promotion bucket `integrat
 
 #### Other Environments
 
-Blah not in secure pipelines
+The following accounts are not in secure pipelines.
 
 ###### Feature
 
@@ -298,6 +314,15 @@ The _production preview_ environment is another standalone environment that exis
 It has a GitHub Action [Deploy to the production preview environment](.github/workflows/deploy-to-production-preview.yml) but no corresponding tear down one.
 
 The deployments use a special role in the _production preview_ environment, `dap-production-preview-deploy-role`, much like the role in _feature_.
+
+#### Config for cross account data sync
+
+Because _production preview_ and _staging_ are used for cross account data sync, they have a single SSM parameter holding the name of the cross account data sync role.
+They use this to allow access to their SQS queues and usage of their KMS keys to enable the cross account data sync process.
+
+| Name                        | Description                                      |
+|-----------------------------|--------------------------------------------------|
+| CrossAccountDataSyncRoleARN | ARN of the role allowing cross account data sync |
 
 ## Additional Documents
 
