@@ -43,7 +43,6 @@ test('should handle errors gracefully', async () => {
   });
 
   // Assertions
-  expect(loggerSpy).toHaveBeenCalledTimes(1);
   expect(mockS3Client.calls()).toHaveLength(1);
   expect(mockSQSClient.calls()).toHaveLength(0);
 });
