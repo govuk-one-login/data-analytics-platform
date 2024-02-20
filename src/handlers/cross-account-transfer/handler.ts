@@ -33,7 +33,7 @@ export const handler = async (event: Event): Promise<{ statusCode: number; body:
 
         const s3Response = await s3.send(new ListObjectsV2Command(s3Params));
 
-        if (s3Response.Contents && s3Response.Contents.length > 0) {
+        if (s3Response?.Contents?.length > 0) {
           const messages = [];
           for (const obj of s3Response.Contents) {
             const getObjectParams = { Bucket: s3Bucket, Key: obj.Key };
@@ -95,7 +95,7 @@ async function getDecompressedContent(objectResponse: { Body: NodeJS.ReadableStr
 
 function generateDateRange(startDate: string, endDate: string): string[] {
   const dateRange: string[] = [];
-  let currentDate = new Date(startDate);
+  const currentDate = new Date(startDate);
 
   while (currentDate <= new Date(endDate)) {
     dateRange.push(currentDate.toISOString().slice(0, 10));
