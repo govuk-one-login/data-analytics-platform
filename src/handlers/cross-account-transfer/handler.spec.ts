@@ -9,7 +9,6 @@ jest.spyOn(logger, 'error').mockImplementation(() => undefined);
 const mockSQSClient = mockClient(SQSClient);
 const mockS3Client = mockClient(S3Client);
 
-
 let TEST_EVENT: Event;
 
 beforeAll(async () => {
