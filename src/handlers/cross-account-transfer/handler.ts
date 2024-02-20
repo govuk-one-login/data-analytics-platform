@@ -3,6 +3,9 @@ import { ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client, sqsClient } from '../../shared/clients';
 import { createGunzip } from 'zlib';
 import { v4 as uuidv4 } from 'uuid';
+import { getLoggerAndMetrics } from '../../shared/powertools';
+
+export const { logger, metrics } = getLoggerAndMetrics('lambda/cross-account-transfer');
 
 interface EventConfig {
   event_name: string;

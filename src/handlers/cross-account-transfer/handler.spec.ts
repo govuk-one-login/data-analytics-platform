@@ -1,4 +1,4 @@
-import { handler, logger } from './handler'; // Update the path to match your Lambda function file
+import { handler, logger } from './handler';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
@@ -44,6 +44,6 @@ test('should handle errors gracefully', async () => {
 
   // Assertions
   expect(loggerSpy).toHaveBeenCalledTimes(1);
-  expect(mockS3Client.calls()).toHaveLength(1); // Adjust based on the number of expected calls to S3
-  expect(mockSQSClient.calls()).toHaveLength(0); // Adjust based on the number of expected calls to SQS
+  expect(mockS3Client.calls()).toHaveLength(1);
+  expect(mockSQSClient.calls()).toHaveLength(0);
 });
