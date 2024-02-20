@@ -1,102 +1,105 @@
-import { SQSClient, SendMessageBatchCommand } from "@aws-sdk/client-sqs";
-import { S3Client, ListObjectsV2Command, GetObjectCommand } from "@aws-sdk/client-s3";
+import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
+import { S3Client, ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
 import { createGunzip } from 'zlib';
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 
-const sqs = new SQSClient({ apiVersion: "2012-11-05", region: "eu-west-2" });
-const s3 = new S3Client({ region: "eu-west-2" });
+const sqs = new SQSClient({ apiVersion: '2012-11-05', region: 'eu-west-2' });
+const s3 = new S3Client({ region: 'eu-west-2' });
 
 interface EventConfig {
-    event_name: string;
-    start_date: string;
-    end_date: string;
+  event_name: string;
+  start_date: string;
+  end_date: string;
 }
 
 interface Event {
-    config: EventConfig[];
-    raw_bucket: string;
-    queue_url: string;
+  config: EventConfig[];
+  raw_bucket: string;
+  queue_url: string;
 }
 
 export const handler = async (event: Event) => {
-    try {
-        for (const eventConfig of event.config) {
-            const eventName = eventConfig.event_name;
-            const startDate = eventConfig.start_date;
-            const endDate = eventConfig.end_date;
-            const dateRange = generateDateRange(startDate, endDate);
+  try {
+    for (const eventConfig of event.config) {
+      const eventName = eventConfig.event_name;
+      const startDate = eventConfig.start_date;
+      const endDate = eventConfig.end_date;
+      const dateRange = generateDateRange(startDate, endDate);
 
-            for (const date of dateRange) {
-                const s3Bucket = event.raw_bucket;
-                const s3Prefix = `txma/${eventName}/year=${date.slice(0, 4)}/month=${date.slice(5, 7)}/day=${date.slice(8, 10)}`;
-                const s3Params = { Bucket: s3Bucket, Prefix: s3Prefix };
+      for (const date of dateRange) {
+        const s3Bucket = event.raw_bucket;
+        const s3Prefix = `txma/${eventName}/year=${date.slice(0, 4)}/month=${date.slice(5, 7)}/day=${date.slice(8, 10)}`;
+        const s3Params = { Bucket: s3Bucket, Prefix: s3Prefix };
 
-                const s3Response = await s3.send(new ListObjectsV2Command(s3Params));
+        const s3Response = await s3.send(new ListObjectsV2Command(s3Params));
 
-                if (s3Response.Contents && s3Response.Contents.length > 0) {
-                    const messages = [];
-                    for (const obj of s3Response.Contents) {
-                        const getObjectParams = { Bucket: s3Bucket, Key: obj.Key };
-                        const objectResponse = await s3.send(new GetObjectCommand(getObjectParams));
-                        const objectContent = await getDecompressedContent(objectResponse);
-                        const jsonEvents = objectContent.trim().split('\n');
+        if (s3Response.Contents && s3Response.Contents.length > 0) {
+          const messages = [];
+          for (const obj of s3Response.Contents) {
+            const getObjectParams = { Bucket: s3Bucket, Key: obj.Key };
+            const objectResponse = await s3.send(new GetObjectCommand(getObjectParams));
+            const objectContent = await getDecompressedContent(objectResponse);
+            const jsonEvents = objectContent.trim().split('\n');
 
-                        for (const event of jsonEvents) {
-                            messages.push({
-                                Id: uuidv4(),
-                                MessageBody: event,
-                                MessageAttributes: {
-                                    date: { DataType: 'String', StringValue: date },
-                                    bucket: { DataType: 'String', StringValue: s3Bucket },
-                                    key: { DataType: 'String', StringValue: obj.Key }
-                                }
-                            });
-                        }
-                    }
-
-                    const batchSize = 10;
-                    const batches = [];
-                    for (let i = 0; i < messages.length; i += batchSize) {
-                        batches.push(messages.slice(i, i + batchSize));
-                    }
-
-                    console.log(`Processed ${messages.length} events for ${eventName} on ${date}`);
-
-                    for (const batch of batches) {
-                        const params = { Entries: batch, QueueUrl: event.queue_url };
-                        await sqs.send(new SendMessageBatchCommand(params));
-                    }
-                }
+            for (const event of jsonEvents) {
+              messages.push({
+                Id: uuidv4(),
+                MessageBody: event,
+                MessageAttributes: {
+                  date: { DataType: 'String', StringValue: date },
+                  bucket: { DataType: 'String', StringValue: s3Bucket },
+                  key: { DataType: 'String', StringValue: obj.Key },
+                },
+              });
             }
-        }
+          }
 
-        return { statusCode: 200, body: JSON.stringify('Messages sent to SQS successfully!') };
-    } catch (error) {
-        console.error('Error:', error);
-        return { statusCode: 500, body: JSON.stringify('Error sending messages to SQS') };
+          const batchSize = 10;
+          const batches = [];
+          for (let i = 0; i < messages.length; i += batchSize) {
+            batches.push(messages.slice(i, i + batchSize));
+          }
+
+          for (const batch of batches) {
+            const params = { Entries: batch, QueueUrl: event.queue_url };
+            await sqs.send(new SendMessageBatchCommand(params));
+          }
+        }
+      }
     }
+
+    return { statusCode: 200, body: JSON.stringify('Messages sent to SQS successfully!') };
+  } catch (error) {
+    return { statusCode: 500, body: JSON.stringify('Error sending messages to SQS') };
+  }
 };
 
 async function getDecompressedContent(objectResponse: any): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const chunks: Uint8Array[] = [];
-        const decompressor = createGunzip();
-        objectResponse.Body.pipe(decompressor);
+  return await new Promise((resolve, reject) => {
+    const chunks: Uint8Array[] = [];
+    const decompressor = createGunzip();
+    objectResponse.Body.pipe(decompressor);
 
-        decompressor.on('data', (chunk: Uint8Array) => { chunks.push(chunk); });
-        decompressor.on('end', () => { resolve(Buffer.concat(chunks).toString('utf-8')); });
-        decompressor.on('error', (error: any) => { reject(error); });
+    decompressor.on('data', (chunk: Uint8Array) => {
+      chunks.push(chunk);
     });
+    decompressor.on('end', () => {
+      resolve(Buffer.concat(chunks).toString('utf-8'));
+    });
+    decompressor.on('error', (error: any) => {
+      reject(error);
+    });
+  });
 }
 
 function generateDateRange(startDate: string, endDate: string): string[] {
-    const dateRange: string[] = [];
-    let currentDate = new Date(startDate);
+  const dateRange: string[] = [];
+  const currentDate = new Date(startDate);
 
-    while (currentDate <= new Date(endDate)) {
-        dateRange.push(currentDate.toISOString().slice(0, 10));
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
+  while (currentDate <= new Date(endDate)) {
+    dateRange.push(currentDate.toISOString().slice(0, 10));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
 
-    return dateRange;
+  return dateRange;
 }
