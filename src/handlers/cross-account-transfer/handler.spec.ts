@@ -1,10 +1,14 @@
-import { handler } from './handler'; // Update the path to match your Lambda function file
+import { handler, logger } from './handler'; // Update the path to match your Lambda function file
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
 
+const loggerSpy = jest.spyOn(logger, 'info').mockImplementation(() => undefined);
+jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+
 const mockSQSClient = mockClient(SQSClient);
 const mockS3Client = mockClient(S3Client);
+
 
 let TEST_EVENT: Event;
 
@@ -26,6 +30,7 @@ beforeAll(async () => {
 beforeEach(() => {
   mockSQSClient.reset();
   mockS3Client.reset();
+  loggerSpy.mockReset();
 });
 
 test('should handle errors gracefully', async () => {

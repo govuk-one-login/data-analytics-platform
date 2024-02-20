@@ -1,4 +1,4 @@
-import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
+import { SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client, sqsClient } from '../../shared/clients';
 import { createGunzip } from 'zlib';
