@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+COMMAND=$1
+
+/opt/flyway/flyway "$COMMAND" -outputType=json
