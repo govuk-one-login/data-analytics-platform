@@ -1,10 +1,8 @@
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
-import { S3Client, ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
+import { ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
+import { s3Client, sqsClient } from '../../shared/clients';
 import { createGunzip } from 'zlib';
 import { v4 as uuidv4 } from 'uuid';
-
-const sqs = new SQSClient({ apiVersion: '2012-11-05', region: 'eu-west-2' });
-const s3 = new S3Client({ region: 'eu-west-2' });
 
 interface EventConfig {
   event_name: string;
@@ -31,7 +29,7 @@ export const handler = async (event: Event): Promise<{ statusCode: number; body:
         const s3Prefix = `txma/${eventName}/year=${date.slice(0, 4)}/month=${date.slice(5, 7)}/day=${date.slice(8, 10)}`;
         const s3Params = { Bucket: s3Bucket, Prefix: s3Prefix };
 
-        const s3Response = await s3.send(new ListObjectsV2Command(s3Params));
+        const s3Response = await s3Client.send(new ListObjectsV2Command(s3Params));
 
         if (s3Response?.Contents?.length > 0) {
           const messages = [];
@@ -62,7 +60,7 @@ export const handler = async (event: Event): Promise<{ statusCode: number; body:
 
           for (const batch of batches) {
             const params = { Entries: batch, QueueUrl: event.queue_url };
-            await sqs.send(new SendMessageBatchCommand(params));
+            await sqsClient.send(new SendMessageBatchCommand(params));
           }
         }
       }
@@ -70,6 +68,7 @@ export const handler = async (event: Event): Promise<{ statusCode: number; body:
 
     return { statusCode: 200, body: JSON.stringify('Messages sent to SQS successfully!') };
   } catch (error) {
+    logger.error(`Error calling cross account data transfer lambda`, { error });
     return { statusCode: 500, body: JSON.stringify('Error sending messages to SQS') };
   }
 };

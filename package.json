@@ -45,7 +45,8 @@
     "pg": "^8.11.3",
     "prettier": "^3.2.5",
     "prettier-plugin-sh": "^0.14.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "zlib": "^1.0.5"
   },
   "scripts": {
     "build": "scripts/build-lambdas.sh && scripts/build-flyway-layer.sh",
