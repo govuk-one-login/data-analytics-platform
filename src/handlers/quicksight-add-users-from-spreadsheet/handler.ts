@@ -1,6 +1,7 @@
 import { getLogger } from '../../shared/powertools';
 import type { sheets_v4 } from 'googleapis';
 import { InvokeCommand } from '@aws-sdk/client-lambda';
+import type { LambdaInvokeResponse } from '../../shared/utils/utils';
 import {
   arrayPartition,
   getAccountId,
@@ -9,7 +10,6 @@ import {
   lambdaInvokeResponse,
   sleep,
 } from '../../shared/utils/utils';
-import type { LambdaInvokeResponse } from '../../shared/utils/utils';
 import { lambdaClient } from '../../shared/clients';
 import { getUserStatus } from '../../shared/quicksight-access/user-status';
 import type { Context } from 'aws-lambda';
@@ -17,15 +17,15 @@ import type { AddUsersEvent } from '../quicksight-add-users/handler';
 
 const logger = getLogger('lambda/quicksight-add-users-from-spreadsheet');
 
-const EXPECTED_COLUMNS = new Map<number, string>([
+const EXPECTED_COLUMNS = new Map<number, keyof SpreadsheetRow>([
   [0, 'Name'],
   [1, 'Email'],
   [2, 'Type'],
-  [3, 'Relying Party'],
+  [3, 'Government Service'],
 ]);
 
 interface AddUsersFromSpreadsheetEvent {
-  spreadsheet: sheets_v4.Schema$Spreadsheet;
+  spreadsheet: sheets_v4.Schema$ValueRange;
   dryRun?: boolean;
 }
 
@@ -35,7 +35,7 @@ interface SpreadsheetRow {
   Name: string;
   Email: string;
   Type: string;
-  RelyingParty: string;
+  'Government Service': string;
 }
 
 export const handler = async (
@@ -43,8 +43,8 @@ export const handler = async (
   context: Context,
 ): Promise<AddUsersFromSpreadsheetResult> => {
   try {
-    const rowData = getSpreadsheetRows(event.spreadsheet);
-    const users = getUsersFromRows(rowData);
+    const rows = getSpreadsheetRows(event.spreadsheet);
+    const users = getUsersFromRows(rows);
     logger.info('Parsed user rows from spreadsheet', { users, usersSize: users.length });
     const toBeAdded = await getUsersWithoutAccounts(users, context);
     logger.info('After filtering out users with accounts', { users: toBeAdded, usersSize: toBeAdded.length });
@@ -63,7 +63,8 @@ const sendToAddUsersLambda = async (
     requests: users.map(user => ({
       username: user.Email,
       email: user.Email,
-      quicksightGroups: user.RelyingParty.length > 0 ? [user.RelyingParty.toLowerCase()] : ['gds-users'],
+      quicksightGroups:
+        user['Government Service'].length > 0 ? [user['Government Service'].toLowerCase()] : ['gds-users'],
     })),
   };
 
@@ -97,7 +98,7 @@ const getUsersWithoutAccounts = async (users: SpreadsheetRow[], context: Context
 
     // have to do in batches to avoid Quicksight ThrottlingExceptions
     const maybeUsers: Array<SpreadsheetRow | undefined> = [];
-    const batches = arrayPartition(users, 20);
+    const batches = arrayPartition(users, 10);
     for (const batch of batches) {
       const maybeUser = await Promise.all(
         batch.map(async user => {
@@ -117,24 +118,14 @@ const getUsersWithoutAccounts = async (users: SpreadsheetRow[], context: Context
   }
 };
 
-const getUsersFromRows = (rows: sheets_v4.Schema$RowData[]): SpreadsheetRow[] => {
+const getUsersFromRows = (rows: string[][]): SpreadsheetRow[] => {
   const columnNames = getColumnNames(rows);
   const columnValues = getColumnValues(rows, columnNames);
-
-  const getColumnValue = (cells: sheets_v4.Schema$CellData[], columnName: string): string => {
-    return getCellValue(cells[columnNames.indexOf(columnName)]).trim();
-  };
-
-  return columnValues.map(cells => ({
-    Name: getColumnValue(cells, 'Name'),
-    Email: getColumnValue(cells, 'Email'),
-    Type: getColumnValue(cells, 'Type'),
-    RelyingParty: getColumnValue(cells, 'Relying Party'),
-  }));
+  return columnValues.map(row => ({ Name: row[0], Email: row[1], Type: row[2], 'Government Service': row[3] ?? '' }));
 };
 
-const getColumnNames = (rows: sheets_v4.Schema$RowData[]): string[] => {
-  const columnNames = getRowCells(rows[0]).map(getCellValue);
+const getColumnNames = (rows: string[][]): string[] => {
+  const columnNames = rows[0];
   const columnCount = columnNames.length;
   if (columnCount < 3) {
     throw new Error(`Expected 3 or 4 columns - ${JSON.stringify(columnNames)}`);
@@ -147,36 +138,21 @@ const getColumnNames = (rows: sheets_v4.Schema$RowData[]): string[] => {
   return columnNames;
 };
 
-const getColumnValues = (rows: sheets_v4.Schema$RowData[], columnNames: string[]): sheets_v4.Schema$CellData[][] => {
-  // slice(1) to exclude the first row which is the row of column names
-  return (
-    rows
-      .slice(1)
-      .map(getRowCells)
-      // remove lines without values for all properties (e.g. a - line separating 2 blocks of RPs)
-      .filter(cells => cells.length === columnNames.length)
-      // remove lines with any strikethrough text as this indicates the user is no longer to be added
-      .filter(cells => !cells.some(cell => isCellStrikethrough(cell)))
-  );
+const getColumnValues = (rows: string[][], columnNames: string[]): string[][] => {
+  // slice to exclude the first row which is the row of column names
+  // filter to remove lines without values for all properties (e.g. a - line separating 2 blocks of RPs)
+  // map to make sure all strings are trimmed and lowercase for consistency
+  return rows
+    .slice(1)
+    .filter(row => row.length === columnNames.length)
+    .map(row => row.map(value => value.trim().toLowerCase()));
 };
 
-const getSpreadsheetRows = (spreadsheet: sheets_v4.Schema$Spreadsheet): sheets_v4.Schema$RowData[] => {
-  // should only be one sheet as we explicitly request either the GDS or RP user sheets
-  const sheet = spreadsheet?.sheets?.at(0);
-  if (sheet === undefined) {
-    throw new Error(`Spreadsheet sheet is missing or undefined - ${JSON.stringify(spreadsheet)}`);
+const getSpreadsheetRows = (range: sheets_v4.Schema$ValueRange): string[][] => {
+  const rows = range?.values;
+  if (rows === null || rows === undefined) {
+    logger.error('Error getting spreadsheet rows', { range });
+    throw new Error('Spreadsheet rows are missing or undefined');
   }
-  // should only be one set of data as you get one per requested range and we only request one range
-  const rowData = sheet?.data?.at(0)?.rowData;
-  if (rowData === undefined) {
-    throw new Error(`Spreadsheet row data is missing or undefined - ${JSON.stringify(spreadsheet)}`);
-  }
-  return rowData;
+  return rows;
 };
-
-const getRowCells = (row: sheets_v4.Schema$RowData): sheets_v4.Schema$CellData[] => row.values ?? [];
-
-const getCellValue = (cell: sheets_v4.Schema$CellData): string => cell?.userEnteredValue?.stringValue ?? '';
-
-const isCellStrikethrough = (cell: sheets_v4.Schema$CellData): boolean =>
-  cell?.userEnteredFormat?.textFormat?.strikethrough ?? false;
