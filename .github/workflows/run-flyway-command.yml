@@ -12,7 +12,12 @@ on:
         type: choice
         required: true
         description: Flyway command to run
-        options: [info, migrate, clean, clean migrate]
+        options: [info, migrate, validate]
+      database:
+        type: string
+        required: false
+        description: Database on which to perform migrations (defaults to dap_txma_reporting_db)
+        default: unset
 
 jobs:
   validate-environment:
@@ -38,18 +43,11 @@ jobs:
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('DB_MIGRATION_ROLE_ARN_{0}', inputs.environment)] }}
-      - name: Get AWS account id
-        run: echo "account_id=$(aws sts get-caller-identity --output text --query 'Account')" >> $GITHUB_ENV
-      - name: Prepare migrations folder
-        run: scripts/prepare-redshift-migrations.sh ${{ inputs.environment }} $account_id
-      - name: Download JARs
+      - name: Invoke lambda
         run: |
-          mkdir ${{ github.workspace }}/redshift-scripts/drivers
-          cd ${{ github.workspace }}/redshift-scripts/drivers
-          wget https://s3.amazonaws.com/redshift-downloads/drivers/jdbc/2.1.0.20/redshift-jdbc42-2.1.0.20.jar
-          wget https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.15.3/jackson-databind-2.15.3.jar
-      - name: Run flyway command
-        run: |
-          ENVIRONMENT=$(echo ${{ inputs.environment }})
-          WORKGROUP_NAME="${ENVIRONMENT,,}-redshift-serverless-workgroup"
-          scripts/run-flyway-command.sh $WORKGROUP_NAME ${{ inputs.command }}
+          DATABASE=$(if [ -z ${{ inputs.database }} ] || [ ${{ inputs.database }} == "unset" ]; then echo dap_txma_reporting_db; else echo ${{ inputs.database }}; fi)
+          PAYLOAD=$(echo "{\"command\": \"${{ inputs.command }}\", \"database\": \"$DATABASE\"}")
+          echo "$PAYLOAD" | jq
+          ENCODED=$(echo "$PAYLOAD" | openssl base64)
+          aws --region eu-west-2 lambda invoke --function-name run-flyway-command --payload "$ENCODED" out.json
+          cat out.json | jq
