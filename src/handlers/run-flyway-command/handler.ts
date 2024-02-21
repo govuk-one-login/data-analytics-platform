@@ -12,6 +12,7 @@ type FlywayCommand = (typeof FLYWAY_COMMANDS)[number];
 
 interface RunFlywayEvent {
   command: FlywayCommand;
+  database: string;
 }
 
 interface RunFlywayResult {
@@ -26,7 +27,7 @@ export const handler = async (event: RunFlywayEvent): Promise<RunFlywayResult> =
     const validated = validateEvent(event);
     logger.info('Starting run flyway command lambda', { event: validated });
     const redshiftSecret = await getRedshiftSecret();
-    const flywayEnvironment = await getFlywayEnvironment(redshiftSecret);
+    const flywayEnvironment = await getFlywayEnvironment(event, redshiftSecret);
     return runFlywayCommand(validated, flywayEnvironment);
   } catch (error) {
     logger.error('Error running flyway command', { error });
@@ -50,8 +51,11 @@ const getRedshiftSecret = async (): Promise<RedshiftSecret> => {
   }
 };
 
-const getFlywayEnvironment = async (redshiftSecret: RedshiftSecret): Promise<Record<string, string>> => ({
-  FLYWAY_URL: `jdbc:redshift://${redshiftSecret.host}:${redshiftSecret.port}/dap_txma_reporting_db`,
+const getFlywayEnvironment = async (
+  event: RunFlywayEvent,
+  redshiftSecret: RedshiftSecret,
+): Promise<Record<string, string>> => ({
+  FLYWAY_URL: `jdbc:redshift://${redshiftSecret.host}:${redshiftSecret.port}/${event.database}`,
   FLYWAY_USER: redshiftSecret.username,
   FLYWAY_PASSWORD: redshiftSecret.password,
 });
