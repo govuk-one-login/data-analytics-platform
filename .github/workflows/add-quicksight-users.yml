@@ -46,6 +46,7 @@ jobs:
       - name: Invoke lambda
         run: |
           PAYLOAD=$(echo "{\"dryRun\": ${{ inputs.dryRun }}, \"spreadsheet\": $(cat spreadsheet.json)}")
+          echo "$PAYLOAD" | jq
           ENCODED=$(echo "$PAYLOAD" | openssl base64)
           aws --region eu-west-2 lambda invoke --function-name quicksight-add-users-from-spreadsheet --payload "$ENCODED" out.json
           cat out.json | jq
