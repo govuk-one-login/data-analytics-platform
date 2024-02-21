@@ -6,6 +6,8 @@ import { getTestResource } from '../../shared/utils/test-utils';
 
 const mockSecretsManagerClient = mockClient(SecretsManagerClient);
 
+const DATABASE = 'dap_txma_reporting_db';
+
 const SECRET_ID = 'MySecretId';
 
 // this is of type RedshiftSecret but we can't use type annotations in this file (see further explanation above jest.mock call)
@@ -57,7 +59,9 @@ beforeEach(() => {
 });
 
 test('unknown command', async () => {
-  await expect(handler({ command: 'NotACommand' })).rejects.toThrow('Unknown command "NotACommand"');
+  await expect(handler({ command: 'NotACommand', database: DATABASE })).rejects.toThrow(
+    'Unknown command "NotACommand"',
+  );
 });
 
 test('error getting secret', async () => {
@@ -65,7 +69,7 @@ test('error getting secret', async () => {
 
   mockSecretsManagerClient.on(GetSecretValueCommand, { SecretId: SECRET_ID }).rejectsOnce(errorMessage);
 
-  await expect(handler({ command: 'info' })).rejects.toThrow(
+  await expect(handler({ command: 'info', database: DATABASE })).rejects.toThrow(
     `Error getting redshift secret - Error getting secret - ${errorMessage}`,
   );
 
@@ -82,7 +86,7 @@ test('flyway success', async () => {
     return spawnSyncResult(1, FLYWAY_INFO, {});
   });
 
-  const response = await handler({ command: 'info' });
+  const response = await handler({ command: 'info', database: DATABASE });
   expect(response.status).toEqual(1);
   expect(response.stderr).toEqual({});
   expect(response.stdout).toEqual(FLYWAY_INFO);
@@ -100,7 +104,7 @@ test('flyway error', async () => {
     return spawnSyncResult(1, FLYWAY_CONNECTION_ERROR, {});
   });
 
-  const response = await handler({ command: 'info' });
+  const response = await handler({ command: 'info', database: DATABASE });
   expect(response.status).toEqual(1);
   expect(response.stderr).toEqual({});
   expect(response.stdout).toEqual(FLYWAY_CONNECTION_ERROR);
@@ -120,7 +124,7 @@ test('spawn sync error', async () => {
     return spawnSyncResult(1, {}, stderr, error);
   });
 
-  const response = await handler({ command: 'info' });
+  const response = await handler({ command: 'info', database: DATABASE });
   expect(response.status).toEqual(1);
   expect(response.stderr).toEqual(stderr);
   expect(response.stdout).toEqual({});
@@ -139,7 +143,7 @@ test('spawn sync uncaught error', async () => {
     throw error;
   });
 
-  await expect(handler({ command: 'info' })).rejects.toThrow(error.message);
+  await expect(handler({ command: 'info', database: DATABASE })).rejects.toThrow(error.message);
 });
 
 // this should return type child_process.SpawnSyncReturns<Buffer> but we can't use type annotations in this file (see further explanation above jest.mock call)
