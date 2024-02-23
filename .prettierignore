@@ -11,3 +11,4 @@ Dockerfile
 *.sql
 *.jar
 *.tar.gz
+flyway.conf

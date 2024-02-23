@@ -30,7 +30,3 @@ rm -rf "$FLYWAY_DIR"/lib/rgcompare
 
 # remove jre/legal/ as it is full of broken symlinks that cause sam deploy to exit with an error
 rm -rf "$FLYWAY_DIR"/jre/legal
-
-# add migrations
-mkdir -p "$FLYWAY_DIR"/sql
-cp redshift-scripts/migrations/*.sql "$FLYWAY_DIR"/sql
