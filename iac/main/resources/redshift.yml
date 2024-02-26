@@ -282,11 +282,19 @@ RunFlywayCommandLambda:
             Condition:
               StringEquals:
                 kms:EncryptionContext:SecretARN: !Ref RedshiftSecret
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:ListBucket
+            Resource:
+              - !Sub ${FlywayFilesBucket.Arn}
+              - !Sub ${FlywayFilesBucket.Arn}/*
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
         REDSHIFT_SECRET_ID: !Ref RedshiftSecret
+        FLYWAY_FILES_BUCKET_NAME: !Ref FlywayFilesBucket
         ENVIRONMENT: !Ref Environment
     Tags:
       Environment: !Ref Environment
@@ -309,3 +317,89 @@ FlywayLayer:
     ContentUri: layer-dist/flyway
     LayerName: !Sub ${Environment}-dap-lambda-layer-flyway
     RetentionPolicy: Delete
+
+FlywayFilesBucket:
+  Type: AWS::S3::Bucket
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub ${Environment}-dap-flyway-files
+    LoggingConfiguration:
+      DestinationBucketName: !Ref GlobalLogBucket
+      LogFilePrefix: dap-flyway-files/log
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 365
+          Status: Enabled
+    NotificationConfiguration:
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+        - Event: s3:ObjectRemoved:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+
+FlywayFilesBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref FlywayFilesBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${FlywayFilesBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:GetObjectVersion
+            - s3:ListBucket
+            - s3:ListBucketVersions
+            - s3:PutObject
+          Resource:
+            - !Sub ${FlywayFilesBucket.Arn}
+            - !Sub ${FlywayFilesBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${BuildAccountId}:role/dap-flyway-files-upload-role
+
+FlywayFilesBucketUploadRole:
+  Condition: IsBuild
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: dap-flyway-files-upload-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+          Action: sts:AssumeRoleWithWebIdentity
+          Condition:
+            StringLike:
+              'token.actions.githubusercontent.com:sub':
+                - repo:govuk-one-login/data-analytics-platform:ref:refs/heads/*
+                - repo:govuk-one-login/data-analytics-platform:environment:*
+    Policies:
+      - PolicyName: dap-flyway-files-upload-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:GetObjectVersion
+                - s3:ListBucket
+                - s3:ListBucketVersions
+                - s3:PutObject
+              Resource:
+                - arn:aws:s3:::*-dap-flyway-files
+                - arn:aws:s3:::*-dap-flyway-files/*

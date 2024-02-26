@@ -11,6 +11,9 @@ import { databaseAccess, handler } from './handler';
 import type { RotateSecretStep } from './handler';
 import type { RedshiftSecret, SecretRotationStage } from '../../shared/types/secrets-manager';
 import type { Database } from './database-access';
+import { DatabaseAccess } from './database-access';
+import { getLogger } from '../../shared/powertools';
+import type { Knex } from 'knex';
 
 const mockSecretsManagerClient = mockClient(SecretsManagerClient);
 
@@ -203,6 +206,29 @@ test('finish secret no current version', async () => {
 
   // describeSecret, updateSecretVersionStage
   expect(mockSecretsManagerClient.calls()).toHaveLength(2);
+});
+
+test('secret to database connection', async () => {
+  // @ts-expect-error this incorrectly extends DatabaseAccess by overriding a private method but it's fine as it's a test
+  const databaseAccess = new (class extends DatabaseAccess {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private async validateConnection(connection: Knex<any, unknown[]>): Promise<Knex<any, unknown[]>> {
+      return connection;
+    }
+  })(getLogger(''));
+
+  const secret = JSON.parse(getSecretString({ SecretId: 'hello', VersionStage: 'AWSCURRENT' }));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const connection: any = await databaseAccess.getDatabaseConnection(secret);
+  const config = connection.context.client.config;
+
+  expect(config.client).toEqual('pg');
+  expect(config.connection).toEqual({
+    host: secret.host,
+    user: secret.username,
+    database: secret.dbname,
+    port: parseInt(secret.port, 10),
+  });
 });
 
 const mockSecretsManager = (config: SecretsManagerMockingConfig = {}): void => {
