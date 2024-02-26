@@ -3,12 +3,18 @@ import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-sec
 import { handler } from './handler';
 import * as child_process from 'node:child_process';
 import { getTestResource } from '../../shared/utils/test-utils';
+import * as fs from 'node:fs';
+import { GetObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
+import { Readable } from 'node:stream';
 
+const mockS3Client = mockClient(S3Client);
 const mockSecretsManagerClient = mockClient(SecretsManagerClient);
 
 const DATABASE = 'dap_txma_reporting_db';
 
 const SECRET_ID = 'MySecretId';
+
+const FLYWAY_FILES_BUCKET_NAME = 'flyway-files-bucket';
 
 // this is of type RedshiftSecret but we can't use type annotations in this file (see further explanation above jest.mock call)
 const SECRET_VALUE = {
@@ -40,6 +46,16 @@ jest.mock('node:child_process', () => {
 
 const spawnSyncSpy = jest.spyOn(child_process, 'spawnSync');
 
+jest.mock('node:fs', () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual('node:fs'),
+  };
+});
+
+const mkdirSyncSpy = jest.spyOn(fs, 'mkdirSync');
+const createWriteStreamSpy = jest.spyOn(fs, 'createWriteStream');
+
 let FLYWAY_CONNECTION_ERROR: Record<string, unknown>;
 
 let FLYWAY_INFO: Record<string, unknown>;
@@ -47,15 +63,23 @@ let FLYWAY_INFO: Record<string, unknown>;
 beforeAll(async () => {
   FLYWAY_CONNECTION_ERROR = JSON.parse(await getTestResource('flyway-connection-error.json'));
   FLYWAY_INFO = JSON.parse(await getTestResource('flyway-info.json'));
+  mkdirSyncSpy.mockImplementation();
+  createWriteStreamSpy.mockImplementation();
 });
 
 beforeEach(() => {
+  mockS3Client.reset();
+  mockS3Client.callsFake(input => {
+    throw new Error(`Unexpected S3 request - ${JSON.stringify(input)}`);
+  });
+
   mockSecretsManagerClient.reset();
   mockSecretsManagerClient.callsFake(input => {
     throw new Error(`Unexpected Secrets Manager request - ${JSON.stringify(input)}`);
   });
 
   process.env.REDSHIFT_SECRET_ID = SECRET_ID;
+  process.env.FLYWAY_FILES_BUCKET_NAME = FLYWAY_FILES_BUCKET_NAME;
 });
 
 test('unknown command', async () => {
@@ -64,22 +88,37 @@ test('unknown command', async () => {
   );
 });
 
+test('error getting files', async () => {
+  const errorMessage = 's3 error';
+
+  mockS3Responses(errorMessage);
+  mockSecretsManagerResponses();
+
+  await expect(handler({ command: 'info', database: DATABASE })).rejects.toThrow(
+    `Error getting flyway files - ${errorMessage}`,
+  );
+
+  expect(mockS3Client.calls()).toHaveLength(1);
+  expect(mockSecretsManagerClient.calls()).toHaveLength(0);
+});
+
 test('error getting secret', async () => {
   const errorMessage = 'secretsmanager error';
 
-  mockSecretsManagerClient.on(GetSecretValueCommand, { SecretId: SECRET_ID }).rejectsOnce(errorMessage);
+  mockS3Responses();
+  mockSecretsManagerResponses(errorMessage);
 
   await expect(handler({ command: 'info', database: DATABASE })).rejects.toThrow(
     `Error getting redshift secret - Error getting secret - ${errorMessage}`,
   );
 
+  expect(mockS3Client.calls()).toHaveLength(4);
   expect(mockSecretsManagerClient.calls()).toHaveLength(1);
 });
 
 test('flyway success', async () => {
-  mockSecretsManagerClient
-    .on(GetSecretValueCommand, { SecretId: SECRET_ID })
-    .resolvesOnce({ SecretString: JSON.stringify(SECRET_VALUE) });
+  mockS3Responses();
+  mockSecretsManagerResponses();
 
   spawnSyncSpy.mockImplementation((command, args, options) => {
     expect(options?.env).toEqual(EXPECTED_ENVIRONMENT);
@@ -91,12 +130,14 @@ test('flyway success', async () => {
   expect(response.stderr).toEqual({});
   expect(response.stdout).toEqual(FLYWAY_INFO);
   expect(response.error).toBeUndefined();
+
+  expect(mockS3Client.calls()).toHaveLength(4);
+  expect(mockSecretsManagerClient.calls()).toHaveLength(1);
 });
 
 test('flyway error', async () => {
-  mockSecretsManagerClient
-    .on(GetSecretValueCommand, { SecretId: SECRET_ID })
-    .resolvesOnce({ SecretString: JSON.stringify(SECRET_VALUE) });
+  mockS3Responses();
+  mockSecretsManagerResponses();
 
   // flyway sends errors using stdout
   spawnSyncSpy.mockImplementation((command, args, options) => {
@@ -109,15 +150,17 @@ test('flyway error', async () => {
   expect(response.stderr).toEqual({});
   expect(response.stdout).toEqual(FLYWAY_CONNECTION_ERROR);
   expect(response.error).toBeUndefined();
+
+  expect(mockS3Client.calls()).toHaveLength(4);
+  expect(mockSecretsManagerClient.calls()).toHaveLength(1);
 });
 
 test('spawn sync error', async () => {
   const error = new Error('Command line error');
   const stderr = { error: 'spawn sync error' };
 
-  mockSecretsManagerClient
-    .on(GetSecretValueCommand, { SecretId: SECRET_ID })
-    .resolvesOnce({ SecretString: JSON.stringify(SECRET_VALUE) });
+  mockS3Responses();
+  mockSecretsManagerResponses();
 
   spawnSyncSpy.mockImplementation((command, args, options) => {
     expect(options?.env).toEqual(EXPECTED_ENVIRONMENT);
@@ -129,14 +172,16 @@ test('spawn sync error', async () => {
   expect(response.stderr).toEqual(stderr);
   expect(response.stdout).toEqual({});
   expect(response.error).toEqual(error);
+
+  expect(mockS3Client.calls()).toHaveLength(4);
+  expect(mockSecretsManagerClient.calls()).toHaveLength(1);
 });
 
 test('spawn sync uncaught error', async () => {
   const error = new Error('Command line error');
 
-  mockSecretsManagerClient
-    .on(GetSecretValueCommand, { SecretId: SECRET_ID })
-    .resolvesOnce({ SecretString: JSON.stringify(SECRET_VALUE) });
+  mockS3Responses();
+  mockSecretsManagerResponses();
 
   spawnSyncSpy.mockImplementation((command, args, options) => {
     expect(options?.env).toEqual(EXPECTED_ENVIRONMENT);
@@ -144,6 +189,9 @@ test('spawn sync uncaught error', async () => {
   });
 
   await expect(handler({ command: 'info', database: DATABASE })).rejects.toThrow(error.message);
+
+  expect(mockS3Client.calls()).toHaveLength(4);
+  expect(mockSecretsManagerClient.calls()).toHaveLength(1);
 });
 
 // this should return type child_process.SpawnSyncReturns<Buffer> but we can't use type annotations in this file (see further explanation above jest.mock call)
@@ -160,4 +208,52 @@ const spawnSyncResult = (
     stderr: Buffer.from(JSON.stringify(stderr), 'utf-8'),
     error,
   };
+};
+
+class MockReadable extends Readable {
+  pipe<T extends NodeJS.WritableStream>(destination: T, options?: { end?: boolean | undefined }): T {
+    // @ts-expect-error this is fine as it's just for creating a mock
+    return this;
+  }
+
+  // @ts-expect-error this is fine as it's just for creating a mock
+  on(event: string, listener: () => void): this {
+    if (event === 'close') {
+      listener();
+    }
+    return this;
+  }
+}
+
+// the Body properties below need an 'as SdkStream<Readable>' but we can't use type annotations in this file (see further explanation above jest.mock call)
+const mockS3Responses = (errorMessage?: string): void => {
+  const contents = [
+    { Key: 'flyway.conf' },
+    { Key: 'migrations/V1_0__first_migration.sql' },
+    { Key: 'migrations/V1_1__second_migration.sql' },
+  ];
+
+  if (errorMessage !== undefined) {
+    mockS3Client.onAnyCommand().rejects(errorMessage);
+    return;
+  }
+  mockS3Client
+    .on(ListObjectsV2Command, { Bucket: FLYWAY_FILES_BUCKET_NAME })
+    .resolvesOnce({ Contents: contents })
+    .on(GetObjectCommand, { Bucket: FLYWAY_FILES_BUCKET_NAME, Key: contents[0].Key })
+    .resolvesOnce({ Body: new MockReadable() as never })
+    .on(GetObjectCommand, { Bucket: FLYWAY_FILES_BUCKET_NAME, Key: contents[1].Key })
+    .resolvesOnce({ Body: new MockReadable() as never })
+    .on(GetObjectCommand, { Bucket: FLYWAY_FILES_BUCKET_NAME, Key: contents[2].Key })
+    .resolvesOnce({ Body: new MockReadable() as never });
+};
+
+const mockSecretsManagerResponses = (errorMessage?: string): void => {
+  if (errorMessage !== undefined) {
+    mockSecretsManagerClient.onAnyCommand().rejects(errorMessage);
+    return;
+  }
+  mockSecretsManagerClient
+    .on(GetSecretValueCommand, { SecretId: SECRET_ID })
+    .resolvesOnce({ SecretString: JSON.stringify(SECRET_VALUE) });
 };

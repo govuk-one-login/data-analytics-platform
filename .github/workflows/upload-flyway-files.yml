@@ -1,0 +1,48 @@
+name: ✳️ Upload Flyway files to S3
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        required: true
+        description: AWS environment
+        options: [DEV, TEST, FEATURE, BUILD, STAGING, INTEGRATION, PRODUCTION, PRODUCTION-PREVIEW]
+
+jobs:
+  validate-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Validate input environment
+        run: scripts/validate-environment.sh ${{ inputs.environment }}
+
+  upload-to-s3:
+    needs: [validate-environment]
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Assume AWS GitHub actions role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.FLYWAY_FILES_UPLOAD_ROLE_ARN }}
+      - name: Upload athena files to S3
+        run: |
+          REGION="eu-west-2"
+          FILES_ROOT="redshift-scripts/flyway"
+          S3_BUCKET="s3://$(echo "${{ inputs.environment }}" | tr '[:upper:]' '[:lower:]')-dap-flyway-files"
+
+          echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"
+          aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive
