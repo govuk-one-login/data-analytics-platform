@@ -32,11 +32,11 @@ export const handler = async (event: Event): Promise<{ statusCode: number; body:
         const s3Prefix = `txma/${eventName}/year=${date.slice(0, 4)}/month=${date.slice(5, 7)}/day=${date.slice(8, 10)}`;
         const s3Params = { Bucket: s3Bucket, Prefix: s3Prefix };
 
-        const s3Response = await s3Client.send(new ListObjectsV2Command(s3Params));
+        const contents = await s3Client.send(new ListObjectsV2Command(s3Params)).then(response => response.Contents);
 
-        if (s3Response?.Contents?.length > 0) {
+        if (contents !== undefined && contents.length > 0) {
           const messages = [];
-          for (const obj of s3Response.Contents) {
+          for (const obj of contents) {
             const getObjectParams = { Bucket: s3Bucket, Key: obj.Key };
             const objectResponse = await s3Client.send(new GetObjectCommand(getObjectParams));
             const objectContent = await getDecompressedContent(objectResponse);
