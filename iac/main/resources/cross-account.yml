@@ -126,6 +126,15 @@ CrossAccountVPCEndpointSQS:
       - !Ref CrossAccountSubnet2
       - !Ref CrossAccountSubnet3
 
+CrossAccountVPCEndpointS3:
+  Type: AWS::EC2::VPCEndpoint
+  Properties:
+    VpcEndpointType: Gateway
+    ServiceName: com.amazonaws.eu-west-2.s3
+    VpcId: !Ref CrossAccountVPC
+    RouteTableIds:
+      - !Ref CrossAccountRouteTable
+
 CrossAccountDataSyncRole:
   Type: AWS::IAM::Role
   Condition: IsProduction
@@ -182,6 +191,8 @@ CrossAccountDataSyncLambda:
         RAW_BUCKET_NAME: !Ref RawLayerBucket
     Tags:
       Environment: !Ref Environment
+    MemorySize: 512
+    Timeout: 900
     VpcConfig:
       SecurityGroupIds:
         - !Ref CrossAccountSecurityGroup
