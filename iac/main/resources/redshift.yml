@@ -155,7 +155,7 @@ RedshiftServerlessNamespace:
 RedshiftServerlessWorkgroup:
   Type: 'AWS::RedshiftServerless::Workgroup'
   Properties:
-    BaseCapacity: 64
+    BaseCapacity: 88
     EnhancedVpcRouting: false
     NamespaceName: !Ref RedshiftServerlessNamespace
     Port: !Sub '{{resolve:secretsmanager:${RedshiftSecret}::port}}'
