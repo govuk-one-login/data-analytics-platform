@@ -51,7 +51,7 @@
     "uuid": "^9.0.1"
   },
   "scripts": {
-    "build": "scripts/build-lambdas.sh",
+    "build": "scripts/build-lambdas.sh && scripts/build-flyway-layer.sh",
     "check": "npm run format:check && npm run lint:check",
     "format:check": "prettier --check src tests",
     "format:fix": "prettier --write src tests",

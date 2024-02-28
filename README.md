@@ -60,6 +60,7 @@ The lambdas and supporting code are written in [TypeScript](https://www.typescri
 
 Individual lambda handlers (and unit tests) can be found in subdirectories of the [src/handlers](src/handlers) directory.
 Common and utility code can be found in the [src/shared](src/shared) directory.
+Lambda layers can be found in subdirectories of the [src/layers](src/layers) directory.
 
 In addition, files to support running lambdas with `sam local invoke` are in the [sam-local-examples](sam-local-examples) directory.
 
@@ -151,7 +152,7 @@ In addition, [checkov](https://www.checkov.io) can find misconfigurations. Prett
 
 #### Lambdas
 
-* `npm run build` - build (transpile, bundle, etc.) lambdas into the [dist](dist) directory
+* `npm run build` - build (transpile, bundle, etc.) lambdas into the [dist](dist) directory and build the flyway lambda layer into the [layer-dist](layer-dist) directory
 
 Lambdas can be run locally with [sam local invoke](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-invoke.html). A few prerequisites:
 
