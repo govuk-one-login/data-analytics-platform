@@ -56,6 +56,22 @@ EventConsumerLambda:
           - Effect: Allow
             Action: kms:decrypt
             Resource: !If [UsePlaceholderTxMAQueue, !GetAtt KmsKey.Arn, '{{resolve:ssm:TxMAKMSKeyARN}}']
+          # extra statements for production preview as it needs access to both a real TxMA queue and a placeholder queue
+          - !If
+            - IsProductionPreview
+            - Effect: Allow
+              Action:
+                - 'sqs:DeleteMessage'
+                - 'sqs:GetQueueAttributes'
+                - 'sqs:ReceiveMessage'
+              Resource: '{{resolve:ssm:TxMAEventQueueARN}}'
+            - !Ref AWS::NoValue
+          - !If
+            - IsProductionPreview
+            - Effect: Allow
+              Action: kms:decrypt
+              Resource: '{{resolve:ssm:TxMAKMSKeyARN}}'
+            - !Ref AWS::NoValue
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
