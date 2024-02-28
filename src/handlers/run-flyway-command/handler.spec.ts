@@ -6,6 +6,8 @@ import { getTestResource } from '../../shared/utils/test-utils';
 import * as fs from 'node:fs';
 import { GetObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { Readable } from 'node:stream';
+import * as path from 'node:path';
+import * as tar from 'tar';
 
 const mockS3Client = mockClient(S3Client);
 const mockSecretsManagerClient = mockClient(SecretsManagerClient);
@@ -32,6 +34,12 @@ const EXPECTED_ENVIRONMENT = expect.objectContaining({
   FLYWAY_PASSWORD: SECRET_VALUE.password,
 });
 
+const LIBRARY_FILES_PATH = '/tmp/flyway/lib';
+
+const FLYWAY_TAR_NAME = 'flyway-commandline-10.7.2-linux-x64.tar.gz';
+
+const REDSHIFT_JAR_NAME = 'redshift-jdbc42-2.1.0.25.jar';
+
 /*
   because we use jest mocking in this test file, esbuild-jest transforms the file differently
   such that it can no longer have type annotations (e.g. this function should return child_process.SpawnSyncReturns<Buffer>)
@@ -55,6 +63,26 @@ jest.mock('node:fs', () => {
 
 const mkdirSyncSpy = jest.spyOn(fs, 'mkdirSync');
 const createWriteStreamSpy = jest.spyOn(fs, 'createWriteStream');
+const readdirSyncSpy = jest.spyOn(fs, 'readdirSync');
+const renameSyncSpy = jest.spyOn(fs, 'renameSync');
+
+jest.mock('node:path', () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual('node:path'),
+  };
+});
+
+const parseSpy = jest.spyOn(path, 'parse');
+
+jest.mock('tar', () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual('tar'),
+  };
+});
+
+const tarExtractSpy = jest.spyOn(tar, 'x');
 
 let FLYWAY_CONNECTION_ERROR: Record<string, unknown>;
 
@@ -65,6 +93,19 @@ beforeAll(async () => {
   FLYWAY_INFO = JSON.parse(await getTestResource('flyway-info.json'));
   mkdirSyncSpy.mockImplementation();
   createWriteStreamSpy.mockImplementation();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readdirSyncSpy.mockReturnValue([FLYWAY_TAR_NAME, REDSHIFT_JAR_NAME] as any);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  parseSpy.mockImplementation(path => ({ base: path.substring(path.lastIndexOf('/') + 1) }) as any);
+  tarExtractSpy.mockImplementation(options => {
+    expect(options.file).toEqual(`${LIBRARY_FILES_PATH}/${FLYWAY_TAR_NAME}`);
+    expect(options.stripComponents).toEqual(1);
+    expect(options.C).toEqual(LIBRARY_FILES_PATH);
+  });
+  renameSyncSpy.mockImplementation((oldPath, newPath) => {
+    expect(oldPath).toEqual(`${LIBRARY_FILES_PATH}/${REDSHIFT_JAR_NAME}`);
+    expect(newPath).toEqual(`${LIBRARY_FILES_PATH}/drivers/${REDSHIFT_JAR_NAME}`);
+  });
 });
 
 beforeEach(() => {
