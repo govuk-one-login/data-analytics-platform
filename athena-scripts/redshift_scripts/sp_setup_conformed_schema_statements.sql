@@ -127,7 +127,8 @@ INSERT INTO conformed.REF_RELYING_PARTIES(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME)
 ('FakIq5aYsHQ02dBOc6XwyA1wRRs',	'Great British Insulation Scheme (GBIS)','Ofgem - Great British Insulation Scheme (GBIS)'),
 ('2nAxHa72OqhE6eKymHZIx-sV3vI',	'Apprenticeship provider and assessment register service','NAS - Apprenticeship Provider and Assessment Register Service'),
 ('MJ8nBsh32LHweUjb6x3p7qf-_TE',	'Apprenticeship assessment service','NAS - Apprenticeship Assessment Service'),
-('txsGLvMYYCPaWPZRq2L7XxEnyro',	'Early Years Child Development Training','DFE - Early Years Child Development Training');
+('txsGLvMYYCPaWPZRq2L7XxEnyro',	'Early Years Child Development Training','DFE - Early Years Child Development Training'),
+('mQDXGO7gWdK7V28v82nVcEGuacY',	'HMRC','HMRC - HMRC');
 
 
     raise info 'Setup of conformed layer ran successfully';
