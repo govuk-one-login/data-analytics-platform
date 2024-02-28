@@ -1,0 +1,203 @@
+CrossAccountVPC:
+  Type: AWS::EC2::VPC
+  Condition: IsProduction
+  Properties:
+    CidrBlock: 10.0.0.0/16
+    EnableDnsHostnames: true
+    EnableDnsSupport: true
+    Tags:
+      - Key: Environment
+        Value: !Ref Environment
+      - Key: Name
+        Value: dap-cross-account-vpc
+
+CrossAccountSubnet1:
+  Type: AWS::EC2::Subnet
+  Condition: IsProduction
+  Properties:
+    VpcId: !Ref CrossAccountVPC
+    AvailabilityZone: !Select
+      - 0
+      - !GetAZs
+        Ref: 'AWS::Region'
+    CidrBlock: 10.0.1.0/24
+    Tags:
+      - Key: Environment
+        Value: !Ref Environment
+      - Key: Name
+        Value: dap-cross-account-subnet-1
+
+CrossAccountSubnet2:
+  Type: AWS::EC2::Subnet
+  Condition: IsProduction
+  Properties:
+    VpcId: !Ref CrossAccountVPC
+    AvailabilityZone: !Select
+      - 1
+      - !GetAZs
+        Ref: 'AWS::Region'
+    CidrBlock: 10.0.2.0/24
+    Tags:
+      - Key: Environment
+        Value: !Ref Environment
+      - Key: Name
+        Value: dap-cross-account-subnet-2
+
+CrossAccountSubnet3:
+  Type: AWS::EC2::Subnet
+  Condition: IsProduction
+  Properties:
+    VpcId: !Ref CrossAccountVPC
+    AvailabilityZone: !Select
+      - 2
+      - !GetAZs
+        Ref: 'AWS::Region'
+    CidrBlock: 10.0.3.0/24
+    Tags:
+      - Key: Environment
+        Value: !Ref Environment
+      - Key: Name
+        Value: dap-cross-account-subnet-3
+
+CrossAccountRouteTable:
+  Type: AWS::EC2::RouteTable
+  Condition: IsProduction
+  Properties:
+    Tags:
+      - Key: Environment
+        Value: !Ref Environment
+      - Key: Name
+        Value: dap-cross-account-route-table
+    VpcId: !Ref CrossAccountVPC
+
+CrossAccountRouteTableAssociation1:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Condition: IsProduction
+  Properties:
+    RouteTableId: !Ref CrossAccountRouteTable
+    SubnetId: !Ref CrossAccountSubnet1
+
+CrossAccountRouteTableAssociation2:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Condition: IsProduction
+  Properties:
+    RouteTableId: !Ref CrossAccountRouteTable
+    SubnetId: !Ref CrossAccountSubnet2
+
+CrossAccountRouteTableAssociation3:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Condition: IsProduction
+  Properties:
+    RouteTableId: !Ref CrossAccountRouteTable
+    SubnetId: !Ref CrossAccountSubnet3
+
+CrossAccountSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Condition: IsProduction
+  Properties:
+    GroupName: cross-account-security-group
+    GroupDescription: Security group for the cross account VPC
+    VpcId: !Ref CrossAccountVPC
+    SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+        Description: Allow ingress from anywhere within the VPC on 443
+    SecurityGroupEgress:
+      - IpProtocol: -1
+        FromPort: -1
+        ToPort: -1
+        CidrIp: 0.0.0.0/0
+        Description: Allow egress to anywhere
+
+CrossAccountVPCEndpointSQS:
+  Type: AWS::EC2::VPCEndpoint
+  Condition: IsProduction
+  Properties:
+    VpcEndpointType: Interface
+    ServiceName: com.amazonaws.eu-west-2.sqs
+    VpcId: !Ref CrossAccountVPC
+    PrivateDnsEnabled: true
+    SecurityGroupIds:
+      - !Ref CrossAccountSecurityGroup
+    SubnetIds:
+      - !Ref CrossAccountSubnet1
+      - !Ref CrossAccountSubnet2
+      - !Ref CrossAccountSubnet3
+
+CrossAccountVPCEndpointS3:
+  Type: AWS::EC2::VPCEndpoint
+  Condition: IsProduction
+  Properties:
+    VpcEndpointType: Gateway
+    ServiceName: com.amazonaws.eu-west-2.s3
+    VpcId: !Ref CrossAccountVPC
+    RouteTableIds:
+      - !Ref CrossAccountRouteTable
+
+CrossAccountDataSyncRole:
+  Type: AWS::IAM::Role
+  Condition: IsProduction
+  Properties:
+    RoleName: !Ref CrossAccountDataSyncRoleName
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+    MaxSessionDuration: 3600
+    ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+    Policies:
+      - PolicyName: dap-cross-account-data-sync-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action: sqs:SendMessage
+              Resource:
+                - !Sub arn:aws:sqs:eu-west-2:*:staging-placeholder-txma-event-queue
+                - !Sub arn:aws:sqs:eu-west-2:*:production-preview-placeholder-txma-event-queue
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:Encrypt
+                - kms:DescribeKey
+                - kms:GenerateDataKey
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+              Resource:
+                - !Sub arn:aws:s3:::${RawLayerBucket}
+                - !Sub arn:aws:s3:::${RawLayerBucket}/*
+
+CrossAccountDataSyncLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this is a manually invoked action
+  Type: AWS::Serverless::Function
+  Condition: IsProduction
+  Properties:
+    FunctionName: cross-account-transfer
+    Handler: cross-account-transfer.handler
+    Role: !GetAtt CrossAccountDataSyncRole.Arn
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        RAW_BUCKET_NAME: !Ref RawLayerBucket
+    Tags:
+      Environment: !Ref Environment
+    MemorySize: 512
+    Timeout: 900
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref CrossAccountSecurityGroup
+      SubnetIds:
+        - !Ref CrossAccountSubnet1
+        - !Ref CrossAccountSubnet2
+        - !Ref CrossAccountSubnet3
