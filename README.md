@@ -255,7 +255,8 @@ The action cannot be invoked manually like the one for dev, only by merging into
 Because they use real TxMA event queues (from external AWS accounts and not in our IaC code),
 deployment to higher environments&ast; relies on the following AWS System Manager Parameters being available in the target account:
 
-&ast; These parameters are also required in the _dev_ account for the reasons mentioned above (_dev_ currently having the real TxMA staging queue)
+&ast; These parameters are also required in the _dev_ account for the reasons mentioned above (_dev_ currently having the real TxMA staging queue).
+They are additionally required in the _production preview_ account as it also has a real TxMA queue.
 
 | Name              | Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
@@ -315,6 +316,8 @@ The _production preview_ environment is another standalone environment that exis
 It has a GitHub Action [Deploy to the production preview environment](.github/workflows/deploy-to-production-preview.yml) but no corresponding tear down one.
 
 The deployments use a special role in the _production preview_ environment, `dap-production-preview-deploy-role`, much like the role in _feature_.
+
+_Production preview_ has a real TxMA queue in addition to its placeholder queue and so requires the SSM parameters mentioned above in the _Higher environment config_ section.
 
 #### Config for cross account data sync
 
