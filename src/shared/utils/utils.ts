@@ -129,6 +129,10 @@ export const ensureDefined = (supplier: () => string | undefined): string => {
   return value;
 };
 
+export const findOrThrow = <T>(ts: T[], predicate: (value: T, index: number, obj: T[]) => unknown): T => {
+  return ts.find(predicate) ?? throwExpression(`Unable to find element matching predicate ${predicate.toString()}`);
+};
+
 // see https://stackoverflow.com/a/65666402
 const throwExpression = (message: string): never => {
   throw new Error(message);

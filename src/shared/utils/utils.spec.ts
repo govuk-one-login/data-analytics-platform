@@ -3,6 +3,7 @@ import {
   decodeObject,
   encodeObject,
   ensureDefined,
+  findOrThrow,
   getAccountId,
   getAWSEnvironment,
   getEnvironmentVariable,
@@ -176,6 +177,13 @@ test('ensure defined', () => {
   const response = { one: 'one', two: undefined };
   expect(ensureDefined(() => response.one)).toEqual('one');
   expect(() => ensureDefined(() => response.two)).toThrow('two is undefined');
+});
+
+test('find or throw', () => {
+  expect(findOrThrow([1, 2, 3, 4], n => n === 2)).toEqual(2);
+  expect(() => findOrThrow([1, 2, 3, 4], n => n === 8)).toThrow(
+    'Unable to find element matching predicate (n) => n === 8',
+  );
 });
 
 const mockS3Response = (body: unknown): GetObjectCommandOutput => {

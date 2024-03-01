@@ -6,6 +6,10 @@ on:
       environment:
         type: string
         required: true
+      skip-upload-libraries:
+        type: boolean
+        required: false
+        default: true
   workflow_dispatch:
     inputs:
       environment:
@@ -13,6 +17,11 @@ on:
         required: true
         description: AWS environment
         options: [DEV, TEST, FEATURE, BUILD, STAGING, INTEGRATION, PRODUCTION, PRODUCTION-PREVIEW]
+      skip-upload-libraries:
+        type: boolean
+        required: false
+        description: Skip uploading flyway tar and redshift jar as it is slow to do so and it only needs to be done if they have changed
+        default: true
 
 jobs:
   validate-environment:
@@ -33,6 +42,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+        with:
+          lfs: true
       - name: Assume AWS GitHub actions role
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -44,5 +55,10 @@ jobs:
           FILES_ROOT="redshift-scripts/flyway"
           S3_BUCKET="s3://$(echo "${{ inputs.environment }}" | tr '[:upper:]' '[:lower:]')-dap-flyway-files"
 
-          echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"
-          aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive
+          echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET (skip-upload-libraries: ${{ inputs.skip-upload-libraries }})"          
+          if [ ${{ inputs.skip-upload-libraries }} == "true" ]; then
+            aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive --exclude "lib/*"
+          else
+            aws --region="$REGION" s3 rm "$S3_BUCKET"/lib --recursive
+            aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive
+          fi
