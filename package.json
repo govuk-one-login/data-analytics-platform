@@ -24,6 +24,7 @@
     "@tsconfig/node18": "^18.2.2",
     "@types/aws-lambda": "^8.10.134",
     "@types/jest": "^29.5.12",
+    "@types/tar": "^6.1.11",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
@@ -45,12 +46,12 @@
     "pg": "^8.11.3",
     "prettier": "^3.2.5",
     "prettier-plugin-sh": "^0.14.0",
+    "tar": "^6.2.0",
     "typescript": "^5.3.3",
-    "uuid": "^9.0.1",
-    "zlib": "^1.0.5"
+    "uuid": "^9.0.1"
   },
   "scripts": {
-    "build": "scripts/build-lambdas.sh && scripts/build-flyway-layer.sh",
+    "build": "scripts/build-lambdas.sh",
     "check": "npm run format:check && npm run lint:check",
     "format:check": "prettier --check src tests",
     "format:fix": "prettier --write src tests",
