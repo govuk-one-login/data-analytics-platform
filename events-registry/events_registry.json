@@ -1,0 +1,2790 @@
+[
+  {
+    "event_name": "AUTH_AUTHORISATION_INITIATED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "extensions.client-name",
+      "user.govuk_signin_journey_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 22, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_APP_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 22, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_CRI_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 22, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_CRI_VC_ISSUED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted",
+      "extensions.evidence[].activityHistoryScore",
+      "extensions.evidence[].strengthScore",
+      "extensions.evidence[].type",
+      "extensions.evidence[].validityScore",
+      "extensions.evidence[].checkDetails[].biometricVerificationProcessLevel",
+      "extensions.evidence[].checkDetails[].checkMethod",
+      "extensions.evidence[].failedCheckDetails[].biometricVerificationProcessLevel",
+      "extensions.evidence[].failedCheckDetails[].checkMethod"
+    ],
+    "date_added": "May 22, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_CREATE_ACCOUNT",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_APP_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_APP_HANDOFF_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_DRIVING_LICENCE_SELECTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_PASSPORT_SELECTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_WEB_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_ADDRESS_CRI_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_ADDRESS_CRI_VC_ISSUED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.addressesEntered",
+      "extensions.iss",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_FRAUD_CRI_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_FRAUD_CRI_VC_ISSUED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.iss",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted",
+      "extensions.evidence[].decisionScore",
+      "extensions.evidence[].identityFraudScore",
+      "extensions.evidence[].type",
+      "extensions.evidence[].activityHistoryScore",
+      "extensions.evidence[].checkDetails[].checkMethod",
+      "extensions.evidence[].failedCheckDetails[].checkMethod"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_IDENTITY_REUSE_COMPLETE",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_IDENTITY_REUSE_RESET",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_JOURNEY_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_JOURNEY_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_KBV_CRI_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_KBV_CRI_VC_ISSUED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.iss",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted",
+      "extensions.evidence[].type",
+      "extensions.evidence[].verificationScore",
+      "extensions.evidence[].checkDetails[].kbvQuality",
+      "extensions.evidence[].checkDetails[].checkMethod",
+      "extensions.evidence[].checkDetails[].kbvResponseMode",
+      "extensions.evidence[].failedCheckDetails[].kbvResponseMode",
+      "extensions.evidence[].failedCheckDetails[].checkMethod"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_PASSPORT_CRI_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_PASSPORT_CRI_VC_ISSUED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.iss",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted",
+      "extensions.evidence[].strengthScore",
+      "extensions.evidence[].type",
+      "extensions.evidence[].validityScore"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_SPOT_RESPONSE_APPROVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_SPOT_RESPONSE_REJECTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.reason",
+      "extensions.rejectionReason",
+      "user.govuk_signin_journey_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "May 31, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_ABORT_APP",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_ABORT_WEB",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_BRP_SELECTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_CRI_4XXERROR",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_CRI_5XXERROR",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_CRI_ABORT",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_CRI_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_HYBRID_BILLING_STARTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_IPROOV_BILLING_STARTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_MISSING_CONTEXT_AFTER_ABORT",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_MISSING_CONTEXT_AFTER_COMPLETION",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_READID_NFC_BILLING_STARTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_REDIRECT_ABORT",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_REDIRECT_SUCCESS",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "DCMAW_SESSION_RECOVERED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "extensions.previous_govuk_signin_journey_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_ADDRESS_CRI_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_ADDRESS_CRI_REQUEST_SENT",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_CRI_AUTH_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.error_code",
+      "extensions.error_description",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_DELETE_USER_DATA",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_FRAUD_CRI_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_FRAUD_CRI_REQUEST_SENT",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_FRAUD_CRI_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_KBV_CRI_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_KBV_CRI_REQUEST_SENT",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_KBV_CRI_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.experianIiqResponse.outcome",
+      "extensions.experianIiqResponse.totalQuestionsAnsweredCorrect",
+      "extensions.experianIiqResponse.totalQuestionsAnsweredIncorrect",
+      "extensions.experianIiqResponse.totalQuestionsAsked",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_PASSPORT_CRI_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_PASSPORT_CRI_REQUEST_SENT",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.iss",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_PASSPORT_CRI_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_REDIRECT_TO_CRI",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_SPOT_REQUEST_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_VC_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.iss",
+      "extensions.successful",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted",
+      "extensions.isUkIssued",
+      "extensions.age",
+      "extensions.evidence[].activityHistoryScore",
+      "extensions.evidence[].identityFraudScore",
+      "extensions.evidence[].strengthScore",
+      "extensions.evidence[].type",
+      "extensions.evidence[].validityScore",
+      "extensions.evidence[].verificationScore",
+      "extensions.evidence[].checkDetails[].kbvResponseMode",
+      "extensions.evidence[].checkDetails[].checkMethod",
+      "extensions.evidence[].checkDetails[].kbvQuality",
+      "extensions.evidence[].checkDetails[].biometricVerificationProcessLevel",
+      "extensions.evidence[].failedCheckDetails[].biometricVerificationProcessLevel",
+      "extensions.evidence[].failedCheckDetails[].checkMethod",
+      "extensions.evidence[].failedCheckDetails[].kbvResponseMode"
+    ],
+    "date_added": "Jun 15, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_CHECK_USER_KNOWN_EMAIL",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 28, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_LOG_IN_SUCCESS",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 28, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_CHECK_USER_NO_ACCOUNT_WITH_EMAIL",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 28, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_CODE_VERIFIED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "extensions.account-recovery",
+      "extensions.mfa-type",
+      "extensions.notification-type",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 28, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_PASSWORD_RESET_SUCCESSFUL",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 28, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_DL_CRI_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Jun 28, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_DL_CRI_VC_ISSUED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.iss",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted",
+      "extensions.evidence[].activityHistoryScore",
+      "extensions.evidence[].strengthScore",
+      "extensions.evidence[].type",
+      "extensions.evidence[].validityScore",
+      "extensions.evidence[].checkDetails[].checkMethod",
+      "extensions.evidence[].failedCheckDetails[].checkMethod"
+    ],
+    "date_added": "Jun 28, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_AUTHORISATION_REQUEST_ERROR",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "user.govuk_signin_journey_id",
+      "extensions.description",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_AUTHORISATION_REQUEST_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_IPV_AUTHORISATION_REQUESTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "extensions.clientLandingPageUrl",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "CIC_CRI_AUTH_CODE_ISSUED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "CIC_CRI_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "CIC_CRI_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "F2F_CRI_AUTH_CODE_ISSUED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "F2F_CRI_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "extensions.previous_govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "F2F_CRI_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "F2F_YOTI_PDF_EMAILED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "F2F_YOTI_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "extensions.previous_govuk_signin_journey_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "F2F_YOTI_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted",
+      "restricted.drivingPermit[].documentType",
+      "restricted.drivingPermit[].issuingCountry",
+      "restricted.passport[].documentType",
+      "restricted.passport[].issuingCountr",
+      "restricted.residencePermit[].documentType",
+      "restricted.residencePermit[].issuingCountry",
+      "restricted.idCard[].documentType",
+      "restricted.idCard[].issuingCountry"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPR_RESULT_NOTIFICATION_EMAILED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.previous_govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPR_USER_REDIRECTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.previous_govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_F2F_CRI_VC_CONSUMED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_AUTH_CODE_ISSUED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "extensions.isNewAccount",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_F2F_CRI_VC_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "extensions.iss",
+      "extensions.successful",
+      "timestamp",
+      "timestamp_formatted",
+      "extensions.evidence[].verificationScore",
+      "extensions.evidence[].strengthScore",
+      "extensions.evidence[].type",
+      "extensions.evidence[].validityScore",
+      "extensions.evidence[].checkDetails[].biometricVerificationProcessLevel",
+      "extensions.evidence[].checkDetails[].checkMethod",
+      "extensions.evidence[].checkDetails[].photoVerificationProcessLevel",
+      "extensions.evidence[].failedCheckDetails[].biometricVerificationProcessLevel",
+      "extensions.evidence[].failedCheckDetails[].checkMethod"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "F2F_CRI_VC_ISSUED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "extensions.previous_govuk_signin_journey_id",
+      "timestamp",
+      "timestamp_formatted",
+      "extensions.evidence[].verificationScore",
+      "extensions.evidence[].strengthScore",
+      "extensions.evidence[].type",
+      "extensions.evidence[].validityScore",
+      "extensions.evidence[].checkDetails[].biometricVerificationProcessLevel",
+      "extensions.evidence[].checkDetails[].checkMethod",
+      "extensions.evidence[].checkDetails[].photoVerificationProcessLevel",
+      "extensions.evidence[].failedCheckDetails[].biometricVerificationProcessLevel",
+      "extensions.evidence[].failedCheckDetails[].checkMethod",
+      "restricted.drivingPermit[].documentType",
+      "restricted.drivingPermit[].issuingCountry",
+      "restricted.passport[].documentType",
+      "restricted.passport[].issuingCountry",
+      "restricted.residencePermit[].documentType",
+      "restricted.residencePermit[].issuingCountry",
+      "restricted.idCard[].documentType",
+      "restricted.idCard[].issuingCountry"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "CIC_CRI_VC_ISSUED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "F2F_YOTI_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "extensions.previous_govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 4, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_IDENTITY_ISSUED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.ciFail",
+      "extensions.hasMitigations",
+      "extensions.levelOfConfidence",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 28, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_DL_CRI_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 22, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_DL_CRI_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 22, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_GPG45_PROFILE_MATCHED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted",
+      "extensions.gpg45Scores.activity",
+      "extensions.gpg45Scores.fraud",
+      "extensions.gpg45Scores.verification",
+      "extensions.gpg45Scores.evidence[].strength",
+      "extensions.gpg45Scores.evidence[].validity"
+    ],
+    "date_added": "Sep 22, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_CORE_CRI_RESOURCE_RETRIEVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 22, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_DL_CRI_REQUEST_SENT",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted",
+      "restricted.drivingPermit[].issuedBy"
+    ],
+    "date_added": "Sep 22, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_MITIGATION_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Sep 22, 2023",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_DOC_APP_AUTHORISATION_REQUESTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 1, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "F2F_DOCUMENT_UPLOADED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_ACCOUNT_MANAGEMENT_AUTHENTICATE",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_ACCOUNT_RECOVERY_BLOCK_ADDED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_ACCOUNT_RECOVERY_BLOCK_REMOVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "extensions.mfa-type",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_ACCOUNT_RECOVERY_NOT_PERMITTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_ACCOUNT_RECOVERY_PERMITTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_ACCOUNT_TEMPORARILY_LOCKED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_CHECK_USER_INVALID_EMAIL",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_CODE_MAX_RETRIES_REACHED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "extensions.mfa-type",
+      "extensions.notification-type",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_CREATE_ACCOUNT_EMAIL_ALREADY_EXISTS",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_DELETE_ACCOUNT",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_DOC_APP_AUTHORISATION_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_DOC_APP_SUCCESSFUL_CREDENTIAL_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_DOC_APP_SUCCESSFUL_TOKEN_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_DOC_APP_UNSUCCESSFUL_AUTHORISATION_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_DOC_APP_UNSUCCESSFUL_CREDENTIAL_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_DOC_APP_UNSUCCESSFUL_TOKEN_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_INVALID_CODE_SENT",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "extensions.mfa-type",
+      "extensions.notification-type",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_INVALID_CREDENTIALS",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_IPV_AUTHORISATION_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_IPV_SPOT_REQUESTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_IPV_SUCCESSFUL_IDENTITY_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_IPV_SUCCESSFUL_SPOT_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_IPV_SUCCESSFUL_TOKEN_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_IPV_UNSUCCESSFUL_AUTHORISATION_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_IPV_UNSUCCESSFUL_SPOT_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_IPV_UNSUCCESSFUL_TOKEN_RESPONSE_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_LOG_OUT_SUCCESS",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_MFA_CODE_SENT",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_MFA_INVALID_CODE_REQUEST",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_MFA_MISSING_PHONE_NUMBER",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_PASSWORD_RESET_REQUESTED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_PROCESSING_IDENTITY_REQUEST",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_SEND_OTP",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_START_INFO_FOUND",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "client_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_UPDATE_EMAIL",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_UPDATE_PASSWORD",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_UPDATE_PHONE_NUMBER",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_UPDATE_PROFILE_AUTH_APP",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_UPDATE_PROFILE_PHONE_NUMBER",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id",
+      "user.govuk_signin_journey_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_UPDATE_PROFILE_REQUEST_RECEIVED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_UPDATE_PROFILE_TERMS_CONDS_ACCEPTANCE",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_USER_INFO_RETURNED",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_CONTRA_INDICATOR_STORAGE_GET_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_CONTRA_INDICATOR_STORAGE_GET_QUERY",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_CONTRA_INDICATOR_STORAGE_GET_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_CONTRA_INDICATOR_STORAGE_MITIGATIONS_PUT_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_CONTRA_INDICATOR_STORAGE_MITIGATIONS_PUT_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_CONTRA_INDICATOR_STORAGE_PUT_END",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_CONTRA_INDICATOR_STORAGE_PUT_NEW_CIS",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_CONTRA_INDICATOR_STORAGE_PUT_NEW_MITIGATION",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id",
+      "extensions.evidence[].mitigations[].code",
+      "extensions.evidence[].mitigations[].mitigatingCredentialIssuer"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_CONTRA_INDICATOR_STORAGE_PUT_START",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_F2F_CORRELATION_FAIL",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "IPV_F2F_PROFILE_NOT_MET_FAIL",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user.govuk_signin_journey_id",
+      "user.user_id"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  },
+  {
+    "event_name": "AUTH_PHONE_CHECK_COMPLETE",
+    "event_fields": [
+      "event_id",
+      "event_name",
+      "component_id",
+      "extensions.iss",
+      "timestamp",
+      "timestamp_formatted",
+      "user.user_id",
+      "extensions.evidence[].identityFraudScore",
+      "extensions.evidence[].type"
+    ],
+    "date_added": "Feb 9, 2024",
+    "date_modified": "",
+    "is_retired": "N",
+    "comments": [
+      ""
+    ]
+  }
+]
