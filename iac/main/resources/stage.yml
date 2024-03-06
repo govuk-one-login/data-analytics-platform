@@ -381,6 +381,7 @@ IpvJourneyGlueTable:
           - { Name: extensions_evidence, Type: string }
           - { Name: extensions_age, Type: string }
           - { Name: extensions_isukissued, Type: string }
+          - { Name: extensions_reproveidentity, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
