@@ -792,6 +792,7 @@ IpvJourneyStartGlueTable:
           - { Name: timestamp_formatted, Type: string }
           - { Name: txma, Type: 'struct<obfuscated:boolean,config_version:string,configVersion:string>' }
           - { Name: reingestcount, Type: int }
+          - { Name: extensions, Type: 'struct<reprove_identity:boolean>' }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         Location: !Sub s3://${RawLayerBucket}/txma/IPV_JOURNEY_START/
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
