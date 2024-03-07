@@ -25,7 +25,7 @@ SELECT
 	case format('%s',cast("extensions"."new_account" as VARCHAR)) 
 		when 'null' then null
 	    else format('%s',cast("extensions"."new_account" as VARCHAR)) 
-	end as extensions_isnewaccount,
+	end as extensions_newaccount,
 	case format('%s',cast("extensions"."test_user" as VARCHAR)) 
 		when 'null' then null
 	    else format('%s',cast("extensions"."test_user" as VARCHAR)) 
