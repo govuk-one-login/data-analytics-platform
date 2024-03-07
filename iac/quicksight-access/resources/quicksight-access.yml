@@ -207,12 +207,12 @@ QuicksightAddUsersFromSpreadsheetLambdaFunction:
         - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdB
         - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdC
 
-# Role to allow invoking the two quicksight add users lambdas (quicksight-add-users and quicksight-add-users-from-spreadsheet) from GitHub Actions
-QuicksightAddUsersLambdasInvokeRole:
+# Role to allow invoking quicksight utility lambdas (quicksight-add-users, quicksight-add-users-from-spreadsheet, quicksight-import and quicksight-export) from GitHub Actions
+QuicksightLambdasInvokeRole:
   Type: AWS::IAM::Role
   Condition: IsQuicksightEnvironment
   Properties:
-    RoleName: !Sub ${Environment}-dap-quicksight-add-users-lambdas-invoke-role
+    RoleName: !Sub ${Environment}-dap-quicksight-lambdas-invoke-role
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -235,6 +235,8 @@ QuicksightAddUsersLambdasInvokeRole:
               Resource:
                 - !GetAtt QuicksightAddUsersLambdaFunction.Arn
                 - !GetAtt QuicksightAddUsersFromSpreadsheetLambdaFunction.Arn
+                - !GetAtt QuicksightImportLambdaFunction.Arn
+                - !GetAtt QuicksightExportLambdaFunction.Arn
 
 webAcl:
   Type: 'AWS::WAFv2::WebACL'
