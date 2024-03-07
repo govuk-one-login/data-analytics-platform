@@ -12,7 +12,7 @@ on:
         type: choice
         required: true
         description: AWS Environment
-        options: [DEV, TEST, FEATURE, PRODUCTION]
+        options: [DEV, TEST, FEATURE, PRODUCTION, PRODUCTION-PREVIEW]
       type:
         type: choice
         required: true
@@ -42,10 +42,10 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets[format('ADD_USERS_LAMBDAS_INVOKE_ROLE_{0}', inputs.environment)] }}
+          role-to-assume: ${{ secrets[format('QUICKSIGHT_LAMBDAS_INVOKE_ROLE_{0}', inputs.environment)] }}
       - name: Invoke lambda
         run: |
           PAYLOAD=$(echo "{\"dryRun\": ${{ inputs.dryRun }}, \"spreadsheet\": $(cat spreadsheet.json)}")
           ENCODED=$(echo "$PAYLOAD" | openssl base64)
           aws --region eu-west-2 lambda invoke --function-name quicksight-add-users-from-spreadsheet --payload "$ENCODED" out.json
-          cat out.json
+          cat out.json | jq

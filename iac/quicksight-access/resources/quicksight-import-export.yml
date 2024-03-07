@@ -1,0 +1,133 @@
+QuicksightExportBucket:
+  Type: AWS::S3::Bucket
+  Condition: IsQuicksightEnvironment
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub ${Environment}-dap-quicksight-exports
+    # can't use !Ref GlobalLogBucket here as GlobalLogBucket is in the main stack
+    LoggingConfiguration:
+      DestinationBucketName: !Sub ${Environment}-dap-s3-logs
+      LogFilePrefix: dap-quicksight-exports/log
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 365
+          Status: Enabled
+    # can't use !GetAtt S3NotificationsLoggerLambda.Arn below as S3NotificationsLoggerLambda is in the main stack
+    NotificationConfiguration:
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:s3-notifications-logger-${Environment}
+        - Event: s3:ObjectRemoved:*
+          Function: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:s3-notifications-logger-${Environment}
+
+QuicksightExportBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref QuicksightExportBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${QuicksightExportBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:ListBucket
+          Resource:
+            - !Sub ${QuicksightExportBucket.Arn}
+            - !Sub ${QuicksightExportBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+
+QuicksightExportLambdaFunction:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this is a manually invoked action
+  Type: AWS::Serverless::Function
+  Condition: IsQuicksightEnvironment
+  Properties:
+    FunctionName: quicksight-export
+    Handler: quicksight-export.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - quicksight:DescribeAnalysis
+              - quicksight:DescribeAnalysisPermissions
+              - quicksight:DescribeAssetBundleExportJob
+              - quicksight:StartAssetBundleExportJob
+            Resource: '*'
+          - Effect: Allow
+            Action: s3:PutObject
+            Resource: !Sub ${QuicksightExportBucket.Arn}/*
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+    Tags:
+      Environment: !Ref Environment
+    # this lambda lives in the protected subnets of a different VPC than the main application lambdas
+    # because it needs (limited) internet access to call quicksight APIs and this service does not have a VPC endpoint
+    # see https://govukverify.atlassian.net/wiki/spaces/PLAT/pages/3531735041/VPC
+    VpcConfig:
+      SecurityGroupIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-AWSServicesEndpointSecurityGroupId
+      SubnetIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdA
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdB
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdC
+
+QuicksightImportLambdaFunction:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this is a manually invoked action
+  Type: AWS::Serverless::Function
+  Condition: IsQuicksightEnvironment
+  Properties:
+    FunctionName: quicksight-import
+    Handler: quicksight-import.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - quicksight:CreateAnalysis
+              - quicksight:DescribeAnalysis
+              - quicksight:DescribeAnalysisPermissions
+              - quicksight:DescribeAssetBundleImportJob
+              - quicksight:DescribeTheme
+              - quicksight:PassDataSet
+              - quicksight:StartAssetBundleImportJob
+              - quicksight:UpdateAnalysis
+            Resource: '*'
+          - Effect: Allow
+            Action: s3:GetObject
+            Resource: !Sub ${QuicksightExportBucket.Arn}/*
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+    Tags:
+      Environment: !Ref Environment
+    # this lambda lives in the protected subnets of a different VPC than the main application lambdas
+    # because it needs (limited) internet access to call quicksight APIs and this service does not have a VPC endpoint
+    # see https://govukverify.atlassian.net/wiki/spaces/PLAT/pages/3531735041/VPC
+    VpcConfig:
+      SecurityGroupIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-AWSServicesEndpointSecurityGroupId
+      SubnetIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdA
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdB
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdC
