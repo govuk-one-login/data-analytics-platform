@@ -183,6 +183,17 @@ class DataPreprocessing:
                                 else:
                                     items.append((new_key, item))
                         else:
+                            if isinstance(value, str):  # Check if item is a string
+                                try:
+                                    value = float(value)  # Attempt to convert the string to a float
+                                except ValueError:
+                                    pass  # Ignore if conversion fails
+                            if isinstance(value, (int, float)):
+                                try:
+                                    if isinstance(value, float) and value.is_integer():
+                                        value = int(value)
+                                except ValueError:
+                                    pass  # Ignore if conversion fails
                             items.append((new_key, value))
             return items
         
