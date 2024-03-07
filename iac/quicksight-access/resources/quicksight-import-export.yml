@@ -29,6 +29,7 @@ QuicksightExportBucket:
 
 QuicksightExportBucketPolicy:
   Type: AWS::S3::BucketPolicy
+  Condition: IsQuicksightEnvironment
   Properties:
     Bucket: !Ref QuicksightExportBucket
     PolicyDocument:
