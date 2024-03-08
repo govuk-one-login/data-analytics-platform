@@ -1,7 +1,7 @@
 module.exports = async () => {
   return {
-    roots: ['<rootDir>/tests/e2e-tests'],
-    testMatch: ['**/tests/e2e-tests/*.spec.ts'],
+    roots: ['<rootDir>/tests/e2e-tests-restructuring'],
+    testMatch: ['**/tests/e2e-tests-restructuring/*.spec.ts'],
     coveragePathIgnorePatterns: ['/node_modules/'],
     // globalSetup: "./src/handlers/int-test-support/helpers/testSetup.ts",
     testTimeout: 300000,
