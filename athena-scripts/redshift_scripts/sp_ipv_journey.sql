@@ -307,6 +307,10 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                 =CAST(case when trim(st.extensions_age,'"') ~ '^[0-9]+$' then trim(st.extensions_age,'"')
                                              else null
                                          end AS INTEGER) 
+      ,reprove_identity = DECODE(lower(st.extensions_reproveidentity), 
+                    'false', '0', 
+                    'true', '1' 
+                    )::integer::boolean                                              
       ,PROCESSED_DATE=st.PROCESSED_DATE
       ,MODIFIED_BY=current_user
       ,MODIFIED_DATE=CURRENT_DATE
@@ -330,8 +334,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                             FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODE,CHECK_DETAILS_KBV_QUALITY,
                             VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE",successful,strength_score,gpg45_Activity_Score,
                             gpg45_evidences_Strength_Score,gpg45_evidence_Validity_Score,gpg45_Fraud_Score,gpg45_Verification_Score,nationality_is_UK_Issued,Age,
-                            PROCESSED_DATE,
-                            CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
+                            reprove_identity,PROCESSED_DATE,CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT NVL(DE.event_key,-1) AS event_key
           ,dd.date_key
           ,NVL(dvr.verification_route_key,-1) AS verification_route_key
@@ -463,7 +466,11 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
              )::integer::boolean
              , CAST(case when trim(extensions_age,'"') ~ '^[0-9]+$' then trim(extensions_age,'"')
                                               else null
-                                         end AS INTEGER)                               
+                                         end AS INTEGER)   
+             ,DECODE(lower(extensions_reproveidentity), 
+             'false', '0', 
+             'true', '1' 
+             )::integer::boolean                            
          ,PROCESSED_DATE
            ,current_user
            , CURRENT_DATE
