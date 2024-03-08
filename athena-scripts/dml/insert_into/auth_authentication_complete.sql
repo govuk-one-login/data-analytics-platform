@@ -6,7 +6,7 @@ INSERT INTO "environment-txma-stage"."auth_account_user_login" (
 	user_user_id,
 	timestamp,
 	timestamp_formatted,
-	extensions_newaccount,
+	extensions_isnewaccount,
 	extensions_testuser,
 	year,
 	month,
@@ -25,7 +25,7 @@ SELECT
 	case format('%s',cast("extensions"."new_account" as VARCHAR)) 
 		when 'null' then null
 	    else format('%s',cast("extensions"."new_account" as VARCHAR)) 
-	end as extensions_newaccount,
+	end as extensions_isnewaccount,
 	case format('%s',cast("extensions"."test_user" as VARCHAR)) 
 		when 'null' then null
 	    else format('%s',cast("extensions"."test_user" as VARCHAR)) 

@@ -143,7 +143,6 @@ AuthAccountUserLoginGlueTable:
           - { Name: timestamp_formatted, Type: string }
           - { Name: extensions_isnewaccount, Type: string }
           - { Name: extensions_testuser, Type: string }
-          - { Name: extensions_newaccount, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
