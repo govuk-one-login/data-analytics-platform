@@ -195,6 +195,26 @@ VPCDefaultSecurityGroupRedshiftIngress:
     SourceSecurityGroupId: !Ref RedshiftAccessEC2SecurityGroup
     Description: Allow ingress into the VPC default security group for redshift traffic from the redshift access security group
 
+VPCDefaultSecurityGroupEgressAll:
+  Type: AWS::EC2::SecurityGroupEgress
+  Properties:
+    GroupId: !GetAtt VPCForDAP.DefaultSecurityGroup
+    IpProtocol: -1
+    FromPort: -1
+    ToPort: -1
+    CidrIp: 0.0.0.0/0
+    Description: Allow all outbound traffic to any destination
+
+VPCDefaultSecurityGroupAllIngress:
+  Type: AWS::EC2::SecurityGroupIngress
+  Properties:
+    GroupId: !GetAtt VPCForDAP.DefaultSecurityGroup
+    IpProtocol: -1
+    FromPort: -1
+    ToPort: -1
+    SourceSecurityGroupId: !GetAtt VPCForDAP.DefaultSecurityGroup
+    Description: Allow all ingress traffic within the same security group
+
 RedshiftAccessEC2LaunchTemplate:
   Type: 'AWS::EC2::LaunchTemplate'
   Properties:
