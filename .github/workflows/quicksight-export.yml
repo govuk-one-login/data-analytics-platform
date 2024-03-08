@@ -1,0 +1,52 @@
+name: ✳️ Export analysis from Quicksight
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        required: true
+        description: AWS Environment
+        options: [DEV, TEST, FEATURE, PRODUCTION, PRODUCTION-PREVIEW]
+      analysisId:
+        type: string
+        required: true
+        description: Id of the analysis to export (get from the url e.g. https://eu-west-2.quicksight.aws.amazon.com/sn/analyses/${analysisId})
+      bucketName:
+        type: string
+        required: false
+        description: Name of the S3 bucket to use for the export (defaults to \${lowercase_environment}-dap-quicksight-exports)
+        default: 'unset'
+
+jobs:
+  invoke-quicksight-export-lambda:
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Assume AWS quicksight import export lambdas role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets[format('QUICKSIGHT_LAMBDAS_INVOKE_ROLE_{0}', inputs.environment)] }}
+      - name: Invoke lambda
+        run: |
+          LOWERCASE_ENVIRONMENT=$(echo ${{ inputs.environment }} | tr '[:upper:]' '[:lower:]')
+          echo "Environment is $LOWERCASE_ENVIRONMENT"
+
+          BUCKET_NAME=${{ inputs.bucketName }}
+          if [ -z "$BUCKET_NAME" ] || [ "$BUCKET_NAME" == "unset" ]; then
+            BUCKET_NAME="$LOWERCASE_ENVIRONMENT-dap-quicksight-exports"
+          fi
+          echo "Bucket name is $BUCKET_NAME"
+
+          PAYLOAD=$(echo "{\"analysisId\": \"${{ inputs.analysisId }}\", \"bucketName\": \"$BUCKET_NAME\"}")          
+          echo "$PAYLOAD" | jq
+
+          ENCODED=$(echo "$PAYLOAD" | openssl base64)
+          aws --region eu-west-2 lambda invoke --function-name quicksight-export --payload "$ENCODED" out.json
+          cat out.json | jq

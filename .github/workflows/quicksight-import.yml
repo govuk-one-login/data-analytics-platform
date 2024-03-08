@@ -1,0 +1,54 @@
+name: ✳️ Import analysis to Quicksight
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        required: true
+        description: AWS Environment
+        options: [DEV, TEST, FEATURE, PRODUCTION, PRODUCTION-PREVIEW]
+      s3Uri:
+        type: string
+        required: true
+        description: S3 URI of the zipped analysis to import (should look like s3://bucket-name/file-name.zip)
+      newName:
+        type: string
+        required: false
+        description: New name to give the imported analysis (if not supplied the name will remain the name of the exported analysis)
+        default: 'unset'
+
+jobs:
+  invoke-quicksight-import-lambda:
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Assume AWS quicksight import export lambdas role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets[format('QUICKSIGHT_LAMBDAS_INVOKE_ROLE_{0}', inputs.environment)] }}
+      - name: Invoke lambda
+        run: |
+          echo "Environment is $(echo ${{ inputs.environment }} | tr '[:upper:]' '[:lower:]')"
+          echo "S3 URI is ${{ inputs.s3Uri }}"
+
+          NEW_NAME=${{ inputs.newName }}
+          if [ -z "$NEW_NAME" ] || [ "$NEW_NAME" == "unset" ]; then
+            NEW_NAME="null"
+          else
+            NEW_NAME="\"$NEW_NAME\""
+          fi
+          echo "New name is $NEW_NAME"
+
+          PAYLOAD=$(echo "{\"s3Uri\": \"${{ inputs.s3Uri }}\", \"newName\": $NEW_NAME}")          
+          echo "$PAYLOAD" | jq
+
+          ENCODED=$(echo "$PAYLOAD" | openssl base64)
+          aws --region eu-west-2 lambda invoke --function-name quicksight-import --payload "$ENCODED" out.json
+          cat out.json | jq

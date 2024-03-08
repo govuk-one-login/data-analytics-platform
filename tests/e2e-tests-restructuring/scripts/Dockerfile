@@ -43,14 +43,14 @@ RUN aws --version
 COPY tests ./tests
 COPY scripts ./scripts
 COPY package.json package-lock.json tsconfig.json ./
-COPY tests/e2e-tests/scripts/jest.e2e.config.js ./jest.config.js
-COPY tests/e2e-tests/scripts/jest.e2e.setup.js ./jest.setup.js
+COPY tests/e2e-tests-restructuring/scripts/jest.e2e.config.js ./jest.config.js
+COPY tests/e2e-tests-restructuring/scripts/jest.e2e.setup.js ./jest.setup.js
 COPY src/handlers/test-support/ ./src/handlers/test-support/
 COPY src/shared/ ./src/shared/
 
 RUN npm ci
 
-WORKDIR /test-app/tests/e2e-tests/scripts
+WORKDIR /test-app/tests/e2e-tests-restructuring/scripts
 
 RUN mv ./run-e2e-tests.sh /run-tests.sh
 RUN chmod +x /run-tests.sh
