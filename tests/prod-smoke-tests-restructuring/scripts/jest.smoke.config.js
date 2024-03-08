@@ -1,6 +1,6 @@
 module.exports = async () => {
   return {
-    roots: ['<rootDir>/tests/prod-smoke-tests'],
+    roots: ['<rootDir>/tests/prod-smoke-tests-restructuring'],
     testMatch: ['**/tests/prod-smoke-tests/*.spec.ts'],
     coveragePathIgnorePatterns: ['/node_modules/'],
     testTimeout: 300000,

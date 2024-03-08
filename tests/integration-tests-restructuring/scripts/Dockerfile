@@ -43,14 +43,14 @@ RUN aws --version
 COPY tests ./tests
 COPY scripts ./scripts
 COPY package.json package-lock.json tsconfig.json ./
-COPY tests/integration-tests/scripts/jest.integration.config.js ./jest.config.js
-COPY tests/integration-tests/scripts/jest.integration.setup.js ./jest.setup.js
+COPY tests/integration-tests-restructuring/scripts/jest.integration.config.js ./jest.config.js
+COPY tests/integration-tests-restructuring/scripts/jest.integration.setup.js ./jest.setup.js
 COPY src/handlers/test-support/ ./src/handlers/test-support/
 COPY src/shared/ ./src/shared/
 
 RUN npm ci
 
-WORKDIR /test-app/tests/integration-tests/scripts
+WORKDIR /test-app/tests/integration-tests-restructuring/scripts
 
 RUN mv ./run-integration-tests.sh /run-tests.sh
 RUN chmod +x /run-tests.sh

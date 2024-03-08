@@ -43,14 +43,14 @@ RUN aws --version
 COPY tests ./tests
 COPY scripts ./scripts
 COPY package.json package-lock.json tsconfig.json ./
-COPY tests/prod-smoke-tests/scripts/jest.smoke.config.js ./jest.config.js
-COPY tests/prod-smoke-tests/scripts/jest.smoke.setup.js ./jest.setup.js
+COPY tests/prod-smoke-tests-restructuring/scripts/jest.smoke.config.js ./jest.config.js
+COPY tests/prod-smoke-tests-restructuring/scripts/jest.smoke.setup.js ./jest.setup.js
 COPY src/handlers/test-support/ ./src/handlers/test-support/
 COPY src/shared/ ./src/shared/
 
 RUN npm ci
 
-WORKDIR /test-app/tests/prod-smoke-tests/scripts
+WORKDIR /test-app/tests/prod-smoke-tests-restructuring/scripts
 
 RUN mv ./run-prod-smoke-tests.sh /run-tests.sh
 RUN chmod +x /run-tests.sh
