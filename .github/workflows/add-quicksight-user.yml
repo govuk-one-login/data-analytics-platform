@@ -8,6 +8,7 @@ on:
         required: true
         description: AWS Environment
         options: [DEV, TEST, FEATURE, PRODUCTION, PRODUCTION-PREVIEW]
+        default: PRODUCTION
       email:
         type: string
         required: true
@@ -20,7 +21,7 @@ on:
         type: choice
         required: true
         description: Quicksight group
-        options: [gds-users, dbs, dvsa, hmlr, swe, veterans]
+        options: [gds-users, dbs, dvsa, hmlr, hmrc, swe, veterans]
 
 jobs:
   invoke-add-users-lambda:
@@ -48,7 +49,12 @@ jobs:
         run: |
           USERNAME=$(if [ -z ${{ inputs.username }} ]; then echo ${{ inputs.email }}; else echo ${{ inputs.username }}; fi)
           PAYLOAD=$(echo "{\"requests\": [{ \"username\": \"$USERNAME\", \"email\": \"${{ inputs.email }}\", \"quicksightGroups\": [\"${{ inputs.group }}\"] }] }")
+          echo "Lambda request"
           echo "$PAYLOAD" | jq
+
           ENCODED=$(echo "$PAYLOAD" | openssl base64)
+          echo -e "\nLambda invocation"
           aws --region eu-west-2 lambda invoke --function-name quicksight-add-users --payload "$ENCODED" out.json
+
+          echo -e "\nLambda response"
           cat out.json | jq
