@@ -1,4 +1,4 @@
-QuickSightlLogBucket:
+QuickSightLogBucket:
   # checkov:skip=CKV_AWS_18: This is the log bucket to log quicksight access
   Type: 'AWS::S3::Bucket'
   Properties:
@@ -15,6 +15,31 @@ QuickSightlLogBucket:
       Rules:
         - ExpirationInDays: 365
           Status: Enabled
+
+QuickSightLogBucketBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref QuickSightLogBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${QuickSightLogBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+            - 's3:ListBucket'
+          Resource:
+            - !Sub ${QuickSightLogBucket.Arn}
+            - !Sub ${QuickSightLogBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
 QuicksightAccessLambdaFunction:
   # checkov:skip=CKV_AWS_116: DLQ not needed as credentials would be out of date when retried
@@ -467,7 +492,7 @@ DAPAnalystsAssetsBucket:
     AccessControl: Private
     BucketName: !Sub '${Environment}-dap-analysts-assets'
     LoggingConfiguration:
-      DestinationBucketName: !Ref QuickSightlLogBucket
+      DestinationBucketName: !Ref QuickSightLogBucket
       LogFilePrefix: dap-analysts-assets/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
