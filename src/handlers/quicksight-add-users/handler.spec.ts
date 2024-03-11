@@ -10,6 +10,7 @@ import {
 import {
   CreateGroupMembershipCommand,
   DescribeUserCommand,
+  ListGroupsCommand,
   ListUserGroupsCommand,
   QuickSightClient,
   RegisterUserCommand,
@@ -52,6 +53,14 @@ test('missing user pool id', async () => {
   await expect(handler({ requests: [] }, CONTEXT)).rejects.toThrow('USER_POOL_ID is not defined in this environment');
 });
 
+test('error getting all groups', async () => {
+  mockQuicksightClient.on(ListGroupsCommand).rejectsOnce('Quicksight list groups error');
+
+  await expect(handler({ requests: [] }, CONTEXT)).rejects.toThrow('Quicksight list groups error');
+
+  expect(mockQuicksightClient.calls()).toHaveLength(1);
+});
+
 test('successes', async () => {
   mockCognitoClient
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
@@ -69,6 +78,9 @@ test('successes', async () => {
     .resolvesOnce({});
 
   mockQuicksightClient
+    .on(ListGroupsCommand)
+    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
+
     .on(DescribeUserCommand, { UserName: 'user-a' })
     .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
@@ -117,7 +129,7 @@ test('successes', async () => {
   expect(response[2]).toEqual({ username: 'user-c', email: 'c@c.com', quicksightGroups });
 
   expect(mockCognitoClient.calls()).toHaveLength(6);
-  expect(mockQuicksightClient.calls()).toHaveLength(12);
+  expect(mockQuicksightClient.calls()).toHaveLength(13);
 });
 
 test('user existence failures', async () => {
@@ -130,6 +142,9 @@ test('user existence failures', async () => {
     .resolvesOnce(mockCognitoUser('user-c', 'c@c.com'));
 
   mockQuicksightClient
+    .on(ListGroupsCommand)
+    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
+
     .on(DescribeUserCommand, { UserName: 'user-a' })
     .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
@@ -175,7 +190,7 @@ test('user existence failures', async () => {
   });
 
   expect(mockCognitoClient.calls()).toHaveLength(3);
-  expect(mockQuicksightClient.calls()).toHaveLength(6);
+  expect(mockQuicksightClient.calls()).toHaveLength(7);
 });
 
 test('user status errors', async () => {
@@ -188,6 +203,9 @@ test('user status errors', async () => {
     .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }));
 
   mockQuicksightClient
+    .on(ListGroupsCommand)
+    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
+
     .on(DescribeUserCommand, { UserName: 'user-a' })
     .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
@@ -237,7 +255,7 @@ test('user status errors', async () => {
   });
 
   expect(mockCognitoClient.calls()).toHaveLength(3);
-  expect(mockQuicksightClient.calls()).toHaveLength(3);
+  expect(mockQuicksightClient.calls()).toHaveLength(4);
 });
 
 test('user and group add errors', async () => {
@@ -257,6 +275,9 @@ test('user and group add errors', async () => {
     .resolvesOnce({});
 
   mockQuicksightClient
+    .on(ListGroupsCommand)
+    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
+
     .on(DescribeUserCommand, { UserName: 'user-a' })
     .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
@@ -320,5 +341,68 @@ test('user and group add errors', async () => {
   });
 
   expect(mockCognitoClient.calls()).toHaveLength(6);
-  expect(mockQuicksightClient.calls()).toHaveLength(9);
+  expect(mockQuicksightClient.calls()).toHaveLength(10);
+});
+
+test('group existence failures', async () => {
+  mockCognitoClient
+    .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
+    .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
+
+    .on(AdminCreateUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
+    .resolvesOnce({});
+
+  mockQuicksightClient
+    .on(ListGroupsCommand)
+    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
+
+    .on(DescribeUserCommand, { UserName: 'user-a' })
+    .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+
+    .on(ListUserGroupsCommand, { UserName: 'user-a' })
+    .resolvesOnce({ GroupList: [] })
+
+    .on(RegisterUserCommand, { UserName: 'user-a' })
+    .resolvesOnce({})
+
+    .on(CreateGroupMembershipCommand, { MemberName: 'user-a', GroupName: 'group-one' })
+    .resolvesOnce({})
+    .on(CreateGroupMembershipCommand, { MemberName: 'user-a', GroupName: 'group-two' })
+    .resolvesOnce({});
+
+  // user a has only existing groups
+  // user b has a mixture of existing and non-existent groups
+  // user c has only non-existent groups
+  const quicksightGroups = ['group-one', 'group-two'];
+  const event = {
+    requests: [
+      { username: 'user-a', email: 'a@a.com', quicksightGroups },
+      { username: 'user-b', email: 'b@b.com', quicksightGroups: [...quicksightGroups, 'group-three'] },
+      { username: 'user-c', email: 'c@c.com', quicksightGroups: ['group-four', 'group-five'] },
+    ],
+  };
+
+  const response = await handler(event, CONTEXT);
+  expect(response).toBeDefined();
+  expect(response).toHaveLength(3);
+  expect(response[0]).toEqual({
+    username: 'user-a',
+    email: 'a@a.com',
+    quicksightGroups,
+  });
+  expect(response[1]).toEqual({
+    username: 'user-b',
+    email: 'b@b.com',
+    quicksightGroups: [...quicksightGroups, 'group-three'],
+    error: 'The following groups do not exist in Quicksight [group-three] - please review the request',
+  });
+  expect(response[2]).toEqual({
+    username: 'user-c',
+    email: 'c@c.com',
+    quicksightGroups: ['group-four', 'group-five'],
+    error: 'The following groups do not exist in Quicksight [group-four, group-five] - please review the request',
+  });
+
+  expect(mockCognitoClient.calls()).toHaveLength(2);
+  expect(mockQuicksightClient.calls()).toHaveLength(6);
 });
