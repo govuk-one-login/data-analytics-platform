@@ -1,0 +1,54 @@
+name: ✳️ Add user to Quicksight
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        required: true
+        description: AWS Environment
+        options: [DEV, TEST, FEATURE, PRODUCTION, PRODUCTION-PREVIEW]
+      email:
+        type: string
+        required: true
+        description: Email address
+      username:
+        type: string
+        required: false
+        description: Username (defaults to email address)
+      group:
+        type: choice
+        required: true
+        description: Quicksight group
+        options: [gds-users, dbs, dvsa, hmlr, swe, veterans]
+
+jobs:
+  invoke-add-users-lambda:
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+      - name: Install node packages
+        run: npm ci
+      - name: Assume AWS add users lambda invoke role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets[format('QUICKSIGHT_LAMBDAS_INVOKE_ROLE_{0}', inputs.environment)] }}
+      - name: Invoke lambda
+        run: |
+          USERNAME=$(if [ -z ${{ inputs.username }} ]; then echo ${{ inputs.email }}; else echo ${{ inputs.username }}; fi)
+          PAYLOAD=$(echo "{\"requests\": [{ \"username\": \"$USERNAME\", \"email\": \"${{ inputs.email }}\", \"quicksightGroups\": [\"${{ inputs.group }}\"] }] }")
+          echo "$PAYLOAD" | jq
+          ENCODED=$(echo "$PAYLOAD" | openssl base64)
+          aws --region eu-west-2 lambda invoke --function-name quicksight-add-users --payload "$ENCODED" out.json
+          cat out.json | jq

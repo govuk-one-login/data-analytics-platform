@@ -1,0 +1,15 @@
+{
+  "event_id": "4d3fb4fd-f482-4952-92dd-c2b5d2672e77",
+  "event_name": "DCMAW_ABORT_APP",
+  "client_id": "authOrchestratorDocApp",
+  "component_id": "https://www.review-b.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "YcVIvnEs9ZK81p86Rtx2_YRMGPw",
+    "user_id": "144e3f00f047aced09681cef68ec199c7ba312528fa9cddebc89cc91afe51221"
+  },
+  "timestamp": 1707610027,
+  "timestamp_formatted": "2024-02-11T00:07:07.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

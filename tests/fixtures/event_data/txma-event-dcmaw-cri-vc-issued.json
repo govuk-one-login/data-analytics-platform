@@ -1,0 +1,36 @@
+{
+  "event_id": "db0a3705-092a-45dd-8fe6-6043d16fab65",
+  "event_name": "DCMAW_CRI_VC_ISSUED",
+  "client_id": "authOrchestratorDocApp",
+  "component_id": "https://www.review-b.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "kDPcCTgL02I535vWAJQAsRPn3ao",
+    "user_id": "5131e275636fe14d21c868d98ceaea6c684137671ca8d429e481a5c05e05aa6c"
+  },
+  "timestamp": 1707437588,
+  "timestamp_formatted": "2024-02-09T00:13:08.000Z",
+  "extensions": {
+    "evidence": [
+      {
+        "activityHistoryScore": null,
+        "checkDetails": [
+          {
+            "biometricVerificationProcessLevel": null,
+            "checkMethod": "vcrypt"
+          },
+          {
+            "biometricVerificationProcessLevel": 3,
+            "checkMethod": "bvr"
+          }
+        ],
+        "failedCheckDetails": null,
+        "strengthScore": 4,
+        "type": "IdentityCheck",
+        "validityScore": 3
+      }
+    ]
+  },
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

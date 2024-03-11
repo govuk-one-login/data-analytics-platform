@@ -47,6 +47,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+        with:
+          lfs: true
       - name: Node setup
         uses: actions/setup-node@v4
         with:
@@ -71,7 +73,7 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_{0}', inputs.environment)] }}
       - name: Trigger secure pipeline deployment
-        uses: govuk-one-login/devplatform-upload-action@v3.4
+        uses: govuk-one-login/devplatform-upload-action@v3.5
         with:
           artifact-bucket-name: ${{ secrets[format('ARTIFACT_BUCKET_NAME_{0}', inputs.environment)] }}
           signing-profile-name: ${{ secrets[format('SIGNING_PROFILE_NAME_{0}', inputs.environment)] }}
@@ -87,6 +89,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+        with:
+          lfs: true
       - name: Node setup
         uses: actions/setup-node@v4
         with:
@@ -111,7 +115,7 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_QUICKSIGHT_ACCESS_{0}', inputs.environment)] }}
       - name: Trigger secure pipeline deployment
-        uses: govuk-one-login/devplatform-upload-action@v3.4
+        uses: govuk-one-login/devplatform-upload-action@v3.5
         with:
           artifact-bucket-name: ${{ secrets[format('ARTIFACT_BUCKET_NAME_QUICKSIGHT_ACCESS_{0}', inputs.environment)] }}
           signing-profile-name: ${{ secrets[format('SIGNING_PROFILE_NAME_{0}', inputs.environment)] }}

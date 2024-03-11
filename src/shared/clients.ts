@@ -10,6 +10,7 @@ import { SFNClient } from '@aws-sdk/client-sfn';
 import { RedshiftDataClient } from '@aws-sdk/client-redshift-data';
 import { QuickSightClient } from '@aws-sdk/client-quicksight';
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
+import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 
 export const athenaClient = new AthenaClient(AWS_CLIENT_BASE_CONFIG);
 
@@ -29,6 +30,8 @@ export const quicksightClient = new QuickSightClient(AWS_CLIENT_BASE_CONFIG);
 export const redshiftClient = new RedshiftDataClient(AWS_CLIENT_BASE_CONFIG);
 
 export const s3Client = new S3Client(AWS_CLIENT_BASE_CONFIG);
+
+export const secretsManagerClient = new SecretsManagerClient(AWS_CLIENT_BASE_CONFIG);
 
 export const sqsClient = new SQSClient(AWS_CLIENT_BASE_CONFIG);
 

@@ -1,0 +1,31 @@
+{
+  "event_id": "2648fbff-03c5-453c-a289-00c5fb5e7f27",
+  "event_name": "IPV_GPG45_PROFILE_MATCHED",
+  "component_id": "https://identity.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "Eh1fPmgLujoXBzJwfKEYGZlsEE8",
+    "user_id": "c61cccb10f6d4291003f3b0f8949e78b12a48ff00c579b0a29f8fa0a0019ad6f"
+  },
+  "timestamp": 1707611475,
+  "timestamp_formatted": "2024-02-11T00:31:15.000Z",
+  "extensions": {
+    "gpg45Scores": {
+      "activity": 1,
+      "evidences": [
+        {
+          "strength": 4,
+          "validity": 3
+        },
+        {
+          "strength": 4,
+          "validity": 2
+        }
+      ],
+      "fraud": 2,
+      "verification": 3
+    }
+  },
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

@@ -24,6 +24,7 @@ Parameters:
       - staging
       - integration
       - production
+      - production-preview
   CodeSigningConfigArn:
     Description: ARN of Code Signing Config from deployment pipeline
     Type: String
@@ -55,6 +56,20 @@ Parameters:
     Description: The ARN of the role that will used by secure pipelines to run integration tests
     Default: none
     AllowedPattern: (none)|(arn:aws:iam::.*:role/.*)
+  RedshiftSecretLength:
+    Type: Number
+    Description: Length of the redshift password stored in secretsmanager
+    Default: 16
+  RedshiftSecretExcludeCharacters:
+    Type: String
+    Description: String of characters to exclude from the redshift password stored in secretsmanager
+    Default: '"''@/\'
+  CrossAccountDataSyncRoleName:
+    Type: String
+    Description: Name of the role allowing cross account data sync
+    Default: dap-cross-account-data-sync-role
+    AllowedValues:
+      - dap-cross-account-data-sync-role
 
 Conditions:
   UseCodeSigning: !Not
@@ -77,12 +92,23 @@ Conditions:
   IsIntegration: !Equals [!Ref Environment, integration]
   IsStaging: !Equals [!Ref Environment, staging]
   IsProduction: !Equals [!Ref Environment, production]
+  IsProductionPreview: !Equals [!Ref Environment, production-preview]
+  IsNotProductionPreview: !Not [!Equals [!Ref Environment, production-preview]]
+  IsCrossAccountDataSyncEnvironment: !Or
+    - !Condition IsStaging
+    - !Condition IsProductionPreview
   UsePlaceholderTxMAQueue: !Or
     - !Condition IsTest
     - !Condition IsFeature
     # todo replace line below with `- !Condition IsDev` when txma queue has been moved from dev to staging
     - !Condition IsStaging
     - !Condition IsBuild
+    - !Condition IsProductionPreview
+  # is this an environment that uses secure pipelines for deployments (feature and production-preview do direct sam deploys)
+  # used to determine if extra policies need to be added to the secure pipelines deploy role in pipeline.yml
+  IsSecurePipelinesEnvironment: !And
+    - !Condition IsNotFeature
+    - !Condition IsNotProductionPreview
 
 Globals:
   Function:

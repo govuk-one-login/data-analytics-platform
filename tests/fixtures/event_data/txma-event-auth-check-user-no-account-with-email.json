@@ -1,0 +1,14 @@
+{
+  "event_id": "9e268b41-ed63-477f-9bbb-a14f9e5d556b",
+  "event_name": "AUTH_CHECK_USER_NO_ACCOUNT_WITH_EMAIL",
+  "client_id": "zFeCxrwpLCUHFm-C4_CztwWtLfQ",
+  "component_id": "UNKNOWN",
+  "user": {
+    "govuk_signin_journey_id": "18rGD7RPTKP6t-3rqA-LV58mYIg"
+  },
+  "timestamp": 1707695990,
+  "timestamp_formatted": "2024-02-11T23:59:50.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}

@@ -263,12 +263,12 @@ export const productFamily = (eventName: string): string => {
     eventName === 'DCMAW_CRI_END' ||
     eventName === 'DCMAW_HYBRID_BILLING_STARTED' ||
     eventName === 'DCMAW_IPROOV_BILLING_STARTED' ||
-    eventName === 'DCMAW_IPROOV_BILLING_STARTED' ||
     eventName === 'DCMAW_MISSING_CONTEXT_AFTER_ABORT' ||
-    eventName === 'DCMAW_MISSING_CONTEXT_AFTER_COMPLETION' ||
     eventName === 'DCMAW_MISSING_CONTEXT_AFTER_COMPLETION' ||
     eventName === 'DCMAW_READID_NFC_BILLING_STARTED' ||
     eventName === 'DCMAW_REDIRECT_SUCCESS' ||
+    eventName === 'DCMAW_SESSION_RECOVERED' ||
+    eventName === 'DCMAW_WEB_END' ||
     eventName === 'DCMAW_REDIRECT_ABORT'
   ) {
     productFamilyName = 'DCMAW_CRI';
@@ -317,22 +317,41 @@ export const productFamily = (eventName: string): string => {
     eventName === 'IPV_REDIRECT_TO_CRI' ||
     eventName === 'IPV_SPOT_REQUEST_RECEIVED' ||
     eventName === 'IPV_SPOT_REQUEST_VALIDATION_FAILURE' ||
-    eventName === 'IPV_VC_RECEIVED'
+    eventName === 'IPV_VC_RECEIVED' ||
+    eventName === 'IPV_MITIGATION_START'
   ) {
     productFamilyName = 'IPV_JOURNEY';
   }
-  if (eventName === 'IPV_KBV_CRI_START' || eventName === 'IPV_KBV_CRI_VC_ISSUED') {
+  if (
+    eventName === 'IPV_KBV_CRI_START' ||
+    eventName === 'IPV_KBV_CRI_VC_ISSUED' ||
+    eventName === 'IPV_KBV_CRI_END' ||
+    eventName === 'IPV_KBV_CRI_REQUEST_SENT' ||
+    eventName === 'IPV_KBV_CRI_RESPONSE_RECEIVED'
+  ) {
     productFamilyName = 'IPV_CRI_KBV';
   }
-  if (eventName === 'IPV_PASSPORT_CRI_VC_ISSUED' || eventName === 'IPV_PASSPORT_CRI_START') {
+  if (
+    eventName === 'IPV_PASSPORT_CRI_VC_ISSUED' ||
+    eventName === 'IPV_PASSPORT_CRI_START' ||
+    eventName === 'IPV_PASSPORT_CRI_END' ||
+    eventName === 'IPV_PASSPORT_CRI_REQUEST_SENT' ||
+    eventName === 'IPV_PASSPORT_CRI_RESPONSE_RECEIVED'
+  ) {
     productFamilyName = 'IPV_CRI_PASSPORT';
   }
-  if (eventName === 'CIC_CRI_AUTH_CODE_ISSUED' || eventName === 'CIC_CRI_START' || eventName === 'CIC_CRI_VC_ISSUED') {
+  if (
+    eventName === 'CIC_CRI_AUTH_CODE_ISSUED' ||
+    eventName === 'CIC_CRI_START' ||
+    eventName === 'CIC_CRI_VC_ISSUED' ||
+    eventName === 'CIC_CRI_END'
+  ) {
     productFamilyName = 'IPV_CRI_CIC';
   }
   if (
     eventName === 'F2F_CRI_AUTH_CODE_ISSUED' ||
     eventName === 'F2F_CRI_START' ||
+    eventName === 'F2F_CRI_END' ||
     eventName === 'F2F_CRI_VC_ISSUED' ||
     eventName === 'F2F_YOTI_PDF_EMAILED' ||
     eventName === 'F2F_YOTI_START' ||

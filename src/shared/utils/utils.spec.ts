@@ -1,6 +1,9 @@
 import {
+  arrayPartition,
   decodeObject,
   encodeObject,
+  ensureDefined,
+  findOrThrow,
   getAccountId,
   getAWSEnvironment,
   getEnvironmentVariable,
@@ -145,6 +148,42 @@ test('get account id', () => {
 
   expect(() => getAccountId(null as unknown as Context)).toThrow('Error extracting account id from lambda ARN');
   expect(() => getAccountId(undefined as unknown as Context)).toThrow('Error extracting account id from lambda ARN');
+});
+
+test('array partition', () => {
+  expect(arrayPartition([1, 2, 3, 4, 5, 6], 2)).toEqual(
+    expect.arrayContaining([
+      [1, 2],
+      [3, 4],
+      [5, 6],
+    ]),
+  );
+  expect(arrayPartition([1, 2, 3, 4, 5, 6], 3)).toEqual(
+    expect.arrayContaining([
+      [1, 2, 3],
+      [4, 5, 6],
+    ]),
+  );
+  expect(arrayPartition([1, 2, 3, 4, 5, 6], 4)).toEqual(
+    expect.arrayContaining([
+      [1, 2, 3, 4],
+      [5, 6],
+    ]),
+  );
+  expect(arrayPartition([1, 2, 3, 4, 5, 6], 5)).toEqual(expect.arrayContaining([[1, 2, 3, 4, 5], [6]]));
+});
+
+test('ensure defined', () => {
+  const response = { one: 'one', two: undefined };
+  expect(ensureDefined(() => response.one)).toEqual('one');
+  expect(() => ensureDefined(() => response.two)).toThrow('two is undefined');
+});
+
+test('find or throw', () => {
+  expect(findOrThrow([1, 2, 3, 4], n => n === 2)).toEqual(2);
+  expect(() => findOrThrow([1, 2, 3, 4], n => n === 8)).toThrow(
+    'Unable to find element matching predicate (n) => n === 8',
+  );
 });
 
 const mockS3Response = (body: unknown): GetObjectCommandOutput => {

@@ -1,0 +1,136 @@
+name: SAM deploy
+
+on:
+  workflow_call:
+    inputs:
+      lowercase-environment:
+        type: string
+        required: true
+
+jobs:
+  test-and-validate:
+    secrets: inherit
+    uses: ./.github/workflows/test-and-validate.yml
+
+  validate-branch-ahead:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # check out full history
+      - name: Validate ahead of main
+        run: scripts/validate-branch-ahead.sh
+
+  # manual sam deploy is only for feature and production-preview
+  # all other environments use secure pipelines and the deploy-to-aws workflow
+  validate-sam-deploy-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate input environment
+        env:
+          ENVIRONMENT: ${{ inputs.lowercase-environment }}
+        run: if [ "$ENVIRONMENT" = "feature" ]; then true; elif [ "$ENVIRONMENT" = "production-preview" ]; then true; else false; fi
+
+  get-deployment-role:
+    needs: [test-and-validate, validate-branch-ahead, validate-sam-deploy-environment]
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.get-role-name.outputs.name }}
+    steps:
+      - id: get-role-name
+        env:
+          ENVIRONMENT: ${{ inputs.lowercase-environment }}
+        run: |
+          if [ "$ENVIRONMENT" = "feature" ]; then
+            NAME="FEATURE_ENVIRONMENT_TEAR_DOWN_ROLE_ARN"
+          elif [ "$ENVIRONMENT" = "production-preview" ]; then
+            NAME="PRODUCTION_PREVIEW_ENVIRONMENT_DEPLOY_ROLE_ARN"
+          else
+            exit 1
+          fi
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+
+  deploy-main-application:
+    needs: [get-deployment-role]
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+      - name: Install node packages
+        run: npm ci
+      - name: Build lambdas
+        run: npm run build
+      - name: Build SAM template
+        run: npm run iac:build -- main
+      - name: SAM setup
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+          version: 1.98.0
+      - name: SAM build
+        run: sam build
+      - name: Assume AWS role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets[needs.get-deployment-role.outputs.name] }}
+      - name: Deploy stack
+        env:
+          AWS_RETRY_MODE: adaptive
+          PARAMETER_OVERRIDES: 'Environment=${{ inputs.lowercase-environment }} VpcStackName=none CodeSigningConfigArn=none PermissionsBoundary=none TestRoleArn=none'
+        run: sam deploy --region eu-west-2 --stack-name dap --parameter-overrides "$PARAMETER_OVERRIDES" --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset
+
+  deploy-quicksight-access-application:
+    needs: [get-deployment-role]
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+      - name: Install node packages
+        run: npm ci
+      - name: Build lambdas
+        run: npm run build
+      - name: Build SAM template
+        run: npm run iac:build -- quicksight-access
+      - name: SAM setup
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+          version: 1.98.0
+      - name: SAM build
+        run: sam build
+      - name: Assume AWS role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets[needs.get-deployment-role.outputs.name] }}
+      - name: Deploy stack
+        env:
+          AWS_RETRY_MODE: adaptive
+          PARAMETER_OVERRIDES: 'Environment=${{ inputs.lowercase-environment }} VpcStackName=none CodeSigningConfigArn=none PermissionsBoundary=none TestRoleArn=none'
+        run: sam deploy --region eu-west-2 --stack-name dap-quicksight-access --parameter-overrides "$PARAMETER_OVERRIDES" --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset

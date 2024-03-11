@@ -8,3 +8,7 @@ test-report/
 .husky/
 *.properties
 Dockerfile
+*.sql
+*.jar
+*.tar.gz
+flyway.conf

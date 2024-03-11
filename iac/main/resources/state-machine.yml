@@ -484,6 +484,7 @@ GlueScriptsExecutionRole:
                 - logs:PutResourcePolicy
                 - logs:DescribeResourcePolicies
                 - logs:DescribeLogGroups
+                - logs:AssociateKmsKey
 
             - Effect: Allow
               Resource: '*'
@@ -676,9 +677,146 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
       Level: ALL
     DefinitionSubstitutions:
       GlueCrawlerRawName: !Ref RawLayerSingleTableCrawler
+      RawToStageProcessingGlueJobname: !Ref RawStageTransformProcessPythonGlueJob
+      DataQualityGlueJobname: !Ref DataQualityStageLayerOptimisedPythonGlueJob
     Events:
       DailySchedule:
         Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
         Properties:
           Enabled: !Not IsTest
-          Schedule: cron(0 6 * * ? *)
+          Schedule: cron(0 5 * * ? *)
+
+RawStageTransformProcessPythonGlueJob:
+  Type: AWS::Glue::Job
+  Properties:
+    Command:
+      Name: pythonshell
+      PythonVersion: '3.9'
+      ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/raw_to_stage_process_glue_job.py
+    DefaultArguments:
+      '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
+      '--additional-python-modules': 'awswrangler'
+      '--config_bucket': !Sub ${ELTMetadataBucket}
+      '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/raw_to_stage_config_rules.json'
+      '--raw_database': !Sub ${Environment}-txma-raw
+      '--raw_source_table': 'txma_deduplicated'
+      '--stage_bucket': !Sub ${StageLayerBucket}
+      '--stage_database': !Sub ${Environment}-txma-stage
+      '--stage_target_table': 'txma_stage_layer'
+      '--stage_target_key_value_table': 'txma_stage_layer_key_values'
+      '--txma_raw_dedup_view_key_path': 'txma/raw_stage_optimisation_solution/athena_db_object/txma_raw_dedup_view.sql'
+      '--workgroup': !Sub ${Environment}-dap-txma-processing
+      '--TempDir': !Sub s3://${StageLayerBucket}/raw_stage_optimisation_processing/temporary/
+      'library-set': 'analytics'
+      '--extra-py-files':
+        !Join [
+          ',',
+          [
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/AthenaReadWrite.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/core_preprocessing_functions.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/DataPreprocessing.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/GlueTableQueryAndWrite.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/S3ReadWrite.py',
+          ],
+        ]
+    ExecutionProperty:
+      MaxConcurrentRuns: 1
+    MaxRetries: 0
+    MaxCapacity: 1
+    SecurityConfiguration: !Ref GlueSecurityConfig
+    Name: !Sub ${Environment}-dap-raw-stage-transform-process
+    Role: !Ref GlueScriptsExecutionRole
+
+StatemachineFailuerEventRule:
+  Type: AWS::Events::Rule
+  Properties:
+    Description: 'ELT State Machine Failure EventRule Trigger'
+    EventPattern:
+      source:
+        - aws.states
+      detail-type:
+        - 'Step Functions Execution Status Change'
+      detail:
+        status:
+          - FAILED
+          - ABORTED
+          - TIMED_OUT
+    State: 'ENABLED'
+    Targets:
+      - Arn: !Ref SNSAlertTopic
+        Id: 'SendToSnsTopic'
+        InputTransformer:
+          InputPathsMap:
+            executionArn: $.detail.executionArn
+            startDate: $.time
+            stateMachineArn: $.detail.stateMachineArn
+            status: $.detail.status
+          InputTemplate: |-
+            {
+                "version": "1.0",
+                "source": "custom",
+                "id": "elt_step_function_alert",
+                "content": {
+                  "textType": "client-markdown",
+                  "title": ":Alert: ELT Step Function Failure Alert",
+                  "description": "ELT step function process has failed, please review failed process.",
+                  "nextSteps": [
+                    "stateMachineArn <stateMachineArn>",
+                    "executionArn: <executionArn>",
+                    "status: <status>",
+                    "startDate: <startDate>",
+                    "DAP team please review!"
+                  ],
+                  "keywords": [
+                    "ELT Step Function failure alert",
+                    "Warning",
+                    "Review action required"
+                  ]
+                }
+              }
+
+TopicRoutingPolicy:
+  Type: AWS::SNS::TopicPolicy
+  Properties:
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: Events_publish
+          Effect: Allow
+          Principal:
+            Service: 'events.amazonaws.com'
+          Action:
+            - SNS:Publish
+          Resource: !Ref SNSAlertTopic
+    Topics:
+      - !Ref SNSAlertTopic
+
+SNSAlertTopic:
+  Type: AWS::SNS::Topic
+  Properties:
+    TopicName: !Sub ${Environment}-dap-elt-support-management-topic
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+DataQualityStageLayerOptimisedPythonGlueJob:
+  Type: AWS::Glue::Job
+  Properties:
+    Command:
+      Name: pythonshell
+      PythonVersion: '3.9'
+      ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/data_quality_metrics_script/data_quality_new_stage_metrics_generation.py
+    DefaultArguments:
+      '--JOB_NAME': !Sub ${Environment}-dap-data-quality-new-stage-metrics-generation
+      '--additional-python-modules': 'awswrangler'
+      '--env': !Sub ${Environment}
+      '--stage_db': !Sub ${Environment}-txma-stage
+      '--stage_parent_tbl': 'txma_stage_layer'
+      '--reconcilation_db': !Ref DataQualityGlueDatabase
+      '--reconcilation_tbl': !Ref DataQualityMetricsGlueTable
+      '--s3_path': !Sub s3://${DataQualityMetricsBucket}/data_quality_metrics/
+      '--TempDir': !Sub s3://${DataQualityMetricsBucket}/temporary/
+    ExecutionProperty:
+      MaxConcurrentRuns: 1
+    MaxRetries: 0
+    SecurityConfiguration: !Ref GlueSecurityConfig
+    Name: !Sub ${Environment}-dap-data-quality-new-stage-metrics-generation
+    Role: !Ref GlueScriptsExecutionRole

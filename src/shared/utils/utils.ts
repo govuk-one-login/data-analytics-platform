@@ -1,6 +1,7 @@
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { AWS_ENVIRONMENTS } from '../constants';
 import type { Context } from 'aws-lambda';
+import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 
 /**
  * Requires that an object has the specified properties (and they are not null or undefined), throwing an error if not.
@@ -45,9 +46,7 @@ export const parseS3ResponseAsObject = async <T>(s3Response: GetObjectCommandOut
   try {
     return JSON.parse(body);
   } catch (error) {
-    throw new Error(
-      `Error parsing JSON string "${body}"${error instanceof Error ? `. Original error: ${error.toString()}` : ''}`,
-    );
+    throw new Error(`Error parsing JSON string "${body}" - ${getErrorMessage(error)}`);
   }
 };
 
@@ -82,9 +81,56 @@ export const isNullUndefinedOrEmpty = (obj: unknown): boolean => {
 
 export const getAccountId = (context: Context): string => {
   return (
-    context?.invokedFunctionArn.match(/:(\d+):function/)?.at(1) ??
+    /:(\d+):function/.exec(context?.invokedFunctionArn)?.at(1) ??
     throwExpression('Error extracting account id from lambda ARN')
   );
+};
+
+export interface LambdaInvokeResponse {
+  executedVersion?: string;
+  statusCode?: number;
+  functionError?: string;
+  logResult: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload: Record<string, any>;
+}
+
+// custom response as real response LogResult is base64 encoded and Payload is encoded as a UintArray
+export const lambdaInvokeResponse = (response: InvokeCommandOutput): LambdaInvokeResponse => {
+  return {
+    executedVersion: response.ExecutedVersion,
+    statusCode: response.StatusCode,
+    functionError: response.FunctionError,
+    logResult: Buffer.from(response.LogResult ?? '', 'base64').toString('utf-8'),
+    payload: decodeObject(response.Payload ?? new Uint8Array([0x7b, 0x7d])),
+  };
+};
+
+export const getErrorMessage = (error: unknown): string => {
+  return error instanceof Error ? error.message : JSON.stringify(error);
+};
+
+export const arrayPartition = <T>(array: T[], partitionSize: number): T[][] => {
+  if (partitionSize < 1) {
+    throw new Error('Partition size must be greater than zero');
+  }
+  return [...Array(Math.round(array.length / partitionSize) + 1).keys()]
+    .map(i => i * partitionSize)
+    .map(i => array.slice(i, i + partitionSize))
+    .filter(chunk => chunk.length > 0);
+};
+
+export const ensureDefined = (supplier: () => string | undefined): string => {
+  const value = supplier();
+  if (value === undefined) {
+    const key = supplier.toString().replace('() => ', '');
+    throw new Error(`${key} is undefined`);
+  }
+  return value;
+};
+
+export const findOrThrow = <T>(ts: T[], predicate: (value: T, index: number, obj: T[]) => unknown): T => {
+  return ts.find(predicate) ?? throwExpression(`Unable to find element matching predicate ${predicate.toString()}`);
 };
 
 // see https://stackoverflow.com/a/65666402

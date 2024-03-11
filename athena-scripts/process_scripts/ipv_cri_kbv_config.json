@@ -8,5 +8,20 @@
         "event_name": "ipv_kbv_cri_vc_issued",
         "product_family": "ipv_cri_kbv",
         "enabled": true
+    },
+    {
+        "event_name": "ipv_kbv_cri_end",
+        "product_family": "ipv_cri_kbv",
+        "enabled": true
+    },
+    {
+        "event_name": "ipv_kbv_cri_request_sent",
+        "product_family": "ipv_cri_kbv",
+        "enabled": false
+    },
+    {
+        "event_name": "ipv_kbv_cri_response_received",
+        "product_family": "ipv_cri_kbv",
+        "enabled": true
     }
 ]

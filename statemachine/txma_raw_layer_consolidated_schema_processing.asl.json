@@ -82,6 +82,22 @@
     },
     "RawCrawlerFinished": {
       "Type": "Pass",
+      "Next": "RawToStageGlueStartJobRun"
+    },
+    "RawToStageGlueStartJobRun": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "${RawToStageProcessingGlueJobname}"
+      },
+      "Next": "DataQualityGlueStartJobRun"
+    },
+    "DataQualityGlueStartJobRun": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun",
+      "Parameters": {
+        "JobName": "${DataQualityGlueJobname}"
+      },
       "Next": "StopProcessing"
     },
     "StopProcessing": {

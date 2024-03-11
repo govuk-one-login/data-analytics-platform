@@ -375,6 +375,12 @@ IpvJourneyGlueTable:
           - { Name: extensions_hasmitigations, Type: string }
           - { Name: extensions_levelofconfidence, Type: string }
           - { Name: extensions_cifail, Type: string }
+          - { Name: extensions_gpg45scores, Type: string }
+          - { Name: extensions_iss, Type: string }
+          - { Name: extensions_successful, Type: string }
+          - { Name: extensions_evidence, Type: string }
+          - { Name: extensions_age, Type: string }
+          - { Name: extensions_isukissued, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }

@@ -260,13 +260,13 @@ TestSupportLambda:
             Resource: '*'
           - Effect: Allow
             Action: secretsmanager:GetSecretValue
-            Resource: !Ref MyRedshiftSecret
+            Resource: !Ref RedshiftSecret
     ReservedConcurrentExecutions: 40
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
         ENVIRONMENT: !Ref Environment
-        REDSHIFT_SECRET_ARN: !Ref MyRedshiftSecret
+        REDSHIFT_SECRET_ARN: !Ref RedshiftSecret
     Tags:
       Environment: !Ref Environment
     VpcConfig:
@@ -311,6 +311,8 @@ KmsKey:
               - glue.amazonaws.com
               - redshift.amazonaws.com
               - redshift-serverless.amazonaws.com
+              - chatbot.amazonaws.com
+              - events.amazonaws.com
             AWS:
               - !GetAtt RawGlueCrawlerRole.Arn
               - !GetAtt StageGlueCrawlerRole.Arn
@@ -324,6 +326,19 @@ KmsKey:
             - kms:GenerateDataKey*
             - kms:Describe*
           Resource: '*'
+        - !If
+          - IsCrossAccountDataSyncEnvironment
+          - Effect: Allow
+            Principal:
+              AWS: '{{resolve:ssm:CrossAccountDataSyncRoleARN}}'
+            Action:
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:Describe*
+            Resource: '*'
+          - !Ref AWS::NoValue
 
 KmsKeyAlias:
   Type: AWS::KMS::Alias
@@ -545,6 +560,20 @@ VPCEndpointS3:
     VpcId: !Ref VPCForDAP
     RouteTableIds:
       - !Ref RouteTableForDAP
+
+VPCEndpointSecretsManager:
+  Type: AWS::EC2::VPCEndpoint
+  Properties:
+    VpcEndpointType: Interface
+    ServiceName: com.amazonaws.eu-west-2.secretsmanager
+    VpcId: !Ref VPCForDAP
+    PrivateDnsEnabled: true
+    SecurityGroupIds:
+      - !Ref LambdaSecurityGroup
+    SubnetIds:
+      - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3
 
 VPCEndpointSQS:
   Type: AWS::EC2::VPCEndpoint

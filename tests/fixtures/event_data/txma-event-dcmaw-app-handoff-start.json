@@ -1,0 +1,15 @@
+{
+  "event_id": "ea57b91c-544a-4cc6-b684-49f9ea758510",
+  "event_name": "DCMAW_APP_HANDOFF_START",
+  "client_id": "authOrchestratorDocApp",
+  "component_id": "https://www.review-b.account.gov.uk",
+  "user": {
+    "govuk_signin_journey_id": "khz5EMBgkkno6S5k77Dd3TEKqJg",
+    "user_id": "e15df0d5d891c59b1b9a4847c13a641df1d7c1b117f84f68baa3027fbea00b41"
+  },
+  "timestamp": 1707696011,
+  "timestamp_formatted": "2024-02-12T00:00:11.000Z",
+  "txma": {
+    "configVersion": "1.3.19"
+  }
+}
