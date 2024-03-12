@@ -16,8 +16,8 @@ import {
   ResourceNotFoundException,
 } from '@aws-sdk/client-quicksight';
 import type { Context } from 'aws-lambda';
-import { encodeObject } from '../../shared/utils/utils';
 import type { LambdaInvokeResponse } from '../../shared/utils/utils';
+import { encodeObject } from '../../shared/utils/utils';
 
 const ACCOUNT_ID = '123456789012';
 
@@ -31,8 +31,8 @@ const mockLambdaClient = mockClient(LambdaClient);
 const mockCognitoClient = mockClient(CognitoIdentityProviderClient);
 const mockQuicksightClient = mockClient(QuickSightClient);
 
-let GDS_USER_SHEET: sheets_v4.Schema$Spreadsheet;
-let RP_USER_SHEET: sheets_v4.Schema$Spreadsheet;
+let GDS_USER_SHEET: sheets_v4.Schema$ValueRange;
+let RP_USER_SHEET: sheets_v4.Schema$ValueRange;
 
 beforeAll(async () => {
   GDS_USER_SHEET = JSON.parse(await getTestResource('user-spreadsheet-data-gds.json'));
@@ -88,7 +88,7 @@ test('test gds users', async () => {
 });
 
 test('test rp users', async () => {
-  // there is a user.five in the file but it has strikethrough text so shouldn't come through
+  // there is a user.five in the file but only the email (second column) has been filled in so it shouldn't come through
   const expectedEmails = [
     'user.one@dbs.gov.uk',
     'user.two@dbs.gov.uk',
@@ -117,8 +117,7 @@ test('test rp users', async () => {
 });
 
 test('filter out users', async () => {
-  // there is a user.five in the file but it has strikethrough text so shouldn't come through
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // there is a user.five in the file but only the email (second column) has been filled in so it shouldn't come through
   const expectedEmails = ['user.two@dbs.gov.uk', 'user.four@dvsa.gov.uk', 'user.six@dvsa.gov.uk'];
 
   // cognito and quicksight responses to indicate users one and three have accounts in both which should mean they are filtered out
@@ -222,82 +221,14 @@ test('user status batching', async () => {
     }
   });
 
-  interface RowValue {
-    userEnteredValue: { stringValue: string };
-    userEnteredFormat?: unknown;
-  }
-
-  const headerRow: { values: RowValue[] } = {
-    values: [
-      {
-        userEnteredValue: {
-          stringValue: 'Name',
-        },
-        userEnteredFormat: {
-          textFormat: {
-            bold: true,
-          },
-        },
-      },
-      {
-        userEnteredValue: {
-          stringValue: 'Email',
-        },
-        userEnteredFormat: {
-          textFormat: {
-            bold: true,
-          },
-        },
-      },
-      {
-        userEnteredValue: {
-          stringValue: 'Type',
-        },
-        userEnteredFormat: {
-          textFormat: {
-            bold: true,
-          },
-        },
-      },
-    ],
+  const sheet: sheets_v4.Schema$ValueRange = {
+    range: "'Internal Quicksight reader accounts'!A1:C996",
+    majorDimension: 'ROWS',
+    values: [['Name', 'Email', 'Type'], ...users.map(user => [user.Email, user.Email, 'Reader'])],
   };
 
-  const restOfRows: Array<{ values: RowValue[] }> = users.map(user => {
-    return {
-      values: [
-        {
-          userEnteredValue: {
-            stringValue: `${user.Email}`,
-          },
-        },
-        {
-          userEnteredValue: {
-            stringValue: `${user.Email}`,
-          },
-        },
-        {
-          userEnteredValue: {
-            stringValue: 'Reader',
-          },
-        },
-      ],
-    };
-  });
-
-  const sheet = {
-    sheets: [
-      {
-        data: [
-          {
-            rowData: [headerRow].concat(restOfRows),
-          },
-        ],
-      },
-    ],
-  } as unknown as sheets_v4.Schema$Spreadsheet;
-
-  expect(sheet?.sheets?.at(0)?.data?.at(0)?.rowData).toBeDefined();
-  expect(sheet?.sheets?.at(0)?.data?.at(0)?.rowData).toHaveLength(101);
+  expect(sheet.values).toBeDefined();
+  expect(sheet.values).toHaveLength(101);
 
   const payload = await getLambdaPayload(sheet);
   expect(payload).toBeDefined();
@@ -306,8 +237,8 @@ test('user status batching', async () => {
   expect(payload.map(request => request.email)).toEqual(expect.arrayContaining(expectedEmails));
 });
 
-const getLambdaPayload = async (sheet: sheets_v4.Schema$Spreadsheet): Promise<AddUserResult[]> => {
-  const lambdaInput = await handler({ spreadsheet: sheet }, CONTEXT);
+const getLambdaPayload = async (range: sheets_v4.Schema$ValueRange): Promise<AddUserResult[]> => {
+  const lambdaInput = await handler({ spreadsheet: range }, CONTEXT);
   expect(lambdaInput).toBeDefined();
   const payload = (lambdaInput as LambdaInvokeResponse).payload as AddUserResult[];
   expect(payload).toBeDefined();

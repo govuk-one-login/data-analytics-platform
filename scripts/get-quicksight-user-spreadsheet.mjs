@@ -23,20 +23,14 @@ const getAuth = async () => {
   }
 };
 
-// we must use the spreadsheets.get API for this operation (https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get)
-// this API returns various metadata we don't want (some of which we filter out with the field mask), but
-// if we just use the simpler spreadsheets.values.get API (https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get)
-// then we just get plain text back and are unable to see if rows have strikethrough text
+// see https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get for the API we are using
 const getSpreadsheetData = async () => {
   try {
     const auth = await getAuth();
     const sheets = google.sheets({ version: 'v4', auth });
-    return await sheets.spreadsheets.get({
+    return await sheets.spreadsheets.values.get({
       spreadsheetId: '1VK5ZNMzh4NrHNrsu1s0GnWhwcPoDVNZiGdQ4IONN2tI',
-      ranges: [
-        USER_TYPE === 'GDS' ? "'Internal Quicksight reader accounts'!A:C" : "'RP Quicksight reader accounts'!A:D",
-      ],
-      fields: 'sheets.data.rowData.values(userEnteredValue,userEnteredFormat)',
+      range: USER_TYPE === 'GDS' ? "'Internal Quicksight reader accounts'!A:C" : "'RP Quicksight reader accounts'!A:D",
     });
   } catch (e) {
     console.error('Error getting spreadsheet contents', e instanceof Error ? e.message : JSON.stringify(e));
