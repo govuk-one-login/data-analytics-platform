@@ -820,6 +820,9 @@ IpvMitigationStartGlueTable:
           - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
+          - { Name: event_timestamp_ms, Type: bigint }
+          - { Name: event_timestamp_ms_formatted, Type: string }
+          - { Name: extensions, Type: 'struct<mitigation_type:string>' }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         Location: !Sub s3://${RawLayerBucket}/txma/IPV_MITIGATION_START/
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
