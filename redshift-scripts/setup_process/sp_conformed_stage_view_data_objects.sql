@@ -120,10 +120,10 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
 
     ---
 
-    Create or replace view conformed.v_stg_auth_account_user_login
-    AS
-    select DISTINCT 
-    Auth.product_family,
+    Create
+or replace view conformed.v_stg_auth_account_user_login AS
+select
+    DISTINCT Auth.product_family,
     Auth.event_id,
     Auth.client_id,
     Auth.component_id,
@@ -135,6 +135,7 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
     Auth.processed_date,
     Auth.event_name,
     1 EVENT_COUNT,
+    extensions_isnewaccount is_new_account,
     Null REJECTION_REASON,
     Null REASON,
     Null NOTIFICATION_TYPE,
@@ -155,26 +156,37 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
     Null Iss,
     Null VALIDITY_SCORE,
     Null "TYPE",
+    extensions_testuser test_user,
     BatC.product_family batch_product_family,
     BatC.maxrundate,
     ref.product_family ref_product_family,
     ref.domain,
     ref.sub_domain,
-    ref.other_sub_domain from 
-    ( select * from 
-        (SELECT
-            'auth_account_user_login' Product_family 
-                ,row_number() over (partition by event_id,timestamp_formatted order by cast (day as integer) desc) as row_num,*
-        FROM
-        "dap_txma_reporting_db"."dap_txma_stage"."auth_account_user_login") 
-        where  row_num=1  
-        ) Auth
-        join conformed.BatchControl BatC
-        On Auth.Product_family=BatC.Product_family
-        and to_date(processed_date,'YYYYMMDD')  > NVL(MaxRunDate,null)
-        join conformed.REF_EVENTS ref
-        on Auth.EVENT_NAME=ref.event_name
-        with no schema binding;
+    ref.other_sub_domain
+from
+    (
+        select
+            *
+        from
+            (
+                SELECT
+                    'auth_account_user_login' Product_family,
+                    row_number() over (
+                        partition by event_id,
+                        timestamp_formatted
+                        order by
+                            cast (day as integer) desc
+                    ) as row_num,
+                    *
+                FROM
+                    "dap_txma_reporting_db"."dap_txma_stage"."auth_account_user_login"
+            )
+        where
+            row_num = 1
+    ) Auth
+    join conformed.BatchControl BatC On Auth.Product_family = BatC.Product_family
+    and to_date(processed_date, 'YYYYMMDD') > NVL(MaxRunDate, null)
+    join conformed.REF_EVENTS ref on Auth.EVENT_NAME = ref.event_name with no schema binding;
 
     ---
 
@@ -1109,10 +1121,12 @@ from
 
     ---
 
-Create
-or replace view conformed.v_stg_ipv_journey AS
- select DISTINCT
-    Auth.product_family,
+CREATE
+OR REPLACE VIEW "conformed"."v_stg_ipv_journey" AS
+/*  fix for DAC-2886 and DAC-2777
+*/
+select
+    DISTINCT Auth.product_family,
     Auth.event_id,
     Auth.client_id,
     Auth.component_id,
@@ -1142,7 +1156,7 @@ or replace view conformed.v_stg_ipv_journey AS
     Null DECISION_SCORE,
     failedcheckdetails_kbvresponsemode FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,
     failedcheckdetails_checkmethod FAILED_CHECK_DETAILS_CHECK_METHOD,
-    failedcheckdetails_kbvresponsemode CHECK_DETAILS_KBV_RESPONSE_MODE,
+    checkdetails_kbvresponsemode CHECK_DETAILS_KBV_RESPONSE_MODE,
     checkdetails_kbvquality CHECK_DETAILS_KBV_QUALITY,
     verificationscore VERIFICATION_SCORE,
     checkdetails_checkmethod CHECK_DETAILS_CHECK_METHOD,
@@ -1154,43 +1168,53 @@ or replace view conformed.v_stg_ipv_journey AS
     ref.product_family ref_product_family,
     ref.domain,
     ref.sub_domain,
-    ref.other_sub_domain ,
+    ref.other_sub_domain,
     gpg45_strength_score,
     gpg45_validity_score,
     gpg45_activity_score,
     gpg45_fraud_score,
     gpg45_verification_score,
     extensions_age,
-    extensions_isukissued ,
-    extensions_successful
-    from
-    ( select * from
-        (SELECT
-               'ipv_journey' Product_family
-                ,row_number() over (partition by event_id,timestamp_formatted 
-                order by processed_date desc,cast (day as integer) desc) as row_num
-                ,*
-        FROM
-                    (with base_data as
+    extensions_isukissued,
+    extensions_successful,
+    extensions_reproveidentity
+from
     (
-    SELECT
-                    event_id,
-                    event_name,
-                    client_id,
-                    component_id,
-                    "timestamp",
-                    timestamp_formatted,
-                    user_govuk_signin_journey_id,
-                    user_user_id,
-                    year,
-                    month,
-                    day,
-                    processed_date,
-                    extensions_successful,
-                    --extensions_experianiiqresponse,
-                    extensions_iss,
-                    extensions_evidence,
-                    nvl2(
+        select
+            *
+        from
+            (
+                SELECT
+                    'ipv_journey' Product_family,
+                    row_number() over (
+                        partition by event_id,
+                        timestamp_formatted
+                        order by
+                            processed_date desc,
+                            cast (day as integer) desc
+                    ) as row_num,
+                    *
+                FROM
+                    (
+                        with base_data as (
+                            SELECT
+                                event_id,
+                                event_name,
+                                client_id,
+                                component_id,
+                                "timestamp",
+                                timestamp_formatted,
+                                user_govuk_signin_journey_id,
+                                user_user_id,
+                                year,
+                                month,
+                                day,
+                                processed_date,
+                                extensions_successful,
+                                --extensions_experianiiqresponse,
+                                extensions_iss,
+                                extensions_evidence,
+                                nvl2(
                                     valid_json_data,
                                     valid_json_data.activityHistoryScore,
                                     valid_json_data
@@ -1199,7 +1223,7 @@ or replace view conformed.v_stg_ipv_journey AS
                                     valid_json_data,
                                     valid_json_data.identityfraudscore,
                                     valid_json_data
-                                ) AS identityfraudscore,                                
+                                ) AS identityfraudscore,
                                 nvl2(
                                     valid_json_data,
                                     valid_json_data.strengthscore,
@@ -1209,25 +1233,191 @@ or replace view conformed.v_stg_ipv_journey AS
                                     valid_json_data,
                                     valid_json_data.validityscore,
                                     valid_json_data
-                                ) AS validityscore,                                                                
-                    nvl2(valid_json_data,valid_json_data.checkdetails,valid_json_data) AS checkdetails,
-                    nvl2(valid_json_data,valid_json_data.failedcheckdetails,valid_json_data) AS failedcheckdetails,
-                    nvl2(valid_json_data,valid_json_data.type,valid_json_data) AS type,
-                    nvl2(valid_json_data,valid_json_data.verificationscore,valid_json_data) AS verificationscore,
-                    REJECTION_REASON,
-                    REASON,
-                    HAS_mitigations,
-                    LEVEL_OF_CONFIDENCE,
-                    CI_FAIL,
-                    gpg45_strength_score,
-                    gpg45_validity_score,
-                    gpg45_activity_score,
-                    gpg45_fraud_score,
-                    gpg45_verification_score,
-                    extensions_age,
-                    extensions_isukissued 
-                    FROM (
-                        SELECT
+                                ) AS validityscore,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.checkdetails,
+                                    valid_json_data
+                                ) AS checkdetails,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.failedcheckdetails,
+                                    valid_json_data
+                                ) AS failedcheckdetails,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.type,
+                                    valid_json_data
+                                ) AS type,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.verificationscore,
+                                    valid_json_data
+                                ) AS verificationscore,
+                                REJECTION_REASON,
+                                REASON,
+                                HAS_mitigations,
+                                LEVEL_OF_CONFIDENCE,
+                                CI_FAIL,
+                                gpg45_strength_score,
+                                gpg45_validity_score,
+                                gpg45_activity_score,
+                                gpg45_fraud_score,
+                                gpg45_verification_score,
+                                extensions_age,
+                                extensions_isukissued,
+                                extensions_reproveidentity
+                            FROM
+                                (
+                                    SELECT
+                                        event_id,
+                                        event_name,
+                                        client_id,
+                                        component_id,
+                                        "timestamp",
+                                        timestamp_formatted,
+                                        user_govuk_signin_journey_id,
+                                        user_user_id,
+                                        year,
+                                        month,
+                                        day,
+                                        extensions_iss,
+                                        processed_date,
+                                        extensions_rejectionreason REJECTION_REASON,
+                                        extensions_reason REASON,
+                                        extensions_hasmitigations HAS_mitigations,
+                                        extensions_levelofconfidence LEVEL_OF_CONFIDENCE,
+                                        extensions_cifail CI_FAIL,
+                                        extensions_evidence,
+                                        extensions_successful,
+                                        --extensions_experianiiqresponse,
+                                        case extensions_evidence != ''
+                                        and is_valid_json_array(extensions_evidence)
+                                        when true then json_parse(
+                                            json_extract_array_element_text(extensions_evidence, 0)
+                                        )
+                                        else null end as valid_json_data,
+                                        extensions_gpg45scores,
+                                        json_extract_path_text(
+                                            extensions_gpg45scores,
+                                            'evidences',
+                                            '0',
+                                            'strength'
+                                        ) AS gpg45_strength_score,
+                                        json_extract_path_text(
+                                            extensions_gpg45scores,
+                                            'evidences',
+                                            '0',
+                                            'validity'
+                                        ) AS gpg45_validity_score,
+                                        json_extract_path_text(extensions_gpg45scores, 'activity') AS gpg45_activity_score,
+                                        json_extract_path_text(extensions_gpg45scores, 'fraud') AS gpg45_fraud_score,
+                                        json_extract_path_text(extensions_gpg45scores, 'verification') AS gpg45_verification_score,
+                                        extensions_age,
+                                        extensions_isukissued,
+                                        extensions_reproveidentity
+                                    FROM
+                                        "dap_txma_reporting_db"."dap_txma_stage"."ipv_journey" 
+                                        --WHERE event_id in ('c1faf207-c9ea-44ea-9b67-a293b5818447')
+                                )
+                        ),
+                        level_1_data as (
+                            SELECT
+                                event_id,
+                                event_name,
+                                client_id,
+                                component_id,
+                                "timestamp",
+                                timestamp_formatted,
+                                user_govuk_signin_journey_id,
+                                user_user_id,
+                                year,
+                                extensions_successful,
+                                verificationscore,
+                                identityfraudscore,
+                                REJECTION_REASON,
+                                REASON,
+                                HAS_mitigations,
+                                LEVEL_OF_CONFIDENCE,
+                                CI_FAIL,
+                                gpg45_strength_score,
+                                gpg45_validity_score,
+                                gpg45_activity_score,
+                                gpg45_fraud_score,
+                                gpg45_verification_score,
+                                extensions_age,
+                                extensions_isukissued,
+                                month,
+                                day,
+                                processed_date,
+                                validityscore,
+                                activityhistoryscore,
+                                strengthscore,
+                                extensions_evidence,
+                                extensions_iss,
+                                --extensions_experianiiqresponse,
+                                json_serialize(checkdetails) checkdetails_final,
+                                json_serialize(failedcheckdetails) failedcheckdetails_final,
+                                type,
+                                extensions_reproveidentity
+                            FROM
+                                base_data
+                            where
+                                json_serialize(failedcheckdetails) != ''
+                        ),
+                        level_2_data as (
+                            select
+                                event_id,
+                                event_name,
+                                client_id,
+                                component_id,
+                                "timestamp",
+                                timestamp_formatted,
+                                user_govuk_signin_journey_id,
+                                user_user_id,
+                                extensions_successful,
+                                year,
+                                month,
+                                day,
+                                processed_date,
+                                validityscore,
+                                identityfraudscore,
+                                activityhistoryscore,
+                                strengthscore,
+                                REJECTION_REASON,
+                                REASON,
+                                HAS_mitigations,
+                                LEVEL_OF_CONFIDENCE,
+                                CI_FAIL,
+                                gpg45_strength_score,
+                                gpg45_validity_score,
+                                gpg45_activity_score,
+                                gpg45_fraud_score,
+                                gpg45_verification_score,
+                                extensions_age,
+                                extensions_isukissued,
+                                verificationscore,
+                                extensions_evidence,
+                                extensions_iss,
+                                --extensions_experianiiqresponse,
+                                type,
+                                case failedcheckdetails_final != ''
+                                and is_valid_json_array(failedcheckdetails_final)
+                                when true then json_parse(
+                                    json_extract_array_element_text(failedcheckdetails_final, 0)
+                                )
+                                else null end as valid_json_failedcheckdetails_data,
+                                case checkdetails_final != ''
+                                and is_valid_json_array(checkdetails_final)
+                                when true then json_parse(
+                                    json_extract_array_element_text(checkdetails_final, 0)
+                                )
+                                else null end as valid_json_checkdetails_data,
+                                extensions_reproveidentity
+                            from
+                                level_1_data
+                        )
+                        select
                             event_id,
                             event_name,
                             client_id,
@@ -1235,52 +1425,19 @@ or replace view conformed.v_stg_ipv_journey AS
                             "timestamp",
                             timestamp_formatted,
                             user_govuk_signin_journey_id,
+                            extensions_iss,
+                            verificationscore,
+                            extensions_successful,
+                            --extensions_experianiiqresponse,
                             user_user_id,
                             year,
                             month,
                             day,
-                            extensions_iss,
                             processed_date,
-                            extensions_rejectionreason REJECTION_REASON,
-                            extensions_reason REASON,
-                            extensions_hasmitigations HAS_mitigations,
-                            extensions_levelofconfidence LEVEL_OF_CONFIDENCE,
-                            extensions_cifail CI_FAIL,
-                            extensions_evidence,
-                            extensions_successful,
-                            --extensions_experianiiqresponse,
-                            case extensions_evidence != ''
-                            and is_valid_json_array(extensions_evidence)
-                            when true then json_parse(
-                                json_extract_array_element_text(extensions_evidence, 0)
-                            )
-                            else null end as valid_json_data,
-                            extensions_gpg45scores,
-                                 json_extract_path_text(extensions_gpg45scores, 'evidences', '0', 'strength') AS gpg45_strength_score,
-                                        json_extract_path_text(extensions_gpg45scores, 'evidences', '0', 'validity') AS gpg45_validity_score,
-                                        json_extract_path_text(extensions_gpg45scores, 'activity') AS gpg45_activity_score,
-                                        json_extract_path_text(extensions_gpg45scores, 'fraud') AS gpg45_fraud_score,
-                                        json_extract_path_text(extensions_gpg45scores, 'verification') AS gpg45_verification_score,
-                            extensions_age,
-                            extensions_isukissued         
-                        FROM
-                            "dap_txma_reporting_db"."dap_txma_stage"."ipv_journey"
-                        --WHERE event_name in ('IPV_VC_RECEIVED','IPV_MITIGATION_START') 
-                    )
-    ), level_1_data as
-                (SELECT
-                            event_id,
-                            event_name,
-                            client_id,
-                            component_id,
-                            "timestamp",
-                            timestamp_formatted,
-                            user_govuk_signin_journey_id,
-                            user_user_id,
-                            year,
-                            extensions_successful,
-                            verificationscore,
+                            validityscore,
                             identityfraudscore,
+                            activityhistoryscore,
+                            strengthscore,
                             REJECTION_REASON,
                             REASON,
                             HAS_mitigations,
@@ -1292,108 +1449,9 @@ or replace view conformed.v_stg_ipv_journey AS
                             gpg45_fraud_score,
                             gpg45_verification_score,
                             extensions_age,
-                            extensions_isukissued ,
-                            month,
-                            day,
-                            processed_date,
-                            validityscore,
-                            activityhistoryscore,
-                            strengthscore,
-                            extensions_evidence,
-                            extensions_iss,
-                            --extensions_experianiiqresponse,
-                            json_serialize(checkdetails) checkdetails_final,
-                            json_serialize(failedcheckdetails) failedcheckdetails_final,
-                            type
-                        FROM
-                            base_data
-                            where json_serialize(failedcheckdetails) != ''
-                )
-                ,level_2_data as
-                (select
-                        event_id,
-                        event_name,
-                        client_id,
-                        component_id,
-                        "timestamp",
-                        timestamp_formatted,
-                        user_govuk_signin_journey_id,
-                        user_user_id,
-                        extensions_successful,
-                        year,
-                        month,
-                        day,
-                        processed_date,
-                        validityscore,
-                        identityfraudscore,
-                        activityhistoryscore,
-                        strengthscore,
-                        REJECTION_REASON,
-                        REASON,
-                        HAS_mitigations,
-                        LEVEL_OF_CONFIDENCE,
-                        CI_FAIL,
-                        gpg45_strength_score,
-                        gpg45_validity_score,
-                        gpg45_activity_score,
-                        gpg45_fraud_score,
-                        gpg45_verification_score,
-                        extensions_age,
-                        extensions_isukissued,
-                        verificationscore,
-                        extensions_evidence,
-                        extensions_iss,
-                        --extensions_experianiiqresponse,
-                        type,
-                        case failedcheckdetails_final != ''
-                            and is_valid_json_array(failedcheckdetails_final)
-                            when true then json_parse(
-                                json_extract_array_element_text(failedcheckdetails_final, 0)
-                            )
-                        else null end as valid_json_failedcheckdetails_data,
-                        case checkdetails_final != ''
-                            and is_valid_json_array(checkdetails_final)
-                            when true then json_parse(
-                                json_extract_array_element_text(checkdetails_final, 0)
-                            )
-                        else null end as valid_json_checkdetails_data
-                from level_1_data
-                )
-                select
-                    event_id,
-                    event_name,
-                    client_id,
-                    component_id,
-                    "timestamp",
-                    timestamp_formatted,
-                    user_govuk_signin_journey_id,
-                    extensions_iss,
-                    verificationscore,
-                    extensions_successful,
-                    --extensions_experianiiqresponse,
-                    user_user_id,
-                    year,
-                    month,
-                    day,
-                    processed_date,
-                    validityscore,
-                    identityfraudscore,
-                    activityhistoryscore,
-                    strengthscore,
-                    REJECTION_REASON,
-                    REASON,
-                    HAS_mitigations,
-                    LEVEL_OF_CONFIDENCE,
-                    CI_FAIL,
-                    gpg45_strength_score,
-                    gpg45_validity_score,
-                    gpg45_activity_score,
-                    gpg45_fraud_score,
-                    gpg45_verification_score,
-                    extensions_age,
-                    extensions_isukissued,
-                    type,
-                    nvl2(
+                            extensions_isukissued,
+                            type,
+                            nvl2(
                                 valid_json_failedcheckdetails_data,
                                 valid_json_failedcheckdetails_data.biometricverificationprocesslevel,
                                 valid_json_failedcheckdetails_data
@@ -1402,26 +1460,43 @@ or replace view conformed.v_stg_ipv_journey AS
                                 valid_json_checkdetails_data,
                                 valid_json_checkdetails_data.biometricverificationprocesslevel,
                                 valid_json_checkdetails_data
-                            ) AS checkdetails_biometricverificationprocesslevel,                            
-                    nvl2(valid_json_failedcheckdetails_data,valid_json_failedcheckdetails_data.checkmethod,valid_json_failedcheckdetails_data) AS failedcheckdetails_checkmethod,
-                    nvl2(valid_json_failedcheckdetails_data,valid_json_failedcheckdetails_data.kbvresponsemode,valid_json_failedcheckdetails_data) AS
-                    failedcheckdetails_kbvresponsemode,
-                    nvl2(valid_json_checkdetails_data,valid_json_checkdetails_data.checkmethod,valid_json_checkdetails_data) AS checkdetails_checkmethod,
-                    nvl2(valid_json_checkdetails_data,valid_json_checkdetails_data.kbvquality,valid_json_checkdetails_data) AS
-                    checkdetails_kbvquality,
-                    nvl2(valid_json_checkdetails_data,valid_json_checkdetails_data.kbvresponsemode,valid_json_checkdetails_data) AS
-                    checkdetails_kbvresponsemode
-                from  level_2_data
-        )
-        )
-        where  row_num=1
-        ) Auth
-        join conformed.BatchControl BatC
-        On Auth.Product_family=BatC.Product_family
-        and to_date(processed_date,'YYYYMMDD')  > NVL(MaxRunDate,null)
-        join conformed.REF_EVENTS ref
-        on Auth.EVENT_NAME=ref.event_name
-        with no schema binding ;
+                            ) AS checkdetails_biometricverificationprocesslevel,
+                            nvl2(
+                                valid_json_failedcheckdetails_data,
+                                valid_json_failedcheckdetails_data.checkmethod,
+                                valid_json_failedcheckdetails_data
+                            ) AS failedcheckdetails_checkmethod,
+                            nvl2(
+                                valid_json_failedcheckdetails_data,
+                                valid_json_failedcheckdetails_data.kbvresponsemode,
+                                valid_json_failedcheckdetails_data
+                            ) AS failedcheckdetails_kbvresponsemode,
+                            nvl2(
+                                valid_json_checkdetails_data,
+                                valid_json_checkdetails_data.checkmethod,
+                                valid_json_checkdetails_data
+                            ) AS checkdetails_checkmethod,
+                            nvl2(
+                                valid_json_checkdetails_data,
+                                valid_json_checkdetails_data.kbvquality,
+                                valid_json_checkdetails_data
+                            ) AS checkdetails_kbvquality,
+                            nvl2(
+                                valid_json_checkdetails_data,
+                                valid_json_checkdetails_data.kbvresponsemode,
+                                valid_json_checkdetails_data
+                            ) AS checkdetails_kbvresponsemode,
+                            extensions_reproveidentity
+                        from
+                            level_2_data
+                    )
+            )
+        where
+            row_num = 1
+    ) Auth
+    join conformed.BatchControl BatC On Auth.Product_family = BatC.Product_family
+    and to_date(processed_date, 'YYYYMMDD') > NVL(MaxRunDate, null)
+    join conformed.REF_EVENTS ref on Auth.EVENT_NAME = ref.event_name with no schema binding;
 
     ---
 

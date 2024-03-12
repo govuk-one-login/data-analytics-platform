@@ -1,5 +1,6 @@
-CREATE OR REPLACE PROCEDURE conformed.sp_auth_account_user_login () 
-AS $$ 
+CREATE OR REPLACE PROCEDURE conformed.sp_auth_account_user_login()
+ LANGUAGE plpgsql
+AS $_$ 
 BEGIN 
 /*
 Name       Date         Notes
@@ -274,7 +275,11 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                         ELSE
                                             st."TYPE"
                                         END,'"')
-      ,IS_NEW_ACCOUNT=st.is_new_account                                         
+      ,IS_NEW_ACCOUNT=st.is_new_account   
+      ,test_user= DECODE(lower(st.test_user), 
+                    'false', '0', 
+                    'true', '1' 
+                    )::integer::boolean                                      
       ,PROCESSED_DATE=st.PROCESSED_DATE
       ,MODIFIED_BY=current_user
       ,MODIFIED_DATE=CURRENT_DATE
@@ -293,7 +298,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                             REJECTION_REASON,REASON,NOTIFICATION_TYPE,MFA_TYPE,ACCOUNT_RECOVERY,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,
                             CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,ADDRESSES_ENTERED,ACTIVITY_HISTORY_SCORE,IDENTITY_FRAUD_SCORE,DECISION_SCORE,
                             FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODE,CHECK_DETAILS_KBV_QUALITY,
-                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE", IS_NEW_ACCOUNT,PROCESSED_DATE,
+                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE", IS_NEW_ACCOUNT,TEST_USER,PROCESSED_DATE,
                             CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT NVL(DE.event_key,-1) AS event_key
           ,dd.date_key
@@ -387,7 +392,11 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                         then NULL
                                         ELSE
                                             IS_NEW_ACCOUNT
-                                        END,'"')                                            
+                                        END,'"')  
+        ,DECODE(lower(test_user), 
+                    'false', '0', 
+                    'true', '1' 
+                    )::integer::boolean                                                                          
         ,PROCESSED_DATE
            ,current_user
            , CURRENT_DATE
@@ -463,4 +472,4 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
 
 END; 
 
-$$ LANGUAGE PLPGSQL;
+$_$

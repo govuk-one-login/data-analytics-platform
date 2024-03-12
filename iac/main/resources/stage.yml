@@ -142,6 +142,7 @@ AuthAccountUserLoginGlueTable:
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
           - { Name: extensions_isnewaccount, Type: string }
+          - { Name: extensions_testuser, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
@@ -384,6 +385,7 @@ IpvJourneyGlueTable:
           - { Name: event_timestamp_ms, Type: bigint }
           - { Name: event_timestamp_ms_formatted, Type: string }
           - { Name: extensions_mitigationtype, Type: string }
+          - { Name: extensions_reproveidentity, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
