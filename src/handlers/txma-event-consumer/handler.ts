@@ -3,7 +3,7 @@ import { PutRecordCommand } from '@aws-sdk/client-firehose';
 import { firehoseClient } from '../../shared/clients';
 import { getAWSEnvironment, getEnvironmentVariable } from '../../shared/utils/utils';
 import { getLoggerAndMetrics } from '../../shared/powertools';
-import { MetricUnits } from '@aws-lambda-powertools/metrics';
+import { MetricUnit } from '@aws-lambda-powertools/metrics';
 
 export const { logger, metrics } = getLoggerAndMetrics('lambda/txma-event-consumer');
 
@@ -72,10 +72,10 @@ const addMetrics = (records: SQSRecord[], batchItemFailures: SQSBatchItemFailure
   const total = records.length;
   const failures = batchItemFailures.length;
   const successes = total - failures;
-  metrics.addMetric('event-total', MetricUnits.Count, total);
-  metrics.addMetric('event-success', MetricUnits.Count, successes);
-  metrics.addMetric('event-failure', MetricUnits.Count, failures);
-  metrics.addMetric('event-success-percentage', MetricUnits.Percent, (100 * successes) / total);
-  metrics.addMetric('event-failure-percentage', MetricUnits.Percent, (100 * failures) / total);
+  metrics.addMetric('event-total', MetricUnit.Count, total);
+  metrics.addMetric('event-success', MetricUnit.Count, successes);
+  metrics.addMetric('event-failure', MetricUnit.Count, failures);
+  metrics.addMetric('event-success-percentage', MetricUnit.Percent, (100 * successes) / total);
+  metrics.addMetric('event-failure-percentage', MetricUnit.Percent, (100 * failures) / total);
   metrics.publishStoredMetrics();
 };
