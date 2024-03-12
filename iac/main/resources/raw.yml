@@ -59,6 +59,7 @@ AuthAccountUserLoginCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_CHECK_USER_KNOWN_EMAIL/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_LOG_IN_SUCCESS/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTH_CODE_ISSUED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTHENTICATION_COMPLETE/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -792,6 +793,7 @@ IpvJourneyStartGlueTable:
           - { Name: timestamp_formatted, Type: string }
           - { Name: txma, Type: 'struct<obfuscated:boolean,config_version:string,configVersion:string>' }
           - { Name: reingestcount, Type: int }
+          - { Name: extensions, Type: 'struct<reprove_identity:boolean>' }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         Location: !Sub s3://${RawLayerBucket}/txma/IPV_JOURNEY_START/
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat

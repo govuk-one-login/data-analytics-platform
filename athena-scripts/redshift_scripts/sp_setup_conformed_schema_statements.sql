@@ -94,7 +94,8 @@ BEGIN
     ('IPV_SPOT_REQUEST_VALIDATION_FAILURE','IPV_JOURNEY','IPV','SPOT',' '),
     ('IPV_VC_RECEIVED','IPV_JOURNEY','IPV','IPV Journey',' '),
     ('AUTH_DOC_APP_AUTHORISATION_REQUESTED','AUTH_ORCHESTRATION','Authentication','Relying Parties Connect',' '),
-    ('IPV_MITIGATION_START','IPV_JOURNEY','IPV','Contra-Indicator',' ');
+    ('IPV_MITIGATION_START','IPV_JOURNEY','IPV','Contra-Indicator',' '),
+    ('AUTH_AUTHENTICATION_COMPLETE','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login',' ');
 
 
     --
