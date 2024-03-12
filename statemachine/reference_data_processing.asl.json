@@ -1,0 +1,44 @@
+{
+    "Comment": "process reference data-sets manually curated by the business",
+    "StartAt": "GetRedshiftMetadata",
+    "States": {
+      "GetRedshiftMetadata": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::lambda:invoke",
+        "Parameters": {
+          "FunctionName": "${GetRedshiftMetadataFunctionArn}:$LATEST",
+          "Payload": {
+            "fileMetadata.$": "$.[0].body"
+          }
+        },
+        "Retry": [
+          {
+            "ErrorEquals": [
+              "Lambda.ServiceException",
+              "Lambda.AWSLambdaException",
+              "Lambda.SdkClientException",
+              "Lambda.TooManyRequestsException"
+            ],
+            "IntervalSeconds": 2,
+            "MaxAttempts": 3,
+            "BackoffRate": 2
+          }
+        ],
+        "Next": "ReferenceDataIngestionGlueStartJobRun",
+        "ResultPath": "$[0].redshiftMetadata",
+        "OutputPath": "$[0]"
+      },
+      "ReferenceDataIngestionGlueStartJobRun": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::glue:startJobRun.sync",
+        "Parameters": {
+          "Arguments": {
+            "--redshift_metadata.$": "$.redshiftMetadata.Payload",
+            "--reference_data_file_metadata.$": "$.body"
+          },
+          "JobName": "${ReferenceDataIngestionGlueJobName}"
+        },
+        "End": true
+      }
+    }
+  }
