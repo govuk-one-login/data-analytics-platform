@@ -120,10 +120,10 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
 
     ---
 
-    Create or replace view conformed.v_stg_auth_account_user_login
-    AS
-    select DISTINCT 
-    Auth.product_family,
+    Create
+or replace view conformed.v_stg_auth_account_user_login AS
+select
+    DISTINCT Auth.product_family,
     Auth.event_id,
     Auth.client_id,
     Auth.component_id,
@@ -135,6 +135,7 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
     Auth.processed_date,
     Auth.event_name,
     1 EVENT_COUNT,
+    extensions_isnewaccount is_new_account,
     Null REJECTION_REASON,
     Null REASON,
     Null NOTIFICATION_TYPE,
@@ -155,26 +156,37 @@ P Sodhi    15/09/2023   Update to ipv_cri_kbv view.
     Null Iss,
     Null VALIDITY_SCORE,
     Null "TYPE",
+    extensions_testuser test_user,
     BatC.product_family batch_product_family,
     BatC.maxrundate,
     ref.product_family ref_product_family,
     ref.domain,
     ref.sub_domain,
-    ref.other_sub_domain from 
-    ( select * from 
-        (SELECT
-            'auth_account_user_login' Product_family 
-                ,row_number() over (partition by event_id,timestamp_formatted order by cast (day as integer) desc) as row_num,*
-        FROM
-        "dap_txma_reporting_db"."dap_txma_stage"."auth_account_user_login") 
-        where  row_num=1  
-        ) Auth
-        join conformed.BatchControl BatC
-        On Auth.Product_family=BatC.Product_family
-        and to_date(processed_date,'YYYYMMDD')  > NVL(MaxRunDate,null)
-        join conformed.REF_EVENTS ref
-        on Auth.EVENT_NAME=ref.event_name
-        with no schema binding;
+    ref.other_sub_domain
+from
+    (
+        select
+            *
+        from
+            (
+                SELECT
+                    'auth_account_user_login' Product_family,
+                    row_number() over (
+                        partition by event_id,
+                        timestamp_formatted
+                        order by
+                            cast (day as integer) desc
+                    ) as row_num,
+                    *
+                FROM
+                    "dap_txma_reporting_db"."dap_txma_stage"."auth_account_user_login"
+            )
+        where
+            row_num = 1
+    ) Auth
+    join conformed.BatchControl BatC On Auth.Product_family = BatC.Product_family
+    and to_date(processed_date, 'YYYYMMDD') > NVL(MaxRunDate, null)
+    join conformed.REF_EVENTS ref on Auth.EVENT_NAME = ref.event_name with no schema binding;
 
     ---
 
