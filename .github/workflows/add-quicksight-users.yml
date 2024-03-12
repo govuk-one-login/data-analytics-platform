@@ -7,12 +7,13 @@ on:
         type: boolean
         required: true
         description: Dry run (if true only print the users to add without actually adding them)
-        default: false
+        default: true
       environment:
         type: choice
         required: true
         description: AWS Environment
         options: [DEV, TEST, FEATURE, PRODUCTION, PRODUCTION-PREVIEW]
+        default: PRODUCTION
       type:
         type: choice
         required: true
@@ -46,6 +47,12 @@ jobs:
       - name: Invoke lambda
         run: |
           PAYLOAD=$(echo "{\"dryRun\": ${{ inputs.dryRun }}, \"spreadsheet\": $(cat spreadsheet.json)}")
+          echo "Lambda request"
+          echo "$PAYLOAD" | jq
+
           ENCODED=$(echo "$PAYLOAD" | openssl base64)
+          echo -e "\nLambda invocation"
           aws --region eu-west-2 lambda invoke --function-name quicksight-add-users-from-spreadsheet --payload "$ENCODED" out.json
+
+          echo -e "\nLambda response"
           cat out.json | jq
