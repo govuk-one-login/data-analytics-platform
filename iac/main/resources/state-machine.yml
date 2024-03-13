@@ -1031,6 +1031,21 @@ ReferenceDataProcessingPipeRole:
       TargetParameters:
         StepFunctionStateMachineParameters:
           InvocationType: 'FIRE_AND_FORGET'
+
+  GlueRedshiftConnection:
+    Type: AWS::Glue::Connection
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      ConnectionInput:
+        Name: !Sub ${Environment}-redshift-connection
+        ConnectionType: 'JDBC'
+        ConnectionProperties:
+          JDBC_CONNECTION_URL: !Sub "jdbc:redshift://dev-redshift-serverless-workgroup.${AWS::AccountId}.${AWS::Region}.redshift-serverless.amazonaws.com:5439/dap_txma_reporting_db"
+          SECRET_ID: !Ref RedshiftSecret
+        PhysicalConnectionRequirements:
+          SecurityGroupIdList: 
+            - !Ref RedshiftAccessEC2SecurityGroup
+          SubnetId: !Ref SubnetForDAP1
         
   ReferenceDataRedshiftIngestionGlueJob:
     Type: AWS::Glue::Job
@@ -1043,7 +1058,7 @@ ReferenceDataProcessingPipeRole:
       WorkerType: 'G.1X'
       Connections:
         Connections:
-          - 'dap-redshift-conn'
+          - !Ref GlueRedshiftConnection
       DefaultArguments:
         '--JOB_NAME': !Sub ${AWS::AccountId}-reference-data-redshift-ingestion-job
         '--TempDir': !Sub s3://${GlueJobResultsBucket}/temporary/
