@@ -133,7 +133,9 @@ GluePolicy:
             - 'glue:GetConnection'
             - 'glue:DeleteConnection'
             - 'glue:UpdateConnection'
-          Resource: !Sub 'arn:aws:glue:eu-west-2:${AWS::AccountId}:catalog'
+          Resource:
+            - !Sub 'arn:aws:glue:eu-west-2:${AWS::AccountId}:catalog'
+            - !Sub 'arn:aws:glue:eu-west-2:${AWS::AccountId}:*/*'
     Roles:
       - Fn::If:
           - IsDev
