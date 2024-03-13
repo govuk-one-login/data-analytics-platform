@@ -35,7 +35,7 @@ def main():
                 "JOB_NAME",
                 "redshift_metadata",
                 "reference_data_file_metadata",
-                "TempDir",
+                "RedshiftTempDir",
                 "GlueConnection"
             ]
         )
@@ -47,7 +47,7 @@ def main():
 
         redshift_metadata = args["redshift_metadata"]
         reference_data_file_metadata = args['reference_data_file_metadata']
-        tmp_dir = args["TempDir"]
+        tmp_dir = args["RedshiftTempDir"]
         glue_conn = args["GlueConnection"]
 
         logger.info(f"extracted redshift metadata:\n {redshift_metadata}")
