@@ -27,3 +27,189 @@ RedshiftGetMetadataLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
+
+GlueJobResultsBucket:
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub ${Environment}-dap-glue-job-process-results
+    LoggingConfiguration:
+      DestinationBucketName: !Ref GlobalLogBucket
+      LogFilePrefix: dap-glue-job-process-results/log
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+    LifecycleConfiguration:
+      Rules:
+        - ExpirationInDays: 365
+          Status: Enabled
+    NotificationConfiguration:
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+        - Event: s3:ObjectRemoved:*
+          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+
+GlueJobResultsBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref GlueJobResultsBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${GlueJobResultsBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - 's3:Get*'
+            - 's3:Put*'
+            - 's3:List*'
+            - 's3:ListBucketMultipartUploads'
+            - 's3:AbortMultipartUpload'
+            - 's3:ListBucket'
+            - 's3:GetBucketLocation'
+            - 's3:ListMultipartUploadParts'
+          Resource:
+            - !Sub ${GlueJobResultsBucket.Arn}
+            - !Sub ${GlueJobResultsBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+
+ReferenceDataSQSQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    ContentBasedDeduplication: true
+    FifoQueue: true
+    QueueName: !Sub ${AWS::AccountId}-dap-reference-data-processing.fifo
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+    RedrivePolicy:
+      deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
+      maxReceiveCount: 1
+    VisibilityTimeout: 120
+
+DeadLetterQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    FifoQueue: true
+    QueueName: !Sub ${AWS::AccountId}-reference-data-processing-dlq.fifo
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+ProcessReferenceDataLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: /aws/stepfunction/dap-reference-data-redshift-ingestion
+    KmsKeyId: !GetAtt KmsKey.Arn
+    RetentionInDays: 30
+
+ProcessReferenceDataStateMachine:
+  Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+  Properties:
+    DefinitionUri: statemachine/reference_data_processing.asl.json
+    Name: !Sub ${AWS::AccountId}-dap-reference-data-redshift-ingestion
+    Role: !GetAtt StepFunctionRole.Arn
+    Logging:
+      Destinations:
+        - CloudWatchLogsLogGroup:
+            LogGroupArn: !GetAtt ProcessReferenceDataLogGroup.Arn
+      IncludeExecutionData: true
+      Level: ALL
+    DefinitionSubstitutions:
+      ReferenceDataIngestionGlueJobName: !Ref ReferenceDataRedshiftIngestionGlueJob
+      GetRedshiftMetadataFunctionArn: !GetAtt AthenaGetConfigLambda.Arn
+
+ReferenceDataProcessingPipeRole:
+  Type: 'AWS::IAM::Role'
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: 'Allow'
+          Principal:
+            Service: 'pipes.amazonaws.com'
+          Action: 'sts:AssumeRole'
+    Policies:
+      - PolicyName: 'BaseInlinePolicy'
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Sid: 'AccessToCloudWatch'
+              Effect: 'Allow'
+              Action:
+                - 'logs:CreateLogGroup'
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: '*'
+            - Sid: 'UseSqsAsSource'
+              Effect: 'Allow'
+              Action:
+                - 'sqs:ReceiveMessage'
+                - 'sqs:DeleteMessage'
+                - 'sqs:GetQueueAttributes'
+              Resource: !GetAtt 'ReferenceDataSQSQueue.Arn'
+            - Sid: 'ExecuteSfnWorkflowAsTarget'
+              Effect: 'Allow'
+              Action:
+                - 'states:StartSyncExecution'
+                - 'states:StartExecution'
+                - 'states:ListExecutions'
+              Resource: !Ref 'ProcessReferenceDataStateMachine'
+
+ReferenceDataProcessingPipe:
+  Type: 'AWS::Pipes::Pipe'
+  Properties:
+    RoleArn: !GetAtt 'ReferenceDataProcessingPipeRole.Arn'
+    Source: !GetAtt 'ReferenceDataSQSQueue.Arn'
+    SourceParameters:
+      SqsQueueParameters:
+        BatchSize: 1
+    Target: !Ref 'ProcessReferenceDataStateMachine'
+    TargetParameters:
+      StepFunctionStateMachineParameters:
+        InvocationType: 'FIRE_AND_FORGET'
+
+GlueRedshiftConnection:
+  Type: AWS::Glue::Connection
+  Properties:
+    CatalogId: !Ref AWS::AccountId
+    ConnectionInput:
+      Name: !Sub ${Environment}-redshift-connection
+      ConnectionType: 'JDBC'
+      ConnectionProperties:
+        JDBC_CONNECTION_URL: !Sub 'jdbc:redshift://dev-redshift-serverless-workgroup.${AWS::AccountId}.${AWS::Region}.redshift-serverless.amazonaws.com:5439/dap_txma_reporting_db'
+        SECRET_ID: !Ref RedshiftSecret
+      PhysicalConnectionRequirements:
+        SecurityGroupIdList:
+          - !Ref RedshiftAccessEC2SecurityGroup
+        SubnetId: !Ref SubnetForDAP1
+
+ReferenceDataRedshiftIngestionGlueJob:
+  Type: AWS::Glue::Job
+  Properties:
+    Command:
+      Name: 'glueetl'
+      ScriptLocation: !Sub s3://${ELTMetadataBucket}/reference_data/manual_curated_dataset_ingestion/scripts/reference_data_redshift_ingestion_script.py
+    GlueVersion: '4.0'
+    NumberOfWorkers: 2
+    WorkerType: 'G.1X'
+    Connections:
+      Connections:
+        - !Ref GlueRedshiftConnection
+    DefaultArguments:
+      '--JOB_NAME': !Sub ${AWS::AccountId}-reference-data-redshift-ingestion-job
+      '--TempDir': !Sub s3://${GlueJobResultsBucket}/temporary/
+    ExecutionProperty:
+      MaxConcurrentRuns: 10
+    MaxRetries: 0
+    SecurityConfiguration: !Ref GlueSecurityConfig
+    Name: !Sub ${AWS::AccountId}-reference-data-redshift-ingestion-job
+    Role: !Ref GlueScriptsExecutionRole
+
