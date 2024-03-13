@@ -34,7 +34,9 @@ def main():
             [
                 "JOB_NAME",
                 "redshift_metadata",
-                "reference_data_file_metadata"
+                "reference_data_file_metadata",
+                "TempDir",
+                "GlueConnection"
             ]
         )
 
@@ -45,6 +47,8 @@ def main():
 
         redshift_metadata = args["redshift_metadata"]
         reference_data_file_metadata = args['reference_data_file_metadata']
+        tmp_dir = args["TempDir"]
+        glue_conn = args["GlueConnection"]
 
         logger.info(f"extracted redshift metadata:\n {redshift_metadata}")
         logger.info(f"extracted reference data file metadata:\n {reference_data_file_metadata}")
@@ -66,9 +70,9 @@ def main():
         # Query Redshift database to validate whether reference data table exists
         table_exists_dyf = glueContext.create_dynamic_frame.from_options(connection_type="redshift", 
                                                                          connection_options={"sampleQuery": f"SELECT EXISTS(SELECT 1 FROM pg_tables WHERE schemaname = '{redshift_metadata_dict['schema']}' AND tablename = '{redshift_metadata_dict['table']}')",
-                                                                         "redshiftTmpDir": "s3://aws-glue-assets-563887642259-eu-west-2/temporary/", 
+                                                                         "redshiftTmpDir": f"{tmp_dir}", 
                                                                          "useConnectionProperties": "true", 
-                                                                         "connectionName": "dev-redshift-conn"}, 
+                                                                         "connectionName": f"{glue_conn}"}, 
                                                                          transformation_ctx="table_exists_dyf")
 
         table_exists_dyf.printSchema()
@@ -124,10 +128,10 @@ def main():
             
             source_to_redshift_dyf = glueContext.write_dynamic_frame.from_options(frame=file_ingestion_dyf, 
                                                                                 connection_type="redshift", 
-                                                                                connection_options={"redshiftTmpDir": "s3://aws-glue-assets-563887642259-eu-west-2/temporary/",
+                                                                                connection_options={"redshiftTmpDir": f"{tmp_dir}",
                                                                                                     "useConnectionProperties": "true",
                                                                                                     "dbtable": f"{redshift_metadata_dict['schema']}.{redshift_metadata_dict['table']}", 
-                                                                                                    "connectionName": "dev-redshift-conn",
+                                                                                                    "connectionName": f"{glue_conn}",
                                                                                                     "preactions": f"TRUNCATE TABLE {redshift_metadata_dict['schema']}.{redshift_metadata_dict['table']};"}, 
                                                                                     transformation_ctx="source_to_redshift_dyf")
 
@@ -138,10 +142,10 @@ def main():
             # Insert reference data
             source_to_redshift_dyf = glueContext.write_dynamic_frame.from_options(frame=file_ingestion_dyf, 
                                                                             connection_type="redshift", 
-                                                                            connection_options={"redshiftTmpDir": "s3://aws-glue-assets-563887642259-eu-west-2/temporary/", 
+                                                                            connection_options={"redshiftTmpDir": f"{tmp_dir}", 
                                                                                                 "useConnectionProperties": "true", 
                                                                                                 "dbtable": f"{redshift_metadata_dict['schema']}.{redshift_metadata_dict['table']}", 
-                                                                                                "connectionName": "dev-redshift-conn"}, 
+                                                                                                "connectionName": f"{glue_conn}"}, 
                                                                             transformation_ctx="source_to_redshift_dyf")
             
         else:
