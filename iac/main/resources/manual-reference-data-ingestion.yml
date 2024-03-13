@@ -168,7 +168,7 @@ ReferenceDataProcessingPipeRole:
                 - kms:Encrypt
                 - kms:DescribeKey
                 - kms:GenerateDataKey
-              Resource: '*'
+              Resource: !GetAtt KmsKey.Arn
 
 ReferenceDataProcessingPipe:
   Type: 'AWS::Pipes::Pipe'
