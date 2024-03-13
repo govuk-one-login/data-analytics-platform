@@ -162,6 +162,13 @@ ReferenceDataProcessingPipeRole:
                 - 'states:StartExecution'
                 - 'states:ListExecutions'
               Resource: !Ref 'ProcessReferenceDataStateMachine'
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+                - kms:Encrypt
+                - kms:DescribeKey
+                - kms:GenerateDataKey
+              Resource: '*'
 
 ReferenceDataProcessingPipe:
   Type: 'AWS::Pipes::Pipe'
