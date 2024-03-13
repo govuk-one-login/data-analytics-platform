@@ -1,0 +1,29 @@
+RedshiftGetMetadataLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub redshift-get-metadata-${Environment}
+    Handler: redshift-get-metadata.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:ListBucket
+            Resource: !Sub ${ELTMetadataBucket.Arn}/*
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        METADATA_BUCKET_NAME: !Ref ELTMetadataBucket
+    Tags:
+      Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
