@@ -212,4 +212,3 @@ ReferenceDataRedshiftIngestionGlueJob:
     SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${AWS::AccountId}-reference-data-redshift-ingestion-job
     Role: !Ref GlueScriptsExecutionRole
-
