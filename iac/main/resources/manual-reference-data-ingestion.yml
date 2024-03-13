@@ -188,7 +188,7 @@ GlueRedshiftConnection:
         SECRET_ID: !Ref RedshiftSecret
       PhysicalConnectionRequirements:
         SecurityGroupIdList:
-          - !Ref VpcEndpointSecurityGroup
+          - !GetAtt VPCForDAP.DefaultSecurityGroup
         SubnetId: !Ref SubnetForDAP3
 
 ReferenceDataRedshiftIngestionGlueJob:
