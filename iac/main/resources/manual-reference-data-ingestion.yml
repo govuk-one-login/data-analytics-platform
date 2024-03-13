@@ -147,7 +147,7 @@ ReferenceDataProcessingPipeRole:
                 - 'logs:CreateLogGroup'
                 - 'logs:CreateLogStream'
                 - 'logs:PutLogEvents'
-              Resource: '*'
+              Resource: arn:aws:logs:*:*:*
             - Sid: 'UseSqsAsSource'
               Effect: 'Allow'
               Action:
