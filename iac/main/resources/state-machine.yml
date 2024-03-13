@@ -243,6 +243,7 @@ StepFunctionRole:
               Resource:
                 - !Join [':', [!GetAtt AthenaGetConfigLambda.Arn, '$LATEST']]
                 - !Join [':', [!GetAtt AthenaGetStatementLambda.Arn, '$LATEST']]
+                - !Join [':', [!GetAtt RedshiftGetMetadataLambda.Arn, '$LATEST']]
               Action: lambda:InvokeFunction
 
             - Effect: Allow

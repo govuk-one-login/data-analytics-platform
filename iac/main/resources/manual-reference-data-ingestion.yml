@@ -124,7 +124,7 @@ ProcessReferenceDataStateMachine:
       Level: ALL
     DefinitionSubstitutions:
       ReferenceDataIngestionGlueJobName: !Ref ReferenceDataRedshiftIngestionGlueJob
-      GetRedshiftMetadataFunctionArn: !GetAtt AthenaGetConfigLambda.Arn
+      GetRedshiftMetadataFunctionArn: !GetAtt RedshiftGetMetadataLambda.Arn
 
 ReferenceDataProcessingPipeRole:
   Type: 'AWS::IAM::Role'
