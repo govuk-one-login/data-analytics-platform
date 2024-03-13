@@ -21,6 +21,10 @@ export const getRequiredParams = <T extends Record<string, any>, K extends keyof
   t: T,
   ...requiredParams: K[]
 ): Required<Pick<T, K>> => {
+  if (t === null || t === undefined) {
+    throw new Error('Object is null or undefined');
+  }
+
   const missingFields = requiredParams.filter(field => !(field in t) || t[field] === null || t[field] === undefined);
   if (missingFields.length !== 0) {
     throw new Error(`Object is missing the following required fields: ${missingFields.join(', ')}`);
