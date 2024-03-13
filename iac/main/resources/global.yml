@@ -898,5 +898,3 @@ UnauthorizedApiCallSNSTopicSubscription:
     Protocol: 'email'
     Endpoint: 'dap-notifications@digital.cabinet-office.gov.uk'
     TopicArn: !Ref UnauthorizedApiCallSNSTopic
-
-
