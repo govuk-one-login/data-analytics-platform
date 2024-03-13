@@ -1,6 +1,7 @@
 QuickSightLogBucket:
   # checkov:skip=CKV_AWS_18: This is the log bucket to log quicksight access
   Type: 'AWS::S3::Bucket'
+  Condition: IsQuicksightEnvironment
   Properties:
     AccessControl: Private
     BucketName: !Sub '${Environment}-dap-quicksight-s3-logs'
@@ -18,6 +19,7 @@ QuickSightLogBucket:
 
 QuickSightLogBucketBucketPolicy:
   Type: AWS::S3::BucketPolicy
+  Condition: IsQuicksightEnvironment
   Properties:
     Bucket: !Ref QuickSightLogBucket
     PolicyDocument:
