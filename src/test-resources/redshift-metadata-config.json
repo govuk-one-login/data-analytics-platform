@@ -1,0 +1,25 @@
+{
+  "benefits_dashboard": {
+    "data_sources": {
+      "account_login": {
+        "ingestion_enabled_status": true,
+        "redshift_metadata": {
+          "database": "demo_reference_data_db",
+          "schema": "reference_data",
+          "table": "account_login",
+          "operation": "overwrite"
+        }
+      },
+      "online_id_verification": {
+        "ingestion_enabled_status": true,
+        "redshift_metadata": {
+          "database": "demo_reference_data_db",
+          "schema": "reference_data",
+          "table": "online_id_verification",
+          "operation": "append"
+        }
+      }
+    }
+  },
+  "metadata_columns": ["source_file_name", "ingestion_datetime", "process_id"]
+}
