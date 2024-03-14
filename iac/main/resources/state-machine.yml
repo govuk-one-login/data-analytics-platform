@@ -615,6 +615,12 @@ GlueScriptsExecutionRole:
                 - ec2:CreateTags
                 - secretsmanager:GetSecretValue
 
+            - Effect: Allow
+              Resource:
+                - '*'
+              Action:
+                - glue:GetSecurityConfiguration
+
 RedshiftProcessingLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
