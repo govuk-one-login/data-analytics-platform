@@ -574,7 +574,7 @@ GlueScriptsExecutionRole:
             - Effect: Allow
               Resource:
                 - !Sub 'arn:aws:redshift-serverless:${AWS::Region}:${AWS::AccountId}:workgroup/*'
-                - !Ref GlueSecurityConfig
+                - !Sub ${Environment}-dap-glue-security-configuration
               Action:
                 - redshift-data:BatchExecuteStatement
                 - redshift-data:ExecuteStatement
