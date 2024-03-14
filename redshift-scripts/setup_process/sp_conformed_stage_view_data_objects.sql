@@ -1177,7 +1177,10 @@ select
     extensions_age,
     extensions_isukissued,
     extensions_successful,
-    extensions_reproveidentity
+    extensions_reproveidentity,
+    event_timestamp_ms,
+    event_timestamp_ms_formatted,
+    extensions_mitigationtype
 from
     (
         select
@@ -1266,7 +1269,10 @@ from
                                 gpg45_verification_score,
                                 extensions_age,
                                 extensions_isukissued,
-                                extensions_reproveidentity
+                                extensions_reproveidentity,
+                                event_timestamp_ms,
+                                event_timestamp_ms_formatted,
+                                extensions_mitigationtype
                             FROM
                                 (
                                     SELECT
@@ -1315,10 +1321,13 @@ from
                                         json_extract_path_text(extensions_gpg45scores, 'verification') AS gpg45_verification_score,
                                         extensions_age,
                                         extensions_isukissued,
-                                        extensions_reproveidentity
+                                        extensions_reproveidentity,
+                                        event_timestamp_ms,
+                                        event_timestamp_ms_formatted,
+                                        extensions_mitigationtype
                                     FROM
                                         "dap_txma_reporting_db"."dap_txma_stage"."ipv_journey" 
-                                        --WHERE event_id in ('c1faf207-c9ea-44ea-9b67-a293b5818447')
+                                        WHERE event_name='IPV_MITIGATION_START'
                                 )
                         ),
                         level_1_data as (
@@ -1359,7 +1368,10 @@ from
                                 json_serialize(checkdetails) checkdetails_final,
                                 json_serialize(failedcheckdetails) failedcheckdetails_final,
                                 type,
-                                extensions_reproveidentity
+                                extensions_reproveidentity,
+                                event_timestamp_ms,
+                                event_timestamp_ms_formatted,
+                                extensions_mitigationtype
                             FROM
                                 base_data
                             where
@@ -1413,7 +1425,10 @@ from
                                     json_extract_array_element_text(checkdetails_final, 0)
                                 )
                                 else null end as valid_json_checkdetails_data,
-                                extensions_reproveidentity
+                                extensions_reproveidentity,
+                                event_timestamp_ms,
+                                event_timestamp_ms_formatted,
+                                extensions_mitigationtype
                             from
                                 level_1_data
                         )
@@ -1486,7 +1501,10 @@ from
                                 valid_json_checkdetails_data.kbvresponsemode,
                                 valid_json_checkdetails_data
                             ) AS checkdetails_kbvresponsemode,
-                            extensions_reproveidentity
+                            extensions_reproveidentity,
+                            event_timestamp_ms,
+                            event_timestamp_ms_formatted,
+                            extensions_mitigationtype
                         from
                             level_2_data
                     )

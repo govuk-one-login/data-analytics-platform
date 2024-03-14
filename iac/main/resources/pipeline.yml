@@ -126,6 +126,16 @@ GluePolicy:
             - 'glue:TagResource'
             - 'glue:GetTags'
           Resource: '*'
+        - Sid: 'VisualEditor3'
+          Effect: 'Allow'
+          Action:
+            - 'glue:CreateConnection'
+            - 'glue:GetConnection'
+            - 'glue:DeleteConnection'
+            - 'glue:UpdateConnection'
+          Resource:
+            - !Sub 'arn:aws:glue:eu-west-2:${AWS::AccountId}:catalog'
+            - !Sub 'arn:aws:glue:eu-west-2:${AWS::AccountId}:*/*'
     Roles:
       - Fn::If:
           - IsDev
