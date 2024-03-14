@@ -569,10 +569,12 @@ GlueScriptsExecutionRole:
                 - glue:BatchGetPartition
                 - glue:DeletePartition
                 - glue:BatchDeletePartition
+                - glue:GetSecurityConfiguration
 
             - Effect: Allow
               Resource:
                 - !Sub 'arn:aws:redshift-serverless:${AWS::Region}:${AWS::AccountId}:workgroup/*'
+                - !Ref GlueSecurityConfig
               Action:
                 - redshift-data:BatchExecuteStatement
                 - redshift-data:ExecuteStatement
