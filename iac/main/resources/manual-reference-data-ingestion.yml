@@ -89,7 +89,7 @@ ReferenceDataSQSQueue:
   Properties:
     ContentBasedDeduplication: true
     FifoQueue: true
-    QueueName: !Sub ${AWS::AccountId}-dap-reference-data-processing.fifo
+    QueueName: !Sub ${Environment}-dap-reference-data-processing.fifo
     KmsMasterKeyId: !GetAtt KmsKey.Arn
     RedrivePolicy:
       deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
@@ -100,7 +100,7 @@ DeadLetterQueue:
   Type: AWS::SQS::Queue
   Properties:
     FifoQueue: true
-    QueueName: !Sub ${AWS::AccountId}-reference-data-processing-dlq.fifo
+    QueueName: !Sub ${Environment}-reference-data-processing-dlq.fifo
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 ProcessReferenceDataLogGroup:
@@ -114,7 +114,7 @@ ProcessReferenceDataStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
   Properties:
     DefinitionUri: statemachine/reference_data_processing.asl.json
-    Name: !Sub ${AWS::AccountId}-dap-reference-data-redshift-ingestion
+    Name: !Sub ${Environment}-dap-reference-data-redshift-ingestion
     Role: !GetAtt StepFunctionRole.Arn
     Logging:
       Destinations:
@@ -211,7 +211,7 @@ ReferenceDataRedshiftIngestionGlueJob:
       Connections:
         - !Ref GlueRedshiftConnection
     DefaultArguments:
-      '--JOB_NAME': !Sub ${AWS::AccountId}-reference-data-redshift-ingestion-job
+      '--JOB_NAME': !Sub ${Environment}-reference-data-redshift-ingestion-job
       '--TempDir': !Sub s3://${GlueJobResultsBucket}/temporary/
       '--RedshiftTempDir': !Sub s3://${GlueJobResultsBucket}/redshift/temporary/
       '--GlueConnection': !Ref GlueRedshiftConnection
@@ -219,5 +219,5 @@ ReferenceDataRedshiftIngestionGlueJob:
       MaxConcurrentRuns: 10
     MaxRetries: 0
     SecurityConfiguration: !Ref GlueSecurityConfig
-    Name: !Sub ${AWS::AccountId}-reference-data-redshift-ingestion-job
+    Name: !Sub ${Environment}-reference-data-redshift-ingestion-job
     Role: !Ref GlueScriptsExecutionRole
