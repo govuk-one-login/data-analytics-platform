@@ -20,6 +20,16 @@ StageLayerBucket:
     NotificationConfiguration:
       EventBridgeConfiguration:
         EventBridgeEnabled: true
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !GetAtt S3SendMetadataLambda.Arn
+          Filter:
+            S3Key:
+              Rules:
+                - Name: prefix
+                  Value: reference-data/
+                - Name: suffix
+                  Value: .csv
 
 StageLayerBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -594,8 +604,8 @@ StageGlueCrawlerRole:
                 - 's3:PutObject'
                 - 's3:ListObject'
               Resource:
-                - !Sub 'arn:aws:s3:::${StageLayerBucket}'
-                - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'
+                - !Sub 'arn:aws:s3:::${Environment}-dap-stage-layer'
+                - !Sub 'arn:aws:s3:::${Environment}-dap-stage-layer/*'
             - Effect: Allow
               Action: 'logs:AssociateKmsKey'
               Resource: 'arn:aws:logs:*:*:/aws-glue/*'
