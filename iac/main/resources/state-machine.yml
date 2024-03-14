@@ -569,12 +569,10 @@ GlueScriptsExecutionRole:
                 - glue:BatchGetPartition
                 - glue:DeletePartition
                 - glue:BatchDeletePartition
-                - glue:GetSecurityConfiguration
 
             - Effect: Allow
               Resource:
                 - !Sub 'arn:aws:redshift-serverless:${AWS::Region}:${AWS::AccountId}:workgroup/*'
-                - !Sub ${Environment}-dap-glue-security-configuration
               Action:
                 - redshift-data:BatchExecuteStatement
                 - redshift-data:ExecuteStatement
@@ -616,6 +614,12 @@ GlueScriptsExecutionRole:
                 - ec2:UnassignPrivateIpAddresses
                 - ec2:CreateTags
                 - secretsmanager:GetSecretValue
+
+            - Effect: Allow
+              Resource:
+                - '*'
+              Action:
+                - glue:GetSecurityConfiguration
 
 RedshiftProcessingLogGroup:
   Type: AWS::Logs::LogGroup
