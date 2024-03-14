@@ -6,7 +6,7 @@ import { s3Client } from '../../shared/clients';
 const logger = getLogger('lambda/mrdip-extract-redshift-metadata');
 
 export interface RedshiftExtractMetadataEvent {
-  fileMetadata: RedshiftFileMetadata;
+  fileMetadata: string;
 }
 
 interface RedshiftFileMetadata {
@@ -30,7 +30,8 @@ interface RedshiftMetadata {
 
 export const handler = async (event: RedshiftExtractMetadataEvent): Promise<RedshiftMetadata> => {
   try {
-    const { bucket, file_path: filePath } = getRequiredParams(event?.fileMetadata, 'bucket', 'file_path');
+    const fileMetadata = getFileMetadata(event);
+    const { bucket, file_path: filePath } = getRequiredParams(fileMetadata, 'bucket', 'file_path');
     const configFileBucket = getEnvironmentVariable('METADATA_BUCKET_NAME');
     logger.info('Getting redshift metadata', { bucket, filePath });
 
@@ -44,6 +45,11 @@ export const handler = async (event: RedshiftExtractMetadataEvent): Promise<Reds
     logger.error('Error getting redshift metadata', { error });
     throw error;
   }
+};
+
+const getFileMetadata = (event: RedshiftExtractMetadataEvent): RedshiftFileMetadata => {
+  const { fileMetadata } = getRequiredParams(event, 'fileMetadata');
+  return JSON.parse(fileMetadata);
 };
 
 const getFilePathParts = (filePath: string): { configRef: string; dashboardRef: string; dataSource: string } => {
