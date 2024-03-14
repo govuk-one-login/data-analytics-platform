@@ -14,10 +14,10 @@ let TEST_CONFIG_FILE: string;
 
 beforeAll(async () => {
   TEST_EVENT = {
-    fileMetadata: {
+    fileMetadata: JSON.stringify({
       bucket: METADATA_BUCKET_NAME,
       file_path: 'reference-data/data_analytics/benefits_dashboard/20240305/account_login_2024-03-05_22-12-04.csv',
-    },
+    }),
   };
   TEST_CONFIG_FILE = await getTestResource('redshift-metadata-config.json');
 });
@@ -34,13 +34,17 @@ beforeEach(() => {
 test('bad input events', async () => {
   mockS3Client.resolves({});
 
-  const missingBucket = { fileMetadata: { file_path: 'file_path' } } as unknown as RedshiftExtractMetadataEvent;
+  const missingBucket = {
+    fileMetadata: JSON.stringify({ file_path: 'file_path' }),
+  } as unknown as RedshiftExtractMetadataEvent;
   await expect(handler(missingBucket)).rejects.toThrow('Object is missing the following required fields: bucket');
 
-  const missingFilePath = { fileMetadata: { bucket: 'bucket' } } as unknown as RedshiftExtractMetadataEvent;
+  const missingFilePath = {
+    fileMetadata: JSON.stringify({ bucket: 'bucket' }),
+  } as unknown as RedshiftExtractMetadataEvent;
   await expect(handler(missingFilePath)).rejects.toThrow('Object is missing the following required fields: file_path');
 
-  const missingBoth = { fileMetadata: {} } as unknown as RedshiftExtractMetadataEvent;
+  const missingBoth = { fileMetadata: JSON.stringify({}) } as unknown as RedshiftExtractMetadataEvent;
   await expect(handler(missingBoth)).rejects.toThrow(
     'Object is missing the following required fields: bucket, file_path',
   );
@@ -49,12 +53,14 @@ test('bad input events', async () => {
   await expect(handler(undefined as unknown as RedshiftExtractMetadataEvent)).rejects.toThrow(
     'Object is null or undefined',
   );
-  await expect(handler({} as unknown as RedshiftExtractMetadataEvent)).rejects.toThrow('Object is null or undefined');
+  await expect(handler({} as unknown as RedshiftExtractMetadataEvent)).rejects.toThrow(
+    'Object is missing the following required fields: fileMetadata',
+  );
   await expect(handler({ fileMetadata: null } as unknown as RedshiftExtractMetadataEvent)).rejects.toThrow(
-    'Object is null or undefined',
+    'Object is missing the following required fields: fileMetadata',
   );
   await expect(handler({ fileMetadata: undefined } as unknown as RedshiftExtractMetadataEvent)).rejects.toThrow(
-    'Object is null or undefined',
+    'Object is missing the following required fields: fileMetadata',
   );
 
   expect(mockS3Client.calls()).toHaveLength(0);
@@ -71,7 +77,7 @@ test('missing bucket name', async () => {
 test('file parts parse error', async () => {
   const badFilePath = 'bad/path.csv';
   const badFilePathEvent: RedshiftExtractMetadataEvent = {
-    fileMetadata: { bucket: METADATA_BUCKET_NAME, file_path: badFilePath },
+    fileMetadata: JSON.stringify({ bucket: METADATA_BUCKET_NAME, file_path: badFilePath }),
   };
 
   await expect(handler(badFilePathEvent)).rejects.toThrow(`Unable to parse key path string "${badFilePath}"`);
