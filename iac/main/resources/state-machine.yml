@@ -226,6 +226,8 @@ StepFunctionRole:
                 - logs:PutResourcePolicy
                 - logs:DescribeResourcePolicies
                 - logs:DescribeLogGroups
+                - logs:DescribeLogStreams
+                - logs:GetLogEvents
 
             - Effect: Allow
               Resource: !Sub arn:aws:glue:*:${AWS::AccountId}:crawler/*
@@ -241,6 +243,7 @@ StepFunctionRole:
               Resource:
                 - !Join [':', [!GetAtt AthenaGetConfigLambda.Arn, '$LATEST']]
                 - !Join [':', [!GetAtt AthenaGetStatementLambda.Arn, '$LATEST']]
+                - !Join [':', [!GetAtt RedshiftGetMetadataLambda.Arn, '$LATEST']]
               Action: lambda:InvokeFunction
 
             - Effect: Allow
@@ -328,6 +331,24 @@ StepFunctionRole:
                 - events:PutTargets
                 - events:PutRule
                 - events:DescribeRule
+
+            - Effect: Allow
+              Resource:
+                - !Sub 'arn:aws:redshift-serverless:${AWS::Region}:${AWS::AccountId}:workgroup/*'
+
+              Action:
+                - redshift-data:BatchExecuteStatement
+                - redshift-data:ExecuteStatement
+                - redshift-serverless:GetCredentials
+
+            - Effect: Allow
+              Resource:
+                - '*'
+
+              Action:
+                - redshift-data:GetStatementResult
+                - redshift-data:DescribeStatement
+                - redshift-data:ListStatements
 
 DataQualityMetricsBucket:
   Type: 'AWS::S3::Bucket'
@@ -548,6 +569,51 @@ GlueScriptsExecutionRole:
                 - glue:BatchGetPartition
                 - glue:DeletePartition
                 - glue:BatchDeletePartition
+
+            - Effect: Allow
+              Resource:
+                - !Sub 'arn:aws:redshift-serverless:${AWS::Region}:${AWS::AccountId}:workgroup/*'
+              Action:
+                - redshift-data:BatchExecuteStatement
+                - redshift-data:ExecuteStatement
+                - redshift-serverless:GetCredentials
+
+            - Effect: Allow
+              Resource:
+                - '*'
+              Action:
+                - redshift-data:GetStatementResult
+                - redshift-data:DescribeStatement
+                - redshift-data:ListStatements
+
+            - Effect: Allow
+              Resource:
+                - '*'
+              Action:
+                - kms:*
+
+            - Effect: Allow
+              Resource:
+                - '*'
+              Action:
+                - glue:GetConnection
+
+            - Effect: Allow
+              Resource:
+                - '*'
+              Action:
+                - ec2:Describe*
+
+            - Effect: Allow
+              Resource:
+                - '*'
+              Action:
+                - ec2:CreateNetworkInterface
+                - ec2:Describe*
+                - ec2:AssignPrivateIpAddresses
+                - ec2:UnassignPrivateIpAddresses
+                - ec2:CreateTags
+                - secretsmanager:GetSecretValue
 
 RedshiftProcessingLogGroup:
   Type: AWS::Logs::LogGroup
