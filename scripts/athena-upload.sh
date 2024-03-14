@@ -22,3 +22,4 @@ aws --region="$REGION" s3 cp "$FILES_ROOT"/raw_stage_optimisation_solution/confi
 aws --region="$REGION" s3 cp "$FILES_ROOT"/raw_stage_optimisation_solution/scripts "$S3_BUCKET"/txma/raw_stage_optimisation_solution/scripts --recursive --include "*.py"
 aws --region="$REGION" s3 cp "$FILES_ROOT"/raw_stage_optimisation_solution/athena_db_object "$S3_BUCKET"/txma/raw_stage_optimisation_solution/athena_db_object --recursive --include "*.sql"
 aws --region="$REGION" s3 cp "$FILES_ROOT"/reference_data_ingestion/scripts "$S3_BUCKET"/reference_data/manual_curated_dataset_ingestion/scripts --recursive --include "*.py"
+aws --region="$REGION" s3 cp "$FILES_ROOT"/reference_data_ingestion/configuration_files "$S3_BUCKET"/reference_data/configuration_files --recursive --include "*.json"
