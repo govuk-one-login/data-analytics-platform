@@ -1,6 +1,6 @@
 import { handler, logger } from './handler';
 import { getTestResource } from '../../shared/utils/test-utils';
-import type { S3Event } from 'aws-lambda';
+import type { S3ObjectCreatedNotificationEvent } from 'aws-lambda';
 
 const loggerInfoSpy = jest.spyOn(logger, 'info').mockImplementation(() => undefined);
 const loggerErrorSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
@@ -10,33 +10,35 @@ beforeEach(() => {
   loggerErrorSpy.mockReset();
 });
 
+test('create event', async () => {
+  const event = JSON.parse(await getTestResource('eventbridge-s3-object-creation.json'));
+
+  handler(event);
+
+  expect(loggerInfoSpy).toHaveBeenCalledTimes(1);
+  expect(loggerInfoSpy).toHaveBeenCalledWith('PutObject event for s3-bucket-name', { event });
+});
+
 test('valid event', async () => {
-  const s3Event = JSON.parse(await getTestResource('s3-notification-example.json'));
+  const event = JSON.parse(await getTestResource('eventbridge-s3-object-deletion.json'));
 
-  handler(s3Event);
+  handler(event);
 
-  expect(loggerInfoSpy).toHaveBeenCalledTimes(2);
-  expect(loggerInfoSpy).toHaveBeenCalledWith('ObjectRemoved:Delete event for s3-bucket-name', {
-    record: s3Event.Records[0],
-  });
-  expect(loggerInfoSpy).toHaveBeenCalledWith('ObjectCreated:Put event for s3-bucket-name', {
-    record: s3Event.Records[1],
-  });
+  expect(loggerInfoSpy).toHaveBeenCalledTimes(1);
+  expect(loggerInfoSpy).toHaveBeenCalledWith('DeleteObject event for s3-bucket-name', { event });
 });
 
 test('invalid event or records', async () => {
-  handler(null as unknown as S3Event);
-  handler(undefined as unknown as S3Event);
-  handler({} as unknown as S3Event);
-  handler({ Records: null } as unknown as S3Event);
-  handler({ Records: undefined } as unknown as S3Event);
-  handler({ Records: [] } as unknown as S3Event);
+  handler(null as unknown as S3ObjectCreatedNotificationEvent);
+  handler(undefined as unknown as S3ObjectCreatedNotificationEvent);
+  handler({} as unknown as S3ObjectCreatedNotificationEvent);
+  handler({ detail: null } as unknown as S3ObjectCreatedNotificationEvent);
+  handler({ detail: undefined } as unknown as S3ObjectCreatedNotificationEvent);
 
-  expect(loggerErrorSpy).toHaveBeenCalledTimes(6);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or records', { event: null });
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or records', { event: undefined });
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or records', { event: {} });
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or records', { event: { Records: null } });
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or records', { event: { Records: undefined } });
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or records', { event: { Records: [] } });
+  expect(loggerErrorSpy).toHaveBeenCalledTimes(5);
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or event detail', { event: null });
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or event detail', { event: undefined });
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or event detail', { event: {} });
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or event detail', { event: { detail: null } });
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or event detail', { event: { detail: undefined } });
 });
