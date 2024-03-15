@@ -71,7 +71,7 @@
     "regression-test-restructuring": "scripts/integration-test-check.sh && jest --silent ./tests/regression-tests-restructuring --maxWorkers=4",
     "iac:build": "scripts/build-sam-template.sh",
     "iac:buildall": "scripts/build-sam-templates.sh",
-    "iac:lint": "npm run iac:buildall && find iac-dist -maxdepth 1 -type f -exec sam validate --lint --region eu-west-2 --template-file {} \\;",
+    "iac:lint": "npm run iac:buildall && find iac-dist -maxdepth 1 -type f -print0 | xargs -0 -n1 sam validate --lint --region eu-west-2 --template-file",
     "iac:scan": "npm run iac:buildall && checkov --config-file .checkov.local.yml --directory iac-dist --quiet",
     "iac:format:check": "prettier --check iac",
     "iac:format:fix": "prettier --write iac",
