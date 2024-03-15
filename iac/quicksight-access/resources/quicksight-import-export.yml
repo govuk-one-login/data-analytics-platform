@@ -19,13 +19,9 @@ QuicksightExportBucket:
       Rules:
         - ExpirationInDays: 365
           Status: Enabled
-    # can't use !GetAtt S3NotificationsLoggerLambda.Arn below as S3NotificationsLoggerLambda is in the main stack
     NotificationConfiguration:
-      LambdaConfigurations:
-        - Event: s3:ObjectCreated:*
-          Function: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:s3-notifications-logger-${Environment}
-        - Event: s3:ObjectRemoved:*
-          Function: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:s3-notifications-logger-${Environment}
+      EventBridgeConfiguration:
+        EventBridgeEnabled: true
 
 QuicksightExportBucketPolicy:
   Type: AWS::S3::BucketPolicy
