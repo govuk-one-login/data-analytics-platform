@@ -1,0 +1,27 @@
+{
+  "version": "0",
+  "id": "70570080-dd28-bf1e-54d5-e1781808e785",
+  "detail-type": "Object Deleted",
+  "source": "aws.s3",
+  "account": "012345678912",
+  "time": "2024-03-15T12:59:15Z",
+  "region": "eu-west-2",
+  "resources": ["arn:aws:s3:::s3-bucket-name"],
+  "detail": {
+    "version": "0",
+    "bucket": {
+      "name": "s3-bucket-name"
+    },
+    "object": {
+      "key": "hello.txt",
+      "etag": "d41d8cd98f00b204e9800998ecf8427e",
+      "version-id": "J.A64R85fcAGZgJF77971CZaaMyJsEho",
+      "sequencer": "0065F446230FE4FB3F"
+    },
+    "request-id": "GBBF5182YWBBGPJT",
+    "requester": "012345678912",
+    "source-ip-address": "10.0.0.0",
+    "reason": "DeleteObject",
+    "deletion-type": "Delete Marker Created"
+  }
+}
