@@ -1,21 +1,21 @@
 {
-  "benefits_dashboard": {
+  "benefits_realisation": {
     "data_sources": {
-      "account_login": {
+      "benefits_data_government_services": {
         "ingestion_enabled_status": true,
         "redshift_metadata": {
           "database": "dap_txma_reporting_db",
           "schema": "reference_data",
-          "table": "account_login",
+          "table": "benefits_data_government_services",
           "operation": "overwrite"
         }
       },
-      "online_id_verification": {
+      "benefits_data_one_login": {
         "ingestion_enabled_status": true,
         "redshift_metadata": {
           "database": "dap_txma_reporting_db",
           "schema": "reference_data",
-          "table": "online_id_verification",
+          "table": "benefits_data_one_login",
           "operation": "append"
         }
       }
