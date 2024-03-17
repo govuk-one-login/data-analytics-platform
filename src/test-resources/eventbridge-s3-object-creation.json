@@ -1,0 +1,27 @@
+{
+  "version": "0",
+  "id": "23ee1f66-6cc9-3de6-b49d-057c72564b77",
+  "detail-type": "Object Created",
+  "source": "aws.s3",
+  "account": "012345678912",
+  "time": "2024-03-15T12:58:58Z",
+  "region": "eu-west-2",
+  "resources": ["arn:aws:s3:::s3-bucket-name"],
+  "detail": {
+    "version": "0",
+    "bucket": {
+      "name": "s3-bucket-name"
+    },
+    "object": {
+      "key": "hello.txt",
+      "size": 6,
+      "etag": "b1946ac92492d2347c6235b4d2611184",
+      "version-id": "kv6FJ1PLl6gS1rzMydkUeGyfYnHyortj",
+      "sequencer": "0065F446126A1A4A6B"
+    },
+    "request-id": "GVDWBMYADYBJ5KGN",
+    "requester": "012345678912",
+    "source-ip-address": "10.0.0.0",
+    "reason": "PutObject"
+  }
+}

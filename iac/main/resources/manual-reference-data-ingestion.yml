@@ -48,11 +48,8 @@ GlueJobResultsBucket:
         - ExpirationInDays: 365
           Status: Enabled
     NotificationConfiguration:
-      LambdaConfigurations:
-        - Event: s3:ObjectCreated:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
-        - Event: s3:ObjectRemoved:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+      EventBridgeConfiguration:
+        EventBridgeEnabled: true
 
 GlueJobResultsBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -191,7 +188,7 @@ GlueRedshiftConnection:
       Name: !Sub ${Environment}-redshift-connection
       ConnectionType: 'JDBC'
       ConnectionProperties:
-        JDBC_CONNECTION_URL: !Sub 'jdbc:redshift://dev-redshift-serverless-workgroup.${AWS::AccountId}.${AWS::Region}.redshift-serverless.amazonaws.com:5439/dap_txma_reporting_db'
+        JDBC_CONNECTION_URL: !Sub 'jdbc:redshift://${Environment}-redshift-serverless-workgroup.${AWS::AccountId}.${AWS::Region}.redshift-serverless.amazonaws.com:5439/dap_txma_reporting_db'
         SECRET_ID: !Ref RedshiftSecret
       PhysicalConnectionRequirements:
         SecurityGroupIdList:
@@ -221,3 +218,46 @@ ReferenceDataRedshiftIngestionGlueJob:
     SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-reference-data-redshift-ingestion-job
     Role: !Ref GlueScriptsExecutionRole
+
+S3SendMetadataLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub s3-send-metadata-${Environment}
+    Handler: s3-send-metadata.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action: sqs:SendMessage
+            Resource: !GetAtt ReferenceDataSQSQueue.Arn
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+            Resource: !GetAtt KmsKey.Arn
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        METADATA_QUEUE_URL: !Ref ReferenceDataSQSQueue
+    Tags:
+      Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
+
+S3SendMetadataLambdaPermission:
+  Type: AWS::Lambda::Permission
+  Properties:
+    FunctionName: !Ref S3SendMetadataLambda
+    Action: lambda:InvokeFunction
+    Principal: s3.amazonaws.com
+    SourceAccount: !Sub ${AWS::AccountId}
+    SourceArn: !Sub arn:aws:s3:::${Environment}-dap-stage-layer

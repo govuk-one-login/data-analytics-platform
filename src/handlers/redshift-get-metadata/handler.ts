@@ -3,7 +3,7 @@ import { getEnvironmentVariable, getRequiredParams, parseS3ResponseAsObject } fr
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client } from '../../shared/clients';
 
-const logger = getLogger('lambda/mrdip-extract-redshift-metadata');
+const logger = getLogger('lambda/redshift-get-metadata');
 
 export interface RedshiftExtractMetadataEvent {
   fileMetadata: string;
@@ -28,7 +28,7 @@ interface RedshiftMetadata {
   operation: string;
 }
 
-export const handler = async (event: RedshiftExtractMetadataEvent): Promise<RedshiftMetadata> => {
+export const handler = async (event: RedshiftExtractMetadataEvent): Promise<string> => {
   try {
     const fileMetadata = getFileMetadata(event);
     const { bucket, file_path: filePath } = getRequiredParams(fileMetadata, 'bucket', 'file_path');
@@ -40,7 +40,7 @@ export const handler = async (event: RedshiftExtractMetadataEvent): Promise<Reds
 
     const configFile = await getConfigFile(configFileBucket, filePathParts.configRef);
     logger.info('Retrieved config file', { configFile });
-    return configFile[filePathParts.dashboardRef].data_sources[filePathParts.dataSource].redshift_metadata;
+    return getMetadata(configFile, filePathParts.dashboardRef, filePathParts.dataSource);
   } catch (error) {
     logger.error('Error getting redshift metadata', { error });
     throw error;
@@ -72,4 +72,13 @@ const getConfigFile = async (bucket: string, configRef: string): Promise<Redshif
     }),
   );
   return await parseS3ResponseAsObject(response);
+};
+
+const getMetadata = (configFile: RedshiftConfig, dashboardRef: string, dataSource: string): string => {
+  const metadata = configFile[dashboardRef].data_sources[dataSource].redshift_metadata;
+  if (metadata === null || metadata === undefined) {
+    logger.error('Could not get metadata from config file', { configFile, dashboardRef, dataSource });
+    throw new Error('Metadata was null or undefined');
+  }
+  return JSON.stringify(metadata);
 };
