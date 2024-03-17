@@ -24,7 +24,7 @@ SELECT
 	CAST(date_format(now(), '%Y%m%d') as VARCHAR) AS processed_date,
 	event_name as event_name
 FROM 
-	"environment-txma-raw"."auth_password_reset_successful"
+	"environment-txma-raw"."auth_password_reset_requested"
 WHERE
 	CAST(concat(year, month, day) AS INT) > filter_value AND
 	CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)
