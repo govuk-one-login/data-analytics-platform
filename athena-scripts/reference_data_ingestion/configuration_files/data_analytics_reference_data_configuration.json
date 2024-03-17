@@ -16,7 +16,7 @@
           "database": "dap_txma_reporting_db",
           "schema": "reference_data",
           "table": "benefits_data_one_login",
-          "operation": "append"
+          "operation": "overwrite"
         }
       }
     }
