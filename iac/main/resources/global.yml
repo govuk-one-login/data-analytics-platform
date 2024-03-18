@@ -16,11 +16,8 @@ GlobalLogBucket:
         - ExpirationInDays: 365
           Status: Enabled
     NotificationConfiguration:
-      LambdaConfigurations:
-        - Event: s3:ObjectCreated:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
-        - Event: s3:ObjectRemoved:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+      EventBridgeConfiguration:
+        EventBridgeEnabled: true
 
 GlobalLogBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -64,11 +61,8 @@ GlobalNonEventBucket:
         - ExpirationInDays: 365
           Status: Enabled
     NotificationConfiguration:
-      LambdaConfigurations:
-        - Event: s3:ObjectCreated:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
-        - Event: s3:ObjectRemoved:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+      EventBridgeConfiguration:
+        EventBridgeEnabled: true
 
 GlobalNonEventBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -112,11 +106,8 @@ VPCFlowLogsBucket:
         - ExpirationInDays: 365
           Status: Enabled
     NotificationConfiguration:
-      LambdaConfigurations:
-        - Event: s3:ObjectCreated:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
-        - Event: s3:ObjectRemoved:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+      EventBridgeConfiguration:
+        EventBridgeEnabled: true
 
 VPCFlowLogsBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -163,14 +154,30 @@ S3NotificationsLoggerLambda:
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
 
+S3NotificationsLoggerEventBridgeRule:
+  Type: AWS::Events::Rule
+  Properties:
+    Description: Rule to send all s3:ObjectCreated:* and s3:ObjectRemoved:* events to the logger lambda
+    EventPattern:
+      source:
+        - aws.s3
+      detail-type:
+        - Object Created
+        - Object Deleted
+    Name: !Sub ${Environment}-dap-s3-notifications-logger-eventbridge-rule
+    State: ENABLED
+    Targets:
+      - Id: s3-notifications-logger-lambda
+        Arn: !GetAtt S3NotificationsLoggerLambda.Arn
+
 S3BucketNotificationLambdaPermission:
   Type: AWS::Lambda::Permission
   Properties:
     FunctionName: !Ref S3NotificationsLoggerLambda
     Action: lambda:InvokeFunction
-    Principal: s3.amazonaws.com
+    Principal: events.amazonaws.com
     SourceAccount: !Sub ${AWS::AccountId}
-    SourceArn: 'arn:aws:s3:::*'
+    SourceArn: !GetAtt S3NotificationsLoggerEventBridgeRule.Arn
 
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration
@@ -717,11 +724,8 @@ TrailBucket:
         - ExpirationInDays: 90
           Status: Enabled
     NotificationConfiguration:
-      LambdaConfigurations:
-        - Event: s3:ObjectCreated:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
-        - Event: s3:ObjectRemoved:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+      EventBridgeConfiguration:
+        EventBridgeEnabled: true
 
 TrailBucketPolicy:
   Type: AWS::S3::BucketPolicy

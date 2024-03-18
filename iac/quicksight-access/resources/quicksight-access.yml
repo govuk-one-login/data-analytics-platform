@@ -187,6 +187,7 @@ QuicksightAddUsersLambdaFunction:
             Action:
               - quicksight:CreateGroupMembership
               - quicksight:DescribeUser
+              - quicksight:ListGroups
               - quicksight:ListUserGroups
               - quicksight:RegisterUser
             Resource: '*'

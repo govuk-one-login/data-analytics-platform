@@ -4,38 +4,6 @@
       "eventVersion": "2.1",
       "eventSource": "aws:s3",
       "awsRegion": "eu-west-2",
-      "eventTime": "2023-07-14T09:00:13.965Z",
-      "eventName": "ObjectRemoved:Delete",
-      "userIdentity": {
-        "principalId": "AWS:AROAYGSSSS2J46APKS26V:hugh.davey@digital.cabinet-office.gov.uk"
-      },
-      "requestParameters": {
-        "sourceIPAddress": "51.149.8.28"
-      },
-      "responseElements": {
-        "x-amz-request-id": "4859GYHPBT13EZXM",
-        "x-amz-id-2": "Fw/zywsORkSeSu5hFu4gdEezI8oSYUOojgyR+e+iNZKtLWy6/h6cepxJUzL3n6sIFul/3sTLoByEPoNzOtC+t1WxAwgFkAgoKG5BN3UJhZw="
-      },
-      "s3": {
-        "s3SchemaVersion": "1.0",
-        "configurationId": "remove",
-        "bucket": {
-          "name": "s3-bucket-name",
-          "ownerIdentity": {
-            "principalId": "A29DST22K51TTG"
-          },
-          "arn": "arn:aws:s3:::s3-bucket-name"
-        },
-        "object": {
-          "key": "file.txt",
-          "sequencer": "0064B10E9DEF927A9A"
-        }
-      }
-    },
-    {
-      "eventVersion": "2.1",
-      "eventSource": "aws:s3",
-      "awsRegion": "eu-west-2",
       "eventTime": "2023-07-14T09:00:27.092Z",
       "eventName": "ObjectCreated:Put",
       "userIdentity": {

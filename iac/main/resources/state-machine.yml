@@ -18,11 +18,8 @@ ELTMetadataBucket:
         - ExpirationInDays: 365
           Status: Enabled
     NotificationConfiguration:
-      LambdaConfigurations:
-        - Event: s3:ObjectCreated:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
-        - Event: s3:ObjectRemoved:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+      EventBridgeConfiguration:
+        EventBridgeEnabled: true
 
 ELTMetadataUploadRole:
   Condition: IsBuild
@@ -106,11 +103,8 @@ StateMachineResultsBucket:
         - ExpirationInDays: 365
           Status: Enabled
     NotificationConfiguration:
-      LambdaConfigurations:
-        - Event: s3:ObjectCreated:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
-        - Event: s3:ObjectRemoved:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+      EventBridgeConfiguration:
+        EventBridgeEnabled: true
 
 StateMachineResultsBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -370,11 +364,8 @@ DataQualityMetricsBucket:
         - ExpirationInDays: 365
           Status: Enabled
     NotificationConfiguration:
-      LambdaConfigurations:
-        - Event: s3:ObjectCreated:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
-        - Event: s3:ObjectRemoved:*
-          Function: !GetAtt S3NotificationsLoggerLambda.Arn
+      EventBridgeConfiguration:
+        EventBridgeEnabled: true
 
 DataQualityMetricsBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -614,6 +605,12 @@ GlueScriptsExecutionRole:
                 - ec2:UnassignPrivateIpAddresses
                 - ec2:CreateTags
                 - secretsmanager:GetSecretValue
+
+            - Effect: Allow
+              Resource:
+                - '*'
+              Action:
+                - glue:GetSecurityConfiguration
 
 RedshiftProcessingLogGroup:
   Type: AWS::Logs::LogGroup
