@@ -18,7 +18,7 @@
     "@aws-sdk/client-secrets-manager": "^3.529.1",
     "@aws-sdk/client-sfn": "^3.529.1",
     "@aws-sdk/client-sqs": "^3.529.1",
-    "@aws-sdk/types": "^3.523.0",
+    "@aws-sdk/types": "^3.535.0",
     "@faker-js/faker": "^8.4.1",
     "@smithy/util-retry": "^2.1.4",
     "@tsconfig/node18": "^18.2.2",
