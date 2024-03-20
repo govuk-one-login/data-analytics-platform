@@ -17,9 +17,9 @@ const FLYWAY_COMMANDS = ['clean', 'info', 'migrate', 'validate'];
 
 const LAMBDA_FILES_ROOT = '/tmp/flyway';
 
-const CONFIG_FILE_NAME = 'flyway.conf';
+const CONFIG_FILE_PATH = `${LAMBDA_FILES_ROOT}/flyway.conf`;
 
-const MIGRATIONS_DIRECTORY_NAME = 'migrations';
+const MIGRATIONS_DIRECTORY_PATH = `${LAMBDA_FILES_ROOT}/migrations`;
 
 const LIBRARY_FILES_PATH = `${LAMBDA_FILES_ROOT}/lib`;
 
@@ -61,21 +61,30 @@ const validateEvent = (event: RunFlywayEvent): RunFlywayEvent => {
 
 const getFlywayFiles = async (): Promise<void> => {
   try {
-    fs.mkdirSync(`${LIBRARY_FILES_PATH}`, { recursive: true });
-    fs.mkdirSync(`${LAMBDA_FILES_ROOT}/${MIGRATIONS_DIRECTORY_NAME}`, { recursive: true });
     const bucket = getEnvironmentVariable('FLYWAY_FILES_BUCKET_NAME');
-
-    const files = await s3Client.send(new ListObjectsV2Command({ Bucket: bucket }));
-    for (const file of files.Contents ?? []) {
-      const getObject = await getFile(bucket, file.Key);
-      await writeToFile(getObject, file.Key);
+    const keys = await getAllKeys(bucket);
+    for (const key of keys) {
+      const getObject = await getFile(bucket, key);
+      createNecessaryDirectories(key);
+      await writeToFile(getObject, key);
     }
   } catch (error) {
     throw new Error(`Error getting flyway files - ${getErrorMessage(error)}`);
   }
 };
 
-const getFile = async (bucket: string, key: string | undefined): Promise<GetObjectCommandOutput> => {
+const getAllKeys = async (bucketName: string): Promise<string[]> => {
+  const response = await s3Client.send(new ListObjectsV2Command({ Bucket: bucketName }));
+  const contents = response?.Contents;
+  if (contents === undefined || contents.length === 0) {
+    throw new Error('Bucket contents are undefined or empty');
+  }
+  // have to use the type guard otherwise typescript thinks the filter() output is (string | undefined)[]
+  // see https://www.benmvp.com/blog/filtering-undefined-elements-from-array-typescript
+  return contents.map(file => file.Key).filter((key): key is string => key !== undefined);
+};
+
+const getFile = async (bucket: string, key: string): Promise<GetObjectCommandOutput> => {
   return await s3Client.send(
     new GetObjectCommand({
       Bucket: bucket,
@@ -84,7 +93,15 @@ const getFile = async (bucket: string, key: string | undefined): Promise<GetObje
   );
 };
 
-const writeToFile = async (response: GetObjectCommandOutput, filename: string | undefined): Promise<void> => {
+const createNecessaryDirectories = (key: string): void => {
+  const localPath = `${LAMBDA_FILES_ROOT}/${key}`;
+  const dir = path.parse(localPath).dir;
+  if (dir.length > 0 && !fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
+const writeToFile = async (response: GetObjectCommandOutput, filename: string): Promise<void> => {
   await new Promise<void>((resolve, reject) => {
     if (response.Body instanceof Readable) {
       response.Body.pipe(fs.createWriteStream(`${LAMBDA_FILES_ROOT}/${filename}`))
@@ -126,8 +143,8 @@ const getFlywayEnvironment = async (
   FLYWAY_URL: `jdbc:redshift://${redshiftSecret.host}:${redshiftSecret.port}/${event.database}`,
   FLYWAY_USER: redshiftSecret.username,
   FLYWAY_PASSWORD: redshiftSecret.password,
-  FLYWAY_LOCATIONS: `filesystem:${LAMBDA_FILES_ROOT}/${MIGRATIONS_DIRECTORY_NAME}`,
-  FLYWAY_CONFIG_FILES: `${LAMBDA_FILES_ROOT}/${CONFIG_FILE_NAME}`,
+  FLYWAY_LOCATIONS: `filesystem:${MIGRATIONS_DIRECTORY_PATH}`,
+  FLYWAY_CONFIG_FILES: CONFIG_FILE_PATH,
 });
 
 const runFlywayCommand = (event: RunFlywayEvent, environment: Record<string, string>): RunFlywayResult => {
