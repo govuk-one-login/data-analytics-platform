@@ -49,16 +49,13 @@ jobs:
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.FLYWAY_FILES_UPLOAD_ROLE_ARN }}
-      - name: Upload athena files to S3
+      - name: Upload flyway files to S3
         run: |
           REGION="eu-west-2"
           FILES_ROOT="redshift-scripts/flyway"
           S3_BUCKET="s3://$(echo "${{ inputs.environment }}" | tr '[:upper:]' '[:lower:]')-dap-flyway-files"
+          EXCLUDE=$(if [ ${{ inputs.skip-upload-libraries }} == "true" ]; then echo "lib/*"; else echo ""; fi)
 
-          echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET (skip-upload-libraries: ${{ inputs.skip-upload-libraries }})"          
-          if [ ${{ inputs.skip-upload-libraries }} == "true" ]; then
-            aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive --exclude "lib/*"
-          else
-            aws --region="$REGION" s3 rm "$S3_BUCKET"/lib --recursive
-            aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive
-          fi
+          echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET (skip-upload-libraries: ${{ inputs.skip-upload-libraries }})"
+          aws --region="$REGION" s3 rm "$S3_BUCKET" --recursive --exclude "$EXCLUDE"
+          aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive --exclude "$EXCLUDE"
