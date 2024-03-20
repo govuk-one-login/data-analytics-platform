@@ -58,4 +58,4 @@ jobs:
 
           echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET (skip-upload-libraries: ${{ inputs.skip-upload-libraries }})"
           aws --region="$REGION" s3 rm "$S3_BUCKET" --recursive --exclude "$EXCLUDE"
-          aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive --exclude "$EXCLUDE"
+          aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive --exclude "$EXCLUDE" --exclude "README.md"
