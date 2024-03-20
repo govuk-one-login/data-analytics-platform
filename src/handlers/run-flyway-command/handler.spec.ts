@@ -28,17 +28,26 @@ const SECRET_VALUE = {
   port: '5439',
 };
 
-const EXPECTED_ENVIRONMENT = expect.objectContaining({
-  FLYWAY_URL: `jdbc:redshift://${SECRET_VALUE.host}:${SECRET_VALUE.port}/dap_txma_reporting_db`,
-  FLYWAY_USER: SECRET_VALUE.username,
-  FLYWAY_PASSWORD: SECRET_VALUE.password,
-});
+// event is of type RunFlywayEvent but we can't use type annotations in this file (see further explanation above jest.mock call)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const expectedEnvironment = (event: { database: string }): any => {
+  return expect.objectContaining({
+    FLYWAY_URL: `jdbc:redshift://${SECRET_VALUE.host}:${SECRET_VALUE.port}/dap_txma_reporting_db`,
+    FLYWAY_USER: SECRET_VALUE.username,
+    FLYWAY_PASSWORD: SECRET_VALUE.password,
+    FLYWAY_LOCATIONS: `filesystem:/tmp/flyway/migrations/${event.database}`,
+    FLYWAY_CONFIG_FILES: '/tmp/flyway/flyway.conf',
+  });
+};
 
 const LIBRARY_FILES_PATH = '/tmp/flyway/lib';
 
 const FLYWAY_TAR_NAME = 'flyway-commandline-10.7.2-linux-x64.tar.gz';
 
 const REDSHIFT_JAR_NAME = 'redshift-jdbc42-2.1.0.25.jar';
+
+// this is of type RunFlywayEvent but we can't use type annotations in this file (see further explanation above jest.mock call)
+const TEST_EVENT = { command: 'info', database: DATABASE };
 
 /*
   because we use jest mocking in this test file, esbuild-jest transforms the file differently
@@ -143,9 +152,7 @@ test('error getting files', async () => {
   mockS3Responses({ errorMessage });
   mockSecretsManagerResponses();
 
-  await expect(handler({ command: 'info', database: DATABASE })).rejects.toThrow(
-    `Error getting flyway files - ${errorMessage}`,
-  );
+  await expect(handler(TEST_EVENT)).rejects.toThrow(`Error getting flyway files - ${errorMessage}`);
 
   expect(mockS3Client.calls()).toHaveLength(1);
   expect(mockSecretsManagerClient.calls()).toHaveLength(0);
@@ -157,7 +164,7 @@ test('error getting secret', async () => {
   mockS3Responses();
   mockSecretsManagerResponses(errorMessage);
 
-  await expect(handler({ command: 'info', database: DATABASE })).rejects.toThrow(
+  await expect(handler(TEST_EVENT)).rejects.toThrow(
     `Error getting redshift secret - Error getting secret - ${errorMessage}`,
   );
 
@@ -170,11 +177,11 @@ test('flyway success', async () => {
   mockSecretsManagerResponses();
 
   spawnSyncSpy.mockImplementation((command, args, options) => {
-    expect(options?.env).toEqual(EXPECTED_ENVIRONMENT);
+    expect(options?.env).toEqual(expectedEnvironment(TEST_EVENT));
     return spawnSyncResult(0, FLYWAY_INFO, {});
   });
 
-  const response = await handler({ command: 'info', database: DATABASE });
+  const response = await handler(TEST_EVENT);
   expect(response.status).toEqual(0);
   expect(response.stderr).toEqual({});
   expect(response.stdout).toEqual(FLYWAY_INFO);
@@ -190,11 +197,11 @@ test('flyway error', async () => {
 
   // flyway sends errors using stdout
   spawnSyncSpy.mockImplementation((command, args, options) => {
-    expect(options?.env).toEqual(EXPECTED_ENVIRONMENT);
+    expect(options?.env).toEqual(expectedEnvironment(TEST_EVENT));
     return spawnSyncResult(1, FLYWAY_CONNECTION_ERROR, {});
   });
 
-  const response = await handler({ command: 'info', database: DATABASE });
+  const response = await handler(TEST_EVENT);
   expect(response.status).toEqual(1);
   expect(response.stderr).toEqual({});
   expect(response.stdout).toEqual(FLYWAY_CONNECTION_ERROR);
@@ -212,11 +219,11 @@ test('spawn sync error', async () => {
   mockSecretsManagerResponses();
 
   spawnSyncSpy.mockImplementation((command, args, options) => {
-    expect(options?.env).toEqual(EXPECTED_ENVIRONMENT);
+    expect(options?.env).toEqual(expectedEnvironment(TEST_EVENT));
     return spawnSyncResult(1, {}, stderr, error);
   });
 
-  const response = await handler({ command: 'info', database: DATABASE });
+  const response = await handler(TEST_EVENT);
   expect(response.status).toEqual(1);
   expect(response.stderr).toEqual(stderr);
   expect(response.stdout).toEqual({});
@@ -233,11 +240,11 @@ test('spawn sync uncaught error', async () => {
   mockSecretsManagerResponses();
 
   spawnSyncSpy.mockImplementation((command, args, options) => {
-    expect(options?.env).toEqual(EXPECTED_ENVIRONMENT);
+    expect(options?.env).toEqual(expectedEnvironment(TEST_EVENT));
     throw error;
   });
 
-  await expect(handler({ command: 'info', database: DATABASE })).rejects.toThrow(error.message);
+  await expect(handler(TEST_EVENT)).rejects.toThrow(error.message);
 
   expect(mockS3Client.calls()).toHaveLength(4);
   expect(mockSecretsManagerClient.calls()).toHaveLength(1);
@@ -258,7 +265,7 @@ test('getting files', async () => {
   mockSecretsManagerResponses();
 
   spawnSyncSpy.mockImplementation((command, args, options) => {
-    expect(options?.env).toEqual(EXPECTED_ENVIRONMENT);
+    expect(options?.env).toEqual(expectedEnvironment(TEST_EVENT));
     return spawnSyncResult(0, FLYWAY_INFO, {});
   });
 
@@ -270,7 +277,7 @@ test('getting files', async () => {
   });
   existsSyncSpy.mockImplementation(path => existingFolders.includes(path.toString()));
 
-  const response = await handler({ command: 'info', database: DATABASE });
+  const response = await handler(TEST_EVENT);
   expect(response.status).toEqual(0);
   expect(response.stderr).toEqual({});
   expect(response.stdout).toEqual(FLYWAY_INFO);

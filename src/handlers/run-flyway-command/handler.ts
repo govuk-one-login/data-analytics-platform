@@ -143,7 +143,7 @@ const getFlywayEnvironment = async (
   FLYWAY_URL: `jdbc:redshift://${redshiftSecret.host}:${redshiftSecret.port}/${event.database}`,
   FLYWAY_USER: redshiftSecret.username,
   FLYWAY_PASSWORD: redshiftSecret.password,
-  FLYWAY_LOCATIONS: `filesystem:${MIGRATIONS_DIRECTORY_PATH}`,
+  FLYWAY_LOCATIONS: `filesystem:${MIGRATIONS_DIRECTORY_PATH}/${event.database}`,
   FLYWAY_CONFIG_FILES: CONFIG_FILE_PATH,
 });
 
