@@ -83,7 +83,17 @@ QuicksightAccessApiGateway:
   Properties:
     Name: !Sub ${Environment}-dap-quicksight-access
     ProtocolType: HTTP
-    Target: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
+
+QuicksightAccessApiGatewayStage:
+  Type: AWS::ApiGatewayV2::Stage
+  Condition: IsQuicksightEnvironment
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway
+    StageName: ${Environment}-stage
+    AutoDeploy: true
+    AccessLogSettings:
+      DestinationArn: !GetAtt QuicksightAccessLogGroup.Arn
+      Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "caller":"$context.identity.caller", "user":"$context.identity.user", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod", "resourcePath":"$context.resourcePath", "status":"$context.status", "protocol":"$context.protocol", "responseLength":"$context.responseLength" }'
 
 QuicksightAccessApiGatewayLambdaPermission:
   Type: AWS::Lambda::Permission
@@ -92,7 +102,7 @@ QuicksightAccessApiGatewayLambdaPermission:
     FunctionName: !Ref QuicksightAccessLambdaFunction
     Action: lambda:InvokeFunction
     Principal: apigateway.amazonaws.com
-    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/$default
+    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/${Environment}-stage
 
 # todo maybe add DeletionProtection
 QuicksightAccessUserPool:
@@ -135,6 +145,26 @@ QuicksightAccessUserPool:
       DefaultEmailOption: CONFIRM_WITH_CODE
       EmailMessage: <verification-email> # replaced with a template from ../templates during iac:build and iac:buildall
       EmailSubject: Verification Code for One Login Data & Analytics Dashboards
+
+QuicksightAccessLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: !Sub /aws/apigateway/${Environment}-dap-quicksight-access
+    RetentionInDays: 180
+    KmsKeyId: !If
+      - IsProduction
+      - !GetAtt WAFLoggingKmsKey.Arn
+      - !Ref AWS::NoValue
+
+# QuicksightAccessApiGatewayStage:
+#   Type: AWS::ApiGatewayV2::Stage
+#   Properties:
+#     ApiId: !Ref QuicksightAccessApiGateway
+#     StageName: '$default'
+#     AutoDeploy: true
+#     AccessLogSettings:
+#       DestinationArn: !GetAtt QuicksightAccessLogGroup.Arn
+#       Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "caller":"$context.identity.caller", "user":"$context.identity.user", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod", "resourcePath":"$context.resourcePath", "status":"$context.status", "protocol":"$context.protocol", "responseLength":"$context.responseLength" }'
 
 QuicksightAccessUserPoolClient:
   Type: AWS::Cognito::UserPoolClient
