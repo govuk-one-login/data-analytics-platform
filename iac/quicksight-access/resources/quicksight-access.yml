@@ -528,12 +528,12 @@ DAPAnalystsAssetsBucketPolicy:
 
 CloudFrontDistribution:
   Type: 'AWS::CloudFront::Distribution'
-  Condition: IsQuicksightEnvironment  
+  Condition: IsQuicksightEnvironment
   Properties:
     DistributionConfig:
       Enabled: true
       Origins:
-        - DomainName: !GetAtt 
+        - DomainName: !GetAtt
             - DAPAnalystsAssetsBucket
             - DomainName
           Id: S3Origin
@@ -557,7 +557,7 @@ CloudFrontDistribution:
 
 CloudFrontOAI:
   Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
-  Condition: IsQuicksightEnvironment  
+  Condition: IsQuicksightEnvironment
   Properties:
     CloudFrontOriginAccessIdentityConfig:
-      Comment: !Sub 'OAI for ${DAPAnalystsAssetsBucket}'        
+      Comment: !Sub 'OAI for ${DAPAnalystsAssetsBucket}'
