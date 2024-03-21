@@ -1327,7 +1327,6 @@ from
                                         extensions_mitigationtype
                                     FROM
                                         "dap_txma_reporting_db"."dap_txma_stage"."ipv_journey" 
-                                        WHERE event_name='IPV_MITIGATION_START'
                                 )
                         ),
                         level_1_data as (
