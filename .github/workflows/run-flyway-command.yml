@@ -12,7 +12,7 @@ on:
         type: choice
         required: true
         description: Flyway command to run
-        options: [info, migrate, validate]
+        options: [info, migrate, validate, clean]
       database:
         type: string
         required: true

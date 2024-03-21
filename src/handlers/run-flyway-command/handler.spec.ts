@@ -30,13 +30,14 @@ const SECRET_VALUE = {
 
 // event is of type RunFlywayEvent but we can't use type annotations in this file (see further explanation above jest.mock call)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const expectedEnvironment = (event: { database: string }): any => {
+const expectedEnvironment = (event: { database: string }, cleanDisabled: boolean = false): any => {
   return expect.objectContaining({
     FLYWAY_URL: `jdbc:redshift://${SECRET_VALUE.host}:${SECRET_VALUE.port}/dap_txma_reporting_db`,
     FLYWAY_USER: SECRET_VALUE.username,
     FLYWAY_PASSWORD: SECRET_VALUE.password,
     FLYWAY_LOCATIONS: `filesystem:/tmp/flyway/migrations/${event.database}`,
     FLYWAY_CONFIG_FILES: '/tmp/flyway/flyway.conf',
+    FLYWAY_CLEAN_DISABLED: cleanDisabled.toString(),
   });
 };
 
@@ -297,6 +298,37 @@ test('getting files', async () => {
   expect(mockS3Client.calls()).toHaveLength(8);
   expect(mockSecretsManagerClient.calls()).toHaveLength(1);
 });
+
+test('clean enabled in non production environment', async () => {
+  process.env.ENVIRONMENT = 'dev';
+  await testClean(false);
+});
+
+test('clean disabled in production environment', async () => {
+  process.env.ENVIRONMENT = 'production';
+  await testClean(true);
+});
+
+const testClean = async (cleanShouldBeDisabled: boolean): Promise<void> => {
+  mockS3Responses();
+  mockSecretsManagerResponses();
+
+  const cleanEvent = { ...TEST_EVENT, command: 'clean' };
+
+  spawnSyncSpy.mockImplementation((command, args, options) => {
+    expect(options?.env).toEqual(expectedEnvironment(cleanEvent, cleanShouldBeDisabled));
+    return spawnSyncResult(0, {}, {});
+  });
+
+  const response = await handler(cleanEvent);
+  expect(response.status).toEqual(0);
+  expect(response.stderr).toEqual({});
+  expect(response.stdout).toEqual({});
+  expect(response.error).toBeUndefined();
+
+  expect(mockS3Client.calls()).toHaveLength(4);
+  expect(mockSecretsManagerClient.calls()).toHaveLength(1);
+};
 
 // this should return type child_process.SpawnSyncReturns<Buffer> but we can't use type annotations in this file (see further explanation above jest.mock call)
 const spawnSyncResult = (
