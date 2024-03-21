@@ -12,15 +12,11 @@ on:
         type: choice
         required: true
         description: Flyway command to run
-        options: [info, migrate, validate]
+        options: [info, migrate, validate, clean]
       database:
         type: string
         required: true
         description: Database on which to perform migrations
-      skip-s3-upload:
-        type: boolean
-        required: false
-        description: Skip uploading flyway files to S3
 
 jobs:
   validate-environment:
@@ -31,9 +27,16 @@ jobs:
       - name: Validate input environment
         run: scripts/validate-environment.sh ${{ inputs.environment }}
 
+  validate-database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Validate input database
+        run: scripts/validate-migration-database.sh ${{ inputs.database }}
+
   upload-flyway-files:
-    if: inputs.skip-s3-upload == false
-    needs: [validate-environment]
+    needs: [validate-environment, validate-database]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
@@ -44,10 +47,7 @@ jobs:
       environment: ${{ inputs.environment }}
 
   run-flyway:
-    # needs combined with always as this job needs to run whether or not upload-flyway-files runs
-    # (and if upload-flyway-files does run then this job should run after it)
     needs: [upload-flyway-files]
-    if: always()
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
