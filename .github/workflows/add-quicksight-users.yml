@@ -39,11 +39,17 @@ jobs:
         run: npm ci
       - name: Create users file
         run: node scripts/get-quicksight-user-spreadsheet.mjs ${{ inputs.type }} ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS }} > spreadsheet.json
-      - name: Assume AWS add users lambda invoke role
+      - name: Get role name
+        run: |
+          # github doesn't allow secrets with hyphens so we need to make sure the role name
+          # becomes QUICKSIGHT_LAMBDAS_INVOKE_ROLE_PRODUCTION_PREVIEW instead of QUICKSIGHT_LAMBDAS_INVOKE_ROLE_PRODUCTION-PREVIEW
+          ENVIRONMENT_NO_HYPHEN=$(echo ${{ inputs.environment }} | sed 's/-/_/g')
+          echo "ROLE_NAME=QUICKSIGHT_LAMBDAS_INVOKE_ROLE_$ENVIRONMENT_NO_HYPHEN" >> $GITHUB_ENV
+      - name: Assume AWS Quicksight lambdas role
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets[format('QUICKSIGHT_LAMBDAS_INVOKE_ROLE_{0}', inputs.environment)] }}
+          role-to-assume: ${{ secrets[env.ROLE_NAME] }}
       - name: Invoke lambda
         run: |
           PAYLOAD=$(echo "{\"dryRun\": ${{ inputs.dryRun }}, \"spreadsheet\": $(cat spreadsheet.json)}")

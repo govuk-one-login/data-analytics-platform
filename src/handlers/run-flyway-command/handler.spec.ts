@@ -38,6 +38,7 @@ const expectedEnvironment = (event: { database: string }, cleanDisabled: boolean
     FLYWAY_LOCATIONS: `filesystem:/tmp/flyway/migrations/${event.database}`,
     FLYWAY_CONFIG_FILES: '/tmp/flyway/flyway.conf',
     FLYWAY_CLEAN_DISABLED: cleanDisabled.toString(),
+    FLYWAY_DEFAULT_SCHEMA: 'flyway',
   });
 };
 
