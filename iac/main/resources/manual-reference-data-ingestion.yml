@@ -8,9 +8,7 @@ RedshiftGetMetadataLambda:
       - AWSLambdaBasicExecutionRole
       - Statement:
           - Effect: Allow
-            Action:
-              - s3:GetObject
-              - s3:ListBucket
+            Action: s3:GetObject
             Resource: !Sub ${ELTMetadataBucket.Arn}/*
     ReservedConcurrentExecutions: 10
     Environment:
@@ -261,3 +259,46 @@ S3SendMetadataLambdaPermission:
     Principal: s3.amazonaws.com
     SourceAccount: !Sub ${AWS::AccountId}
     SourceArn: !Sub arn:aws:s3:::${Environment}-dap-stage-layer
+
+S3RawToStagingLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub s3-raw-to-staging-${Environment}
+    Handler: s3-raw-to-staging.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action: s3:GetObject
+            Resource:
+              - !Sub ${ELTMetadataBucket.Arn}/*
+              - !Sub arn:aws:s3:::${Environment}-dap-raw-layer/*
+          - Effect: Allow
+            Action: s3:PutObject
+            Resource: !Sub ${StageLayerBucket.Arn}/*
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        METADATA_BUCKET_NAME: !Ref ELTMetadataBucket
+        STAGE_BUCKET_NAME: !Ref StageLayerBucket
+    Tags:
+      Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
+
+S3RawToStagingLambdaPermission:
+  Type: AWS::Lambda::Permission
+  Properties:
+    FunctionName: !Ref S3RawToStagingLambda
+    Action: lambda:InvokeFunction
+    Principal: s3.amazonaws.com
+    SourceAccount: !Sub ${AWS::AccountId}
+    SourceArn: !Sub arn:aws:s3:::${Environment}-dap-raw-layer
