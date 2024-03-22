@@ -1,11 +1,11 @@
 import { getLogger } from '../../shared/powertools';
-import { getEnvironmentVariable, getRequiredParams, parseS3ResponseAsObject } from '../../shared/utils/utils';
-import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { s3Client } from '../../shared/clients';
+import { getEnvironmentVariable, getRequiredParams } from '../../shared/utils/utils';
+import type { RedshiftConfig } from '../../shared/types/redshift-metadata';
+import { getConfigFile, getFilePathParts } from '../../shared/manual-reference-data-ingestion/redshift-metadata';
 
 const logger = getLogger('lambda/redshift-get-metadata');
 
-export interface RedshiftExtractMetadataEvent {
+export interface RedshiftGetMetadataEvent {
   fileMetadata: string;
 }
 
@@ -14,21 +14,7 @@ interface RedshiftFileMetadata {
   file_path: string;
 }
 
-export type RedshiftConfig = Record<string, { data_sources: Record<string, RedshiftDatasource> }>;
-
-interface RedshiftDatasource {
-  ingestion_enabled_status: boolean;
-  redshift_metadata: RedshiftMetadata;
-}
-
-interface RedshiftMetadata {
-  database: string;
-  schema: string;
-  table: string;
-  operation: string;
-}
-
-export const handler = async (event: RedshiftExtractMetadataEvent): Promise<string> => {
+export const handler = async (event: RedshiftGetMetadataEvent): Promise<string> => {
   try {
     const fileMetadata = getFileMetadata(event);
     const { bucket, file_path: filePath } = getRequiredParams(fileMetadata, 'bucket', 'file_path');
@@ -47,31 +33,9 @@ export const handler = async (event: RedshiftExtractMetadataEvent): Promise<stri
   }
 };
 
-const getFileMetadata = (event: RedshiftExtractMetadataEvent): RedshiftFileMetadata => {
+const getFileMetadata = (event: RedshiftGetMetadataEvent): RedshiftFileMetadata => {
   const { fileMetadata } = getRequiredParams(event, 'fileMetadata');
   return JSON.parse(fileMetadata);
-};
-
-const getFilePathParts = (filePath: string): { configRef: string; dashboardRef: string; dataSource: string } => {
-  const matches = /reference-data\/(.+)\/(.+)\/\d+\/(.+)_\d{4}.+/.exec(filePath);
-  if (matches === null) {
-    throw new Error(`Unable to parse key path string "${filePath}"`);
-  }
-  return {
-    configRef: matches[1],
-    dashboardRef: matches[2],
-    dataSource: matches[3],
-  };
-};
-
-const getConfigFile = async (bucket: string, configRef: string): Promise<RedshiftConfig> => {
-  const response = await s3Client.send(
-    new GetObjectCommand({
-      Bucket: bucket,
-      Key: `reference_data/configuration_files/${configRef}_reference_data_configuration.json`,
-    }),
-  );
-  return await parseS3ResponseAsObject(response);
 };
 
 const getMetadata = (configFile: RedshiftConfig, dashboardRef: string, dataSource: string): string => {

@@ -1,5 +1,5 @@
 import { getLogger } from '../../shared/powertools';
-import { getEnvironmentVariable, isNullUndefinedOrEmpty } from '../../shared/utils/utils';
+import { getEnvironmentVariable, getS3EventRecords } from '../../shared/utils/utils';
 import type { S3Event, S3EventRecord } from 'aws-lambda';
 import { sqsClient } from '../../shared/clients';
 import type { SendMessageCommandOutput } from '@aws-sdk/client-sqs';
@@ -19,7 +19,7 @@ export const handler = async (event: S3Event): Promise<void> => {
     const queueUrl = getEnvironmentVariable('METADATA_QUEUE_URL');
     logger.info('Sending redshift metadata to SQS', { event, queueUrl });
 
-    const records = getRecords(event);
+    const records = getS3EventRecords(event);
     await Promise.all(
       records.map(async record => {
         const messageParams = getMessageParams(record);
@@ -31,15 +31,6 @@ export const handler = async (event: S3Event): Promise<void> => {
     logger.error('Error sending S3 metadata', { error });
     throw error;
   }
-};
-
-const getRecords = (event: S3Event): S3EventRecord[] => {
-  if (isNullUndefinedOrEmpty(event?.Records)) {
-    const errorMessage = 'Missing event or records';
-    logger.error(errorMessage, { event });
-    throw new Error(errorMessage);
-  }
-  return event.Records;
 };
 
 const getMessageParams = (record: S3EventRecord): MessageParams => {
