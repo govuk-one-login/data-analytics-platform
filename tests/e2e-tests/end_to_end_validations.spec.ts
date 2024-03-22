@@ -5,8 +5,8 @@ import { checkFileCreatedOnS3, copyFilesFromBucket } from '../helpers/s3-helpers
 import { startStepFunction, stepFunctionListExecutions } from '../helpers/step-helpers';
 import {
   rawdataS3BucketName,
-  redshiftProcessStepFucntionName,
-  stageProcessStepFucntionName,
+  redshiftProcessStepFunctionName,
+  stageProcessStepFunctionName,
   txmaProcessingWorkGroupName,
   txmaStageDatabaseName,
 } from '../helpers/envHelper';
@@ -52,7 +52,7 @@ describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → C
     await copyFilesFromBucket(rawdataS3BucketName(), data);
 
     // ******************** Start raw to stage step function  ************************************
-    const stepexecutionId = await startStepFunction(stageProcessStepFucntionName());
+    const stepexecutionId = await startStepFunction(stageProcessStepFunctionName());
 
     // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************
     const rawToStageStatus = await waitForStepFunction(String(stepexecutionId.executionArn), 45);
@@ -77,7 +77,7 @@ describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → C
     }
     // ******************** Start raw to stage step function  ************************************
 
-    const listExecutionsOutput = await stepFunctionListExecutions(redshiftProcessStepFucntionName());
+    const listExecutionsOutput = await stepFunctionListExecutions(redshiftProcessStepFunctionName());
     const executionARN = listExecutionsOutput.executions?.at(0)?.executionArn;
 
     // ******************** wait for  dap-raw-to-stage-process step function to complete ************************************
