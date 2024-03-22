@@ -1,6 +1,6 @@
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { AWS_ENVIRONMENTS } from '../constants';
-import type { Context } from 'aws-lambda';
+import type { Context, S3Event, S3EventRecord } from 'aws-lambda';
 import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 
 /**
@@ -135,6 +135,13 @@ export const ensureDefined = (supplier: () => string | undefined): string => {
 
 export const findOrThrow = <T>(ts: T[], predicate: (value: T, index: number, obj: T[]) => unknown): T => {
   return ts.find(predicate) ?? throwExpression(`Unable to find element matching predicate ${predicate.toString()}`);
+};
+
+export const getS3EventRecords = (event: S3Event): S3EventRecord[] => {
+  if (isNullUndefinedOrEmpty(event?.Records)) {
+    throw new Error('Missing event or records');
+  }
+  return event.Records;
 };
 
 // see https://stackoverflow.com/a/65666402

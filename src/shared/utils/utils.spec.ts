@@ -7,6 +7,7 @@ import {
   getAccountId,
   getAWSEnvironment,
   getEnvironmentVariable,
+  getS3EventRecords,
   getRequiredParams,
   isNullUndefinedOrEmpty,
   parseS3ResponseAsObject,
@@ -14,7 +15,7 @@ import {
 } from './utils';
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { mockS3BodyStream } from './test-utils';
-import type { Context } from 'aws-lambda';
+import type { Context, S3Event } from 'aws-lambda';
 
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 test('get required params correctly errors', () => {
@@ -194,6 +195,18 @@ test('find or throw', () => {
   expect(() => findOrThrow([1, 2, 3, 4], n => n === 8)).toThrow(
     'Unable to find element matching predicate (n) => n === 8',
   );
+});
+
+test('get s3 event records', () => {
+  const asS3Event = (u: unknown): S3Event => u as S3Event;
+  expect(() => getS3EventRecords(asS3Event({ Records: null }))).toThrow('Missing event or records');
+  expect(() => getS3EventRecords(asS3Event({ Records: undefined }))).toThrow('Missing event or records');
+  expect(() => getS3EventRecords({ Records: [] })).toThrow('Missing event or records');
+  expect(() => getS3EventRecords(asS3Event({}))).toThrow('Missing event or records');
+  expect(() => getS3EventRecords(asS3Event(null))).toThrow('Missing event or records');
+  expect(() => getS3EventRecords(asS3Event(undefined))).toThrow('Missing event or records');
+
+  expect(getS3EventRecords(asS3Event({ Records: [1, 2, 3] }))).toEqual([1, 2, 3]);
 });
 
 const mockS3Response = (body: unknown): GetObjectCommandOutput => {

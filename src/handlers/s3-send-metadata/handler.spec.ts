@@ -38,18 +38,6 @@ test('missing queue url', async () => {
   expect(mockSQSClient.calls()).toHaveLength(0);
 });
 
-test('bad input events', async () => {
-  mockSQSClient.resolves({});
-
-  await expect(handler(null as unknown as S3Event)).rejects.toThrow('Missing event or records');
-  await expect(handler(undefined as unknown as S3Event)).rejects.toThrow('Missing event or records');
-  await expect(handler({} as unknown as S3Event)).rejects.toThrow('Missing event or records');
-  await expect(handler({ Records: null } as unknown as S3Event)).rejects.toThrow('Missing event or records');
-  await expect(handler({ Records: undefined } as unknown as S3Event)).rejects.toThrow('Missing event or records');
-
-  expect(mockSQSClient.calls()).toHaveLength(0);
-});
-
 test('success', async () => {
   // test indirectly by only resolving for the expected SendMessageCommand
   mockSQSClient

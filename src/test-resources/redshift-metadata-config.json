@@ -11,7 +11,7 @@
         }
       },
       "online_id_verification": {
-        "ingestion_enabled_status": true,
+        "ingestion_enabled_status": false,
         "redshift_metadata": {
           "database": "demo_reference_data_db",
           "schema": "reference_data",
