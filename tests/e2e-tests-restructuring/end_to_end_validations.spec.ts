@@ -6,7 +6,6 @@ import { startStepFunction, stepFunctionListExecutions } from '../helpers/step-h
 import {
   rawdataS3BucketName,
   redshiftProcessStepFucntionName,
-  stageProcessStepFucntionName,
   stageProcessStepReStructureFucntionName,
   txmaProcessingWorkGroupName,
   txmaStageDatabaseName,
