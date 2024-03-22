@@ -14,3 +14,7 @@ export const txmaProcessingWorkGroupName = (): string => `${envName()}-dap-txma-
 export const stageProcessStepFucntionName = (): string => `${envName()}-dap-raw-to-stage-process`;
 
 export const redshiftProcessStepFucntionName = (): string => `${envName()}-dap-redshift-processing`;
+
+export const stageProcessStepReStructureFucntionName = (): string => `${envName()}-dap-txma-raw-consolidated-schema-to-stage-process`;
+
+export const redshiftProcessStepReStructureFucntionName = (): string => `${envName()}-dap-redshift-processing`;
