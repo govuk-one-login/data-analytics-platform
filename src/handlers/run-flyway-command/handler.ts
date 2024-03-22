@@ -146,6 +146,7 @@ const getFlywayEnvironment = async (
   FLYWAY_LOCATIONS: `filesystem:${MIGRATIONS_DIRECTORY_PATH}/${event.database}`,
   FLYWAY_CONFIG_FILES: CONFIG_FILE_PATH,
   FLYWAY_CLEAN_DISABLED: getAWSEnvironment() === 'production' ? 'true' : 'false',
+  FLYWAY_DEFAULT_SCHEMA: 'flyway',
 });
 
 const runFlywayCommand = (event: RunFlywayEvent, environment: Record<string, string>): RunFlywayResult => {
