@@ -20,6 +20,16 @@ RawLayerBucket:
     NotificationConfiguration:
       EventBridgeConfiguration:
         EventBridgeEnabled: true
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !GetAtt S3RawToStagingLambda.Arn
+          Filter:
+            S3Key:
+              Rules:
+                - Name: prefix
+                  Value: reference-data/
+                - Name: suffix
+                  Value: .csv
 
 RawLayerBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -92,6 +102,7 @@ AuthAccountManagementCrawler:
     Targets:
       S3Targets:
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_PASSWORD_RESET_SUCCESSFUL/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_PASSWORD_RESET_REQUESTED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -1192,8 +1203,8 @@ RawGlueCrawlerRole:
                 - 's3:PutObject'
                 - 's3:ListObject'
               Resource:
-                - !Sub 'arn:aws:s3:::${RawLayerBucket}'
-                - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
+                - !Sub 'arn:aws:s3:::${Environment}-dap-raw-layer'
+                - !Sub 'arn:aws:s3:::${Environment}-dap-raw-layer/*'
             - Effect: Allow
               Action: 'logs:AssociateKmsKey'
               Resource: 'arn:aws:logs:*:*:/aws-glue/*'

@@ -1,5 +1,5 @@
 import { getLogger } from '../../shared/powertools';
-import { findOrThrow, getEnvironmentVariable, getErrorMessage } from '../../shared/utils/utils';
+import { findOrThrow, getAWSEnvironment, getEnvironmentVariable, getErrorMessage } from '../../shared/utils/utils';
 import { getSecret } from '../../shared/secrets-manager/get-secret';
 import type { RedshiftSecret } from '../../shared/types/secrets-manager';
 import * as child_process from 'node:child_process';
@@ -145,6 +145,8 @@ const getFlywayEnvironment = async (
   FLYWAY_PASSWORD: redshiftSecret.password,
   FLYWAY_LOCATIONS: `filesystem:${MIGRATIONS_DIRECTORY_PATH}/${event.database}`,
   FLYWAY_CONFIG_FILES: CONFIG_FILE_PATH,
+  FLYWAY_CLEAN_DISABLED: getAWSEnvironment() === 'production' ? 'true' : 'false',
+  FLYWAY_DEFAULT_SCHEMA: 'flyway',
 });
 
 const runFlywayCommand = (event: RunFlywayEvent, environment: Record<string, string>): RunFlywayResult => {

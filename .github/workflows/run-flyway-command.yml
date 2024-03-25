@@ -12,7 +12,7 @@ on:
         type: choice
         required: true
         description: Flyway command to run
-        options: [info, migrate, validate]
+        options: [info, migrate, validate, clean]
       database:
         type: string
         required: true
@@ -56,11 +56,17 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Get role name
+        run: |
+          # github doesn't allow secrets with hyphens so we need to make sure the role name
+          # becomes DB_MIGRATION_ROLE_ARN_PRODUCTION_PREVIEW instead of DB_MIGRATION_ROLE_ARN_PRODUCTION-PREVIEW
+          ENVIRONMENT_NO_HYPHEN=$(echo ${{ inputs.environment }} | sed 's/-/_/g')
+          echo "ROLE_NAME=DB_MIGRATION_ROLE_ARN_$ENVIRONMENT_NO_HYPHEN" >> $GITHUB_ENV
       - name: Assume AWS DB migration role
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets[format('DB_MIGRATION_ROLE_ARN_{0}', inputs.environment)] }}
+          role-to-assume: ${{ secrets[env.ROLE_NAME] }}
       - name: Invoke lambda
         run: |
           PAYLOAD=$(echo "{\"command\": \"${{ inputs.command }}\", \"database\": \"${{ inputs.database }}\"}")
