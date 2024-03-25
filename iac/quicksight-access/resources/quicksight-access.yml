@@ -525,3 +525,42 @@ DAPAnalystsAssetsBucketPolicy:
           Condition:
             Bool:
               aws:SecureTransport: false
+
+CloudFrontDistribution:
+  #checkov:skip=CKV_AWS_86
+  #checkov:skip=CKV_AWS_174
+  #checkov:skip=CKV_AWS_68
+  Type: 'AWS::CloudFront::Distribution'
+  Condition: IsQuicksightEnvironment
+  Properties:
+    DistributionConfig:
+      Enabled: true
+      Origins:
+        - DomainName: !GetAtt
+            - DAPAnalystsAssetsBucket
+            - DomainName
+          Id: S3Origin
+          S3OriginConfig:
+            OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOAI}'
+      DefaultCacheBehavior:
+        TargetOriginId: S3Origin
+        ViewerProtocolPolicy: redirect-to-https
+        AllowedMethods:
+          - GET
+          - HEAD
+        CachedMethods:
+          - GET
+          - HEAD
+        ForwardedValues:
+          QueryString: false
+          Cookies:
+            Forward: none
+      ViewerCertificate:
+        CloudFrontDefaultCertificate: true
+
+CloudFrontOAI:
+  Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+  Condition: IsQuicksightEnvironment
+  Properties:
+    CloudFrontOriginAccessIdentityConfig:
+      Comment: !Sub 'OAI for ${DAPAnalystsAssetsBucket}'
