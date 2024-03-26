@@ -302,3 +302,27 @@ S3RawToStagingLambdaPermission:
     Principal: s3.amazonaws.com
     SourceAccount: !Sub ${AWS::AccountId}
     SourceArn: !Sub arn:aws:s3:::${Environment}-dap-raw-layer
+
+ManualReferenceDataUploadRole:
+  Condition: IsManualReferenceDataEnvironment
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: !Sub ${Environment}-dap-manual-reference-data-upload-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+          Action: sts:AssumeRoleWithWebIdentity
+          Condition:
+            StringLike:
+              'token.actions.githubusercontent.com:sub': repo:govuk-one-login/data-analytics-reference-data:ref:refs/heads/*
+    Policies:
+      - PolicyName: !Sub ${Environment}-dap-manual-reference-data-upload-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action: s3:PutObject
+              Resource: !Sub arn:aws:s3:::${Environment}-dap-raw-layer/reference-data/*
