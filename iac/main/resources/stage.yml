@@ -215,6 +215,12 @@ AuthAccountManagementGlueTable:
           - { Name: user_user_id, Type: string }
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
+          - { Name: user_sessionid, Type: string }
+          - { Name: event_timestamp_ms, Type: bigint }
+          - { Name: event_timestamp_ms_formatted, Type: string }
+          - { Name: extensions_notifyreference, Type: string }
+          - { Name: extensions_zendeskticketnumber, Type: string }
+          - { Name: extensions_suspicious_activities, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
