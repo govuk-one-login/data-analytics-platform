@@ -1,6 +1,5 @@
 INSERT INTO "environment-txma-stage"."auth_account_management" (
 	event_id,
-	client_id,
 	component_id,
 	user_govuk_signin_journey_id,
 	timestamp,
@@ -18,7 +17,6 @@ INSERT INTO "environment-txma-stage"."auth_account_management" (
 )
 SELECT
 	event_id as event_id,
-	client_id as client_id,
 	component_id as component_id,
 	user.govuk_signin_journey_id as user_govuk_signin_journey_id,
 	timestamp as timestamp,
