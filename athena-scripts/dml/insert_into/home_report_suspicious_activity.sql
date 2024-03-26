@@ -8,7 +8,7 @@ INSERT INTO "environment-txma-stage"."auth_account_management" (
 	event_timestamp_ms_formatted,
 	extensions_notifyreference,
 	extensions_zendeskticketnumber,
-	extensions_suspicious_activities,
+	extensions_suspiciousactivities,
 	year,
 	month,
 	day,
