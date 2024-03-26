@@ -109,6 +109,9 @@ Conditions:
   IsSecurePipelinesEnvironment: !And
     - !Condition IsNotFeature
     - !Condition IsNotProductionPreview
+  IsManualReferenceDataEnvironment: !Or
+    - !Condition IsProduction
+    - !Condition IsProductionPreview
 
 Globals:
   Function:
