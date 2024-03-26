@@ -103,6 +103,7 @@ AuthAccountManagementCrawler:
       S3Targets:
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_PASSWORD_RESET_SUCCESSFUL/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_PASSWORD_RESET_REQUESTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/HOME_REPORT_SUSPICIOUS_ACTIVITY/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
