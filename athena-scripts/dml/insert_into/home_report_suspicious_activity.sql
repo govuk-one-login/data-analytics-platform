@@ -34,7 +34,7 @@ SELECT
 	case format('%s',cast("extensions"."suspicious_activities" as VARCHAR))
 		when 'null' then null
 	    else format('%s',cast("extensions"."suspicious_activities" as VARCHAR))
-	end as 	extensions_suspicious_activities,
+	end as 	extensions_suspiciousactivities,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,

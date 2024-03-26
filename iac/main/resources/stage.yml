@@ -220,7 +220,7 @@ AuthAccountManagementGlueTable:
           - { Name: event_timestamp_ms_formatted, Type: string }
           - { Name: extensions_notifyreference, Type: string }
           - { Name: extensions_zendeskticketnumber, Type: string }
-          - { Name: extensions_suspicious_activities, Type: string }
+          - { Name: extensions_suspiciousactivities, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
