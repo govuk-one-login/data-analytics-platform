@@ -31,9 +31,9 @@ SELECT
 		when 'null' then null
 	    else format('%s',cast("extensions"."zendesk_ticket_number" as VARCHAR))
 	end as extensions_zendeskticketnumber,
-	case format('%s',cast("extensions"."suspicious_activities" as VARCHAR))
+	case format('%s',cast("extensions"."suspicious_activities" as JSON))
 		when 'null' then null
-	    else format('%s',cast("extensions"."suspicious_activities" as VARCHAR))
+	    else format('%s',cast("extensions"."suspicious_activities" as JSON))
 	end as 	extensions_suspiciousactivities,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
