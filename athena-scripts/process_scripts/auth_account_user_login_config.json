@@ -27,11 +27,11 @@
     {
         "event_name": "auth_reauthentication_invalid",
         "product_family": "auth_account_user_login",
-        "enabled": false
+        "enabled": true
     },
     {
         "event_name": "auth_reauthentication_successfull",
         "product_family": "auth_account_user_login",
-        "enabled": false
+        "enabled": true
     }
 ]
