@@ -67,6 +67,7 @@ AuthAccountUserLoginCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_LOG_IN_SUCCESS/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTH_CODE_ISSUED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTHENTICATION_COMPLETE/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_ACCOUNT_TEMPORARILY_LOCKED/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
