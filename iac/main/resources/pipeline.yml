@@ -179,6 +179,8 @@ RedShiftEC2Policy:
             - 'redshift-serverless:*'
             - 'ec2:*'
             - 'scheduler:*'
+            - 'cloudfront:CreateDistribution'
+            - 'cloudfront:CreateCloudFrontOriginAccessIdentity'
           Resource: '*'
     Roles:
       - Fn::If:
