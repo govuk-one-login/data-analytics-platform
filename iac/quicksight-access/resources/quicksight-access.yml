@@ -536,9 +536,7 @@ CloudFrontDistribution:
     DistributionConfig:
       Enabled: true
       Origins:
-        - DomainName: !GetAtt
-            - DAPAnalystsAssetsBucket
-            - DomainName
+        - DomainName: !GetAtt [DAPAnalystsAssetsBucket, DomainName]
           Id: S3Origin
           S3OriginConfig:
             OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOAI}'
