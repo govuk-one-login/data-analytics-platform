@@ -526,6 +526,15 @@ DAPAnalystsAssetsBucketPolicy:
             Bool:
               aws:SecureTransport: false
 
+OriginAccessControl:
+  Type: AWS::CloudFront::OriginAccessControl
+  Properties:
+    OriginAccessControlConfig:
+      Name: DAPOAC
+      OriginAccessControlOriginType: s3
+      SigningBehavior: always
+      SigningProtocol: sigv4
+
 CloudFrontDistribution:
   #checkov:skip=CKV_AWS_86
   #checkov:skip=CKV_AWS_174
@@ -538,8 +547,8 @@ CloudFrontDistribution:
       Origins:
         - DomainName: !GetAtt [DAPAnalystsAssetsBucket, DomainName]
           Id: S3Origin
-          S3OriginConfig:
-            OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOAI}'
+          S3OriginConfig: {}
+          OriginAccessControlId: !Ref OriginAccessControl
       DefaultCacheBehavior:
         TargetOriginId: S3Origin
         ViewerProtocolPolicy: redirect-to-https
