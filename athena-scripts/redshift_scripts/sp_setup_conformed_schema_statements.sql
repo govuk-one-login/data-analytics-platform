@@ -96,7 +96,8 @@ BEGIN
     ('AUTH_DOC_APP_AUTHORISATION_REQUESTED','AUTH_ORCHESTRATION','Authentication','Relying Parties Connect',' '),
     ('IPV_MITIGATION_START','IPV_JOURNEY','IPV','Contra-Indicator',' '),
     ('AUTH_AUTHENTICATION_COMPLETE','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login',' '),
-    ('AUTH_PASSWORD_RESET_REQUESTED','AUTH_ACCOUNT_MANAGEMENT','Authentication','Account Management',' ');
+    ('AUTH_PASSWORD_RESET_REQUESTED','AUTH_ACCOUNT_MANAGEMENT','Authentication','Account Management',' '),
+    ('HOME_REPORT_SUSPICIOUS_ACTIVITY','AUTH_ACCOUNT_MANAGEMENT','Authentication','Account Management',' ');
 
 
     --
