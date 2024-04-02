@@ -513,18 +513,19 @@ DAPAnalystsAssetsBucketPolicy:
   Type: AWS::S3::BucketPolicy
   Condition: IsQuicksightEnvironment
   Properties:
-    Bucket: !Ref DAPAnalystsAssetsBucket
+    Bucket: !Ref DAPAnalystsBucket
     PolicyDocument:
-      Version: 2012-10-17
+      Version: '2012-10-17'
       Statement:
-        - Sid: DenyNonSSLAccess
-          Effect: Deny
-          Action: 's3:*'
-          Resource: !Sub ${DAPAnalystsAssetsBucket.Arn}/*
-          Principal: '*'
+        - Sid: "AllowCloudFrontServicePrincipal"
+          Effect: "Allow"
+          Principal:
+            Service: "cloudfront.amazonaws.com"
+          Action: "s3:GetObject"
+          Resource: !Sub "arn:aws:s3:::${DAPAnalystsBucket}/*"
           Condition:
-            Bool:
-              aws:SecureTransport: false
+            StringEquals:
+              AWS:SourceArn: !Ref CloudFrontDistributionARN
 
 OriginAccessControl:
   Type: AWS::CloudFront::OriginAccessControl
