@@ -557,10 +557,10 @@ CloudFrontDistribution:
         CloudFrontDefaultCertificate: true
 MyResourceProtections:
   Type: AWS::Shield::Protection
-  DependsOn: CloudFrontDistribution  # Assuming a resource creation before Shield configuration
+  DependsOn: CloudFrontDistribution # Assuming a resource creation before Shield configuration
   Properties:
-    ResourceArn: !Ref CloudFrontDistribution  
-MyResources:  # Assuming your resources are defined here        
+    ResourceArn: !Ref CloudFrontDistribution
+MyResources: # Assuming your resources are defined here
 
 CloudFrontOAI:
   Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
