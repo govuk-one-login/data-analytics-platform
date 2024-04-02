@@ -317,7 +317,7 @@ ManualReferenceDataUploadRole:
           Action: sts:AssumeRoleWithWebIdentity
           Condition:
             StringLike:
-              'token.actions.githubusercontent.com:sub': repo:govuk-one-login/data-analytics-reference-data:ref:refs/heads/*
+              'token.actions.githubusercontent.com:sub': repo:govuk-one-login/data-analytics-reference-data:*
     Policies:
       - PolicyName: !Sub ${Environment}-dap-manual-reference-data-upload-policy
         PolicyDocument:
