@@ -526,6 +526,14 @@ DAPAnalystsAssetsBucketPolicy:
           Condition:
             StringEquals:
               AWS:SourceArn: !Ref CloudFrontDistribution
+        - Sid: 'DenyNonSecureTransport'
+          Effect: 'Deny'
+          Principal: '*'
+          Action: 's3:*'
+          Resource: !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}/*'
+          Condition:
+            Bool:
+              aws:SecureTransport: 'false'
 
 OriginAccessControl:
   Type: AWS::CloudFront::OriginAccessControl
