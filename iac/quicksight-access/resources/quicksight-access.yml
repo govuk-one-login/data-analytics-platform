@@ -525,7 +525,7 @@ DAPAnalystsAssetsBucketPolicy:
           Resource: !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}/*'
           Condition:
             StringEquals:
-              AWS:SourceArn: !Ref CloudFrontDistribution
+              AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
         - Sid: 'DenyNonSecureTransport'
           Effect: 'Deny'
           Principal: '*'
@@ -573,12 +573,12 @@ CloudFrontDistribution:
             Forward: none
       ViewerCertificate:
         CloudFrontDefaultCertificate: true
-# MyResourceProtections:
+
+# ShieldProtection:
 #   Type: AWS::Shield::Protection
-#   DependsOn: CloudFrontDistribution # Assuming a resource creation before Shield configuration
+#   Condition: IsQuicksightEnvironment
 #   Properties:
-#     ResourceArn: !Ref CloudFrontDistribution
-# MyResources: # Assuming your resources are defined here
+#     ResourceArn: !GetAtt CloudFrontDistribution.Arn
 
 CloudFrontOAI:
   Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
