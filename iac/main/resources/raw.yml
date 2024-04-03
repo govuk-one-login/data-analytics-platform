@@ -67,6 +67,9 @@ AuthAccountUserLoginCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_LOG_IN_SUCCESS/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTH_CODE_ISSUED/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_AUTHENTICATION_COMPLETE/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_ACCOUNT_TEMPORARILY_LOCKED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_REAUTHENTICATION_INVALID/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_REAUTHENTICATION_SUCCESSFULL/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -103,6 +106,7 @@ AuthAccountManagementCrawler:
       S3Targets:
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_PASSWORD_RESET_SUCCESSFUL/'
         - Path: !Sub 's3://${RawLayerBucket}/txma/AUTH_PASSWORD_RESET_REQUESTED/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma/HOME_REPORT_SUSPICIOUS_ACTIVITY/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
