@@ -5,6 +5,7 @@ BEGIN
 Name       Date         Notes
 P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                         Insert to the RP table slightly modified to include display_name column.
+P Sodhi    27/03/2024   Update for home report event.                        
 */
 	
 	UPDATE conformed.DIM_EVENT
@@ -273,6 +274,47 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                         ELSE
                                             st."TYPE"
                                         END,'"')
+      ,event_timestamp_ms=st.event_timestamp_ms
+      ,event_timestamp_ms_formatted=st.event_timestamp_ms_formatted
+      ,user_session_id=TRIM(CASE when st.user_sessionid='null'
+                                        then NULL
+                                        ELSE
+                                            st.user_sessionid
+                                        END,'"')
+      ,extensions_notify_reference=TRIM(CASE when st.extensions_notifyreference='null'
+                                        then NULL
+                                        ELSE
+                                            st.extensions_notifyreference
+                                        END,'"')
+      ,extensions_zendesk_ticket_number=TRIM(CASE when st.extensions_zendeskticketnumber='null'
+                                        then NULL
+                                        ELSE
+                                            st.extensions_zendeskticketnumber
+                                        END,'"')
+      ,suspicious_activities_client_id=TRIM(CASE when JSON_SERIALIZE(st.sus_activity_client_id)='null'
+                                        then NULL
+                                        ELSE
+                                            JSON_SERIALIZE(st.sus_activity_client_id)
+                                        END,'"')
+      ,suspicious_activities_session_id =TRIM(CASE when JSON_SERIALIZE(st.sus_activity_session_id)='null'
+                                        then NULL
+                                        ELSE
+                                            JSON_SERIALIZE(st.sus_activity_session_id)
+                                        END,'"')
+      ,suspicious_activities_event_id =TRIM(CASE when JSON_SERIALIZE(st.sus_activity_event_id)='null'
+                                        then NULL
+                                        ELSE
+                                            JSON_SERIALIZE(st.sus_activity_event_id)
+                                        END,'"')
+      ,suspicious_activities_event_type=TRIM(CASE when JSON_SERIALIZE(st.sus_activity_event_type)='null'
+                                        then NULL
+                                        ELSE
+                                            JSON_SERIALIZE(st.sus_activity_event_type)
+                                        END,'"')
+      ,suspicious_activities_timestamp =CAST(case when trim(JSON_SERIALIZE(st.sus_activity_timestamp) ,'"')~ '^[0-9]+$' 
+                                                  then  trim(JSON_SERIALIZE(st.sus_activity_timestamp) ,'"')
+                                      else null
+                                      end AS INTEGER)                               
       ,PROCESSED_DATE=st.PROCESSED_DATE
       ,MODIFIED_BY= current_user
       ,MODIFIED_DATE=CURRENT_DATE
@@ -291,8 +333,10 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                             REJECTION_REASON,REASON,NOTIFICATION_TYPE,MFA_TYPE,ACCOUNT_RECOVERY,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,
                             CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,ADDRESSES_ENTERED,ACTIVITY_HISTORY_SCORE,IDENTITY_FRAUD_SCORE,DECISION_SCORE,
                             FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODE,CHECK_DETAILS_KBV_QUALITY,
-                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE", PROCESSED_DATE,
-                            CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
+                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE",event_timestamp_ms,event_timestamp_ms_formatted,
+                            user_session_id,extensions_notify_reference,extensions_zendesk_ticket_number,suspicious_activities_client_id,suspicious_activities_session_id
+                            ,suspicious_activities_event_id,suspicious_activities_event_type,suspicious_activities_timestamp
+                            ,PROCESSED_DATE,CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT NVL(DE.event_key,-1) AS event_key
           ,dd.date_key
           ,NVL(dvr.verification_route_key,-1) AS verification_route_key
@@ -381,6 +425,47 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                         ELSE
                                             "TYPE"
                                         END,'"')
+            ,event_timestamp_ms
+            ,event_timestamp_ms_formatted 
+            ,TRIM(CASE when user_sessionid='null'
+                                        then NULL
+                                        ELSE
+                                            user_sessionid
+                                        END,'"')
+            ,TRIM(CASE when extensions_notifyreference='null'
+                                        then NULL
+                                        ELSE
+                                            extensions_notifyreference
+                                        END,'"') 
+            ,TRIM(CASE when extensions_zendeskticketnumber='null'
+                                        then NULL
+                                        ELSE
+                                            extensions_zendeskticketnumber
+                                        END,'"') 
+            ,TRIM(CASE when JSON_SERIALIZE(sus_activity_client_id)='null'
+                                        then NULL
+                                        ELSE
+                                            JSON_SERIALIZE(sus_activity_client_id)
+                                        END,'"')     
+            ,TRIM(CASE when JSON_SERIALIZE(sus_activity_session_id)='null'
+                                        then NULL
+                                        ELSE
+                                            JSON_SERIALIZE(sus_activity_session_id)
+                                        END,'"')  
+            ,TRIM(CASE when JSON_SERIALIZE(sus_activity_event_id)='null'
+                                        then NULL
+                                        ELSE
+                                            JSON_SERIALIZE(sus_activity_event_id)
+                                        END,'"')  
+            ,TRIM(CASE when JSON_SERIALIZE(sus_activity_event_type)='null'
+                                        then NULL
+                                        ELSE
+                                            JSON_SERIALIZE(sus_activity_event_type)
+                                        END,'"') 
+            ,CAST(case when trim(JSON_SERIALIZE(sus_activity_timestamp) ,'"')~ '^[0-9]+$' 
+                                                  then  trim(JSON_SERIALIZE(sus_activity_timestamp) ,'"')
+                                      else null
+                                      end AS INTEGER)                                                                                                                                                                                                                                                                                                    
         ,PROCESSED_DATE
            , current_user
            , CURRENT_DATE
@@ -436,14 +521,14 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
 
          
     --update config table	 
-    UPDATE conformed.BatchControl BATC
+    UPDATE conformed.BatchControl
     SET MaxRunDate = CAST(subquery.updated_value AS DATE)
     FROM (
       SELECT PRODUCT_FAMILY, MAX(PROCESSED_DATE) updated_value
       FROM conformed.v_stg_auth_account_management
       GROUP BY PRODUCT_FAMILY
     ) AS subquery
-    WHERE BATC.Product_family =subquery.PRODUCT_FAMILY;	
+    WHERE conformed.BatchControl.Product_family =subquery.PRODUCT_FAMILY;
 
 	raise info 'processing of product family: auth_account_management ran successfully';
 

@@ -500,10 +500,9 @@ from
 
     ---
 
-    Create or replace view conformed.v_stg_auth_account_management
-    AS
-    select DISTINCT 
-    Auth.product_family,
+Create or replace view conformed.v_stg_auth_account_management AS
+select
+    DISTINCT Auth.product_family,
     Auth.event_id,
     Auth.client_id,
     Auth.component_id,
@@ -540,21 +539,67 @@ from
     ref.product_family ref_product_family,
     ref.domain,
     ref.sub_domain,
-    ref.other_sub_domain from 
-    ( select * from 
-        (SELECT
-            'auth_account_management' Product_family 
-                ,row_number() over (partition by event_id,timestamp_formatted order by cast (day as integer) desc) as row_num,*
-        FROM
-        "dap_txma_reporting_db"."dap_txma_stage"."auth_account_management") 
-        where  row_num=1  
-        ) Auth
-        join conformed.BatchControl BatC
-        On Auth.Product_family=BatC.Product_family
-        and to_date(processed_date,'YYYYMMDD')  > NVL(MaxRunDate,null)
-        join conformed.REF_EVENTS ref
-        on Auth.EVENT_NAME=ref.event_name
-        with no schema binding;
+    ref.other_sub_domain,
+                            nvl2(
+                                    valid_json_data,
+                                    valid_json_data.client_id,
+                                    valid_json_data
+                                ) AS sus_activity_client_id,
+                                 nvl2(
+                                    valid_json_data,
+                                    valid_json_data.event_id,
+                                    valid_json_data
+                                ) AS sus_activity_event_id,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.event_type,
+                                    valid_json_data
+                                ) AS sus_activity_event_type,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.timestamp,
+                                    valid_json_data
+                                ) AS sus_activity_timestamp,
+                                nvl2(
+                                    valid_json_data,
+                                    valid_json_data.session_id,
+                                    valid_json_data
+                                ) AS sus_activity_session_id
+                                ,user_sessionid
+                                ,event_timestamp_ms
+                                ,event_timestamp_ms_formatted
+                                ,extensions_notifyreference
+                                ,extensions_zendeskticketnumber
+from
+    (
+        select case extensions_suspiciousactivities != ''
+                                        and is_valid_json_array(extensions_suspiciousactivities)
+                                        when true then json_parse(
+                                            json_extract_array_element_text(extensions_suspiciousactivities, 0)
+                                        )
+                                        else null end as valid_json_data,
+            *
+        from
+            (
+                SELECT
+                    'auth_account_management' Product_family,
+                    row_number() over (
+                        partition by event_id,
+                        timestamp_formatted
+                        order by processed_date desc,
+                            cast (day as integer) desc
+                    ) as row_num,
+                    *
+                FROM
+                    "dap_txma_reporting_db"."dap_txma_stage"."auth_account_management"
+                --Where event_id='ec54faf9-67a9-418a-b7c7-afe8d9d7cb69'    
+            )
+        where
+            row_num = 1
+    ) Auth
+    join conformed.BatchControl BatC On Auth.Product_family = BatC.Product_family
+    and to_date(processed_date, 'YYYYMMDD') > NVL(MaxRunDate, null)
+    join conformed.REF_EVENTS ref on Auth.EVENT_NAME = ref.event_name with no schema binding;
 
     ---
 
