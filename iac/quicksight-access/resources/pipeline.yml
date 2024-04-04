@@ -42,6 +42,7 @@ WAFCognitoPolicy:
             - 'logs:PutResourcePolicy'
             - 'logs:DescribeResourcePolicies'
             - 'logs:DescribeLogGroups'
+            - shield:CreateProtection
           Resource: '*'
     Roles:
       - Fn::If:
