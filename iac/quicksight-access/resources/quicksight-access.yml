@@ -574,6 +574,18 @@ CloudFrontDistribution:
       ViewerCertificate:
         CloudFrontDefaultCertificate: true
 
+ShieldProtection:
+  Type: AWS::Shield::Protection
+  Condition: IsQuicksightEnvironment
+  Properties:
+    Name: 'ShieldProtectionForCDN'
+    ResourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+  Metadata:
+    cfn-lint:
+      config:
+        ignore_checks:
+          - E3001
+
 CloudFrontOAI:
   Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
   Condition: IsQuicksightEnvironment
