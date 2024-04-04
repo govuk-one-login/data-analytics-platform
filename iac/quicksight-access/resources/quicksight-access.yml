@@ -574,12 +574,6 @@ CloudFrontDistribution:
       ViewerCertificate:
         CloudFrontDefaultCertificate: true
 
-# ShieldProtection:
-#   Type: AWS::Shield::Protection
-#   Condition: IsQuicksightEnvironment
-#   Properties:
-#     ResourceArn: !GetAtt CloudFrontDistribution.Arn
-
 CloudFrontOAI:
   Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
   Condition: IsQuicksightEnvironment
