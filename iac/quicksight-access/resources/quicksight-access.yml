@@ -515,16 +515,34 @@ DAPAnalystsAssetsBucketPolicy:
   Properties:
     Bucket: !Ref DAPAnalystsAssetsBucket
     PolicyDocument:
-      Version: 2012-10-17
+      Version: '2012-10-17'
       Statement:
-        - Sid: DenyNonSSLAccess
-          Effect: Deny
-          Action: 's3:*'
-          Resource: !Sub ${DAPAnalystsAssetsBucket.Arn}/*
+        - Sid: 'AllowCloudFrontServicePrincipal'
+          Effect: 'Allow'
+          Principal:
+            Service: 'cloudfront.amazonaws.com'
+          Action: 's3:GetObject'
+          Resource: !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}/*'
+          Condition:
+            StringEquals:
+              AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+        - Sid: 'DenyNonSecureTransport'
+          Effect: 'Deny'
           Principal: '*'
+          Action: 's3:*'
+          Resource: !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}/*'
           Condition:
             Bool:
-              aws:SecureTransport: false
+              aws:SecureTransport: 'false'
+
+OriginAccessControl:
+  Type: AWS::CloudFront::OriginAccessControl
+  Properties:
+    OriginAccessControlConfig:
+      Name: DAPOAC
+      OriginAccessControlOriginType: s3
+      SigningBehavior: always
+      SigningProtocol: sigv4
 
 CloudFrontDistribution:
   #checkov:skip=CKV_AWS_86
@@ -536,12 +554,10 @@ CloudFrontDistribution:
     DistributionConfig:
       Enabled: true
       Origins:
-        - DomainName: !GetAtt
-            - DAPAnalystsAssetsBucket
-            - DomainName
+        - DomainName: !GetAtt [DAPAnalystsAssetsBucket, DomainName]
           Id: S3Origin
-          S3OriginConfig:
-            OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOAI}'
+          S3OriginConfig: {}
+          OriginAccessControlId: !Ref OriginAccessControl
       DefaultCacheBehavior:
         TargetOriginId: S3Origin
         ViewerProtocolPolicy: redirect-to-https
@@ -557,6 +573,18 @@ CloudFrontDistribution:
             Forward: none
       ViewerCertificate:
         CloudFrontDefaultCertificate: true
+
+ShieldProtection:
+  Type: AWS::Shield::Protection
+  Condition: IsQuicksightEnvironment
+  Properties:
+    Name: 'ShieldProtectionForCDN'
+    ResourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+  Metadata:
+    cfn-lint:
+      config:
+        ignore_checks:
+          - E3001
 
 CloudFrontOAI:
   Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
