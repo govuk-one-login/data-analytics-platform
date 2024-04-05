@@ -181,6 +181,7 @@ RedShiftEC2Policy:
             - 'scheduler:*'
             - 'cloudfront:CreateDistribution'
             - 'cloudfront:CreateCloudFrontOriginAccessIdentity'
+            - 'shield:CreateProtection'
           Resource: '*'
     Roles:
       - Fn::If:
