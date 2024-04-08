@@ -10,7 +10,7 @@
     "@aws-sdk/client-athena": "^3.540.0",
     "@aws-sdk/client-cloudwatch-logs": "^3.540.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.540.0",
-    "@aws-sdk/client-firehose": "^3.540.0",
+    "@aws-sdk/client-firehose": "^3.549.0",
     "@aws-sdk/client-lambda": "^3.540.0",
     "@aws-sdk/client-quicksight": "^3.544.0",
     "@aws-sdk/client-redshift-data": "^3.540.0",
