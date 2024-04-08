@@ -2,10 +2,19 @@
   "range": "'Internal Quicksight reader accounts'!A1:C996",
   "majorDimension": "ROWS",
   "values": [
-    ["Name", "Email", "Type"],
-    ["User One", "user.one@digital.cabinet-office.gov.uk", "Reader"],
-    ["User Two", "User.Two@digital.cabinet-office.gov.uk", "Reader"],
-    ["User Three", "user.three@digital.cabinet-office.gov.uk ", "Reader"],
-    ["User Four", "user.four@digital.cabinet-office.gov.uk", "Reader"]
+    ["Name", "Email", "Type", "Business area", "Status", "Quicksight group", "Activated", "Comment"],
+    ["User One", "user.one@digital.cabinet-office.gov.uk", "Reader", "SLT", "", "gds-users", "FALSE", ""],
+    ["User Two", "User.Two@digital.cabinet-office.gov.uk", "Reader", "Adoption", "", "gds-users", "FALSE", ""],
+    [
+      "User Three",
+      "user.three@digital.cabinet-office.gov.uk ",
+      "Reader",
+      "Technical Service Desk",
+      "",
+      "gds-users",
+      "FALSE",
+      ""
+    ],
+    ["User Four", "user.four@digital.cabinet-office.gov.uk", "Reader", "GOV.UK App", "", "gds-users", "FALSE", ""]
   ]
 }
