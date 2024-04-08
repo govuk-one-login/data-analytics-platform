@@ -17,13 +17,6 @@ import type { AddUsersEvent } from '../quicksight-add-users/handler';
 
 const logger = getLogger('lambda/quicksight-add-users-from-spreadsheet');
 
-const EXPECTED_COLUMNS = new Map<number, keyof SpreadsheetRow>([
-  [0, 'Name'],
-  [1, 'Email'],
-  [2, 'Type'],
-  [3, 'Government Service'],
-]);
-
 interface AddUsersFromSpreadsheetEvent {
   spreadsheet: sheets_v4.Schema$ValueRange;
   dryRun?: boolean;
@@ -35,7 +28,7 @@ interface SpreadsheetRow {
   Name: string;
   Email: string;
   Type: string;
-  'Government Service': string;
+  'Quicksight group': string;
 }
 
 export const handler = async (
@@ -63,8 +56,7 @@ const sendToAddUsersLambda = async (
     requests: users.map(user => ({
       username: user.Email,
       email: user.Email,
-      quicksightGroups:
-        user['Government Service'].length > 0 ? [user['Government Service'].toLowerCase()] : ['gds-users'],
+      quicksightGroups: [user['Quicksight group']],
     })),
   };
 
@@ -119,33 +111,26 @@ const getUsersWithoutAccounts = async (users: SpreadsheetRow[], context: Context
 };
 
 const getUsersFromRows = (rows: string[][]): SpreadsheetRow[] => {
-  const columnNames = getColumnNames(rows);
-  const columnValues = getColumnValues(rows, columnNames);
-  return columnValues.map(row => ({ Name: row[0], Email: row[1], Type: row[2], 'Government Service': row[3] ?? '' }));
-};
+  const columnNames = rows[0].map(name => name.trim());
+  const nameIndex = columnNames.indexOf('Name');
+  const emailIndex = columnNames.indexOf('Email');
+  const typeIndex = columnNames.indexOf('Type');
+  const groupIndex = columnNames.indexOf('Quicksight group');
 
-const getColumnNames = (rows: string[][]): string[] => {
-  const columnNames = rows[0];
-  const columnCount = columnNames.length;
-  if (columnCount < 3) {
-    throw new Error(`Expected 3 or 4 columns - ${JSON.stringify(columnNames)}`);
+  if ([nameIndex, emailIndex, typeIndex, groupIndex].includes(-1)) {
+    throw new Error(`One or more column names missing - ${JSON.stringify(columnNames)}`);
   }
 
-  const validColumns = columnNames.every((name, index) => EXPECTED_COLUMNS.get(index) === name);
-  if (!validColumns) {
-    throw new Error(`One or more columns missing or in wrong order - ${JSON.stringify(columnNames)}`);
-  }
-  return columnNames;
-};
-
-const getColumnValues = (rows: string[][], columnNames: string[]): string[][] => {
-  // slice to exclude the first row which is the row of column names
-  // filter to remove lines without values for all properties (e.g. a - line separating 2 blocks of RPs)
-  // map to make sure all strings are trimmed and lowercase for consistency
   return rows
     .slice(1)
     .filter(row => row.length === columnNames.length)
-    .map(row => row.map(value => value.trim().toLowerCase()));
+    .map(row => row.map(value => value.trim().toLowerCase()))
+    .map(row => ({
+      Name: row[nameIndex],
+      Email: row[emailIndex],
+      Type: row[typeIndex],
+      'Quicksight group': row[groupIndex],
+    }));
 };
 
 const getSpreadsheetRows = (range: sheets_v4.Schema$ValueRange): string[][] => {
