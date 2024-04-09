@@ -48,7 +48,9 @@
       "month",
       "day",
       "processed_dt",
-      "partition_0"
+      "partition_0",
+      "event_timestamp_ms",
+      "event_timestamp_ms_formatted"
     ]
   },
   "stage_schema": {
@@ -62,6 +64,8 @@
       "user_govuk_signin_journey_id": "string",
       "user_user_id": "string",
       "partition_event_name": "string",
+      "event_timestamp_ms": "bigint",
+      "event_timestamp_ms_formatted": "string",
       "year": "int",
       "month": "int",
       "day": "int",
