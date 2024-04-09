@@ -30,7 +30,7 @@ const getSpreadsheetData = async () => {
     const sheets = google.sheets({ version: 'v4', auth });
     return await sheets.spreadsheets.values.get({
       spreadsheetId: '1VK5ZNMzh4NrHNrsu1s0GnWhwcPoDVNZiGdQ4IONN2tI',
-      range: USER_TYPE === 'GDS' ? "'Internal Quicksight reader accounts'!A:C" : "'RP Quicksight reader accounts'!A:D",
+      range: USER_TYPE === 'GDS' ? 'Internal Quicksight reader accounts' : 'RP Quicksight reader accounts',
     });
   } catch (e) {
     console.error('Error getting spreadsheet contents', e instanceof Error ? e.message : JSON.stringify(e));

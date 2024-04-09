@@ -224,7 +224,10 @@ test('user status batching', async () => {
   const sheet: sheets_v4.Schema$ValueRange = {
     range: "'Internal Quicksight reader accounts'!A1:C996",
     majorDimension: 'ROWS',
-    values: [['Name', 'Email', 'Type'], ...users.map(user => [user.Email, user.Email, 'Reader'])],
+    values: [
+      ['Name', 'Email', 'Type', 'Business area', 'Status', 'Quicksight group', 'Activated', 'Comment'],
+      ...users.map(user => [user.Email, user.Email, 'Reader', 'OneLogin', '', 'gds-users', 'FALSE', '']),
+    ],
   };
 
   expect(sheet.values).toBeDefined();

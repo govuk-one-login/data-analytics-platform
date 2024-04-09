@@ -2,14 +2,27 @@
   "range": "'RP Quicksight reader accounts'!A1:D985",
   "majorDimension": "ROWS",
   "values": [
-    ["Name", "Email", "Type", "Government Service"],
-    ["User One", "user.one@dbs.gov.uk", "Reader", "DBS"],
-    ["User Two", "User.Two@dbs.gov.uk", "Reader", "DBS"],
-    ["User Three", "user.three@dbs.gov.uk ", "Reader", "DBS"],
+    [
+      "Name",
+      "Email",
+      "Type",
+      "Government Service",
+      "Admin",
+      "Status",
+      "Quicksight group",
+      "Comment",
+      "Contacted",
+      "Contacted_2",
+      "Workshop",
+      "Activated"
+    ],
+    ["User One", "user.one@dbs.gov.uk", "Reader", "DBS", "", "", "dbs", "", "", "", "", "FALSE"],
+    ["User Two", "User.Two@dbs.gov.uk", "Reader", "DBS", "", "", "dbs", "", "", "", "", "FALSE"],
+    ["User Three", "user.three@dbs.gov.uk ", "Reader", "DBS", "", "", "dbs", "", "", "", "", "FALSE"],
     [],
-    ["User Four", "user.four@dvsa.gov.uk", "Reader", "DVSA"],
+    ["User Four", "user.four@dvsa.gov.uk", "Reader", "DVSA", "", "", "dvsa", "", "", "", "", "FALSE"],
     ["", "user.five@dvsa.gov.uk"],
-    ["User Six", "user.six@dvsa.gov.uk", "Reader", "DVSA"],
+    ["User Six", "user.six@dvsa.gov.uk", "Reader", "DVSA", "", "", "dvsa", "", "", "", "", "FALSE"],
     [],
     []
   ]

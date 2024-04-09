@@ -21,7 +21,7 @@ on:
         type: choice
         required: true
         description: Quicksight group
-        options: [gds-users, dbs, dvsa, hmlr, hmrc, swe, veterans]
+        options: [gds-users, co, dbs, dbt, dfe, dvsa, hmlr, hmrc, ho, moj, swe, veterans]
 
 jobs:
   invoke-add-users-lambda:
