@@ -1139,6 +1139,38 @@ IpvVcReceivedGlueTable:
             serialiazation.format: 1
           SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
 
+IpvContraIndicatorNewMitigationGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_contra_indicator_storage_put_new_mitigation
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - {
+              Name: extensions,
+              Type: 'struct<evidence:array<struct<mitigations:array<struct<code:string,mitigatingCredentialIssuer:array<string>>>>>>',
+            }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_CONTRA_INDICATOR_STORAGE_PUT_NEW_MITIGATION/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
 IpvJourneyCrawler:
   Type: AWS::Glue::Crawler
   Properties:
@@ -1164,6 +1196,7 @@ IpvJourneyCrawler:
             - !Ref IpvGpg45ProfileMatchedGlueTable
             - !Ref IpvVcReceivedGlueTable
             - !Ref IpvMitigationStartGlueTable
+            - !Ref IpvContraIndicatorNewMitigationGlueTable
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
