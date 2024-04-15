@@ -1193,10 +1193,7 @@ IpvSubJourneyStartGlueTable:
           - { Name: timestamp_formatted, Type: string }
           - { Name: event_timestamp_ms, Type: bigint }
           - { Name: event_timestamp_ms_formatted, Type: string }
-          - {
-              Name: extensions,
-              Type: 'struct<journey_type:string>',
-            }
+          - { Name: extensions, Type: 'struct<journey_type:string>' }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         Location: !Sub s3://${RawLayerBucket}/txma/IPV_SUBJOURNEY_START/
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
