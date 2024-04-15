@@ -83,5 +83,10 @@
         "event_name": "ipv_contra_indicator_storage_put_new_mitigation",
         "product_family": "ipv_journey",
         "enabled": true
+    },
+    {
+        "event_name": "ipv_subjourney_start",
+        "product_family": "ipv_journey",
+        "enabled": true
     }
 ]
