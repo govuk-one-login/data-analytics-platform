@@ -97,7 +97,10 @@ BEGIN
     ('IPV_MITIGATION_START','IPV_JOURNEY','IPV','Contra-Indicator',' '),
     ('AUTH_AUTHENTICATION_COMPLETE','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login',' '),
     ('AUTH_PASSWORD_RESET_REQUESTED','AUTH_ACCOUNT_MANAGEMENT','Authentication','Account Management',' '),
-    ('HOME_REPORT_SUSPICIOUS_ACTIVITY','AUTH_ACCOUNT_MANAGEMENT','Authentication','Account Management',' ');
+    ('HOME_REPORT_SUSPICIOUS_ACTIVITY','AUTH_ACCOUNT_MANAGEMENT','Authentication','Account Management',' '),
+    ('AUTH_ACCOUNT_TEMPORARILY_LOCKED','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login',' '),
+    ('AUTH_REAUTHENTICATION_SUCCESSFUL','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login',' '),
+    ('AUTH_REAUTHENTICATION_INVALID','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login',' ');
 
 
     --
