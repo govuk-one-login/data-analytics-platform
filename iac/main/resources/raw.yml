@@ -681,7 +681,10 @@ IpvIdentityIssuedGlueTable:
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
           - { Name: txma, Type: 'struct<configVersion:string>' }
-          - { Name: extensions, Type: 'struct<hasMitigations:boolean,levelOfConfidence:string,ciFail:boolean,returnCodes:array<struct<code:string,issuers:array<string>>>>' }
+          - {
+              Name: extensions,
+              Type: 'struct<hasMitigations:boolean,levelOfConfidence:string,ciFail:boolean,returnCodes:array<struct<code:string,issuers:array<string>>>>',
+            }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         Location: !Sub s3://${RawLayerBucket}/txma/IPV_IDENTITY_ISSUED/
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
