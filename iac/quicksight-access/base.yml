@@ -41,6 +41,9 @@ Conditions:
   IsProductionPreview: !Equals [!Ref Environment, production-preview]
   IsNotFeature: !Not [!Equals [!Ref Environment, feature]]
   IsNotProductionPreview: !Not [!Equals [!Ref Environment, production-preview]]
+  IsBuild: !Equals [!Ref Environment, build]
+  IsIntegration: !Equals [!Ref Environment, integration]
+  IsStaging: !Equals [!Ref Environment, staging]
   IsQuicksightEnvironment: !Or
     - !Condition IsDev
     - !Condition IsTest
