@@ -70,9 +70,7 @@ WAFCognitoPolicy:
       - Fn::If:
           - IsStaging
           - PL-dap-staging-deploy-qsa-DeployRole-020a6d472d2a
-          - Ref: 'AWS::NoValue'                    
-
-
+          - Ref: 'AWS::NoValue'
 
 QuickSightDeployRoleExtraIAMActions:
   Type: 'AWS::IAM::ManagedPolicy'
@@ -162,4 +160,4 @@ QuickSightDeployRoleExtraIAMActions:
       - Fn::If:
           - IsStaging
           - PL-dap-staging-deploy-qsa-DeployRole-020a6d472d2a
-          - Ref: 'AWS::NoValue'             
+          - Ref: 'AWS::NoValue'
