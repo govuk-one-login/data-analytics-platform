@@ -400,6 +400,7 @@ IpvJourneyGlueTable:
           - { Name: extensions_mitigationtype, Type: string }
           - { Name: extensions_reproveidentity, Type: string }
           - { Name: extensions_journeytype, Type: string }
+          - { Name: extensions_returncodes, Type: string }
           - { Name: year, Type: int }
           - { Name: month, Type: int }
           - { Name: day, Type: int }
