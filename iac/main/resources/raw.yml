@@ -681,7 +681,10 @@ IpvIdentityIssuedGlueTable:
           - { Name: timestamp, Type: int }
           - { Name: timestamp_formatted, Type: string }
           - { Name: txma, Type: 'struct<configVersion:string>' }
-          - { Name: extensions, Type: 'struct<hasMitigations:boolean,levelOfConfidence:string,ciFail:boolean>' }
+          - {
+              Name: extensions,
+              Type: 'struct<hasMitigations:boolean,levelOfConfidence:string,ciFail:boolean,returnCodes:array<struct<code:string,issuers:array<string>>>>',
+            }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         Location: !Sub s3://${RawLayerBucket}/txma/IPV_IDENTITY_ISSUED/
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
@@ -1171,6 +1174,37 @@ IpvContraIndicatorNewMitigationGlueTable:
             serialiazation.format: 1
           SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
 
+IpvSubJourneyStartGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: ipv_subjourney_start
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+          - { Name: event_name, Type: string }
+          - { Name: component_id, Type: string }
+          - { Name: user, Type: 'struct<govuk_signin_journey_id:string,user_id:string>' }
+          - { Name: timestamp, Type: int }
+          - { Name: timestamp_formatted, Type: string }
+          - { Name: event_timestamp_ms, Type: bigint }
+          - { Name: event_timestamp_ms_formatted, Type: string }
+          - { Name: extensions, Type: 'struct<journey_type:string>' }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/txma/IPV_SUBJOURNEY_START/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+
 IpvJourneyCrawler:
   Type: AWS::Glue::Crawler
   Properties:
@@ -1197,6 +1231,7 @@ IpvJourneyCrawler:
             - !Ref IpvVcReceivedGlueTable
             - !Ref IpvMitigationStartGlueTable
             - !Ref IpvContraIndicatorNewMitigationGlueTable
+            - !Ref IpvSubJourneyStartGlueTable
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:

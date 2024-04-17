@@ -8,6 +8,7 @@ INSERT INTO "environment-txma-stage"."ipv_journey" (
 	extensions_hasmitigations,
 	extensions_levelofconfidence,
 	extensions_cifail,
+	extensions_returncodes,
 	year,
 	month,
 	day,
@@ -33,6 +34,10 @@ SELECT
 		when 'null' then null
 	    else format('%s',cast("extensions"."ciFail" as VARCHAR))
 	end as extensions_cifail,
+	case format('%s',cast("extensions"."returnCodes" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."returnCodes" as JSON))
+	end as extensions_returncodes,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
