@@ -44,6 +44,7 @@ WAFCognitoPolicy:
             - 'logs:DescribeLogGroups'
             - 'shield:CreateProtection'
             - 'shield:DeleteProtection'
+            - 'cloudfront:CreateOriginAccessControl'
           Resource: '*'
     Roles:
       - Fn::If:
@@ -57,6 +58,18 @@ WAFCognitoPolicy:
       - Fn::If:
           - IsProduction
           - PL-dap-prod-deploy-qsa-DeployRole-0639afdddfd2
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsBuild
+          - PL-dap-build-deploy-quicksight-access-DeployRole-02c0a7b25a22
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsIntegration
+          - PL-dap-int-deploy-qsa-DeployRole-06936751704a
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsStaging
+          - PL-dap-staging-deploy-qsa-DeployRole-020a6d472d2a
           - Ref: 'AWS::NoValue'
 
 QuickSightDeployRoleExtraIAMActions:
@@ -135,4 +148,16 @@ QuickSightDeployRoleExtraIAMActions:
       - Fn::If:
           - IsProduction
           - PL-dap-prod-deploy-qsa-DeployRole-0639afdddfd2
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsBuild
+          - PL-dap-build-deploy-quicksight-access-DeployRole-02c0a7b25a22
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsIntegration
+          - PL-dap-int-deploy-qsa-DeployRole-06936751704a
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsStaging
+          - PL-dap-staging-deploy-qsa-DeployRole-020a6d472d2a
           - Ref: 'AWS::NoValue'
