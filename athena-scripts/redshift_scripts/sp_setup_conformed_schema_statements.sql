@@ -100,7 +100,8 @@ BEGIN
     ('HOME_REPORT_SUSPICIOUS_ACTIVITY','AUTH_ACCOUNT_MANAGEMENT','Authentication','Account Management',' '),
     ('AUTH_ACCOUNT_TEMPORARILY_LOCKED','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login',' '),
     ('AUTH_REAUTHENTICATION_SUCCESSFUL','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login',' '),
-    ('AUTH_REAUTHENTICATION_INVALID','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login',' ');
+    ('AUTH_REAUTHENTICATION_INVALID','AUTH_ACCOUNT_USER_LOGIN','Authentication','User Login',' '),
+    ('IPV_CONTRA_INDICATOR_STORAGE_PUT_NEW_MITIGATION','IPV_JOURNEY','IPV','Contra-Indicator',' ');
 
 
     --
