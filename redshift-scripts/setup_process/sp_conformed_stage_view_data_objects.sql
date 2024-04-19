@@ -1235,7 +1235,12 @@ OR REPLACE VIEW "conformed"."v_stg_ipv_journey" AS
     then NULL
     else 
     code1
-    end mitigating_code   
+    end mitigating_code,
+    --extensions_returncodes_code,
+    --extensions_returncodes_issuer,
+    extensions_returncodes_issuer_updated extensions_returncodes_issuer,
+    extensions_returncodes_code_updated extensions_returncodes_code,
+    extensions_journeytype
 from
     (select
             *,
@@ -1250,7 +1255,15 @@ from
             end code,
             case when code_before_comma is not NULL
             then replace(replace(replace(replace(code_before_comma,'"',''),'\\',''),'[',''),']','')
-            end code1
+            end code1,
+            case when extensions_returncodes_issuer='null' then NULL 
+            ELSE
+               SPLIT_PART(extensions_returncodes_issuer, ',', 1) 
+            END   AS extensions_returncodes_issuer_updated,
+            CASE when extensions_returncodes_code='null' then NULL 
+            ELSE
+               SPLIT_PART(extensions_returncodes_code, ',', 1) 
+            END AS extensions_returncodes_code_updated
         from
             (
             select  'ipv_journey' Product_family,
@@ -1308,11 +1321,13 @@ from
                             code_derived,
                             SUBSTRING(json_serialize(code_derived), POSITION(',' IN json_serialize(code_derived)) + 1) AS after_first_comma1,  
                             SPLIT_PART(json_serialize(code_derived), ',', 1) AS code_before_comma , 
-                            after_first_comma 
+                            after_first_comma,
+                            extensions_returncodes_code,
+                            extensions_returncodes_issuer,
+                            extensions_journeytype
                             from 
 (
-with base_data as (
-                            SELECT
+with base_data as (SELECT
                                 event_id,
                                 event_name,
                                 client_id,
@@ -1389,7 +1404,19 @@ with base_data as (
                                     valid_json_data,
                                     valid_json_data.mitigations,
                                     valid_json_data
-                                ) AS mitigations_extension_data    
+                                ) AS mitigations_extension_data,
+                                extensions_returncodes ,
+                                nvl2(
+                                    valid_json_data_extensions_returncodes,
+                                    valid_json_data_extensions_returncodes.code,
+                                    valid_json_data_extensions_returncodes
+                                ) AS extensions_returncodes_code,
+                                 nvl2(
+                                    valid_json_data_extensions_returncodes,
+                                    valid_json_data_extensions_returncodes.issuers,
+                                    valid_json_data_extensions_returncodes
+                                ) AS extensions_returncodes_issuer,
+                                extensions_journeytype
                             FROM
                                 (
                                     SELECT
@@ -1441,11 +1468,18 @@ with base_data as (
                                         extensions_reproveidentity,
                                         event_timestamp_ms,
                                         event_timestamp_ms_formatted,
-                                        extensions_mitigationtype
+                                        extensions_mitigationtype,
+                                        extensions_returncodes,
+                                        case extensions_returncodes != '[]'
+                                        and is_valid_json_array(extensions_returncodes)
+                                        when true then json_parse(
+                                            json_extract_array_element_text(extensions_returncodes, 0)
+                                        )
+                                        else null end as valid_json_data_extensions_returncodes,
+                                        extensions_journeytype
                                     FROM
                                         "dap_txma_reporting_db"."dap_txma_stage"."ipv_journey"
-                                )
-                        ),
+                                )),
                         level_1_data as (
                             SELECT
                                 event_id,
@@ -1491,7 +1525,10 @@ with base_data as (
                                 case when json_serialize(mitigations_extension_data) != '[]' 
                                 then trim(json_serialize(mitigations_extension_data),'"')  
                                 else NULL
-                                end mitigations_extension_data
+                                end mitigations_extension_data,
+                                case when json_serialize(extensions_returncodes_code)='[]' then null else extensions_returncodes_code end extensions_returncodes_code,
+                                case when json_serialize(extensions_returncodes_issuer)='[]' then null else extensions_returncodes_issuer end extensions_returncodes_issuer,
+                                extensions_journeytype
                             FROM
                                 base_data
                             where
@@ -1554,7 +1591,10 @@ with base_data as (
                                 when true then json_parse(
                                     json_extract_array_element_text(mitigations_extension_data, 0)
                                 )
-                                else null end as mitigations_extension_data                                        
+                                else null end as mitigations_extension_data,
+                                json_serialize(extensions_returncodes_code) as extensions_returncodes_code,
+                                json_serialize(extensions_returncodes_issuer) as extensions_returncodes_issuer,
+                                extensions_journeytype                         
                             from
                                 level_1_data
                         )
@@ -1637,7 +1677,10 @@ with base_data as (
                                     mitigations_extension_data.code,
                                     mitigations_extension_data
                                 ) AS code_derived,
-                                SUBSTRING(json_serialize(mitigations_extension_data), POSITION(',' IN json_serialize(mitigations_extension_data)) + 1) AS after_first_comma                             
+                                SUBSTRING(json_serialize(mitigations_extension_data), POSITION(',' IN json_serialize(mitigations_extension_data)) + 1) AS after_first_comma,
+                                replace(replace(replace(replace(replace(extensions_returncodes_code,'"',''),']',''),'}',''),'\\',''),'[','') as extensions_returncodes_code,
+                                replace(replace(replace(replace(replace(extensions_returncodes_issuer,'"',''),']',''),'}',''),'\\',''),'[','') as extensions_returncodes_issuer,
+                                extensions_journeytype
                         from
                             level_2_data
 )
@@ -1645,9 +1688,9 @@ with base_data as (
         where
             row_num = 1
 ) Auth
-    join conformed.BatchControl BatC On Auth.Product_family = BatC.Product_family
-    and to_date(processed_date, 'YYYYMMDD') > NVL(MaxRunDate, null)
-    join conformed.REF_EVENTS ref on Auth.EVENT_NAME = ref.event_name with no schema binding;
+   join conformed.BatchControl BatC On Auth.Product_family = BatC.Product_family
+   and to_date(processed_date, 'YYYYMMDD') > NVL(MaxRunDate, null)
+   join conformed.REF_EVENTS ref on Auth.EVENT_NAME = ref.event_name with no schema binding;
 
     ---
 

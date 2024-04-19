@@ -323,7 +323,22 @@ UPDATE  "conformed"."fact_user_journey_event"
                                         then NULL
                                         ELSE
                                              st.mitigatingcredentialissuer
-                                        END,'"')                                           
+                                        END,'"')   
+      ,extensions_returnCodes_code=trim(CASE when  st.extensions_returncodes_code='null'
+                                        then NULL
+                                        ELSE
+                                             st.extensions_returncodes_code
+                                        END,'"')
+      ,extensions_returnCodes_issuer=trim(CASE when  st.extensions_returncodes_issuer='null'
+                                        then NULL
+                                        ELSE
+                                             st.extensions_returncodes_issuer
+                                        END,'"')
+      ,extensions_journeytype=trim(CASE when  st.extensions_journeytype='null'
+                                        then NULL
+                                        ELSE
+                                             st.extensions_journeytype
+                                        END,'"')                                                                                                                           
       ,PROCESSED_DATE=st.PROCESSED_DATE
       ,MODIFIED_BY=current_user
       ,MODIFIED_DATE=CURRENT_DATE
@@ -348,7 +363,8 @@ UPDATE  "conformed"."fact_user_journey_event"
                             VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE",successful,strength_score,gpg45_Activity_Score,
                             gpg45_evidences_Strength_Score,gpg45_evidence_Validity_Score,gpg45_Fraud_Score,gpg45_Verification_Score,nationality_is_UK_Issued,Age,
                             reprove_identity,event_timestamp_ms,event_timestamp_ms_formatted,mitigation_type,extensions_evidence_mitigations_code
-                            ,extensions_evidence_mitigations_mitigatingCredentialIssuer,PROCESSED_DATE,CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
+                            ,extensions_evidence_mitigations_mitigatingCredentialIssuer,extensions_returnCodes_code,extensions_returnCodes_issuer,extensions_journeytype,
+                            PROCESSED_DATE,CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT NVL(DE.event_key,-1) AS event_key
           ,dd.date_key
           ,NVL(dvr.verification_route_key,-1) AS verification_route_key
@@ -497,7 +513,22 @@ UPDATE  "conformed"."fact_user_journey_event"
                                         then NULL
                                         ELSE
                                             mitigatingcredentialissuer
-                                        END ,'"')                                                   
+                                        END ,'"') 
+             , trim(CASE when extensions_returncodes_code ='null'
+                                        then NULL
+                                        ELSE
+                                            extensions_returncodes_code
+                                        END ,'"')    
+             , trim(CASE when extensions_returncodes_issuer ='null'
+                                        then NULL
+                                        ELSE
+                                            extensions_returncodes_issuer
+                                        END ,'"') 
+             , trim(CASE when extensions_journeytype ='null'
+                                        then NULL
+                                        ELSE
+                                            extensions_journeytype
+                                        END ,'"')                                                                                                                                                                        
          ,PROCESSED_DATE
            ,current_user
            , CURRENT_DATE
