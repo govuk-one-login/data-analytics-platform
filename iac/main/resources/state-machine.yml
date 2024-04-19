@@ -222,6 +222,8 @@ StepFunctionRole:
                 - logs:DescribeLogGroups
                 - logs:DescribeLogStreams
                 - logs:GetLogEvents
+                - logs:DescribeLogStreams
+                - logs:GetLogEvents
 
             - Effect: Allow
               Resource: !Sub arn:aws:glue:*:${AWS::AccountId}:crawler/*
@@ -237,6 +239,7 @@ StepFunctionRole:
               Resource:
                 - !Join [':', [!GetAtt AthenaGetConfigLambda.Arn, '$LATEST']]
                 - !Join [':', [!GetAtt AthenaGetStatementLambda.Arn, '$LATEST']]
+                - !Join [':', [!GetAtt RedshiftGetMetadataLambda.Arn, '$LATEST']]
                 - !Join [':', [!GetAtt RedshiftGetMetadataLambda.Arn, '$LATEST']]
               Action: lambda:InvokeFunction
 
@@ -325,6 +328,24 @@ StepFunctionRole:
                 - events:PutTargets
                 - events:PutRule
                 - events:DescribeRule
+
+            - Effect: Allow
+              Resource:
+                - !Sub 'arn:aws:redshift-serverless:${AWS::Region}:${AWS::AccountId}:workgroup/*'
+
+              Action:
+                - redshift-data:BatchExecuteStatement
+                - redshift-data:ExecuteStatement
+                - redshift-serverless:GetCredentials
+
+            - Effect: Allow
+              Resource:
+                - '*'
+
+              Action:
+                - redshift-data:GetStatementResult
+                - redshift-data:DescribeStatement
+                - redshift-data:ListStatements
 
             - Effect: Allow
               Resource:
