@@ -7,6 +7,7 @@ INSERT INTO "environment-txma-stage"."ipv_cri_kbv" (
 	timestamp_formatted,
 	extensions_evidence,
 	extensions_iss,
+	extensions_experianiiqresponse,
 	year,
 	month,
 	day,
@@ -28,6 +29,10 @@ SELECT
 		when 'null' then null
 	    else format('%s',cast("extensions"."iss" as VARCHAR))
 	end as extensions_iss,
+	case format('%s',cast("extensions"."experianIiqResponse" as JSON))
+		when 'null' then null
+	    else format('%s',cast("extensions"."experianIiqResponse" as JSON))
+	end as extensions_experianiiqresponse,
 	CAST(year as INT) as year,
 	CAST(month as INT) as month,
 	CAST(day as INT) as day,
