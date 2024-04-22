@@ -17,7 +17,7 @@
     "@aws-sdk/client-s3": "^3.554.0",
     "@aws-sdk/client-secrets-manager": "^3.554.0",
     "@aws-sdk/client-sfn": "^3.554.0",
-    "@aws-sdk/client-sqs": "^3.554.0",
+    "@aws-sdk/client-sqs": "^3.556.0",
     "@aws-sdk/types": "^3.535.0",
     "@faker-js/faker": "^8.4.1",
     "@smithy/util-retry": "^2.2.0",
