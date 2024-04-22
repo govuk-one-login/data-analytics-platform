@@ -180,7 +180,7 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
     WHERE sub_domain NOT IN (SELECT VERIFICATION_ROUTE_NAME  FROM conformed.DIM_VERIFICATION_ROUTE);
 
 
-    UPDATE  "conformed"."fact_user_journey_event"
+UPDATE  "conformed"."fact_user_journey_event"
     SET
        REJECTION_REASON=trim(st.REJECTION_REASON,'"')
       ,REASON=trim(st.REASON,'"')
@@ -313,7 +313,32 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                     )::integer::boolean 
       ,event_timestamp_ms=st.event_timestamp_ms
       ,event_timestamp_ms_formatted=st.event_timestamp_ms_formatted
-      ,mitigation_type=st.extensions_mitigationtype                                             
+      ,mitigation_type=st.extensions_mitigationtype 
+      ,extensions_evidence_mitigations_code=trim(CASE when  st.mitigating_code='null'
+                                        then NULL
+                                        ELSE
+                                             st.mitigating_code
+                                        END,'"') 
+      ,extensions_evidence_mitigations_mitigatingCredentialIssuer=trim(CASE when  st.mitigatingcredentialissuer='null'
+                                        then NULL
+                                        ELSE
+                                             st.mitigatingcredentialissuer
+                                        END,'"')   
+      ,extensions_returnCodes_code=trim(CASE when  st.extensions_returncodes_code='null'
+                                        then NULL
+                                        ELSE
+                                             st.extensions_returncodes_code
+                                        END,'"')
+      ,extensions_returnCodes_issuer=trim(CASE when  st.extensions_returncodes_issuer='null'
+                                        then NULL
+                                        ELSE
+                                             st.extensions_returncodes_issuer
+                                        END,'"')
+      ,extensions_journeytype=trim(CASE when  st.extensions_journeytype='null'
+                                        then NULL
+                                        ELSE
+                                             st.extensions_journeytype
+                                        END,'"')                                                                                                                           
       ,PROCESSED_DATE=st.PROCESSED_DATE
       ,MODIFIED_BY=current_user
       ,MODIFIED_DATE=CURRENT_DATE
@@ -337,7 +362,9 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                             FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODE,CHECK_DETAILS_KBV_QUALITY,
                             VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss,VALIDITY_SCORE,"TYPE",successful,strength_score,gpg45_Activity_Score,
                             gpg45_evidences_Strength_Score,gpg45_evidence_Validity_Score,gpg45_Fraud_Score,gpg45_Verification_Score,nationality_is_UK_Issued,Age,
-                            reprove_identity,event_timestamp_ms,event_timestamp_ms_formatted,mitigation_type,PROCESSED_DATE,CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
+                            reprove_identity,event_timestamp_ms,event_timestamp_ms_formatted,mitigation_type,extensions_evidence_mitigations_code
+                            ,extensions_evidence_mitigations_mitigatingCredentialIssuer,extensions_returnCodes_code,extensions_returnCodes_issuer,extensions_journeytype,
+                            PROCESSED_DATE,CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT NVL(DE.event_key,-1) AS event_key
           ,dd.date_key
           ,NVL(dvr.verification_route_key,-1) AS verification_route_key
@@ -476,7 +503,32 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
              )::integer::boolean  
              ,event_timestamp_ms
              ,event_timestamp_ms_formatted
-             ,extensions_mitigationtype                         
+             ,extensions_mitigationtype
+             , trim(CASE when mitigating_code ='null'
+                                        then NULL
+                                        ELSE
+                                            mitigating_code
+                                        END ,'"') 
+             , trim(CASE when mitigatingcredentialissuer ='null'
+                                        then NULL
+                                        ELSE
+                                            mitigatingcredentialissuer
+                                        END ,'"') 
+             , trim(CASE when extensions_returncodes_code ='null'
+                                        then NULL
+                                        ELSE
+                                            extensions_returncodes_code
+                                        END ,'"')    
+             , trim(CASE when extensions_returncodes_issuer ='null'
+                                        then NULL
+                                        ELSE
+                                            extensions_returncodes_issuer
+                                        END ,'"') 
+             , trim(CASE when extensions_journeytype ='null'
+                                        then NULL
+                                        ELSE
+                                            extensions_journeytype
+                                        END ,'"')                                                                                                                                                                        
          ,PROCESSED_DATE
            ,current_user
            , CURRENT_DATE
