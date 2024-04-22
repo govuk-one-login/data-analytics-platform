@@ -264,6 +264,24 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                         ELSE
                                             json_serialize(st."TYPE")
                                         END ,'"')
+       ,extensions_experian_Iiq_Response_outcome=
+                trim(CASE when st.experian_outcome='null'
+                                        then NULL
+                                        ELSE
+                                            st.experian_outcome
+                                        END ,'"')   
+      ,extensions_experian_Iiq_Response_totalQuestionsAsked=
+                      CAST(case when trim(st.experian_totalquestionsasked,'"') ~ '^[0-9]+$' then trim(st.experian_totalquestionsasked,'"') 
+                                        else null
+                                        end AS INTEGER) 
+      ,extensions_experian_Iiq_Response_totalQuestionsAnsweredCorrect=
+                      CAST(case when trim(st.experian_total_questions_correct,'"') ~ '^[0-9]+$' then trim(st.experian_total_questions_correct,'"') 
+                                        else null
+                                        end AS INTEGER)     
+      ,extensions_experian_Iiq_Response_totalQuestionsAnsweredIncorrect=
+                      CAST(case when trim(st.experian_totalquestionsansweredincorrect,'"') ~ '^[0-9]+$' then trim(st.experian_totalquestionsansweredincorrect,'"') 
+                                        else null
+                                        end AS INTEGER)                                                                                                                                                             
       ,PROCESSED_DATE=st.PROCESSED_DATE
       ,MODIFIED_BY=current_user
       ,MODIFIED_DATE=CURRENT_DATE
@@ -282,8 +300,9 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                             REJECTION_REASON,REASON,NOTIFICATION_TYPE,MFA_TYPE,ACCOUNT_RECOVERY,FAILED_CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,
                             CHECK_DETAILS_BIOMETRIC_VERIFICATION_PROCESS_LEVEL,ADDRESSES_ENTERED,ACTIVITY_HISTORY_SCORE,IDENTITY_FRAUD_SCORE,DECISION_SCORE,
                             FAILED_CHECK_DETAILS_KBV_RESPONSE_MODE,FAILED_CHECK_DETAILS_CHECK_METHOD,CHECK_DETAILS_KBV_RESPONSE_MODE,CHECK_DETAILS_KBV_QUALITY,
-                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss, EXPERIAN_IIQ_RESPONSE ,VALIDITY_SCORE,"TYPE",PROCESSED_DATE,
-                            CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
+                            VERIFICATION_SCORE,CHECK_DETAILS_CHECK_METHOD,Iss, EXPERIAN_IIQ_RESPONSE ,VALIDITY_SCORE,"TYPE",extensions_experian_Iiq_Response_outcome,
+                            extensions_experian_Iiq_Response_totalQuestionsAsked,extensions_experian_Iiq_Response_totalQuestionsAnsweredCorrect,
+                            extensions_experian_Iiq_Response_totalQuestionsAnsweredIncorrect,PROCESSED_DATE,CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE, BATCH_ID)
     SELECT NVL(DE.event_key,-1) AS event_key
           ,dd.date_key
           ,NVL(dvr.verification_route_key,-1)  AS verification_route_key
@@ -379,6 +398,20 @@ P Sodhi    15/09/2023   Removed update to the RP table as its not needed.
                                         ELSE
                                             json_serialize("TYPE")
                                         END ,'"')
+          ,trim(CASE when experian_outcome='null'
+                                        then NULL
+                                        ELSE
+                                            experian_outcome
+                                        END ,'"')
+          ,CAST(case when trim(experian_totalquestionsasked,'"') ~ '^[0-9]+$' then trim(experian_totalquestionsasked,'"') 
+                                        else null
+                                        end AS INTEGER) 
+          ,CAST(case when trim(experian_total_questions_correct,'"') ~ '^[0-9]+$' then trim(experian_total_questions_correct,'"') 
+                                        else null
+                                        end AS INTEGER)    
+          , CAST(case when trim(experian_totalquestionsansweredincorrect,'"') ~ '^[0-9]+$' then trim(experian_totalquestionsansweredincorrect,'"') 
+                                        else null
+                                        end AS INTEGER)                                                                                                                                                                     
            ,PROCESSED_DATE
            ,current_user
            , CURRENT_DATE
