@@ -1694,11 +1694,11 @@ with base_data as (SELECT
 
     ---
 
-    Create
+Create
 /*
-Name       Date         Notes
-P Sodhi    08/12/2023   Added processed date to row_number logic to avoid issue with migrated data.
-*/
+ Name       Date         Notes
+ P Sodhi    08/12/2023   Added processed date to row_number logic to avoid issue with migrated data.
+ */
 or replace view conformed.v_stg_ipv_cri_kbv AS
 select
     DISTINCT Auth.product_family,
@@ -1732,7 +1732,7 @@ select
     verificationscore VERIFICATION_SCORE,
     checkdetails_checkmethod CHECK_DETAILS_CHECK_METHOD,
     extensions_iss Iss,
-    extensions_experianiiqresponse experianiiqresponse,
+    null experianiiqresponse,
     null VALIDITY_SCORE,
     type "TYPE",
     BatC.product_family batch_product_family,
@@ -1740,7 +1740,11 @@ select
     ref.product_family ref_product_family,
     ref.domain,
     ref.sub_domain,
-    ref.other_sub_domain
+    ref.other_sub_domain,
+    experian_total_questions_correct,
+    experian_totalquestionsasked,
+    experian_totalquestionsansweredincorrect,
+    experian_outcome    
 from
     (
         select
@@ -1753,7 +1757,8 @@ from
                         partition by event_id,
                         timestamp_formatted
                         order by
-                            processed_date desc,cast (day as integer) desc
+                            processed_date desc,
+                            cast (day as integer) desc
                     ) as row_num,
                     *
                 FROM
@@ -1794,7 +1799,11 @@ from
                                     valid_json_data,
                                     valid_json_data.verificationscore,
                                     valid_json_data
-                                ) AS verificationscore
+                                ) AS verificationscore,
+                                json_extract_path_text(valid_json_data_extensions_experian, 'totalquestionsansweredcorrect') AS experian_total_questions_correct,
+                                json_extract_path_text(valid_json_data_extensions_experian, 'totalquestionsasked') AS experian_totalquestionsasked,
+                                json_extract_path_text(valid_json_data_extensions_experian, 'totalquestionsansweredincorrect') AS experian_totalquestionsansweredincorrect,
+                                json_extract_path_text(valid_json_data_extensions_experian, 'outcome') AS experian_outcome
                             FROM
                                 (
                                     SELECT
@@ -1818,9 +1827,14 @@ from
                                         when true then json_parse(
                                             json_extract_array_element_text(extensions_evidence, 0)
                                         )
-                                        else null end as valid_json_data
+                                        else null end as valid_json_data,
+                                        case extensions_experianiiqresponse != ''
+                                        and IS_VALID_JSON(extensions_experianiiqresponse)
+                                        when true then extensions_experianiiqresponse
+                                        else null 
+                                        end as valid_json_data_extensions_experian 
                                     FROM
-                                        "dap_txma_reporting_db"."dap_txma_stage"."ipv_cri_kbv"
+                                        "dap_txma_reporting_db"."dap_txma_stage"."ipv_cri_kbv" 
                                 )
                         ),
                         level_1_data as (
@@ -1843,7 +1857,23 @@ from
                                 extensions_experianiiqresponse,
                                 json_serialize(checkdetails) checkdetails_final,
                                 json_serialize(failedcheckdetails) failedcheckdetails_final,
-                                type
+                                type,
+                                case when experian_total_questions_correct='' or experian_total_questions_correct='null'
+                                     then NULL 
+                                     else experian_total_questions_correct 
+                                end AS experian_total_questions_correct,
+                                case when experian_totalquestionsasked='' or experian_totalquestionsasked='null'
+                                     then NULL 
+                                     else experian_totalquestionsasked 
+                                end AS experian_totalquestionsasked,
+                                case when experian_totalquestionsansweredincorrect='' or experian_totalquestionsansweredincorrect='null'
+                                     then NULL 
+                                     else experian_totalquestionsansweredincorrect 
+                                end AS experian_totalquestionsansweredincorrect,
+                                case when experian_outcome='' or experian_outcome='null'
+                                     then NULL 
+                                     else experian_outcome 
+                                end AS experian_outcome
                             FROM
                                 base_data
                             where
@@ -1879,7 +1909,11 @@ from
                                 when true then json_parse(
                                     json_extract_array_element_text(checkdetails_final, 0)
                                 )
-                                else null end as valid_json_checkdetails_data
+                                else null end as valid_json_checkdetails_data,
+                                experian_total_questions_correct,
+                                experian_totalquestionsasked,
+                                experian_totalquestionsansweredincorrect,
+                                experian_outcome
                             from
                                 level_1_data
                         )
@@ -1924,7 +1958,11 @@ from
                                 valid_json_checkdetails_data,
                                 valid_json_checkdetails_data.kbvresponsemode,
                                 valid_json_checkdetails_data
-                            ) AS checkdetails_kbvresponsemode
+                            ) AS checkdetails_kbvresponsemode,
+                                experian_total_questions_correct,
+                                experian_totalquestionsasked,
+                                experian_totalquestionsansweredincorrect,
+                                experian_outcome                            
                         from
                             level_2_data
                     )
@@ -1934,8 +1972,7 @@ from
     ) Auth
     join conformed.BatchControl BatC On Auth.Product_family = BatC.Product_family
     and to_date(processed_date, 'YYYYMMDD') > NVL(MaxRunDate, null)
-    join conformed.REF_EVENTS ref on Auth.EVENT_NAME = ref.event_name 
-    with no schema binding;
+    join conformed.REF_EVENTS ref on Auth.EVENT_NAME = ref.event_name  with no schema binding;
 
     ---
 
