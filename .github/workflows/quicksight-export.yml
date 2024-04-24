@@ -1,6 +1,21 @@
 name: ✳️ Export analysis from Quicksight
 
 on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+        description: AWS Environment
+      analysisId:
+        type: string
+        required: true
+        description: Id of the analysis to export (get from the url e.g. https://eu-west-2.quicksight.aws.amazon.com/sn/analyses/${analysisId})
+      bucketName:
+        type: string
+        required: false
+        description: Name of the S3 bucket to use for the export (defaults to \${lowercase_environment}-dap-quicksight-exports)
+        default: 'unset'
   workflow_dispatch:
     inputs:
       environment:
