@@ -31,6 +31,9 @@ IAMRoleRedshiftServerless:
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'
                 - !Sub 'arn:aws:s3:::${ELTMetadataBucket}'
                 - !Sub 'arn:aws:s3:::${ELTMetadataBucket}/*'
+                - !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}'
+                - !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}/*'
+
             - Effect: Allow
               Resource: !Sub arn:aws:glue:eu-west-2:${AWS::AccountId}:*
               Action:
