@@ -3,7 +3,7 @@
   "event_name": "IPV_DELETE_USER_DATA",
   "component_id": "https://identity.account.gov.uk",
   "user": {
-    "user_id": "99ff33655457d597f5f3a079354f9671c547350accc95ce4bcbb373a798a1aab"
+    "user_id": "99ff3905457d597f5f3a079354f9671c547350accc95ce4bcbb373a798a1aab"
   },
   "timestamp": 1707659890,
   "timestamp_formatted": "2024-02-11T13:58:10.000Z",

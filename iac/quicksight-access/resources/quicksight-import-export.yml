@@ -17,7 +17,7 @@ QuicksightExportBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 365
+        - ExpirationInDays: 90
           Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:

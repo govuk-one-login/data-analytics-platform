@@ -15,7 +15,7 @@ ELTMetadataBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 365
+        - ExpirationInDays: 90
           Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:
@@ -100,7 +100,7 @@ StateMachineResultsBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 365
+        - ExpirationInDays: 90
           Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:
@@ -361,7 +361,7 @@ DataQualityMetricsBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 365
+        - ExpirationInDays: 90
           Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:

@@ -14,7 +14,7 @@ QuickSightLogBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 365
+        - ExpirationInDays: 90
           Status: Enabled
 
 QuickSightLogBucketBucketPolicy:
@@ -506,7 +506,7 @@ DAPAnalystsAssetsBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 365
+        - ExpirationInDays: 90
           Status: Enabled
 
 DAPAnalystsAssetsBucketPolicy:

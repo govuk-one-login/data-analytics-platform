@@ -15,7 +15,7 @@ StageLayerBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 365
+        - ExpirationInDays: 
           Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:

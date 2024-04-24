@@ -25,7 +25,7 @@
   },
   "queryStringParameters": { "code": "6b03e97c-6698-4908-92c7-cedd60c16d9b" },
   "requestContext": {
-    "accountId": "365670209853",
+    "accountId": "90670209853",
     "apiId": "my-api-id",
     "domainName": "my-api-id.execute-api.eu-west-2.amazonaws.com",
     "domainPrefix": "my-api-id",
