@@ -6,7 +6,7 @@ GRANT EXECUTE ON procedure conformed_refactored.dim_user_journey_event_upsert() 
 GRANT EXECUTE ON procedure conformed_refactored.dim_user_refactored_upsert() TO "IAMR:dev-dap-redshift-processing-role";
 GRANT EXECUTE ON procedure conformed_refactored.event_extensions_refactored_upsert() TO "IAMR:dev-dap-redshift-processing-role";
 GRANT EXECUTE ON procedure conformed_refactored.fact_user_journey_event_refactored_upsert() TO "IAMR:dev-dap-redshift-processing-role";
-GRANT EXECUTE ON procedure conformed_refactored.redshift_date_dim() TO "IAMR:dev-dap-redshift-processing-role";
+--GRANT EXECUTE ON procedure conformed_refactored.redshift_date_dim() TO "IAMR:dev-dap-redshift-processing-role";
 GRANT EXECUTE ON procedure conformed_refactored.update_event_batch_table() TO "IAMR:dev-dap-redshift-processing-role";
 
 GRANT ALL ON DATABASE "dap_txma_reporting_db_refactored_test" TO GROUP dap_elt_processing;
