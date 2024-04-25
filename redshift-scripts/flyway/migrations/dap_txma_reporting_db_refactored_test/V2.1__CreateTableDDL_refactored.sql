@@ -66,6 +66,8 @@ CREATE TABLE conformed_refactored.dim_relying_party_refactored (
         client_id character varying(1000) ENCODE lzo,
         relying_party_name character varying(1000) ENCODE lzo,
         display_name character varying(1000) ENCODE lzo,
+        department_name character varying(1000) ENCODE lzo,
+        agency_name character varying(1000) ENCODE lzo,
         created_by character varying(100) ENCODE lzo,
         created_date date ENCODE az64,
         modified_by character varying(100) ENCODE lzo,
@@ -174,7 +176,9 @@ CREATE TABLE conformed_refactored.ref_relying_parties_refactored (
     ref_relying_partie_key integer identity(1, 1) ENCODE az64,
     client_id character varying(1000) ENCODE lzo,
     client_name character varying(1000) ENCODE lzo,
-    display_name character varying(1000) ENCODE lzo
+    display_name character varying(1000) ENCODE lzo,
+    department_name character varying(1000) ENCODE lzo,
+    agency_name character varying(1000) ENCODE lzo
 ) DISTSTYLE AUTO;
 
 
