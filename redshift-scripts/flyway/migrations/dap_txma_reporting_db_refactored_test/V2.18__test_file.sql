@@ -1,1 +1,0 @@
-create schema us_sales;
