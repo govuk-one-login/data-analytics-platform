@@ -50,9 +50,16 @@ export const getQueryResults = async <TResponse>(
   database: string,
   workGroup: string,
 ): Promise<TResponse[]> => {
-  const queryResults = await athenaRunQuery(query, database, workGroup);
-  if (queryResults?.ResultSet?.Rows?.[0]?.Data === undefined)
-    throw new Error('Invalid query results' + String(queryResults.ResultSet));
+  const queryResults = await athenaRunQuery(query, database, workGroup) as any;
+  if (
+    queryResults === null ||
+    queryResults.ResultSet === undefined ||
+    queryResults.ResultSet.Rows === undefined ||
+    queryResults.ResultSet.Rows.length === 0 ||
+    queryResults.ResultSet.Rows[0].Data === undefined
+  ) {
+    throw new Error('Invalid query results');
+  }
   const columns = queryResults.ResultSet.Rows[0].Data;
   const rows = queryResults.ResultSet.Rows.slice(1).map(d => d.Data);
   return rows
