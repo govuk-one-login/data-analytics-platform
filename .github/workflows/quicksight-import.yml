@@ -1,6 +1,21 @@
 name: ✳️ Import analysis to Quicksight
 
 on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+        description: AWS Environment
+      s3Uri:
+        type: string
+        required: true
+        description: S3 URI of the zipped analysis to import (should look like s3://bucket-name/file-name.zip)
+      newName:
+        type: string
+        required: false
+        description: New name to give the imported analysis (if not supplied the name will remain the name of the exported analysis)
+        default: 'unset'
   workflow_dispatch:
     inputs:
       environment:
