@@ -1,3 +1,4 @@
+--before
 CREATE DATABASE dap_txma_reporting_db_refactored;
 
 configure external schema dap_txma_stage(make sure the name is correct)
@@ -7,5 +8,6 @@ CREATE SCHEMA audit_refactored;
 CREATE SCHEMA conformed_refactored;
 CREATE SCHEMA presentation_refactored;
 
-
+After
+-- Run  procedure_grants_manual_update.txt by updating the database name.
 -- Run the date proc to populate dim_date
