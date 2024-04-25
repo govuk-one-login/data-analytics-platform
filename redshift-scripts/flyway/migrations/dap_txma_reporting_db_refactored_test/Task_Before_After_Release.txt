@@ -10,4 +10,5 @@ CREATE SCHEMA presentation_refactored;
 
 After
 -- Run  procedure_grants_manual_update.txt by updating the database name.
--- Run the date proc to populate dim_date
+-- Run the date proc to populate dim_date 
+           --call conformed_refactored.redshift_date_dim('2022-01-01','2040-12-31')

@@ -70,4 +70,4 @@ END;
 $$
 
 
---call conformed_refactored.redshift_date_dim('2022-01-01','2030-12-31')
+--call conformed_refactored.redshift_date_dim('2022-01-01','2040-12-31')
