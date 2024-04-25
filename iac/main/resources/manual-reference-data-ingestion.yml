@@ -326,3 +326,66 @@ ManualReferenceDataUploadRole:
             - Effect: Allow
               Action: s3:PutObject
               Resource: !Sub arn:aws:s3:::${Environment}-dap-raw-layer/reference-data/*
+
+ReferenceDataIngestionAlertingEventRule:
+  Type: AWS::Events::Rule
+  Properties:
+    Description: 'Reference Data Ingestion Alerting EventRule'
+    EventPattern:
+      source:
+        - reference-data-ingestion-pipeline
+    State: 'ENABLED'
+    Targets:
+      - Arn: !Ref SNSReferenceDataAlertTopic
+        Id: 'SendToSnsTopic'
+        InputTransformer:
+          InputPathsMap:
+            data_file: $.detail.reference-data-details.filepath
+            start_date: $.time
+            source: $.source
+            ingestion_status: $.detail-type
+          InputTemplate: |-
+            {
+                "version": "1.0",
+                "source": "custom",
+                "id": "reference-data-ingestion-pipeline-alert",
+                "content": {
+                  "textType": "client-markdown",
+                  "title": ":Alert: Reference Data Ingestion Status Alert",
+                  "description": "Ingestion process status alert.",
+                  "nextSteps": [
+                    "Ingestion pipeline: <source>",
+                    "status: <ingestion_status>",
+                    "startDate: <startDate>",
+                    "file: <data_file>",
+                    "Reference data ingestion alert, please review if process has failed."
+                  ],
+                  "keywords": [
+                    "Reference data ingestion feedback",
+                    "Warning",
+                    "Review status and action if required"
+                  ]
+                }
+              }
+
+TopicRoutingPolicy:
+  Type: AWS::SNS::TopicPolicy
+  Properties:
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: Events_publish
+          Effect: Allow
+          Principal:
+            Service: 'events.amazonaws.com'
+          Action:
+            - SNS:Publish
+          Resource: !Ref SNSReferenceDataAlertTopic
+    Topics:
+      - !Ref SNSReferenceDataAlertTopic
+
+SNSReferenceDataAlertTopic:
+  Type: AWS::SNS::Topic
+  Properties:
+    TopicName: !Sub ${Environment}-reference-data-ingestion-alerts-topic
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
