@@ -58,11 +58,11 @@ INSERT INTO  conformed_refactored.event_extensions_refactored ( user_journey_eve
     WHERE event_extensions_refactored.user_journey_event_key = st.user_journey_event_key ;  
 
 
-  DELETE FROM "dap_txma_reporting_db_refactored"."conformed_refactored"."event_extensions_refactored"
+  DELETE FROM "conformed_refactored"."event_extensions_refactored"
   WHERE user_journey_event_key IN (select distinct main_user_journey_event_key from 
     (SELECT DISTINCT main.user_journey_event_key main_user_journey_event_key,fct.user_journey_event_key fct_user_journey_event_key
-    FROM "dap_txma_reporting_db_refactored"."conformed_refactored"."event_extensions_refactored" main
-    LEFT JOIN "dap_txma_reporting_db_refactored"."conformed_refactored"."fact_user_journey_event_refactored" fct 
+    FROM  "conformed_refactored"."event_extensions_refactored" main
+    LEFT JOIN  "conformed_refactored"."fact_user_journey_event_refactored" fct 
     ON main.user_journey_event_key = fct.user_journey_event_key
     ) 
     WHERE  fct_user_journey_event_key is null
