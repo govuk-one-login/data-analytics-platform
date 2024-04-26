@@ -53,8 +53,8 @@
         "Resource": "arn:aws:states:::glue:startJobRun.sync",
         "Parameters": {
           "Arguments": {
-            "--redshift_metadata.$": "$.redshiftMetadata.Payload",
-            "--reference_data_file_metadata.$": "$.body"
+            "--redshift_metadata.$": "$.[0].redshiftMetadata.Payload",
+            "--reference_data_file_metadata.$": "$.[0].body"
           },
           "JobName": "${ReferenceDataIngestionGlueJobName}"
         },
