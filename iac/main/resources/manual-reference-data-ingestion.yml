@@ -327,6 +327,13 @@ ManualReferenceDataUploadRole:
               Action: s3:PutObject
               Resource: !Sub arn:aws:s3:::${Environment}-dap-raw-layer/reference-data/*
 
+ProcessReferenceDatAlertLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: /aws/events/reference-data-ingestion-pipeline-alerts
+    KmsKeyId: !GetAtt KmsKey.Arn
+    RetentionInDays: 30
+
 ReferenceDataIngestionAlertingEventRule:
   Type: AWS::Events::Rule
   Properties:
@@ -337,7 +344,7 @@ ReferenceDataIngestionAlertingEventRule:
     State: 'ENABLED'
     Targets:
       - Id: 'SendToCloudWatchLog'
-        Arn: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/events/reference-data-ingestion-pipeline'
+        Arn: !GetAtt ProcessReferenceDatAlertLogGroup.Arn
       - Arn: !Ref SNSReferenceDataAlertTopic
         Id: 'SendToSnsTopic'
         InputTransformer:
