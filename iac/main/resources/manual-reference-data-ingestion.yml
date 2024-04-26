@@ -327,7 +327,7 @@ ManualReferenceDataUploadRole:
               Action: s3:PutObject
               Resource: !Sub arn:aws:s3:::${Environment}-dap-raw-layer/reference-data/*
 
-ProcessReferenceDatAlertLogGroup:
+ProcessReferenceDapAlertLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
     LogGroupName: /aws/events/reference-data-ingestion-pipeline-alerts
@@ -343,8 +343,8 @@ ReferenceDataIngestionAlertingEventRule:
         - reference-data-ingestion-pipeline
     State: 'ENABLED'
     Targets:
-      - Id: 'SendToCloudWatchLog'
-        Arn: !GetAtt ProcessReferenceDatAlertLogGroup.Arn
+      - Arn: !GetAtt ProcessReferenceDapAlertLogGroup.Arn
+        Id: 'SendToCloudWatchLog'
       - Arn: !Ref SNSReferenceDataAlertTopic
         Id: 'SendToSnsTopic'
         InputTransformer:
