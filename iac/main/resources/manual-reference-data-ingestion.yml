@@ -358,7 +358,7 @@ ReferenceDataIngestionAlertingEventRule:
                   "nextSteps": [
                     "Ingestion pipeline: <source>",
                     "status: <ingestion_status>",
-                    "startDate: <startDate>",
+                    "startDate: <start_date>",
                     "file: <data_file>",
                     "Reference data ingestion alert, please review if process has failed."
                   ],
