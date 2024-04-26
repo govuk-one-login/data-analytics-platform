@@ -337,7 +337,7 @@ ReferenceDataIngestionAlertingEventRule:
     State: 'ENABLED'
     Targets:
       - Id: 'SendToCloudWatchLog'
-        Arn: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/events/reference-data-ingestion-pipeline
+        Arn: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/events/reference-data-ingestion-pipeline'
       - Arn: !Ref SNSReferenceDataAlertTopic
         Id: 'SendToSnsTopic'
         InputTransformer:
@@ -370,7 +370,7 @@ ReferenceDataIngestionAlertingEventRule:
                 }
               }
 
-TopicRoutingPolicy:
+ReferenceDataTopicRoutingPolicy:
   Type: AWS::SNS::TopicPolicy
   Properties:
     PolicyDocument:
