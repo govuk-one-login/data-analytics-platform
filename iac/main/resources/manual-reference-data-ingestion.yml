@@ -330,7 +330,7 @@ ManualReferenceDataUploadRole:
 ProcessReferenceDapAlertLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: /aws/events/reference-data-ingestion-pipeline-alerts
+    LogGroupName: /aws/events/reference-data-ingestion-pipeline-alert
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
