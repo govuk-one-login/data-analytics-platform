@@ -147,7 +147,7 @@ test('set secret error changing password', async () => {
   expect(mockSecretsManagerClient.calls()).toHaveLength(3);
 });
 
-test('test secret success', async () => {
+test('secret success', async () => {
   mockSecretsManager();
   mockDatabaseConnections({ AWSPENDING: { connection: true } });
 
@@ -157,7 +157,7 @@ test('test secret success', async () => {
   expect(mockSecretsManagerClient.calls()).toHaveLength(2);
 });
 
-test('test secret bad secret', async () => {
+test('secret bad secret', async () => {
   mockSecretsManager({ pendingSecretError: true });
   mockDatabaseConnections({ AWSPENDING: { connection: true } });
 
@@ -169,7 +169,7 @@ test('test secret bad secret', async () => {
   expect(mockSecretsManagerClient.calls()).toHaveLength(2);
 });
 
-test('test secret bad connection', async () => {
+test('secret bad connection', async () => {
   mockSecretsManager();
   mockDatabaseConnections({});
 
