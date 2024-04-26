@@ -269,8 +269,8 @@ QuicksightLambdasInvokeRole:
           Condition:
             StringLike:
               'token.actions.githubusercontent.com:sub':
-                - repo:govuk-one-login/data-analytics-platform:ref:refs/heads/*
-                - repo:govuk-one-login/data-analytics-platform:environment:*
+                - repo:govuk-one-login/data-analytics-platform:*
+                - repo:govuk-one-login/data-analytics-adm:*
     Policies:
       - PolicyName: !Sub ${Environment}-dap-quicksight-add-users-invoke-policy
         PolicyDocument:
