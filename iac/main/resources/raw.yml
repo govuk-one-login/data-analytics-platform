@@ -15,7 +15,7 @@ RawLayerBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 365
+        # - ExpirationInDays: 365
           Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:
