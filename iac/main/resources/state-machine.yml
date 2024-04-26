@@ -344,6 +344,13 @@ StepFunctionRole:
                 - redshift-data:DescribeStatement
                 - redshift-data:ListStatements
 
+            - Effect: Allow
+              Resource:
+                - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default'
+
+              Action:
+                - events:PutEvents
+
 DataQualityMetricsBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
