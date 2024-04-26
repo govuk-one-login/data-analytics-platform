@@ -12,14 +12,16 @@ using the [Platform & SRE Pod's](https://govukverify.atlassian.net/wiki/spaces/P
 ## Linting and Formatting
 
 Linting is handled by [ESLint](https://eslint.org) (and made to work with TypeScript via the addition of [typescript-eslint](https://typescript-eslint.io)).
-ESLint can do formatting too but its formatting capabilities are deliberately disabled by the [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier)
-so they do not cause conflicts with the dedicated formatting tool.
+ESLint can do formatting too but we use [Prettier](https://prettier.io) for this via the [eslint-plugin-prettier](https://github.com/prettier/eslint-plugin-prettier) plugin
+which enables eslint to check and fix formatting issues without having to run prettier itself.
 
 [Configuration for ESLint](https://eslint.org/docs/latest/use/configure/configuration-files) can be found in the [.eslintrc.js](../.eslintrc.js) file at the top-level and is broadly based on the BTM one, except ours is written in the more standard JavaScript instead of their Yaml.
 In addition, extra extensions (`eslint:recommended`, `plugin:@typescript-eslint/recommended`)
 that are present in the TxMA one (and also [recommended by typescript-eslint](https://typescript-eslint.io/getting-started)) were applied in ours.
+We also use the `plugin:prettier/recommended` extension to enable the Prettier integration mentioned above,
+and the `jest` plugin from [eslint-plugin-jest](https://github.com/jest-community/eslint-plugin-jest).
 
-Formatting is handled by [Prettier](https://prettier.io) alongside an [EditorConfig file](https://editorconfig.org). As mentioned above, ESLint's formatting is disabled so Prettier can act alone.
+As mentioned above, formatting is handled by Prettier and is able to be checked and fixed via ESLint.
 
 [Configuration for Prettier](https://prettier.io/docs/en/configuration.html) can be found in the minimal [.prettierrc](../.prettierrc) file at the top-level.
 This is also similar to the BTM and TxMA ones, and uses their `singleQuote` rule. Again, ours (and TxMA's) is in the more usual JSON format rather than BTM's YAML.
