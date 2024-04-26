@@ -349,21 +349,10 @@ StepFunctionRole:
 
             - Effect: Allow
               Resource:
-                - !Sub 'arn:aws:redshift-serverless:${AWS::Region}:${AWS::AccountId}:workgroup/*'
+                - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default'
 
               Action:
-                - redshift-data:BatchExecuteStatement
-                - redshift-data:ExecuteStatement
-                - redshift-serverless:GetCredentials
-
-            - Effect: Allow
-              Resource:
-                - '*'
-
-              Action:
-                - redshift-data:GetStatementResult
-                - redshift-data:DescribeStatement
-                - redshift-data:ListStatements
+                - events:PutEvents
 
 DataQualityMetricsBucket:
   Type: 'AWS::S3::Bucket'

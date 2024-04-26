@@ -11,34 +11,72 @@
             "fileMetadata.$": "$.[0].body"
           }
         },
-        "Retry": [
+        "Catch": [
           {
             "ErrorEquals": [
-              "Lambda.ServiceException",
-              "Lambda.AWSLambdaException",
-              "Lambda.SdkClientException",
-              "Lambda.TooManyRequestsException"
+              "States.TaskFailed",
+              "States.Timeout"
             ],
-            "IntervalSeconds": 2,
-            "MaxAttempts": 3,
-            "BackoffRate": 2
+            "Next": "GenerateErrorInputMessage",
+            "ResultPath": null
           }
         ],
         "Next": "ReferenceDataIngestionGlueStartJobRun",
-        "ResultPath": "$[0].redshiftMetadata",
-        "OutputPath": "$[0]"
+        "ResultPath": "$[0].redshiftMetadata"
+      },
+      "GenerateErrorInputMessage": {
+        "Type": "Pass",
+        "Next": "EventBridgeAlertMessagePutEvents",
+        "Parameters": {
+          "detail.$": "States.StringToJson($.[0].body)",
+          "DetailType": "ingestion-status: FAILED"
+        }
+      },
+      "EventBridgeAlertMessagePutEvents": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::events:putEvents",
+        "Parameters": {
+          "Entries": [
+            {
+              "Detail": {
+                "filepath.$": "$.detail.file_path"
+              },
+              "DetailType.$": "$.DetailType",
+              "Source": "reference-data-ingestion-pipeline"
+            }
+          ]
+        },
+        "End": true
       },
       "ReferenceDataIngestionGlueStartJobRun": {
         "Type": "Task",
         "Resource": "arn:aws:states:::glue:startJobRun.sync",
         "Parameters": {
           "Arguments": {
-            "--redshift_metadata.$": "$.redshiftMetadata.Payload",
-            "--reference_data_file_metadata.$": "$.body"
+            "--redshift_metadata.$": "$.[0].redshiftMetadata.Payload",
+            "--reference_data_file_metadata.$": "$.[0].body"
           },
           "JobName": "${ReferenceDataIngestionGlueJobName}"
         },
-        "End": true
+        "Catch": [
+          {
+            "ErrorEquals": [
+              "States.TaskFailed"
+            ],
+            "Next": "GenerateErrorInputMessage",
+            "ResultPath": null
+          }
+        ],
+        "Next": "GenerateSuccessInputMessage",
+        "ResultPath": null
+      },
+      "GenerateSuccessInputMessage": {
+        "Type": "Pass",
+        "Parameters": {
+          "detail.$": "States.StringToJson($.[0].body)",
+          "DetailType": "ingestion-status: SUCCESS"
+        },
+        "Next": "EventBridgeAlertMessagePutEvents"
       }
     }
   }
