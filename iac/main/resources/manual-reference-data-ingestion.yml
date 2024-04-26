@@ -336,11 +336,13 @@ ReferenceDataIngestionAlertingEventRule:
         - reference-data-ingestion-pipeline
     State: 'ENABLED'
     Targets:
+      - Id: 'SendToCloudWatchLog'
+        Arn: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/events/reference-data-ingestion-pipeline
       - Arn: !Ref SNSReferenceDataAlertTopic
         Id: 'SendToSnsTopic'
         InputTransformer:
           InputPathsMap:
-            data_file: $.detail.reference-data-details.filepath
+            data_file: $.detail.filepath
             start_date: $.time
             source: $.source
             ingestion_status: $.detail-type
