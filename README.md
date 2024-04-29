@@ -128,8 +128,7 @@ This behaviour is provided by [jest-stare](https://www.npmjs.com/package/jest-st
 #### Lambdas
 
 Linting and formatting are handled by [ESLint](https://eslint.org) and [Prettier](https://prettier.io) (with an [EditorConfig file](https://editorconfig.org)) respectively.
-[typescript-eslint](https://typescript-eslint.io) is used to allow these tools to work with TypeScript. The formatting
-rules of ESLint are disabled by the [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier) NPM package so as not to conflict with Prettier.
+[typescript-eslint](https://typescript-eslint.io) is used to allow these tools to work with TypeScript.
 
 * `npm run check` - run linting and formatting checks
 * `npm run lint:check` - run linting checks and print warnings

@@ -13,10 +13,6 @@ ELTMetadataBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
-    LifecycleConfiguration:
-      Rules:
-        - ExpirationInDays: 365
-          Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:
         EventBridgeEnabled: true
@@ -344,6 +340,13 @@ StepFunctionRole:
                 - redshift-data:DescribeStatement
                 - redshift-data:ListStatements
 
+            - Effect: Allow
+              Resource:
+                - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default'
+
+              Action:
+                - events:PutEvents
+
 DataQualityMetricsBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
@@ -359,10 +362,6 @@ DataQualityMetricsBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
-    LifecycleConfiguration:
-      Rules:
-        - ExpirationInDays: 365
-          Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:
         EventBridgeEnabled: true
