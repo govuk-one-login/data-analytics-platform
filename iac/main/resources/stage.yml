@@ -13,10 +13,6 @@ StageLayerBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
-    LifecycleConfiguration:
-      Rules:
-        # - ExpirationInDays: 365
-        - Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:
         EventBridgeEnabled: true
