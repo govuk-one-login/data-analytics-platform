@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  validate-iac:
+  test-and-validate:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -18,8 +18,18 @@ jobs:
           cache: npm
       - name: Install node packages
         run: npm ci
+
+      # js and ts
+      - name: JS/TS linting and formatting
+        run: npm run lint:check
+      - name: Run lambda tests
+        run: npm run test
+
+      # iac
       - name: IaC formatting checks
         run: npm run iac:format:check
+      - name: Script formatting checks
+        run: npm run scripts:format:check
       - name: SAM setup
         uses: aws-actions/setup-sam@v2
         with:
@@ -40,19 +50,6 @@ jobs:
           directory: iac-dist
           quiet: true
 
-  validate-lambdas:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      - name: Node setup
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: npm
-      - name: Install node packages
-        run: npm ci
-      - name: Run linting and formatting
-        run: npm run check
-      - name: Run tests
-        run: npm run test
+      # scripts
+      - name: Script formatting checks
+        run: npm run scripts:format:check

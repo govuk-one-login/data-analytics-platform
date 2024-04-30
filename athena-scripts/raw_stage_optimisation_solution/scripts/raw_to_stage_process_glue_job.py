@@ -65,6 +65,11 @@ def main():
         # are introduced within the txma table, hence the view definition is out of date
         # Read deduplication view definition sql
         
+        '''
+        # commented out due to timeout issues being experienced within account
+        # mitigation is to use the txma source table from (raw) until the issue
+        # can be resolved.
+        
         view_sql = s3_app.read_file(args['config_bucket'], args['txma_raw_dedup_view_key_path'])
         if view_sql is None:
             raise ValueError("Class 's3_json_reader' returned None, which is not allowed.")
@@ -76,6 +81,8 @@ def main():
         athena_query_response = athena_app.run_query(args['raw_database'],view_generation_sql,args['workgroup'])
         if not athena_query_response:
             sys.exit(f"Class 'athena_app' returned False when executing query {str(view_generation_sql)}")
+        '''
+        
         
         # Read config rules json
         json_data = s3_app.read_json(args['config_bucket'], args['config_key_path'])
