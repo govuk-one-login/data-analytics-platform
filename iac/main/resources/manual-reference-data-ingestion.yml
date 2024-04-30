@@ -34,7 +34,7 @@ RedshiftGetMetadataLambda:
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
     DeadLetterQueue:
-      TargetArn: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${Environment}-reference-data-processing-dlq.fifo
+      TargetArn: !GetAtt LambdaDeadLetterQueue.Arn
       Type: SQS
 
 GlueJobResultsBucket:
@@ -107,6 +107,12 @@ DeadLetterQueue:
   Properties:
     FifoQueue: true
     QueueName: !Sub ${Environment}-reference-data-processing-dlq.fifo
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+LambdaDeadLetterQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: !Sub ${Environment}-reference-data-processing-lambda-dlq
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 ProcessReferenceDataLogGroup:
@@ -264,7 +270,7 @@ S3SendMetadataLambda:
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
     DeadLetterQueue:
-      TargetArn: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${Environment}-reference-data-processing-dlq.fifo
+      TargetArn: !GetAtt LambdaDeadLetterQueue.Arn
       Type: SQS
 
 S3SendMetadataLambdaPermission:
@@ -318,7 +324,7 @@ S3RawToStagingLambda:
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
     DeadLetterQueue:
-      TargetArn: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${Environment}-reference-data-processing-dlq.fifo
+      TargetArn: !GetAtt LambdaDeadLetterQueue.Arn
       Type: SQS
 
 S3RawToStagingLambdaPermission:
@@ -436,7 +442,14 @@ DLQLambda:
         Type: SQS
         Properties:
           BatchSize: 1
-          Queue: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${Environment}-reference-data-processing-dlq.fifo
+          Queue: !GetAtt DeadLetterQueue.Arn
+          FunctionResponseTypes:
+            - ReportBatchItemFailures
+      ReceiveFromLambdaDLQ:
+        Type: SQS
+        Properties:
+          BatchSize: 1
+          Queue: !GetAtt LambdaDeadLetterQueue.Arn
           FunctionResponseTypes:
             - ReportBatchItemFailures
     Handler: dlq-to-eventbridge.handler
@@ -448,10 +461,15 @@ DLQLambda:
               - sqs:DeleteMessage
               - sqs:GetQueueAttributes
               - sqs:ReceiveMessage
-            Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${Environment}-reference-data-processing-dlq.fifo
+            Resource:
+              - !GetAtt DeadLetterQueue.Arn
+              - !GetAtt LambdaDeadLetterQueue.Arn
           - Effect: Allow
             Action: kms:decrypt
             Resource: !GetAtt KmsKey.Arn
+          - Effect: Allow
+            Action: events:PutEvents
+            Resource: !Sub arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
@@ -468,3 +486,17 @@ DLQLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
+
+VPCEndpointEventBridge:
+  Type: AWS::EC2::VPCEndpoint
+  Properties:
+    VpcEndpointType: Interface
+    ServiceName: com.amazonaws.eu-west-2.events
+    VpcId: !Ref VPCForDAP
+    PrivateDnsEnabled: true
+    SecurityGroupIds:
+      - !Ref LambdaSecurityGroup
+    SubnetIds:
+      - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3
