@@ -69,7 +69,7 @@ beforeEach(() => {
     .resolves({ GroupList: [] });
 });
 
-test('test gds users', async () => {
+test('gds users', async () => {
   const expectedEmails = [
     'user.one@digital.cabinet-office.gov.uk',
     'user.two@digital.cabinet-office.gov.uk',
@@ -87,7 +87,7 @@ test('test gds users', async () => {
   ).toBe(true);
 });
 
-test('test rp users', async () => {
+test('rp users', async () => {
   // there is a user.five in the file but only the email (second column) has been filled in so it shouldn't come through
   const expectedEmails = [
     'user.one@dbs.gov.uk',
