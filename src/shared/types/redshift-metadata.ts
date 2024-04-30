@@ -5,6 +5,11 @@ export interface RedshiftMetadata {
   operation: string;
 }
 
+export interface RedshiftFileMetadata {
+  bucket: string;
+  file_path: string;
+}
+
 export interface RedshiftDatasource {
   ingestion_enabled_status: boolean;
   redshift_metadata: RedshiftMetadata;
