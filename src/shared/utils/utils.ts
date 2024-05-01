@@ -1,6 +1,6 @@
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { AWS_ENVIRONMENTS } from '../constants';
-import type { Context, S3Event, S3EventRecord } from 'aws-lambda';
+import type { Context, S3Event, S3EventRecord, SQSEvent, SQSRecord } from 'aws-lambda';
 import type { InvokeCommandOutput } from '@aws-sdk/client-lambda';
 
 /**
@@ -138,6 +138,13 @@ export const findOrThrow = <T>(ts: T[], predicate: (value: T, index: number, obj
 };
 
 export const getS3EventRecords = (event: S3Event): S3EventRecord[] => {
+  if (isNullUndefinedOrEmpty(event?.Records)) {
+    throw new Error('Missing event or records');
+  }
+  return event.Records;
+};
+
+export const getSQSEventRecords = (event: SQSEvent): SQSRecord[] => {
   if (isNullUndefinedOrEmpty(event?.Records)) {
     throw new Error('Missing event or records');
   }
