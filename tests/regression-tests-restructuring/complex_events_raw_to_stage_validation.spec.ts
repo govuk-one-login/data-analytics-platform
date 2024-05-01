@@ -64,7 +64,7 @@ describe('Complex event Test - validate data at stage layer', () => {
           // Parse the string into a JavaScript object
           const parsedData = JSON.parse(cleanedString.replace(/=/g, ':').replace(/null/g, 'null'));
 
-          console.log(parsedData)
+          console.log(parsedData);
           // // Extract decisionscore
           // const data: Data = JSON.parse(JSON.stringify(`${parsedData}`));
 

@@ -206,9 +206,7 @@ export const IPV_CRI_F2F_CONFORMED =
   'select event_id,event_name,user_user_id,driving_permit, id_card, passport, residence_permit,activity_history_score FROM\n' +
   '  "dap_txma_reporting_db"."conformed"."fact_user_journey_event" fct  LEFT JOIN  "dap_txma_reporting_db"."conformed".DIM_EVENT DE ON fct.event_key = de.event_key WHERE ';
 
-
 // ********************************  QUERY CONSTANTS FOR NEW MODEL  ******************************** //
-
 
 // export const GET_EVENT_IDS = (eventname: string): string => {
 //   const query =
@@ -226,17 +224,15 @@ export const raw_txma_no_extensions = 'SELECT event_id,client_id,component_id,us
 
 export const raw_txma_with_extensions = 'SELECT event_id,client_id,component_id,user, extensions FROM txma ';
 
-export const stage_txma_stage_layer_no_extensions = 'SELECT event_id, client_id,component_id, user_govuk_signin_journey_id, user_user_id  FROM txma_stage_layer';
+export const stage_txma_stage_layer_no_extensions =
+  'SELECT event_id, client_id,component_id, user_govuk_signin_journey_id, user_user_id  FROM txma_stage_layer';
 
-export const stage_txma_stage_layer_with_extensions = "SELECT key, value  FROM txma_stage_layer_key_values where parent_column_name = 'extensions'";
-
-
-
-
+export const stage_txma_stage_layer_with_extensions =
+  "SELECT key, value  FROM txma_stage_layer_key_values where parent_column_name = 'extensions'";
 
 export const txma_stage_layer_query = (eventname: string): string => {
   const query =
-    "SELECT event_id, client_id,component_id, user_govuk_signin_journey_id, user_user_id  FROM txma_stage_layer where  " +
+    'SELECT event_id, client_id,component_id, user_govuk_signin_journey_id, user_user_id  FROM txma_stage_layer where  ' +
     eventname +
     "'";
   return query;

@@ -50,7 +50,7 @@ export const getQueryResults = async <TResponse>(
   database: string,
   workGroup: string,
 ): Promise<TResponse[]> => {
-  const queryResults = await athenaRunQuery(query, database, workGroup) as any;
+  const queryResults = (await athenaRunQuery(query, database, workGroup)) as any;
   if (
     queryResults === null ||
     queryResults.ResultSet === undefined ||
