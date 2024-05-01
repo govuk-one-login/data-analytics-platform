@@ -85,7 +85,7 @@ export async function preparePublishAndValidateError(
   await publishAndValidateError(event, errorCode);
 }
 
-export async function basicChecksMethod(athenaRawQueryResults: string | any[]) {
+export async function basicChecksMethod(athenaRawQueryResults: string) {
   // This method checks basic values client_id,component_id, user_govuk_signin_journey_id, user_user_id from raw to Stage
   for (let index = 0; index <= athenaRawQueryResults.length - 1; index++) {
     const eventId = athenaRawQueryResults[index].event_id;

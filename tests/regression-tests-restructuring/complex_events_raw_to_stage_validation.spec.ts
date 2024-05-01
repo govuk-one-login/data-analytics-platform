@@ -1,9 +1,7 @@
 import { getQueryResults } from '../helpers/db-helpers';
 import {
   GET_EVENT_IDS,
-  raw_txma_no_extensions,
   raw_txma_with_extensions,
-  stage_txma_stage_layer_no_extensions,
   stage_txma_stage_layer_with_extensions,
 } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';

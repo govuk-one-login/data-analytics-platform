@@ -36,7 +36,7 @@ describe('AUTH_ORCHESTRATION GROUP Test - validate data at stage layer', () => {
           txmaProcessingWorkGroupName(),
         );
         if (eventname === 'AUTH_AUTHORISATION_INITIATED') {
-          console.log('queryStage' + JSON.stringify(athenaQueryResultsStage));
+          // console.log('queryStage' + JSON.stringify(athenaQueryResultsStage));
           if (
             extensionsMap.clientname !== 'null' &&
             extensionsMap.clientname !== null &&

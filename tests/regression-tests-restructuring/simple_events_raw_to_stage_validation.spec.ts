@@ -1,5 +1,5 @@
 import { getQueryResults } from '../helpers/db-helpers';
-import { GET_EVENT_IDS, raw_txma_no_extensions, stage_txma_stage_layer_no_extensions } from '../helpers/query-constant';
+import { GET_EVENT_IDS, raw_txma_no_extensions } from '../helpers/query-constant';
 import { txmaProcessingWorkGroupName, txmaRawDatabaseName, txmaStageDatabaseName } from '../helpers/envHelper';
 import { eventidlist } from '../helpers/common-helpers';
 import { basicChecksMethod } from '../helpers/event-data-helper';
