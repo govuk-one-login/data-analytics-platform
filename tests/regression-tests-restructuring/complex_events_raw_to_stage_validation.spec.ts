@@ -42,6 +42,7 @@ describe('Complex event Test - validate data at stage layer', () => {
 
           const cleanedString = JSON.stringify(athenaRawQueryResults[index].extensions);
           const parsedData = JSON.parse(cleanedString.replace(/=/g, ':').replace(/null/g, 'null'));
+          expect(athenaQueryStageResults[index].client_id).toEqual(parsedData);
         }
       }
     },
