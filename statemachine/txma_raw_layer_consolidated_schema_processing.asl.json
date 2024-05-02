@@ -36,7 +36,18 @@
         "Name": "${GlueCrawlerRawName}"
       },
       "Next": "MonitorRawCrawlerStatus",
-      "ResultPath": "$.rawCrawlerResult"
+      "ResultPath": "$.rawCrawlerResult",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Glue.AWSGlueException",
+            "Glue.GlueException"
+          ],
+          "BackoffRate": 2,
+          "IntervalSeconds": 10,
+          "MaxAttempts": 3
+        }
+      ]
     },
     "MonitorRawCrawlerStatus": {
       "Type": "Task",
