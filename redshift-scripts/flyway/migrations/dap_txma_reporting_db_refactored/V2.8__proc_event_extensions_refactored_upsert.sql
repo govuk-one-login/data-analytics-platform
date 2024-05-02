@@ -55,7 +55,8 @@ INSERT INTO  conformed_refactored.event_extensions_refactored ( user_journey_eve
         AND user_journey_event_key IN (
         SELECT user_journey_event_key
         FROM conformed_refactored.event_extensions_refactored)     )AS st
-    WHERE event_extensions_refactored.user_journey_event_key = st.user_journey_event_key ;  
+    WHERE event_extensions_refactored.user_journey_event_key = st.user_journey_event_key 
+    and event_extensions_refactored.event_attribute_name=st.event_attribute_name ;  
 
 
   DELETE FROM "conformed_refactored"."event_extensions_refactored"
