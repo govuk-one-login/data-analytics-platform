@@ -237,7 +237,6 @@ StepFunctionRole:
                 - !Join [':', [!GetAtt AthenaGetStatementLambda.Arn, '$LATEST']]
                 # manually construct ARN below to avoid a circular dependency
                 - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:redshift-get-metadata-${Environment}:$LATEST
-                - !Join [':', [!GetAtt RedshiftGetMetadataLambda.Arn, '$LATEST']]
               Action: lambda:InvokeFunction
 
             - Effect: Allow
