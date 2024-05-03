@@ -20,9 +20,9 @@ SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id "$SECRET_ID" --out
 USERNAME=$(echo "$SECRET_JSON" | jq -r '.username')
 PASSWORD=$(echo "$SECRET_JSON" | jq -r '.password')
 
-EC2_INSTANCE_ID=$(aws ec2 describe-instances \
-  --filters 'Name=tag:aws:cloudformation:logical-id,Values=RedshiftAccessEC2' \
-  --output text --query 'Reservations[*].Instances[*].InstanceId')
+# EC2_INSTANCE_ID=$(aws ec2 describe-instances \
+#   --filters 'Name=tag:aws:cloudformation:logical-id,Values=RedshiftAccessEC2' \
+#   --output text --query 'Reservations[*].Instances[*].InstanceId')
 
 aws --region eu-west-2 ssm start-session --target "$EC2_INSTANCE_ID" \
   --document-name AWS-StartPortForwardingSessionToRemoteHost \

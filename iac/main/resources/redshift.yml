@@ -122,7 +122,7 @@ RedshiftSecretRotationLambda:
     VpcConfig:
       SecurityGroupIds:
         - !Ref LambdaSecurityGroup
-        - !Ref RedshiftAccessEC2SecurityGroup
+        - !Ref RedshiftAccessSecurityGroup
       SubnetIds:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
@@ -166,14 +166,7 @@ RedshiftServerlessWorkgroup:
       - !Ref SubnetForDAP3
     WorkgroupName: !Sub '${Environment}-redshift-serverless-workgroup'
 
-RedshiftAccessEC2InstanceProfile:
-  Type: AWS::IAM::InstanceProfile
-  Properties:
-    InstanceProfileName: !Sub ${Environment}-dap-redshift-access-server-instance-profile
-    Roles:
-      - !Ref RedshiftAccessEC2Role
-
-RedshiftAccessEC2SecurityGroup:
+RedshiftAccessSecurityGroup:
   Type: 'AWS::EC2::SecurityGroup'
   Properties:
     GroupDescription: 'Security Group for Redshift Access EC2'
@@ -192,7 +185,7 @@ VPCDefaultSecurityGroupRedshiftIngress:
     IpProtocol: tcp
     FromPort: 5439
     ToPort: 5439
-    SourceSecurityGroupId: !Ref RedshiftAccessEC2SecurityGroup
+    SourceSecurityGroupId: !Ref RedshiftAccessSecurityGroup
     Description: Allow ingress into the VPC default security group for redshift traffic from the redshift access security group
 
 VPCDefaultSecurityGroupEgressAll:
@@ -214,47 +207,6 @@ VPCDefaultSecurityGroupAllIngress:
     ToPort: -1
     SourceSecurityGroupId: !GetAtt VPCForDAP.DefaultSecurityGroup
     Description: Allow all ingress traffic within the same security group
-
-RedshiftAccessEC2LaunchTemplate:
-  Type: 'AWS::EC2::LaunchTemplate'
-  Properties:
-    LaunchTemplateName: RedshiftAccessEC2LaunchTemplate
-    LaunchTemplateData:
-      ImageId: 'ami-0ab07a60473831856'
-      InstanceType: 't2.nano'
-      IamInstanceProfile:
-        Arn: !GetAtt RedshiftAccessEC2InstanceProfile.Arn
-      SecurityGroupIds:
-        - !Ref RedshiftAccessEC2SecurityGroup
-      MetadataOptions:
-        HttpTokens: 'required'
-        HttpPutResponseHopLimit: 1
-      BlockDeviceMappings:
-        - DeviceName: /dev/sda1
-          Ebs:
-            VolumeSize: 64
-
-RedshiftAccessEC2:
-  Type: 'AWS::EC2::Instance'
-  Properties:
-    LaunchTemplate:
-      LaunchTemplateName: RedshiftAccessEC2LaunchTemplate
-      Version: !GetAtt RedshiftAccessEC2LaunchTemplate.LatestVersionNumber
-    SubnetId: !Ref SubnetForDAP1
-
-RedshiftAccessEC2Role:
-  Type: AWS::IAM::Role
-  Properties:
-    RoleName: !Sub ${Environment}-dap-redshift-access-server-role
-    AssumeRolePolicyDocument:
-      Version: 2012-10-17
-      Statement:
-        - Effect: Allow
-          Principal:
-            Service: ec2.amazonaws.com
-          Action: sts:AssumeRole
-    ManagedPolicyArns:
-      - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
 
 RedshiftMigrationRole:
   Type: AWS::IAM::Role
@@ -325,7 +277,7 @@ RunFlywayCommandLambda:
     VpcConfig:
       SecurityGroupIds:
         - !Ref LambdaSecurityGroup
-        - !Ref RedshiftAccessEC2SecurityGroup
+        - !Ref RedshiftAccessSecurityGroup
       SubnetIds:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
