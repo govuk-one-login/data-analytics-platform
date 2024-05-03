@@ -122,7 +122,7 @@ RedshiftSecretRotationLambda:
     VpcConfig:
       SecurityGroupIds:
         - !Ref LambdaSecurityGroup
-        - !Ref RedshiftAccessSecurityGroup
+        - !Ref RedshiftAccessEC2SecurityGroup
       SubnetIds:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
@@ -166,7 +166,7 @@ RedshiftServerlessWorkgroup:
       - !Ref SubnetForDAP3
     WorkgroupName: !Sub '${Environment}-redshift-serverless-workgroup'
 
-RedshiftAccessSecurityGroup:
+RedshiftAccessEC2SecurityGroup:
   Type: 'AWS::EC2::SecurityGroup'
   Properties:
     GroupDescription: 'Security Group for Redshift Access EC2'
@@ -185,7 +185,7 @@ VPCDefaultSecurityGroupRedshiftIngress:
     IpProtocol: tcp
     FromPort: 5439
     ToPort: 5439
-    SourceSecurityGroupId: !Ref RedshiftAccessSecurityGroup
+    SourceSecurityGroupId: !Ref RedshiftAccessEC2SecurityGroup
     Description: Allow ingress into the VPC default security group for redshift traffic from the redshift access security group
 
 VPCDefaultSecurityGroupEgressAll:
@@ -277,7 +277,7 @@ RunFlywayCommandLambda:
     VpcConfig:
       SecurityGroupIds:
         - !Ref LambdaSecurityGroup
-        - !Ref RedshiftAccessSecurityGroup
+        - !Ref RedshiftAccessEC2SecurityGroup
       SubnetIds:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
