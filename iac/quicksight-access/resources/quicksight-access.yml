@@ -504,10 +504,6 @@ DAPAnalystsAssetsBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
-    LifecycleConfiguration:
-      Rules:
-        # - ExpirationInDays: 365
-        - Status: Enabled
 
 DAPAnalystsAssetsBucketPolicy:
   Type: AWS::S3::BucketPolicy

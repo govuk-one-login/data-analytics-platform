@@ -13,7 +13,7 @@ GlobalLogBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 365
+        - ExpirationInDays: 90
           Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:
@@ -58,7 +58,7 @@ GlobalNonEventBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 90
+        - ExpirationInDays: 365
           Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:

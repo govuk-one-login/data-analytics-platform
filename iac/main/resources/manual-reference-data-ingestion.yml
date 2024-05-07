@@ -54,7 +54,7 @@ GlueJobResultsBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 90
+        - ExpirationInDays: 365
           Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:
