@@ -1,5 +1,4 @@
 RedshiftGetMetadataLambda:
-  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: !Sub redshift-get-metadata-${Environment}
@@ -10,6 +9,15 @@ RedshiftGetMetadataLambda:
           - Effect: Allow
             Action: s3:GetObject
             Resource: !Sub ${ELTMetadataBucket.Arn}/*
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+            Resource: !GetAtt KmsKey.Arn
+          - Effect: Allow
+            Action: sqs:SendMessage
+            Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${Environment}-reference-data-processing-dlq.fifo
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
@@ -25,6 +33,9 @@ RedshiftGetMetadataLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
+    DeadLetterQueue:
+      TargetArn: !GetAtt LambdaDeadLetterQueue.Arn
+      Type: SQS
 
 GlueJobResultsBucket:
   Type: 'AWS::S3::Bucket'
@@ -96,6 +107,12 @@ DeadLetterQueue:
   Properties:
     FifoQueue: true
     QueueName: !Sub ${Environment}-reference-data-processing-dlq.fifo
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+LambdaDeadLetterQueue:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: !Sub ${Environment}-reference-data-processing-lambda-dlq
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 ProcessReferenceDataLogGroup:
@@ -218,7 +235,6 @@ ReferenceDataRedshiftIngestionGlueJob:
     Role: !Ref GlueScriptsExecutionRole
 
 S3SendMetadataLambda:
-  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: !Sub s3-send-metadata-${Environment}
@@ -235,6 +251,9 @@ S3SendMetadataLambda:
               - kms:GenerateDataKey*
               - kms:Encrypt
             Resource: !GetAtt KmsKey.Arn
+          - Effect: Allow
+            Action: sqs:SendMessage
+            Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${Environment}-reference-data-processing-dlq.fifo
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
@@ -250,6 +269,9 @@ S3SendMetadataLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
+    DeadLetterQueue:
+      TargetArn: !GetAtt LambdaDeadLetterQueue.Arn
+      Type: SQS
 
 S3SendMetadataLambdaPermission:
   Type: AWS::Lambda::Permission
@@ -261,7 +283,6 @@ S3SendMetadataLambdaPermission:
     SourceArn: !Sub arn:aws:s3:::${Environment}-dap-stage-layer
 
 S3RawToStagingLambda:
-  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: !Sub s3-raw-to-staging-${Environment}
@@ -277,6 +298,15 @@ S3RawToStagingLambda:
           - Effect: Allow
             Action: s3:PutObject
             Resource: !Sub ${StageLayerBucket.Arn}/*
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+            Resource: !GetAtt KmsKey.Arn
+          - Effect: Allow
+            Action: sqs:SendMessage
+            Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${Environment}-reference-data-processing-dlq.fifo
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
@@ -293,6 +323,9 @@ S3RawToStagingLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
+    DeadLetterQueue:
+      TargetArn: !GetAtt LambdaDeadLetterQueue.Arn
+      Type: SQS
 
 S3RawToStagingLambdaPermission:
   Type: AWS::Lambda::Permission
@@ -326,3 +359,144 @@ ManualReferenceDataUploadRole:
             - Effect: Allow
               Action: s3:PutObject
               Resource: !Sub arn:aws:s3:::${Environment}-dap-raw-layer/reference-data/*
+
+ProcessReferenceDapAlertLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: /aws/events/reference-data-ingestion-pipeline-alert
+    KmsKeyId: !GetAtt KmsKey.Arn
+    RetentionInDays: 30
+
+ReferenceDataIngestionAlertingEventRule:
+  Type: AWS::Events::Rule
+  Properties:
+    Description: 'Reference Data Ingestion Alerting EventRule'
+    EventPattern:
+      source:
+        - reference-data-ingestion-pipeline
+    State: 'ENABLED'
+    Targets:
+      - Arn: !GetAtt ProcessReferenceDapAlertLogGroup.Arn
+        Id: 'SendToCloudWatchLog'
+      - Arn: !Ref SNSReferenceDataAlertTopic
+        Id: 'SendToSnsTopic'
+        InputTransformer:
+          InputPathsMap:
+            data_file: $.detail.filepath
+            start_date: $.time
+            source: $.source
+            ingestion_status: $.detail-type
+          InputTemplate: |-
+            {
+                "version": "1.0",
+                "source": "custom",
+                "id": "reference-data-ingestion-pipeline-alert",
+                "content": {
+                  "textType": "client-markdown",
+                  "title": ":Alert: Reference Data Ingestion Status Alert",
+                  "description": "Ingestion process status alert.",
+                  "nextSteps": [
+                    "Ingestion pipeline: <source>",
+                    "status: <ingestion_status>",
+                    "startDate: <start_date>",
+                    "file: <data_file>",
+                    "Reference data ingestion alert, please review if process has failed."
+                  ],
+                  "keywords": [
+                    "Reference data ingestion feedback",
+                    "Warning",
+                    "Review status and action if required"
+                  ]
+                }
+              }
+
+ReferenceDataTopicRoutingPolicy:
+  Type: AWS::SNS::TopicPolicy
+  Properties:
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: Events_publish
+          Effect: Allow
+          Principal:
+            Service: 'events.amazonaws.com'
+          Action:
+            - SNS:Publish
+          Resource: !Ref SNSReferenceDataAlertTopic
+    Topics:
+      - !Ref SNSReferenceDataAlertTopic
+
+SNSReferenceDataAlertTopic:
+  Type: AWS::SNS::Topic
+  Properties:
+    TopicName: !Sub ${Environment}-reference-data-ingestion-alerts-topic
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+DLQLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not appropriate as this lambda receives events from the DLQ
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub dlq-to-eventbridge-${Environment}
+    Events:
+      ReceiveFromDLQ:
+        Type: SQS
+        Properties:
+          BatchSize: 1
+          Queue: !GetAtt DeadLetterQueue.Arn
+          FunctionResponseTypes:
+            - ReportBatchItemFailures
+      ReceiveFromLambdaDLQ:
+        Type: SQS
+        Properties:
+          BatchSize: 1
+          Queue: !GetAtt LambdaDeadLetterQueue.Arn
+          FunctionResponseTypes:
+            - ReportBatchItemFailures
+    Handler: dlq-to-eventbridge.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:ReceiveMessage
+            Resource:
+              - !GetAtt DeadLetterQueue.Arn
+              - !GetAtt LambdaDeadLetterQueue.Arn
+          - Effect: Allow
+            Action: kms:decrypt
+            Resource: !GetAtt KmsKey.Arn
+          - Effect: Allow
+            Action: events:PutEvents
+            Resource: !Sub arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        METADATA_BUCKET_NAME: !Ref ELTMetadataBucket
+        STAGE_BUCKET_NAME: !Ref StageLayerBucket
+    Tags:
+      Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
+
+VPCEndpointEventBridge:
+  Type: AWS::EC2::VPCEndpoint
+  Properties:
+    VpcEndpointType: Interface
+    ServiceName: com.amazonaws.eu-west-2.events
+    VpcId: !Ref VPCForDAP
+    PrivateDnsEnabled: true
+    SecurityGroupIds:
+      - !Ref LambdaSecurityGroup
+    SubnetIds:
+      - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3
