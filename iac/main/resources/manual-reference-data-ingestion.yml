@@ -137,6 +137,7 @@ ProcessReferenceDataStateMachine:
     DefinitionSubstitutions:
       ReferenceDataIngestionGlueJobName: !Ref ReferenceDataRedshiftIngestionGlueJob
       GetRedshiftMetadataFunctionArn: !GetAtt RedshiftGetMetadataLambda.Arn
+      ValidateFIFOExecutionFunctionArn: !GetAtt StepFunctionValidationLambda.Arn
 
 ReferenceDataProcessingPipeRole:
   Type: 'AWS::IAM::Role'
