@@ -1,0 +1,33 @@
+delete from conformed_refactored.REF_RELYING_PARTIES_refactored;
+
+INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
+    VALUES
+('RqFZ83csmS4Mi4Y7s7ohD9-ekwU',	'Basic Digital Service','DBS - Basic Digital Service','HO','DBS'),
+('XwwVDyl5oJKtK0DVsuw3sICWkPU','Vehicle Operator Licence','DVSA - Vehicle Operator Licence','DFT','DVSA'),
+('VsAkrtMBzAosSveAv4xsuUDyiSs',	'Sign Your Mortgage Deed','HMLR - Sign Your Mortgage Deed','DBT','HMLR'),
+('7y-bchtHDfucVR5kcAe8KaM80wg',	'Government Gateway','HMRC - Government Gateway','HMRC','HMRC'),
+('pDqO7_Hu-pq5wam5I4MlURXrv5k',	'Modern Slavery Statement Register','MSU - Modern Slavery Statement Register','HO','MSU'),
+('TGygWFxGDNn8ItyaecWCopqIX3s',	'Subject Matter Specialist','Ofqual - Subject Matter Specialist','DFE','Ofqual'),
+('-1',	'Other','Other - Other','Other','Other'),
+('LUIZbIuJ_xVZxwhkNAApcO4O_6o',	'Social Worker Register','SWE - Social Worker Register','DFE','SWE'),
+('x3F_Iu0LgqJpegY5ni0QSB0uezw',	'Apprenticeship Service','NAS - Apprenticeship Service','DFE','NAS'),
+('bGAwNKM0XvnxCAuDQ_rMhhP3dxM',	'Claim Criminal Injuries Compensation','CICA - Claim Criminal Injuries Compensation','MOJ','CICA'),
+('Y6YaRZ9bjCwS6HxaB34zvRhZJgBQyryT','di-auth-stub-relying-party-production','di-auth-stub - di-auth-stub-relying-party-production','N/A','di-auth-stub'),
+('cAcut5r3PMtoDORZr5b9JT7VPw6VuF3Q','di-auth-stub-relying-party-production-app','di-auth-stub - di-auth-stub-relying-party-production-app','N/A','di-auth-stub'),
+('LcueBVCnGZw-YFdTZ4S07XbQx7I',	'GOV.UK','GOV - GOV.UK','GOV','GOV'),
+('OdwbXmA5NLlYmMGHy3kjKFVD3PQ',	'Identity Proving and Verification Return - Production','IPV - Identity Proving and Verification Return - Production','IPV','IPV'),
+('ZL0kvRBP5xMy5OwONj8ARLPyuko',	'Licensing for International Trade and Enterprise (LITE)','DBT - Licensing for International Trade and Enterprise (LITE)','DBT','DBT'),
+('KcKmx2g1GH6ersWFvzMi1bhehq4',	'production-account-management','production-account-management - production-account-management','N/A','production-account-management'),
+('MjQc1h7nFVbNM05iawAdkkZ2W89uloDK','di-auth-smoketest-microclient-production','SMOKE TEST - di-auth-smoketest-microclient-production','N/A','SMOKE TEST'),
+('zFeCxrwpLCUHFm-C4_CztwWtLfQ',	'Veterans Identity Card','Veterans - Veterans Identity Card','MOD','Veterans'),
+('tya4DoMpw_B7FK5YvuMAj3asc0A',	'Find and Apply for a Grant','GMF - Find and Apply for a Grant','CO','GMF'),
+('9fduJ6KAE8WwCb1VCKp788BC8mM',	'UK Market Conformity Assessment Bodies (UKMCAB)','OPSS - UK Market Conformity Assessment Bodies','DBT','OPSS'),
+('zbNToJPcre4BXEap0na8kOjniKg',	'Manage Family Hubs','DFE - Manage Family Hubs','DFE','DFE'),
+('FakIq5aYsHQ02dBOc6XwyA1wRRs',	'Great British Insulation Scheme (GBIS)','Ofgem - Great British Insulation Scheme (GBIS)','DBT','Ofgem'),
+('2nAxHa72OqhE6eKymHZIx-sV3vI',	'Apprenticeship provider and assessment register service','NAS - Apprenticeship Provider and Assessment Register Service','DFE','NAS'),
+('MJ8nBsh32LHweUjb6x3p7qf-_TE',	'Apprenticeship assessment service','NAS - Apprenticeship Assessment Service','DFE','NAS'),
+('txsGLvMYYCPaWPZRq2L7XxEnyro',	'Early Years Child Development Training','DFE - Early Years Child Development Training','DFE','DFE'),
+('mQDXGO7gWdK7V28v82nVcEGuacY',	'HMRC','HMRC - HMRC','HMRC','HMRC'),
+('DVUDWXsy0io7wDBH5LA5IEkEH5U',	'Plan Your Future','PYF - Plan Your Future','MOJ','PYF'),
+('9uEx86ZHEp8ycgdHNqC8VK87E1A',	'Find and Use an API','DFE - Find and Use an API','DFE','DFE'),
+('tPCCSyoMaFNbLTt0gEW609h15Uc',	'Fisheries Permit','MF - Fisheries Permit','WG','MF');

@@ -1441,10 +1441,10 @@ with base_data as (SELECT
                                         extensions_evidence,
                                         extensions_successful,
                                         --extensions_experianiiqresponse,
-                                        case extensions_evidence != ''
-                                        and is_valid_json_array(extensions_evidence)
+                                        case replace(extensions_evidence,'[]',null) != ''
+                                        and is_valid_json_array(replace(extensions_evidence,'[]',null))
                                         when true then json_parse(
-                                            json_extract_array_element_text(extensions_evidence, 0)
+                                            json_extract_array_element_text(replace(extensions_evidence,'[]',null), 0)
                                         )
                                         else null end as valid_json_data,
                                         extensions_gpg45scores,

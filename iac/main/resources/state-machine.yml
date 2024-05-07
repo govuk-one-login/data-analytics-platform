@@ -13,10 +13,6 @@ ELTMetadataBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
-    LifecycleConfiguration:
-      Rules:
-        - ExpirationInDays: 365
-          Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:
         EventBridgeEnabled: true
@@ -237,7 +233,8 @@ StepFunctionRole:
               Resource:
                 - !Join [':', [!GetAtt AthenaGetConfigLambda.Arn, '$LATEST']]
                 - !Join [':', [!GetAtt AthenaGetStatementLambda.Arn, '$LATEST']]
-                - !Join [':', [!GetAtt RedshiftGetMetadataLambda.Arn, '$LATEST']]
+                # manually construct ARN below to avoid a circular dependency
+                - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:redshift-get-metadata-${Environment}:$LATEST
               Action: lambda:InvokeFunction
 
             - Effect: Allow
@@ -245,6 +242,7 @@ StepFunctionRole:
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-raw-to-stage-process'
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-processing'
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-txma-raw-consolidated-schema-to-stage-process'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-stage-layer-to-redshift-processing'
               Action:
                 - states:ListExecutions
                 - states:StartExecution
@@ -366,10 +364,6 @@ DataQualityMetricsBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
-    LifecycleConfiguration:
-      Rules:
-        - ExpirationInDays: 365
-          Status: Enabled
     NotificationConfiguration:
       EventBridgeConfiguration:
         EventBridgeEnabled: true
@@ -712,6 +706,7 @@ StepFunctionRedshiftProcessRole:
             - Effect: Allow
               Resource:
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-processing'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-stage-layer-to-redshift-processing'
 
               Action:
                 - states:ListExecutions
@@ -749,6 +744,7 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
       GlueCrawlerRawName: !Ref RawLayerSingleTableCrawler
       RawToStageProcessingGlueJobname: !Ref RawStageTransformProcessPythonGlueJob
       DataQualityGlueJobname: !Ref DataQualityStageLayerOptimisedPythonGlueJob
+      RedshiftProcessingStepFunctionArn: !Ref RedshiftConsolidatedModelProcessingStateMachine
     Events:
       DailySchedule:
         Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
@@ -769,7 +765,7 @@ RawStageTransformProcessPythonGlueJob:
       '--config_bucket': !Sub ${ELTMetadataBucket}
       '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/raw_to_stage_config_rules.json'
       '--raw_database': !Sub ${Environment}-txma-raw
-      '--raw_source_table': 'txma_deduplicated'
+      '--raw_source_table': 'txma'
       '--stage_bucket': !Sub ${StageLayerBucket}
       '--stage_database': !Sub ${Environment}-txma-stage
       '--stage_target_table': 'txma_stage_layer'
@@ -890,3 +886,28 @@ DataQualityStageLayerOptimisedPythonGlueJob:
     SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-data-quality-new-stage-metrics-generation
     Role: !Ref GlueScriptsExecutionRole
+
+RedshiftConsolidatedModelProcessingLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: /aws/stepfunction/dap-consolidated-stage-layer-to-redshift
+    KmsKeyId: !GetAtt KmsKey.Arn
+    RetentionInDays: 30
+
+RedshiftConsolidatedModelProcessingStateMachine:
+  Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+  Properties:
+    DefinitionUri: statemachine/txma_redshift_consolidated_schema_processing.asl.json
+    Name: !Sub ${Environment}-dap-consolidated-stage-layer-to-redshift-processing
+    Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
+    Logging:
+      Destinations:
+        - CloudWatchLogsLogGroup:
+            LogGroupArn: !GetAtt RedshiftConsolidatedModelProcessingLogGroup.Arn
+      IncludeExecutionData: true
+      Level: ALL
+    DefinitionSubstitutions:
+      S3MetaDataBucketName: !Ref ELTMetadataBucket
+      RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
+      RedshiftDatabaseName: dap_txma_reporting_db_refactored
+      StateMachineResultsBucket: !Ref StateMachineResultsBucket

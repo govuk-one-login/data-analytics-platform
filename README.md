@@ -128,24 +128,29 @@ This behaviour is provided by [jest-stare](https://www.npmjs.com/package/jest-st
 #### Lambdas
 
 Linting and formatting are handled by [ESLint](https://eslint.org) and [Prettier](https://prettier.io) (with an [EditorConfig file](https://editorconfig.org)) respectively.
-[typescript-eslint](https://typescript-eslint.io) is used to allow these tools to work with TypeScript. The formatting
-rules of ESLint are disabled by the [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier) NPM package so as not to conflict with Prettier.
+[typescript-eslint](https://typescript-eslint.io) is used to allow these tools to work with TypeScript.
 
-* `npm run check` - run linting and formatting checks
-* `npm run lint:check` - run linting checks and print warnings
-* `npm run lint:fix` - run linting checks and (attempt to) automatically fix issues
-* `npm run format:check` - run formatting checks and print warnings
-* `npm run format:fix` - run formatting checks and automatically fix issues
+* `npm run lint:check` - run linting and formatting checks and print warnings
+* `npm run lint:fix` - run linting and formatting checks and (attempt to) automatically fix issues
 
 #### IaC
 
 AWS SAM can perform [validation and linting](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/validate-cfn-lint.html) of CloudFormation files.
 In addition, [checkov](https://www.checkov.io) can find misconfigurations. Prettier can also check (or fix) the formatting of the YAML of the SAM template.
+Prettier is used to ensure consistent formatting of the YAML.
 
 * `npm run iac:lint` - run validation and linting checks and print warnings
 * `npm run iac:scan` - run checkov scan and print warnings
 * `npm run iac:format:check` - run formatting checks and print warnings
 * `npm run iac:format:fix` - run formatting checks and automatically fix issues
+
+#### Scripts
+
+Prettier is used to ensure consistent formatting of the script files in the [scripts/](scripts) directory.
+The ability to format shell scripts comes from the [prettier-plugin-sh](https://github.com/un-ts/prettier/tree/master/packages/sh) library.
+
+* `npm run scripts:format:check` - run formatting checks and print warnings
+* `npm run scripts:format:fix` - run formatting checks and automatically fix issues
 
 ## Building and running
 
