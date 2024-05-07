@@ -85,7 +85,18 @@
               "Name.$": "$.product_family"
             },
             "ResultPath": "$.rawCrawlerResult",
-            "Next": "MonitorCrawlerStatus"
+            "Next": "MonitorCrawlerStatus",
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Glue.AWSGlueException",
+                  "Glue.GlueException"
+                ],
+                "BackoffRate": 2,
+                "IntervalSeconds": 10,
+                "MaxAttempts": 3
+              }
+            ]
           },
           "MonitorCrawlerStatus": {
             "Type": "Task",
@@ -420,7 +431,18 @@
         "Name": "${GlueCrawlerStageName}"
       },
       "Next": "MonitorStageCrawlerStatus",
-      "ResultPath": "$.stageCrawlerResult"
+      "ResultPath": "$.stageCrawlerResult",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Glue.AWSGlueException",
+            "Glue.GlueException"
+          ],
+          "BackoffRate": 2,
+          "IntervalSeconds": 10,
+          "MaxAttempts": 3
+        }
+      ]
     },
     "MonitorStageCrawlerStatus": {
       "Type": "Task",

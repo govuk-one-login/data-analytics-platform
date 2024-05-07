@@ -5,6 +5,7 @@ import { sqsClient } from '../../shared/clients';
 import type { SendMessageCommandOutput } from '@aws-sdk/client-sqs';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import * as path from 'node:path';
+import type { RedshiftFileMetadata } from '../../shared/types/redshift-metadata';
 
 const logger = getLogger('lambda/s3-send-metadata');
 
@@ -42,10 +43,11 @@ const getMessageParams = (record: S3EventRecord): MessageParams => {
     throw new Error(`Unable to parse key path string "${filename}"`);
   }
   const filePathGroupId = groupIdMatchArray[1];
+  const fileMetadata: RedshiftFileMetadata = { bucket, file_path: key };
   return {
     filePath: filename,
     filePathGroupId,
-    messageBody: JSON.stringify({ bucket, file_path: key }),
+    messageBody: JSON.stringify(fileMetadata),
   };
 };
 
