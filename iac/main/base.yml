@@ -99,7 +99,7 @@ Conditions:
     - !Condition IsTest
     - !Condition IsFeature
     - !Condition IsProduction
-    - !Condition IsProductionPreview  
+    - !Condition IsProductionPreview
 
   IsCrossAccountDataSyncEnvironment: !Or
     - !Condition IsStaging
