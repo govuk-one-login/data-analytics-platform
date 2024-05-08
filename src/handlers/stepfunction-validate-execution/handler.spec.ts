@@ -1,7 +1,9 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import { DescribeExecutionCommand, ListExecutionsCommand, SFNClient } from '@aws-sdk/client-sfn';
 import type { ExecutionListItem, ExecutionStatus } from '@aws-sdk/client-sfn';
-import { handler } from './handler';
+import { handler, logger } from './handler';
+
+const loggerSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
 
 const mockSFNClient = mockClient(SFNClient);
 
@@ -18,6 +20,8 @@ const TEST_EVENT = {
 };
 
 beforeEach(() => {
+  loggerSpy.mockReset();
+
   mockSFNClient.reset();
   mockSFNClient.callsFake(input => {
     throw new Error(`Unexpected SFN request - ${JSON.stringify(input)}`);
@@ -29,64 +33,124 @@ beforeEach(() => {
 test('missing state machine arn', async () => {
   process.env.STATE_MACHINE_ARN = '';
 
-  await expect(handler(TEST_EVENT)).rejects.toThrow('STATE_MACHINE_ARN is not defined in this environment');
+  const expectedErrorMessage = 'STATE_MACHINE_ARN is not defined in this environment';
+
+  await expect(handler(TEST_EVENT)).rejects.toThrow(expectedErrorMessage);
+
+  expect(loggerSpy).toHaveBeenCalledTimes(1);
+  expect(loggerSpy).toHaveBeenCalledWith('Error validating stepfunction execution', {
+    error: new Error(expectedErrorMessage),
+  });
 
   expect(mockSFNClient.calls()).toHaveLength(0);
 });
 
 test('no executions', async () => {
-  mockSetup();
+  mockSetup(new MockExecution({ executionArn: EXECUTION_ARN }));
 
   const response = await handler(TEST_EVENT);
   expect(response).toEqual({ continue: 'true' });
 
-  // one for the execution list
-  expect(mockSFNClient.calls()).toHaveLength(1);
+  expect(loggerSpy).toHaveBeenCalledTimes(0);
+
+  // one for the execution list and one for the description of the running execution
+  expect(mockSFNClient.calls()).toHaveLength(2);
 });
 
 test('old execution with same id', async () => {
-  mockSetup({ running: false, sameId: true });
+  mockSetup(new MockExecution({ executionArn: EXECUTION_ARN }), new MockExecution({ status: 'SUCCEEDED' }));
 
   const response = await handler(TEST_EVENT);
   expect(response).toEqual({ continue: 'true' });
 
-  // one for the execution list
-  expect(mockSFNClient.calls()).toHaveLength(1);
+  expect(loggerSpy).toHaveBeenCalledTimes(0);
+
+  // one for the execution list and one for the description of the running execution
+  expect(mockSFNClient.calls()).toHaveLength(2);
 });
 
 test('running execution not with same id', async () => {
-  mockSetup({ running: true, sameId: false }, { running: false, sameId: false });
+  mockSetup(new MockExecution({ executionArn: EXECUTION_ARN }), new MockExecution({ messageGroupId: 'another id' }));
 
   const response = await handler(TEST_EVENT);
   expect(response).toEqual({ continue: 'true' });
 
-  // one for the execution list and one for the description of the running execution
-  expect(mockSFNClient.calls()).toHaveLength(2);
+  expect(loggerSpy).toHaveBeenCalledTimes(0);
+
+  // one for the execution list, one for the description of the running execution and one for the description of the other execution
+  expect(mockSFNClient.calls()).toHaveLength(3);
 });
 
-test('running execution with same id', async () => {
-  mockSetup({ running: true, sameId: true }, { running: false, sameId: false });
-
-  const response = await handler(TEST_EVENT);
-  expect(response).toEqual({ continue: 'false' });
-
-  // one for the execution list and one for the description of the running execution
-  expect(mockSFNClient.calls()).toHaveLength(2);
-});
-
-test('multiple running executions with same id', async () => {
+test('running execution with same id started before', async () => {
   mockSetup(
-    { running: true, sameId: true },
-    { running: false, sameId: false },
-    { running: true, sameId: false },
-    { running: true, sameId: true },
+    new MockExecution({ executionArn: EXECUTION_ARN, startDate: new Date(1715177635433) }),
+    new MockExecution({ startDate: new Date(1715177635400) }),
   );
 
   const response = await handler(TEST_EVENT);
   expect(response).toEqual({ continue: 'false' });
 
-  // one for the execution list and three for the description of the running executions
-  expect(mockSFNClient.calls()).toHaveLength(4);
+  expect(loggerSpy).toHaveBeenCalledTimes(1);
+  expect(loggerSpy.mock.calls[0][0]).toEqual(
+    'One or more other executions found with the same MessageGroupId that started before this one',
+  );
+  expect(getStartedBeforeWithSameId()).toHaveLength(1);
+
+  // one for the execution list, one for the description of the running execution and one for the description of the other execution
+  expect(mockSFNClient.calls()).toHaveLength(3);
+});
+
+test('running execution with same id started after', async () => {
+  mockSetup(
+    new MockExecution({ executionArn: EXECUTION_ARN, startDate: new Date(1715177635400) }),
+    new MockExecution({ startDate: new Date(1715177635433) }),
+  );
+
+  const response = await handler(TEST_EVENT);
+  expect(response).toEqual({ continue: 'true' });
+
+  expect(loggerSpy).toHaveBeenCalledTimes(0);
+
+  // one for the execution list, one for the description of the running execution and one for the description of the other execution
+  expect(mockSFNClient.calls()).toHaveLength(3);
+});
+
+test('multiple with same id and some before', async () => {
+  mockSetup(
+    new MockExecution({ executionArn: EXECUTION_ARN, startDate: new Date(1715177635433) }),
+    new MockExecution({ startDate: new Date(1715177635400) }), // started before with same id
+    new MockExecution({ startDate: new Date(1715177635420) }), // started before with same id
+    new MockExecution({ startDate: new Date(1715177635400), messageGroupId: 'another id' }), // started before with different id
+  );
+
+  const response = await handler(TEST_EVENT);
+  expect(response).toEqual({ continue: 'false' });
+
+  expect(loggerSpy).toHaveBeenCalledTimes(1);
+  expect(loggerSpy.mock.calls[0][0]).toEqual(
+    'One or more other executions found with the same MessageGroupId that started before this one',
+  );
+  expect(getStartedBeforeWithSameId()).toHaveLength(2);
+
+  // one for the execution list and four for the description of the running executions
+  expect(mockSFNClient.calls()).toHaveLength(5);
+});
+
+test('multiple with same id and none before', async () => {
+  mockSetup(
+    new MockExecution({ executionArn: EXECUTION_ARN, startDate: new Date(1715177635433) }),
+    new MockExecution({ startDate: new Date(1715177635440) }),
+    new MockExecution({ startDate: new Date(1715177635460) }),
+    new MockExecution({ startDate: new Date(1715177635400), messageGroupId: 'another id' }), // started before with different id
+  );
+
+  const response = await handler(TEST_EVENT);
+  expect(response).toEqual({ continue: 'true' });
+
+  expect(loggerSpy).toHaveBeenCalledTimes(0);
+
+  // one for the execution list and four for the description of the running executions
+  expect(mockSFNClient.calls()).toHaveLength(5);
 });
 
 test('sfn client error', async () => {
@@ -95,30 +159,54 @@ test('sfn client error', async () => {
 
   await expect(handler(TEST_EVENT)).rejects.toThrow(errorMessage);
 
+  expect(loggerSpy).toHaveBeenCalledTimes(1);
+  expect(loggerSpy).toHaveBeenCalledWith('Error validating stepfunction execution', {
+    error: new Error(errorMessage),
+  });
+
+  // one for the execution list
   expect(mockSFNClient.calls()).toHaveLength(1);
 });
 
-const mockSetup = (...extraExecutions: { running: boolean; sameId: boolean }[]) => {
-  const executions = [executionListItem()].concat(
-    extraExecutions.map((e, i) => executionListItem(`arn:${i}`, e.running ? 'RUNNING' : 'SUCCEEDED')),
-  );
-  mockSFNClient.on(ListExecutionsCommand, { stateMachineArn: STATE_MACHINE_ARN }).resolvesOnce({ executions });
+class MockExecution {
+  stateMachineArn: string;
+  executionArn: string;
+  messageGroupId: string;
+  status: ExecutionStatus;
+  startDate: Date;
 
-  const descriptions = extraExecutions.map((e, i) => ({
-    stateMachineArn: STATE_MACHINE_ARN,
-    executionArn: `arn:${i}`,
-    input: e.sameId ? executionInput() : executionInput(`extra-${i}`),
-  }));
-  descriptions.forEach(description =>
-    mockSFNClient.on(DescribeExecutionCommand, { executionArn: description.executionArn }).resolvesOnce(description),
-  );
+  constructor(config?: Partial<MockExecution>) {
+    this.stateMachineArn = config?.stateMachineArn ?? STATE_MACHINE_ARN;
+    this.executionArn = config?.executionArn ?? Math.random().toString(36).substring(2);
+    this.messageGroupId = config?.messageGroupId ?? MESSAGE_GROUP_ID;
+    this.status = config?.status ?? 'RUNNING';
+    this.startDate = config?.startDate ?? new Date();
+  }
+}
+
+const mockSetup = (currentExecution: MockExecution, ...extraExecutions: MockExecution[]) => {
+  const allExecutions = [currentExecution, ...extraExecutions];
+
+  mockSFNClient.on(ListExecutionsCommand, { stateMachineArn: STATE_MACHINE_ARN }).resolvesOnce({
+    executions: allExecutions.map(e => executionListItem(e)),
+  });
+
+  allExecutions.forEach(execution => {
+    mockSFNClient.on(DescribeExecutionCommand, { executionArn: execution.executionArn }).resolvesOnce({
+      stateMachineArn: STATE_MACHINE_ARN,
+      executionArn: execution.executionArn,
+      input: executionInput(execution.messageGroupId),
+      startDate: execution.startDate,
+    });
+  });
 };
 
-const executionListItem = (executionArn = EXECUTION_ARN, status: ExecutionStatus = 'SUCCEEDED'): ExecutionListItem => {
+const executionListItem = (execution: MockExecution): ExecutionListItem => {
   return {
-    stateMachineArn: STATE_MACHINE_ARN,
-    executionArn: executionArn,
-    status,
+    stateMachineArn: execution.stateMachineArn,
+    executionArn: execution.executionArn,
+    status: execution.status,
+    startDate: execution.startDate,
   } as unknown as ExecutionListItem;
 };
 
@@ -137,4 +225,8 @@ const executionInput = (messageGroupId = MESSAGE_GROUP_ID): string => {
       },
     },
   ]);
+};
+
+const getStartedBeforeWithSameId = (): unknown[] => {
+  return (loggerSpy.mock.calls[0][1] as never)['startedBeforeWithSameId'];
 };
