@@ -124,7 +124,7 @@ export const arrayPartition = <T>(array: T[], partitionSize: number): T[][] => {
     .filter(chunk => chunk.length > 0);
 };
 
-export const ensureDefined = (supplier: () => string | undefined): string => {
+export const ensureDefined = <T>(supplier: () => T | undefined): T => {
   const value = supplier();
   if (value === undefined) {
     const key = supplier.toString().replace('() => ', '');
