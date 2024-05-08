@@ -137,6 +137,7 @@ ProcessReferenceDataStateMachine:
     DefinitionSubstitutions:
       ReferenceDataIngestionGlueJobName: !Ref ReferenceDataRedshiftIngestionGlueJob
       GetRedshiftMetadataFunctionArn: !GetAtt RedshiftGetMetadataLambda.Arn
+      ValidateFIFOExecutionFunctionArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:stepfunction-validate-execution-${Environment}
 
 ReferenceDataProcessingPipeRole:
   Type: 'AWS::IAM::Role'
