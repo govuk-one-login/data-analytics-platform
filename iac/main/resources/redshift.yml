@@ -48,6 +48,28 @@ IAMRoleRedshiftServerless:
                 - 'kms:ReEncrypt'
                 - 'kms:GenerateDataKey'
 
+QuickSightEnvironmentPolicy:
+  Type: 'AWS::IAM::Policy'
+  Condition: IsQuicksightEnvironment
+  Properties:
+    PolicyName: !Sub ${Environment}-analysts-bucket-policy
+    Roles:
+      - !Ref IAMRoleRedshiftServerless
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: 'Allow'
+          Action:
+            - 's3:AbortMultipartUpload'
+            - 's3:GetBucketLocation'
+            - 's3:GetObject'
+            - 's3:ListBucket'
+            - 's3:ListBucketMultipartUploads'
+            - 's3:PutObject'
+          Resource:
+            - !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}'
+            - !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}/*'
+
 RedshiftSecret:
   Type: 'AWS::SecretsManager::Secret'
   Properties:
