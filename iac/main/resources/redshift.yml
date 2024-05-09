@@ -192,7 +192,7 @@ RedshiftServerlessWorkgroup:
     cfn-lint:
       config:
         ignore_checks:
-          - E3002    
+          - E3002
 
 RedshiftAccessEC2SecurityGroup:
   Type: 'AWS::EC2::SecurityGroup'
