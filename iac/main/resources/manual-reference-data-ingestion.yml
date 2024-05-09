@@ -137,6 +137,7 @@ ProcessReferenceDataStateMachine:
     DefinitionSubstitutions:
       ReferenceDataIngestionGlueJobName: !Ref ReferenceDataRedshiftIngestionGlueJob
       GetRedshiftMetadataFunctionArn: !GetAtt RedshiftGetMetadataLambda.Arn
+      ValidateFIFOExecutionFunctionArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:stepfunction-validate-execution-${Environment}
 
 ReferenceDataProcessingPipeRole:
   Type: 'AWS::IAM::Role'
@@ -475,8 +476,6 @@ DLQLambda:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
         ENVIRONMENT: !Ref Environment
-        METADATA_BUCKET_NAME: !Ref ELTMetadataBucket
-        STAGE_BUCKET_NAME: !Ref StageLayerBucket
     Tags:
       Environment: !Ref Environment
     VpcConfig:
@@ -500,3 +499,34 @@ VPCEndpointEventBridge:
       - !Ref SubnetForDAP1
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
+
+StepFunctionValidationLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not appropriate as this lambda receives events from the DLQ
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub stepfunction-validate-execution-${Environment}
+    Handler: stepfunction-validate-execution.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action: states:DescribeExecution
+            Resource: !Sub arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${ProcessReferenceDataStateMachine.Name}:*
+          - Effect: Allow
+            Action: states:ListExecutions
+            Resource: !Ref ProcessReferenceDataStateMachine
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        STATE_MACHINE_ARN: !Ref ProcessReferenceDataStateMachine
+    Tags:
+      Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
