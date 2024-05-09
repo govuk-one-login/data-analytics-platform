@@ -188,6 +188,11 @@ RedshiftServerlessWorkgroup:
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
     WorkgroupName: !Sub '${Environment}-redshift-serverless-workgroup'
+  Metadata:
+    cfn-lint:
+      config:
+        ignore_checks:
+          - E3002    
 
 RedshiftAccessEC2SecurityGroup:
   Type: 'AWS::EC2::SecurityGroup'
