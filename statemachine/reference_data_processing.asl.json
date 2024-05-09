@@ -1,14 +1,78 @@
 {
     "Comment": "process reference data-sets manually curated by the business",
-    "StartAt": "GetRedshiftMetadata",
+    "StartAt": "ExtractInputValues",
     "States": {
+      "ExtractInputValues": {
+        "Type": "Pass",
+        "Next": "FIFOCheckToContinueProcessing",
+        "Parameters": {
+          "fileMetadata.$": "$.[0].body",
+          "messageGroupId.$": "$.[0].attributes.MessageGroupId",
+          "currentExecutionArn.$": "$$.Execution.Id"
+        }
+      },
+      "FIFOCheckToContinueProcessing": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::lambda:invoke",
+        "Parameters": {
+          "FunctionName": "${ValidateFIFOExecutionFunctionArn}:$LATEST",
+          "Payload": {
+            "messageGroupId.$": "$.messageGroupId",
+            "currentExecutionArn.$": "$.currentExecutionArn"
+          }
+        },
+        "Retry": [
+          {
+            "ErrorEquals": [
+              "Lambda.ServiceException",
+              "Lambda.AWSLambdaException",
+              "Lambda.SdkClientException",
+              "Lambda.TooManyRequestsException"
+            ],
+            "IntervalSeconds": 1,
+            "MaxAttempts": 3,
+            "BackoffRate": 2
+          }
+        ],
+        "Next": "ContinueProcessing?",
+        "Catch": [
+          {
+            "ErrorEquals": [
+              "States.TaskFailed",
+              "States.Timeout"
+            ],
+            "ResultPath": null,
+            "Next": "GenerateErrorInputMessage"
+          }
+        ],
+        "ResultPath": "$.FifoResult"
+      },
+      "ContinueProcessing?": {
+        "Type": "Choice",
+        "Choices": [
+          {
+            "Variable": "$.FifoResult.Payload.continue",
+            "StringEquals": "true",
+            "Next": "GetRedshiftMetadata"
+          }
+        ],
+        "Default": "Wait",
+        "OutputPath": "$"
+      },
+      "Wait": {
+        "Type": "Wait",
+        "Seconds": 30,
+        "Next": "FIFOCheckToContinueProcessing",
+        "OutputPath": "$",
+        "Comment": "conduct another FIFO check"
+      },
       "GetRedshiftMetadata": {
         "Type": "Task",
         "Resource": "arn:aws:states:::lambda:invoke",
         "Parameters": {
           "FunctionName": "${GetRedshiftMetadataFunctionArn}:$LATEST",
           "Payload": {
-            "fileMetadata.$": "$.[0].body"
+            "fileMetadata.$": "$.fileMetadata"
           }
         },
         "Catch": [
@@ -22,13 +86,13 @@
           }
         ],
         "Next": "ReferenceDataIngestionGlueStartJobRun",
-        "ResultPath": "$[0].redshiftMetadata"
+        "ResultPath": "$.redshiftMetadata"
       },
       "GenerateErrorInputMessage": {
         "Type": "Pass",
         "Next": "EventBridgeAlertMessagePutEvents",
         "Parameters": {
-          "detail.$": "States.StringToJson($.[0].body)",
+          "detail.$": "States.StringToJson($.fileMetadata)",
           "DetailType": "ingestion-status: FAILED"
         }
       },
@@ -53,8 +117,8 @@
         "Resource": "arn:aws:states:::glue:startJobRun.sync",
         "Parameters": {
           "Arguments": {
-            "--redshift_metadata.$": "$.[0].redshiftMetadata.Payload",
-            "--reference_data_file_metadata.$": "$.[0].body"
+            "--redshift_metadata.$": "$.redshiftMetadata.Payload",
+            "--reference_data_file_metadata.$": "$.fileMetadata"
           },
           "JobName": "${ReferenceDataIngestionGlueJobName}"
         },
@@ -73,7 +137,7 @@
       "GenerateSuccessInputMessage": {
         "Type": "Pass",
         "Parameters": {
-          "detail.$": "States.StringToJson($.[0].body)",
+          "detail.$": "States.StringToJson($.fileMetadata)",
           "DetailType": "ingestion-status: SUCCESS"
         },
         "Next": "EventBridgeAlertMessagePutEvents"

@@ -14,7 +14,7 @@ QuickSightLogBucket:
       Status: Enabled
     LifecycleConfiguration:
       Rules:
-        - ExpirationInDays: 365
+        - ExpirationInDays: 90
           Status: Enabled
 
 QuickSightLogBucketBucketPolicy:
@@ -487,108 +487,3 @@ WAFLoggingKmsKey:
           Condition:
             ArnLike:
               'kms:EncryptionContext:aws:logs:arn': !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
-
-DAPAnalystsAssetsBucket:
-  Type: 'AWS::S3::Bucket'
-  Condition: IsQuicksightEnvironment
-  Properties:
-    AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-analysts-assets'
-    LoggingConfiguration:
-      DestinationBucketName: !Ref QuickSightLogBucket
-      LogFilePrefix: dap-analysts-assets/log
-    PublicAccessBlockConfiguration:
-      BlockPublicAcls: true
-      BlockPublicPolicy: true
-      IgnorePublicAcls: true
-      RestrictPublicBuckets: true
-    VersioningConfiguration:
-      Status: Enabled
-    LifecycleConfiguration:
-      Rules:
-        - ExpirationInDays: 365
-          Status: Enabled
-
-DAPAnalystsAssetsBucketPolicy:
-  Type: AWS::S3::BucketPolicy
-  Condition: IsQuicksightEnvironment
-  Properties:
-    Bucket: !Ref DAPAnalystsAssetsBucket
-    PolicyDocument:
-      Version: '2012-10-17'
-      Statement:
-        - Sid: 'AllowCloudFrontServicePrincipal'
-          Effect: 'Allow'
-          Principal:
-            Service: 'cloudfront.amazonaws.com'
-          Action: 's3:GetObject'
-          Resource: !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}/*'
-          Condition:
-            StringEquals:
-              AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
-        - Sid: 'DenyNonSecureTransport'
-          Effect: 'Deny'
-          Principal: '*'
-          Action: 's3:*'
-          Resource: !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}/*'
-          Condition:
-            Bool:
-              aws:SecureTransport: 'false'
-
-OriginAccessControl:
-  Type: AWS::CloudFront::OriginAccessControl
-  Properties:
-    OriginAccessControlConfig:
-      Name: DAPOAC
-      OriginAccessControlOriginType: s3
-      SigningBehavior: always
-      SigningProtocol: sigv4
-
-CloudFrontDistribution:
-  #checkov:skip=CKV_AWS_86
-  #checkov:skip=CKV_AWS_174
-  #checkov:skip=CKV_AWS_68
-  Type: 'AWS::CloudFront::Distribution'
-  Condition: IsQuicksightEnvironment
-  Properties:
-    DistributionConfig:
-      Enabled: true
-      Origins:
-        - DomainName: !GetAtt [DAPAnalystsAssetsBucket, DomainName]
-          Id: S3Origin
-          S3OriginConfig: {}
-          OriginAccessControlId: !Ref OriginAccessControl
-      DefaultCacheBehavior:
-        TargetOriginId: S3Origin
-        ViewerProtocolPolicy: redirect-to-https
-        AllowedMethods:
-          - GET
-          - HEAD
-        CachedMethods:
-          - GET
-          - HEAD
-        ForwardedValues:
-          QueryString: false
-          Cookies:
-            Forward: none
-      ViewerCertificate:
-        CloudFrontDefaultCertificate: true
-
-ShieldProtection:
-  Type: AWS::Shield::Protection
-  Condition: IsQuicksightEnvironment
-  Properties:
-    Name: 'ShieldProtectionForCDN'
-    ResourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
-  Metadata:
-    cfn-lint:
-      config:
-        ignore_checks:
-          - E3001
-
-CloudFrontOAI:
-  Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
-  Condition: IsQuicksightEnvironment
-  Properties:
-    CloudFrontOriginAccessIdentityConfig:
-      Comment: !Sub 'OAI for ${DAPAnalystsAssetsBucket}'
