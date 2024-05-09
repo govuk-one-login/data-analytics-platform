@@ -521,7 +521,18 @@
           "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
         }
       },
-      "Next": "StopProcessing"
+      "Next": "StopProcessing",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed",
+            "States.Timeout"
+          ],
+          "BackoffRate": 2,
+          "MaxAttempts": 3,
+          "IntervalSeconds": 30
+        }
+      ]
     },
     "StopProcessing": {
       "Type": "Pass",
