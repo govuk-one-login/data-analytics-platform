@@ -94,6 +94,13 @@ Conditions:
   IsProduction: !Equals [!Ref Environment, production]
   IsProductionPreview: !Equals [!Ref Environment, production-preview]
   IsNotProductionPreview: !Not [!Equals [!Ref Environment, production-preview]]
+  IsQuicksightEnvironment: !Or
+    - !Condition IsDev
+    - !Condition IsTest
+    - !Condition IsFeature
+    - !Condition IsProduction
+    - !Condition IsProductionPreview
+
   IsCrossAccountDataSyncEnvironment: !Or
     - !Condition IsStaging
     - !Condition IsProductionPreview
