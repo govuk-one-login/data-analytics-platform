@@ -48,6 +48,28 @@ IAMRoleRedshiftServerless:
                 - 'kms:ReEncrypt'
                 - 'kms:GenerateDataKey'
 
+QuickSightEnvironmentPolicy:
+  Type: 'AWS::IAM::Policy'
+  Condition: IsQuicksightEnvironment
+  Properties:
+    PolicyName: !Sub ${Environment}-analysts-bucket-policy
+    Roles:
+      - !Ref IAMRoleRedshiftServerless
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: 'Allow'
+          Action:
+            - 's3:AbortMultipartUpload'
+            - 's3:GetBucketLocation'
+            - 's3:GetObject'
+            - 's3:ListBucket'
+            - 's3:ListBucketMultipartUploads'
+            - 's3:PutObject'
+          Resource:
+            - !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}'
+            - !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}/*'
+
 RedshiftSecret:
   Type: 'AWS::SecretsManager::Secret'
   Properties:
@@ -369,3 +391,42 @@ FlywayFilesBucketUploadRole:
               Resource:
                 - arn:aws:s3:::*-dap-flyway-files
                 - arn:aws:s3:::*-dap-flyway-files/*
+
+MySSMDocument:
+  Type: AWS::SSM::Document
+  Properties:
+    Content:
+      schemaVersion: '2.2'
+      description: 'Run AWS redshift-serverless create-snapshot command'
+      parameters:
+        - name: namespace-name
+          type: String
+          description: 'Namespace name for the snapshot'
+        - name: snapshot-name
+          type: String
+          description: 'Name for the snapshot'
+        - name: retention-period
+          type: Integer
+          description: 'Retention period for the snapshot'
+      mainSteps:
+        - action: 'aws:redshift-serverless:createSnapshot'
+          name: 'CreateSnapshot'
+          inputs:
+            namespace-name: '{{ namespace-name }}'
+            snapshot-name: '{{ snapshot-name }}'
+            retention-period: '{{ retention-period }}'
+
+MyRunCommand:
+  Type: 'AWS::SSM::Association'
+  Properties:
+    Name: 'MyRunCommandAssociation'
+    DocumentVersion: '1'
+    Targets:
+      - Key: 'InstanceIds'
+        Values:
+          - '{{ InstanceId }}' # Provide the instance ID where you want to run the command
+    ScheduleExpression: 'rate(5 minutes)' # Optionally, you can define a schedule for command execution
+    Parameters:
+      namespace-name: 'dev-redshift-serverless-ns'
+      snapshot-name: !Sub 'cfn-blog-snapshot-from-ns-${Day}${Month}${Year}'
+      retention-period: '30' # Updated retention period to 30 days
