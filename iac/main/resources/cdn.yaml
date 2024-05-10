@@ -43,6 +43,7 @@ DAPAnalystsFilesBucketPolicy:
 
 OriginAccessControl:
   Type: AWS::CloudFront::OriginAccessControl
+  Condition: IsQuicksightEnvironment
   Properties:
     OriginAccessControlConfig:
       Name: dapanalystsoac
