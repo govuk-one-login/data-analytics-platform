@@ -325,7 +325,7 @@ CloudTrailPolicy:
 CDNPolicy:
   # checkov:skip=CKV_AWS_111: "Allowing write access without constraints"
   Type: 'AWS::IAM::ManagedPolicy'
-  Condition: IsSecurePipelinesEnvironment
+  Condition: IsQuicksightEnvironment
   Properties:
     Description: 'Managed policy for CDN'
     PolicyDocument:
