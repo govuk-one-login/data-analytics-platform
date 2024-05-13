@@ -321,3 +321,45 @@ CloudTrailPolicy:
           - IsProduction
           - PL-dap-production-deploy-DeployRole-068116bf8a2e
           - Ref: 'AWS::NoValue'
+
+CDNPolicy:
+  # checkov:skip=CKV_AWS_111: "Allowing write access without constraints"
+  Type: 'AWS::IAM::ManagedPolicy'
+  Condition: IsQuicksightEnvironment
+  Properties:
+    Description: 'Managed policy for CDN'
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: 'Allow'
+          Action:
+            - 'shield:CreateProtection'
+            - 'shield:DeleteProtection'
+            - 'shield:DescribeProtection'
+            - 'cloudfront:CreateOriginAccessControl'
+          Resource: '*'
+    Roles:
+      - Fn::If:
+          - IsDev
+          - PL-secure-pipelines-pipeline-DeployRole-0ac4f1a0d400
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsTest
+          - PL-dap-test-deploy-DeployRole-022c55851b0a
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsBuild
+          - PL-dap-build-deploy-DeployRole-02569a5d3e58
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsIntegration
+          - PL-dap-integration-deploy-DeployRole-023e422e7530
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsStaging
+          - PL-dap-staging-deploy-DeployRole-02e7fac29d94
+          - Ref: 'AWS::NoValue'
+      - Fn::If:
+          - IsProduction
+          - PL-dap-production-deploy-DeployRole-068116bf8a2e
+          - Ref: 'AWS::NoValue'

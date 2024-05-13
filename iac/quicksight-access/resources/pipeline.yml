@@ -42,10 +42,6 @@ WAFCognitoPolicy:
             - 'logs:PutResourcePolicy'
             - 'logs:DescribeResourcePolicies'
             - 'logs:DescribeLogGroups'
-            - 'shield:CreateProtection'
-            - 'shield:DeleteProtection'
-            - 'shield:DescribeProtection'
-            - 'cloudfront:CreateOriginAccessControl'
           Resource: '*'
     Roles:
       - Fn::If:

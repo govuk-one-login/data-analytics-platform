@@ -1,9 +1,9 @@
-DAPAnalystsAssetsBucket:
+DAPAnalystsFilesBucket:
   Type: 'AWS::S3::Bucket'
   Condition: IsQuicksightEnvironment
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-analysts-assets'
+    BucketName: !Sub '${Environment}-dap-analysts-files'
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-analysts-assets/log
@@ -15,11 +15,11 @@ DAPAnalystsAssetsBucket:
     VersioningConfiguration:
       Status: Enabled
 
-DAPAnalystsAssetsBucketPolicy:
+DAPAnalystsFilesBucketPolicy:
   Type: AWS::S3::BucketPolicy
   Condition: IsQuicksightEnvironment
   Properties:
-    Bucket: !Ref DAPAnalystsAssetsBucket
+    Bucket: !Ref DAPAnalystsFilesBucket
     PolicyDocument:
       Version: '2012-10-17'
       Statement:
@@ -28,7 +28,7 @@ DAPAnalystsAssetsBucketPolicy:
           Principal:
             Service: 'cloudfront.amazonaws.com'
           Action: 's3:GetObject'
-          Resource: !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}/*'
+          Resource: !Sub 'arn:aws:s3:::${DAPAnalystsFilesBucket}/*'
           Condition:
             StringEquals:
               AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
@@ -36,16 +36,17 @@ DAPAnalystsAssetsBucketPolicy:
           Effect: 'Deny'
           Principal: '*'
           Action: 's3:*'
-          Resource: !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}/*'
+          Resource: !Sub 'arn:aws:s3:::${DAPAnalystsFilesBucket}/*'
           Condition:
             Bool:
               aws:SecureTransport: 'false'
 
 OriginAccessControl:
   Type: AWS::CloudFront::OriginAccessControl
+  Condition: IsQuicksightEnvironment
   Properties:
     OriginAccessControlConfig:
-      Name: DAPOAC
+      Name: dapanalystsoac
       OriginAccessControlOriginType: s3
       SigningBehavior: always
       SigningProtocol: sigv4
@@ -60,7 +61,7 @@ CloudFrontDistribution:
     DistributionConfig:
       Enabled: true
       Origins:
-        - DomainName: !GetAtt [DAPAnalystsAssetsBucket, DomainName]
+        - DomainName: !GetAtt [DAPAnalystsFilesBucket, DomainName]
           Id: S3Origin
           S3OriginConfig: {}
           OriginAccessControlId: !Ref OriginAccessControl
@@ -97,4 +98,4 @@ CloudFrontOAI:
   Condition: IsQuicksightEnvironment
   Properties:
     CloudFrontOriginAccessIdentityConfig:
-      Comment: !Sub 'OAI for ${DAPAnalystsAssetsBucket}'
+      Comment: !Sub 'OAI for ${DAPAnalystsFilesBucket}'
