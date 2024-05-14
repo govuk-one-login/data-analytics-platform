@@ -433,6 +433,10 @@ MyRunCommand:
           - '{{ InstanceId }}' # Provide the instance ID where you want to run the command
     ScheduleExpression: 'rate(5 minutes)' # Optionally, you can define a schedule for command execution
     Parameters:
-      namespace-name: 'dev-redshift-serverless-ns'
-      snapshot-name: !Sub 'redshift-snapshot-from-ns'
-      retention-period: '30' # Updated retention period to 30 days
+      namespace-name:
+        - 'dev-redshift-serverless-ns'
+      snapshot-name:
+        - !Sub 'redshift-snapshot-from-ns'
+      retention-period:
+        - '30' # Updated retention period to 30 days
+
