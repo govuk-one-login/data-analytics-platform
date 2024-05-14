@@ -218,6 +218,8 @@ StepFunctionRole:
                 - logs:DescribeLogGroups
                 - logs:DescribeLogStreams
                 - logs:GetLogEvents
+                - logs:DescribeLogStreams
+                - logs:GetLogEvents
 
             - Effect: Allow
               Resource: !Sub arn:aws:glue:*:${AWS::AccountId}:crawler/*
