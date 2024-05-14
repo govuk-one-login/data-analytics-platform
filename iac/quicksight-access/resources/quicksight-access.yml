@@ -487,3 +487,44 @@ WAFLoggingKmsKey:
           Condition:
             ArnLike:
               'kms:EncryptionContext:aws:logs:arn': !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+
+# Role to allow the data-analytics-quicksight repository to call the Cognito and Quicksight APIs it needs
+DataAnalyticsQuicksightSyncRole:
+  Type: AWS::IAM::Role
+  Condition: IsProduction
+  Properties:
+    RoleName: !Sub data-analytics-quicksight-sync-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+          Action: sts:AssumeRoleWithWebIdentity
+          Condition:
+            StringLike:
+              'token.actions.githubusercontent.com:sub': repo:govuk-one-login/data-analytics-quicksight:*
+    Policies:
+      - PolicyName: !Sub data-analytics-quicksight-sync-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:AdminCreateUser
+                - cognito-idp:AdminDeleteUser
+                - cognito-idp:DescribeUserPool
+                - cognito-idp:ListUsers
+              Resource: !GetAtt QuicksightAccessUserPool.Arn
+            - Effect: Allow
+              Action:
+                - quicksight:ListGroups
+                - quicksight:ListUserGroups
+                - quicksight:CreateGroup
+                - quicksight:UpdateGroup
+                - quicksight:DeleteGroup
+                - quicksight:CreateGroupMembership
+                - quicksight:DeleteGroupMembership
+                - quicksight:RegisterUser
+                - quicksight:DeleteUser
+              Resource: '*'
