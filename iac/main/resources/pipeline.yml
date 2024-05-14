@@ -183,7 +183,7 @@ RedShiftEC2Policy:
             - 'cloudfront:CreateCloudFrontOriginAccessIdentity'
             - 'shield:CreateProtection'
             - 'ssm:CreateDocument'
-            
+
           Resource: '*'
     Roles:
       - Fn::If:
