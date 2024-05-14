@@ -67,8 +67,8 @@ QuickSightEnvironmentPolicy:
             - 's3:ListBucketMultipartUploads'
             - 's3:PutObject'
           Resource:
-            - !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}'
-            - !Sub 'arn:aws:s3:::${DAPAnalystsAssetsBucket}/*'
+            - !Sub 'arn:aws:s3:::${DAPAnalystsFilesBucket}'
+            - !Sub 'arn:aws:s3:::${DAPAnalystsFilesBucket}/*'
 
 RedshiftSecret:
   Type: 'AWS::SecretsManager::Secret'
