@@ -36,7 +36,18 @@
         "Name": "${GlueCrawlerRawName}"
       },
       "Next": "MonitorRawCrawlerStatus",
-      "ResultPath": "$.rawCrawlerResult"
+      "ResultPath": "$.rawCrawlerResult",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Glue.AWSGlueException",
+            "Glue.GlueException"
+          ],
+          "BackoffRate": 2,
+          "IntervalSeconds": 10,
+          "MaxAttempts": 3
+        }
+      ]
     },
     "MonitorRawCrawlerStatus": {
       "Type": "Task",
@@ -98,7 +109,30 @@
       "Parameters": {
         "JobName": "${DataQualityGlueJobname}"
       },
-      "Next": "StopProcessing"
+      "Next": "RedshiftProcessingStepFunction"
+    },
+    "RedshiftProcessingStepFunction": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Parameters": {
+        "StateMachineArn": "${RedshiftProcessingStepFunctionArn}",
+        "Input": {
+          "StatePayload": "Triggered from raw to stage consolidated step function",
+          "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+        }
+      },
+      "Next": "StopProcessing",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed",
+            "States.Timeout"
+          ],
+          "BackoffRate": 2,
+          "MaxAttempts": 3,
+          "IntervalSeconds": 30
+        }
+      ]
     },
     "StopProcessing": {
       "Type": "Pass",
