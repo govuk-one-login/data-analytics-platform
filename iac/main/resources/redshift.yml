@@ -177,8 +177,9 @@ RedshiftServerlessNamespace:
 RedshiftServerlessWorkgroup:
   Type: 'AWS::RedshiftServerless::Workgroup'
   Properties:
-    BaseCapacity: 96
+    BaseCapacity: 64
     EnhancedVpcRouting: false
+    # MaxCapacity: 96 //Commented as it is not yet supported via CFN
     NamespaceName: !Ref RedshiftServerlessNamespace
     Port: !Sub '{{resolve:secretsmanager:${RedshiftSecret}::port}}'
     PubliclyAccessible: false
@@ -187,6 +188,11 @@ RedshiftServerlessWorkgroup:
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
     WorkgroupName: !Sub '${Environment}-redshift-serverless-workgroup'
+  Metadata:
+    cfn-lint:
+      config:
+        ignore_checks:
+          - E3002
 
 RedshiftAccessEC2SecurityGroup:
   Type: 'AWS::EC2::SecurityGroup'
