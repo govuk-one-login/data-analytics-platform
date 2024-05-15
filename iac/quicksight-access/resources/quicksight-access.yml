@@ -415,7 +415,7 @@ cloudwatchLogsGroup:
   Condition: IsQuicksightEnvironment
   Properties:
     LogGroupName: !Sub 'aws-waf-logs-${Environment}-dap-cloudWatchLog'
-    RetentionInDays: 180
+    RetentionInDays: 30
     KmsKeyId: !If
       - IsProduction
       - !GetAtt WAFLoggingKmsKey.Arn
