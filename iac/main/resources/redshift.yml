@@ -397,3 +397,80 @@ FlywayFilesBucketUploadRole:
               Resource:
                 - arn:aws:s3:::*-dap-flyway-files
                 - arn:aws:s3:::*-dap-flyway-files/*
+RedShiftLambdaFunction:
+  Type: AWS::Lambda::Function
+  Properties:
+    FunctionName: 'CreateRedshiftSnapshot'
+    Handler: 'index.handler'
+    Role: !GetAtt LambdaExecutionRole.Arn
+    Runtime: 'python3.8'
+    Code:
+      ZipFile: |
+        import json
+        import boto3
+
+        def handler(event, context):
+            client = boto3.client('redshift-serverless')
+            response = client.create_snapshot(
+                namespaceName=event['namespaceName'],
+                snapshotName=event['snapshotName'],
+                retentionPeriod=int(event['retentionPeriod'])
+            )
+            return {
+                'statusCode': 200,
+                'body': json.dumps(response)
+            }
+
+LambdaExecutionRole:
+  Type: AWS::IAM::Role
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: 'lambda.amazonaws.com'
+          Action: 'sts:AssumeRole'
+    Policies:
+      - PolicyName: 'LambdaExecutionPolicy'
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'logs:CreateLogGroup'
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: 'arn:aws:logs:*:*:*'
+            - Effect: Allow
+              Action:
+                - 'lambda:InvokeFunction'
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - 'redshift-serverless:CreateSnapshot'
+              Resource: '*'
+
+RedshiftEventRule:
+  Type: AWS::Events::Rule
+  Properties:
+    Name: 'SnapshotScheduleRule'
+    ScheduleExpression: 'rate(5 minutes)' # Change this to your desired schedule
+    State: 'ENABLED'
+    Targets:
+      - Arn: !GetAtt RedShiftLambdaFunction.Arn
+        Id: 'RedshiftLambdaFunctionTarget'
+        Input: !Sub |
+          {
+            "namespaceName": "dev-redshift-serverless-ns",
+            "snapshotName": "redshiftfromns15cv",
+            "retentionPeriod": "30"
+          }
+
+PermissionForEventsToInvokeLambda:
+  Type: AWS::Lambda::Permission
+  Properties:
+    FunctionName: !Ref RedShiftLambdaFunction
+    Action: 'lambda:InvokeFunction'
+    Principal: 'events.amazonaws.com'
+    SourceArn: !GetAtt RedshiftEventRule.Arn
