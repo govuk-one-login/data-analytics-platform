@@ -912,3 +912,44 @@ RedshiftConsolidatedModelProcessingStateMachine:
       RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
       RedshiftDatabaseName: dap_txma_reporting_db_refactored
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
+
+SplunkMigratedRawStageTransformProcessPythonGlueJob:
+  Type: AWS::Glue::Job
+  Properties:
+    Command:
+      Name: pythonshell
+      PythonVersion: '3.9'
+      ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/raw_to_stage_process_glue_job.py
+    DefaultArguments:
+      '--JOB_NAME': !Sub ${Environment}-dap-splunk-migration-raw-stage-transform-process
+      '--additional-python-modules': 'awswrangler'
+      '--config_bucket': !Sub ${ELTMetadataBucket}
+      '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/splunk_to_stage_config_rules.json'
+      '--raw_database': !Sub ${Environment}-txma-raw
+      '--raw_source_table': 'splunk'
+      '--stage_bucket': !Sub ${StageLayerBucket}
+      '--stage_database': !Sub ${Environment}-txma-stage
+      '--stage_target_table': 'splunk_stage_layer'
+      '--stage_target_key_value_table': 'splunk_stage_layer_key_values'
+      '--txma_raw_dedup_view_key_path': 'txma/raw_stage_optimisation_solution/athena_db_object/txma_raw_dedup_view.sql'
+      '--workgroup': !Sub ${Environment}-dap-txma-processing
+      '--TempDir': !Sub s3://${StageLayerBucket}/raw_stage_optimisation_processing/temporary/
+      'library-set': 'analytics'
+      '--extra-py-files':
+        !Join [
+          ',',
+          [
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/AthenaReadWrite.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/core_preprocessing_functions.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/DataPreprocessing.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/GlueTableQueryAndWrite.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/S3ReadWrite.py',
+          ],
+        ]
+    ExecutionProperty:
+      MaxConcurrentRuns: 1
+    MaxRetries: 0
+    MaxCapacity: 1
+    SecurityConfiguration: !Ref GlueSecurityConfig
+    Name: !Sub ${Environment}-dap-splunk-migration-raw-stage-transform-process
+    Role: !Ref GlueScriptsExecutionRole
