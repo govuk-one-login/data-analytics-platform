@@ -926,7 +926,7 @@ SplunkMigratedRawStageTransformProcessPythonGlueJob:
       '--config_bucket': !Sub ${ELTMetadataBucket}
       '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/splunk_to_stage_config_rules.json'
       '--raw_database': !Sub ${Environment}-txma-raw
-      '--raw_source_table': 'splunk'
+      '--raw_source_table': 'splunk_migration'
       '--stage_bucket': !Sub ${StageLayerBucket}
       '--stage_database': !Sub ${Environment}-txma-stage
       '--stage_target_table': 'splunk_stage_layer'

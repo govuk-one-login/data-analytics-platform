@@ -1307,8 +1307,10 @@ SplunkRawLayerSingleTableCrawler:
     Name: splunk_migrated_data_fixed_schema
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
-      S3Targets:
-        - Path: !Sub 's3://${RawLayerBucket}/splunk/'
+      CatalogTargets:
+        - DatabaseName: !Ref RawGlueDatabase
+          Tables:
+            - !Ref SplunkMigrationGlueTable
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -1317,3 +1319,26 @@ SplunkRawLayerSingleTableCrawler:
       UpdateBehavior: LOG
       DeleteBehavior: LOG
     Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
+
+SplunkMigrationGlueTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: splunk_migration
+      TableType: EXTERNAL_TABLE
+      PartitionKeys:
+        - { Name: year, Type: string }
+        - { Name: month, Type: string }
+        - { Name: day, Type: string }
+      StorageDescriptor:
+        Columns:
+          - { Name: event_id, Type: string }
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        Location: !Sub s3://${RawLayerBucket}/splunk/
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          Parameters:
+            serialiazation.format: 1
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
