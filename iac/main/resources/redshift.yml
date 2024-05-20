@@ -397,3 +397,39 @@ FlywayFilesBucketUploadRole:
               Resource:
                 - arn:aws:s3:::*-dap-flyway-files
                 - arn:aws:s3:::*-dap-flyway-files/*
+
+# Role to allow the data-analytics-adm repository the access to Redshift and related resources it needs
+DataAnalyticsADMRedshiftRole:
+  Type: AWS::IAM::Role
+  Condition: IsADMEnvironment
+  Properties:
+    RoleName: !Sub data-analytics-adm-redshift-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+          Action: sts:AssumeRoleWithWebIdentity
+          Condition:
+            StringLike:
+              'token.actions.githubusercontent.com:sub': repo:govuk-one-login/data-analytics-adm:*
+    Policies:
+      - PolicyName: !Sub data-analytics-adm-redshift-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action: kms:Decrypt
+              Resource: !GetAtt KmsKey.Arn
+            - Effect: Allow
+              Action: redshift-data:ExecuteStatement
+              Resource: !GetAtt RedshiftServerlessWorkgroup.Workgroup.WorkgroupArn
+            - Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource: !Ref RedshiftSecret
+            - Effect: Allow
+              Action:
+                - redshift-data:DescribeStatement
+                - redshift-data:GetStatementResult
+              Resource: '*'
