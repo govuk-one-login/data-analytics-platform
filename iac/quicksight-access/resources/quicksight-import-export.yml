@@ -58,14 +58,8 @@ QuicksightExportLambdaFunction:
     Handler: quicksight-export.handler
     Policies:
       - AWSLambdaBasicExecutionRole
+      - arn:aws:iam::aws:policy/AWSQuickSightAssetBundleExportPolicy
       - Statement:
-          - Effect: Allow
-            Action:
-              - quicksight:DescribeAnalysis
-              - quicksight:DescribeAnalysisPermissions
-              - quicksight:DescribeAssetBundleExportJob
-              - quicksight:StartAssetBundleExportJob
-            Resource: '*'
           - Effect: Allow
             Action: s3:PutObject
             Resource: !Sub ${QuicksightExportBucket.Arn}/*
@@ -96,18 +90,8 @@ QuicksightImportLambdaFunction:
     Handler: quicksight-import.handler
     Policies:
       - AWSLambdaBasicExecutionRole
+      - arn:aws:iam::aws:policy/AWSQuickSightAssetBundleImportPolicy
       - Statement:
-          - Effect: Allow
-            Action:
-              - quicksight:CreateAnalysis
-              - quicksight:DescribeAnalysis
-              - quicksight:DescribeAnalysisPermissions
-              - quicksight:DescribeAssetBundleImportJob
-              - quicksight:DescribeTheme
-              - quicksight:PassDataSet
-              - quicksight:StartAssetBundleImportJob
-              - quicksight:UpdateAnalysis
-            Resource: '*'
           - Effect: Allow
             Action: s3:GetObject
             Resource: !Sub ${QuicksightExportBucket.Arn}/*
