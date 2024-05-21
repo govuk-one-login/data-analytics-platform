@@ -931,8 +931,8 @@ SplunkMigratedRawStageTransformProcessPythonGlueJob:
       '--raw_source_table': 'splunk_migration'
       '--stage_bucket': !Sub ${StageLayerBucket}
       '--stage_database': !Sub ${Environment}-txma-stage
-      '--stage_target_table': 'splunk_stage_layer'
-      '--stage_target_key_value_table': 'splunk_stage_layer_key_values'
+      '--stage_target_table': 'txma_stage_layer'
+      '--stage_target_key_value_table': 'txma_stage_layer_key_values'
       '--txma_raw_dedup_view_key_path': 'txma/raw_stage_optimisation_solution/athena_db_object/txma_raw_dedup_view.sql'
       '--workgroup': !Sub ${Environment}-dap-txma-processing
       '--TempDir': !Sub s3://${StageLayerBucket}/raw_stage_optimisation_processing/temporary/
