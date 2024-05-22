@@ -119,6 +119,9 @@ Conditions:
   IsManualReferenceDataEnvironment: !Or
     - !Condition IsProduction
     - !Condition IsProductionPreview
+  IsADMEnvironment: !Or
+    - !Condition IsProduction
+    - !Condition IsProductionPreview
 
 Globals:
   Function:
