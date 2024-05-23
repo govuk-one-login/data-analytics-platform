@@ -4,7 +4,7 @@
       "benefits_data_government_services": {
         "ingestion_enabled_status": true,
         "redshift_metadata": {
-          "database": "dap_txma_reporting_db",
+          "database": "dap_txma_reporting_db_refactored",
           "schema": "reference_data",
           "table": "benefits_data_government_services",
           "operation": "overwrite"
@@ -13,7 +13,7 @@
       "benefits_data_one_login": {
         "ingestion_enabled_status": true,
         "redshift_metadata": {
-          "database": "dap_txma_reporting_db",
+          "database": "dap_txma_reporting_db_refactored",
           "schema": "reference_data",
           "table": "benefits_data_one_login",
           "operation": "overwrite"
