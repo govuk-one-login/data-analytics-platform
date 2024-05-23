@@ -62,6 +62,10 @@ DeployRoleExtraIAMActions:
             - !Sub 'arn:aws:iam::${AWS::AccountId}:instance-profile/${Environment}*'
             - !Sub 'arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole'
             - !Sub 'arn:aws:iam::${AWS::AccountId}:role/*DeployRole*'
+            - !If
+              - IsProduction
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:role/data-analytics-adm-redshift-role'
+              - !Ref AWS::NoValue
     Roles:
       - Fn::If:
           - IsDev
