@@ -16,7 +16,7 @@
     "@aws-sdk/client-quicksight": "^3.578.0",
     "@aws-sdk/client-redshift-data": "^3.577.0",
     "@aws-sdk/client-s3": "^3.577.0",
-    "@aws-sdk/client-secrets-manager": "^3.578.0",
+    "@aws-sdk/client-secrets-manager": "^3.583.0",
     "@aws-sdk/client-sfn": "^3.577.0",
     "@aws-sdk/client-sqs": "^3.577.0",
     "@aws-sdk/types": "^3.577.0",
