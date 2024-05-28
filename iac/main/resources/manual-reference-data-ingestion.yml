@@ -204,7 +204,7 @@ GlueRedshiftConnection:
       Name: !Sub ${Environment}-redshift-connection
       ConnectionType: 'JDBC'
       ConnectionProperties:
-        JDBC_CONNECTION_URL: !Sub 'jdbc:redshift://${Environment}-redshift-serverless-workgroup.${AWS::AccountId}.${AWS::Region}.redshift-serverless.amazonaws.com:5439/dap_txma_reporting_db'
+        JDBC_CONNECTION_URL: !Sub 'jdbc:redshift://${Environment}-redshift-serverless-workgroup.${AWS::AccountId}.${AWS::Region}.redshift-serverless.amazonaws.com:5439/dap_txma_reporting_db_refactored'
         SECRET_ID: !Ref RedshiftSecret
       PhysicalConnectionRequirements:
         SecurityGroupIdList:
