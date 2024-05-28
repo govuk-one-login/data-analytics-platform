@@ -62,8 +62,6 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-        with:
-          lfs: true
       - name: Node setup
         uses: actions/setup-node@v4
         with:
@@ -104,8 +102,6 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-        with:
-          lfs: true
       - name: Node setup
         uses: actions/setup-node@v4
         with:
