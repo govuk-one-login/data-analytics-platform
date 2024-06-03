@@ -12,7 +12,7 @@
     "@aws-sdk/client-cognito-identity-provider": "^3.583.0",
     "@aws-sdk/client-eventbridge": "^3.583.0",
     "@aws-sdk/client-firehose": "^3.583.0",
-    "@aws-sdk/client-lambda": "^3.583.0",
+    "@aws-sdk/client-lambda": "^3.588.0",
     "@aws-sdk/client-quicksight": "^3.583.0",
     "@aws-sdk/client-redshift-data": "^3.583.0",
     "@aws-sdk/client-s3": "^3.583.0",
