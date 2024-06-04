@@ -141,7 +141,7 @@ test('set secret error changing password', async () => {
 
   await expect(
     handler({ Step: 'setSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN }),
-  ).rejects.toThrow(`setSecret: Error changing database password - "${errorMessage}"`);
+  ).rejects.toThrow(`setSecret: Error changing database password - ${errorMessage}`);
 
   // describeSecret, getSecret, getSecret
   expect(mockSecretsManagerClient.calls()).toHaveLength(3);
@@ -281,7 +281,7 @@ const mockConnection = (config?: DatabaseConnectionMockingConfig): Database | nu
     raw: async (query: string) => {
       const error = config?.rawError;
       if (error !== undefined) {
-        await Promise.reject(error);
+        await Promise.reject(new Error(error));
       }
       await Promise.resolve();
     },

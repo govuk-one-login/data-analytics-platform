@@ -348,7 +348,7 @@ const spawnSyncResult = (
 };
 
 class MockReadable extends Readable {
-  pipe<T extends NodeJS.WritableStream>(destination: T, options?: { end?: boolean | undefined }): T {
+  pipe<T extends NodeJS.WritableStream>(destination: T, options?: { end?: boolean }): T {
     // @ts-expect-error this is fine as it's just for creating a mock
     return this;
   }
