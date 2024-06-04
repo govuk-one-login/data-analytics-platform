@@ -236,7 +236,7 @@ const mockSecretsManager = (config: SecretsManagerMockingConfig = {}): void => {
   const versions = config.versions ?? { [CLIENT_REQUEST_TOKEN]: ['AWSPENDING'] };
   mockSecretsManagerClient
     .on(DescribeSecretCommand, { SecretId: SECRET_ID })
-    .resolvesOnce({ RotationEnabled: true, VersionIdsToStages: versions })
+    .resolves({ RotationEnabled: true, VersionIdsToStages: versions })
     .on(GetSecretValueCommand, { SecretId: SECRET_ID })
     .callsFake(async (input: { SecretId: string; VersionStage: SecretRotationStage }) => {
       const stage = input.VersionStage;
@@ -249,11 +249,11 @@ const mockSecretsManager = (config: SecretsManagerMockingConfig = {}): void => {
       PasswordLength: parseInt(PASSWORD_LENGTH),
       ExcludeCharacters: PASSWORD_EXCLUDE_CHARS,
     })
-    .resolvesOnce({ RandomPassword: 'password123' })
+    .resolves({ RandomPassword: 'password123' })
     .on(PutSecretValueCommand, { SecretId: SECRET_ID })
-    .resolvesOnce({})
+    .resolves({})
     .on(UpdateSecretVersionStageCommand, { SecretId: SECRET_ID, VersionStage: 'AWSCURRENT' })
-    .resolvesOnce({});
+    .resolves({});
 };
 
 const mockDatabaseConnections = (

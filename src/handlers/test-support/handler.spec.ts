@@ -205,7 +205,7 @@ test('athena success', async () => {
     .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
     .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
     .resolvesOnce({ QueryExecution: { Status: { State: 'SUCCEEDED' } } })
-    .resolvesOnce(ATHENA_QUERY_RESULTS);
+    .resolves(ATHENA_QUERY_RESULTS);
 
   const event = getEvent({
     command: 'ATHENA_RUN_QUERY',
@@ -255,7 +255,7 @@ test('athena wait cancellation', async () => {
     .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
     .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
     .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
-    .resolvesOnce(cancelledResponse);
+    .resolves(cancelledResponse);
 
   const event = getEvent({
     command: 'ATHENA_RUN_QUERY',
@@ -314,7 +314,7 @@ test('athena wait failure retry', async () => {
     .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
     .resolvesOnce({ QueryExecution: { Status: { State: 'RUNNING' } } })
     .resolvesOnce({ QueryExecution: { Status: { State: 'SUCCEEDED' } } })
-    .resolvesOnce(ATHENA_QUERY_RESULTS);
+    .resolves(ATHENA_QUERY_RESULTS);
 
   const event = getEvent({
     command: 'ATHENA_RUN_QUERY',
@@ -335,7 +335,7 @@ test('s3 put with key', async () => {
   mockS3Client
     .rejects()
     .on(PutObjectCommand, { Bucket, Body: Filename, Key: 'renamed-file.json' })
-    .resolvesOnce({ ETag: 'with key' });
+    .resolves({ ETag: 'with key' });
 
   const event = getEvent({
     command: 'S3_PUT',
@@ -353,7 +353,7 @@ test('s3 put without key', async () => {
   mockS3Client
     .rejects()
     .on(PutObjectCommand, { Bucket, Body: Filename, Key: 'file.json' })
-    .resolvesOnce({ ETag: 'without key' });
+    .resolves({ ETag: 'without key' });
 
   const eventWithoutKey = getEvent({
     command: 'S3_PUT',
@@ -371,7 +371,7 @@ test('s3 copy with key', async () => {
   mockS3Client
     .rejects()
     .on(CopyObjectCommand, { Bucket, CopySource, Key: 'renamed-file.json' })
-    .resolvesOnce({ CopyObjectResult: { ETag: 'with key' } });
+    .resolves({ CopyObjectResult: { ETag: 'with key' } });
 
   const event = getEvent({
     command: 'S3_COPY',
@@ -391,7 +391,7 @@ test('s3 copy without key', async () => {
   mockS3Client
     .rejects()
     .on(CopyObjectCommand, { Bucket, CopySource, Key: 'file.json' })
-    .resolvesOnce({ CopyObjectResult: { ETag: 'without key' } });
+    .resolves({ CopyObjectResult: { ETag: 'without key' } });
 
   const event = getEvent({
     command: 'S3_COPY',
@@ -412,9 +412,9 @@ test('s3 copy with delete', async () => {
   mockS3Client
     .rejects()
     .on(CopyObjectCommand, { Bucket, CopySource, Key: 'file.json' })
-    .resolvesOnce({ CopyObjectResult: { ETag: 'without key' } })
+    .resolves({ CopyObjectResult: { ETag: 'without key' } })
     .on(DeleteObjectCommand, { Bucket: 'src-bucket', Key: 'folder/file.json' })
-    .resolvesOnce({ DeleteMarker: false, VersionId });
+    .resolves({ DeleteMarker: false, VersionId });
 
   const event = getEvent({
     command: 'S3_COPY',
@@ -461,7 +461,7 @@ test('redshift success', async () => {
     .resolvesOnce({ Id: queryId, Status: 'STARTED' })
     .resolvesOnce({ Id: queryId, Status: 'STARTED' })
     .resolvesOnce({ Id: queryId, Status: 'FINISHED' })
-    .resolvesOnce(REDSHIFT_QUERY_RESULTS);
+    .resolves(REDSHIFT_QUERY_RESULTS);
 
   const event = getEvent({
     command: 'REDSHIFT_RUN_QUERY',
@@ -487,7 +487,7 @@ test('redshift cancellation', async () => {
     .resolvesOnce({ Id: queryId, Status: 'SUBMITTED' })
     .resolvesOnce({ Id: queryId, Status: 'STARTED' })
     .resolvesOnce({ Id: queryId, Status: 'STARTED' })
-    .resolvesOnce(cancelledResponse);
+    .resolves(cancelledResponse);
 
   const event = getEvent({
     command: 'REDSHIFT_RUN_QUERY',

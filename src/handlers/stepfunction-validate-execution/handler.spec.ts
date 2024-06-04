@@ -187,12 +187,12 @@ class MockExecution {
 const mockSetup = (currentExecution: MockExecution, ...extraExecutions: MockExecution[]) => {
   const allExecutions = [currentExecution, ...extraExecutions];
 
-  mockSFNClient.on(ListExecutionsCommand, { stateMachineArn: STATE_MACHINE_ARN }).resolvesOnce({
+  mockSFNClient.on(ListExecutionsCommand, { stateMachineArn: STATE_MACHINE_ARN }).resolves({
     executions: allExecutions.map(e => executionListItem(e)),
   });
 
   allExecutions.forEach(execution => {
-    mockSFNClient.on(DescribeExecutionCommand, { executionArn: execution.executionArn }).resolvesOnce({
+    mockSFNClient.on(DescribeExecutionCommand, { executionArn: execution.executionArn }).resolves({
       stateMachineArn: STATE_MACHINE_ARN,
       executionArn: execution.executionArn,
       input: executionInput(execution.messageGroupId),

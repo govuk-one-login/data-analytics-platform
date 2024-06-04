@@ -29,7 +29,7 @@ test('process s3 event', async () => {
 
   mockEventbridgeClient
     .on(PutEventsCommand, { Entries: [{ ...EVENTBRIDGE_ENTRY_BASE, Detail: JSON.stringify({ filepath }) }] })
-    .resolvesOnce({});
+    .resolves({});
 
   const event = sqsEvent(s3Event);
   const batchResponse = await handler(event);
@@ -45,7 +45,7 @@ test('process redshift get metadata event', async () => {
 
   mockEventbridgeClient
     .on(PutEventsCommand, { Entries: [{ ...EVENTBRIDGE_ENTRY_BASE, Detail: JSON.stringify({ filepath }) }] })
-    .resolvesOnce({});
+    .resolves({});
 
   const event = sqsEvent(redshiftGetMetadataEvent);
   const batchResponse = await handler(event);
@@ -60,7 +60,7 @@ test('process redshift file metadata', async () => {
 
   mockEventbridgeClient
     .on(PutEventsCommand, { Entries: [{ ...EVENTBRIDGE_ENTRY_BASE, Detail: JSON.stringify({ filepath }) }] })
-    .resolvesOnce({});
+    .resolves({});
 
   const event = sqsEvent(redshiftFileMetadata);
   const batchResponse = await handler(event);
@@ -110,11 +110,11 @@ test('multiple events', async () => {
 
   mockEventbridgeClient
     .on(PutEventsCommand, { Entries: [{ ...EVENTBRIDGE_ENTRY_BASE, Detail: JSON.stringify({ filepath: 'fp1' }) }] })
-    .resolvesOnce({})
+    .resolves({})
     .on(PutEventsCommand, { Entries: [{ ...EVENTBRIDGE_ENTRY_BASE, Detail: JSON.stringify({ filepath: 'fp2' }) }] })
-    .resolvesOnce({})
+    .resolves({})
     .on(PutEventsCommand, { Entries: [{ ...EVENTBRIDGE_ENTRY_BASE, Detail: JSON.stringify({ filepath: 'fp3' }) }] })
-    .resolvesOnce({});
+    .resolves({});
 
   const batchResponse = await handler(event);
   expect(batchResponse.batchItemFailures).toHaveLength(2);

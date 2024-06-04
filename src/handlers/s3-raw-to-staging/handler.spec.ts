@@ -70,7 +70,7 @@ test('success when ingestion enabled', async () => {
       CopySource: `${S3_RAW_BUCKET_NAME}/${S3_KEY_PROCESSING_ENABLED}`,
       Key: S3_KEY_PROCESSING_ENABLED,
     })
-    .resolvesOnce({});
+    .resolves({});
 
   const response = await handler(TEST_EVENT);
   expect(response).toHaveLength(1);
@@ -107,7 +107,7 @@ test('failed with s3 error', async () => {
       CopySource: `${S3_RAW_BUCKET_NAME}/${S3_KEY_PROCESSING_ENABLED}`,
       Key: S3_KEY_PROCESSING_ENABLED,
     })
-    .rejectsOnce(error);
+    .rejects(error);
 
   const response = await handler(TEST_EVENT);
   expect(response).toHaveLength(1);
