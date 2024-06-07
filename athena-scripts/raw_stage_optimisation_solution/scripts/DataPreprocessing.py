@@ -175,12 +175,14 @@ class DataPreprocessing:
                                 if isinstance(item, (dict, list)):
                                     items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
                                 else:
+                                    new_key = f"{new_key}[{i}]"
                                     items.append((new_key, item))
                         elif isinstance(value, np.ndarray):
                             for i, item in enumerate(value):
                                 if isinstance(item, (dict, list)):
                                     items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
                                 else:
+                                    new_key = f"{new_key}[{i}]"
                                     items.append((new_key, item))
                         else:
                             if isinstance(value, str):  # Check if item is a string
