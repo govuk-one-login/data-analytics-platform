@@ -1,7 +1,8 @@
 import { getLogger } from '../../shared/powertools';
 import { sfnClient } from '../../shared/clients';
 import { ensureDefined, getEnvironmentVariable } from '../../shared/utils/utils';
-import { DescribeExecutionCommand, DescribeExecutionCommandOutput, ListExecutionsCommand } from '@aws-sdk/client-sfn';
+import { DescribeExecutionCommand, ListExecutionsCommand } from '@aws-sdk/client-sfn';
+import type { DescribeExecutionCommandOutput } from '@aws-sdk/client-sfn';
 
 export const logger = getLogger('lambda/stepfunction-validate-execution');
 

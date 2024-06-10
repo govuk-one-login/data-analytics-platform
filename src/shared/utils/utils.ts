@@ -138,13 +138,14 @@ export const findOrThrow = <T>(ts: T[], predicate: (value: T, index: number, obj
 };
 
 export const getS3EventRecords = (event: S3Event): S3EventRecord[] => {
-  if (isNullUndefinedOrEmpty(event?.Records)) {
-    throw new Error('Missing event or records');
-  }
-  return event.Records;
+  return getEventRecords(event);
 };
 
 export const getSQSEventRecords = (event: SQSEvent): SQSRecord[] => {
+  return getEventRecords(event);
+};
+
+const getEventRecords = <T>(event: { Records: T[] }): T[] => {
   if (isNullUndefinedOrEmpty(event?.Records)) {
     throw new Error('Missing event or records');
   }

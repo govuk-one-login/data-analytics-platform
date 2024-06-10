@@ -50,7 +50,7 @@ test('success', async () => {
         file_path: S3_KEY,
       }),
     })
-    .resolvesOnce({});
+    .resolves({});
 
   await handler(TEST_EVENT);
 
