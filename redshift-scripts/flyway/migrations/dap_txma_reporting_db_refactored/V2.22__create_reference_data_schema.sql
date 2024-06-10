@@ -1,1 +1,0 @@
-create schema if not exists dap_txma_reporting_db_refactored.reference_data;
