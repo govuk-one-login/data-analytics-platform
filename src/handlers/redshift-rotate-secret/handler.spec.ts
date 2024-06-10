@@ -141,7 +141,7 @@ test('set secret error changing password', async () => {
 
   await expect(
     handler({ Step: 'setSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN }),
-  ).rejects.toThrow(`setSecret: Error changing database password - "${errorMessage}"`);
+  ).rejects.toThrow(`setSecret: Error changing database password - ${errorMessage}`);
 
   // describeSecret, getSecret, getSecret
   expect(mockSecretsManagerClient.calls()).toHaveLength(3);
@@ -236,7 +236,7 @@ const mockSecretsManager = (config: SecretsManagerMockingConfig = {}): void => {
   const versions = config.versions ?? { [CLIENT_REQUEST_TOKEN]: ['AWSPENDING'] };
   mockSecretsManagerClient
     .on(DescribeSecretCommand, { SecretId: SECRET_ID })
-    .resolvesOnce({ RotationEnabled: true, VersionIdsToStages: versions })
+    .resolves({ RotationEnabled: true, VersionIdsToStages: versions })
     .on(GetSecretValueCommand, { SecretId: SECRET_ID })
     .callsFake(async (input: { SecretId: string; VersionStage: SecretRotationStage }) => {
       const stage = input.VersionStage;
@@ -249,11 +249,11 @@ const mockSecretsManager = (config: SecretsManagerMockingConfig = {}): void => {
       PasswordLength: parseInt(PASSWORD_LENGTH),
       ExcludeCharacters: PASSWORD_EXCLUDE_CHARS,
     })
-    .resolvesOnce({ RandomPassword: 'password123' })
+    .resolves({ RandomPassword: 'password123' })
     .on(PutSecretValueCommand, { SecretId: SECRET_ID })
-    .resolvesOnce({})
+    .resolves({})
     .on(UpdateSecretVersionStageCommand, { SecretId: SECRET_ID, VersionStage: 'AWSCURRENT' })
-    .resolvesOnce({});
+    .resolves({});
 };
 
 const mockDatabaseConnections = (
@@ -281,7 +281,7 @@ const mockConnection = (config?: DatabaseConnectionMockingConfig): Database | nu
     raw: async (query: string) => {
       const error = config?.rawError;
       if (error !== undefined) {
-        await Promise.reject(error);
+        await Promise.reject(new Error(error));
       }
       await Promise.resolve();
     },

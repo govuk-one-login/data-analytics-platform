@@ -54,7 +54,7 @@ test('missing user pool id', async () => {
 });
 
 test('error getting all groups', async () => {
-  mockQuicksightClient.on(ListGroupsCommand).rejectsOnce('Quicksight list groups error');
+  mockQuicksightClient.on(ListGroupsCommand).rejects('Quicksight list groups error');
 
   await expect(handler({ requests: [] }, CONTEXT)).rejects.toThrow('Quicksight list groups error');
 
@@ -64,50 +64,50 @@ test('error getting all groups', async () => {
 test('successes', async () => {
   mockCognitoClient
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
-    .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new UserNotFoundException({ message: '', $metadata: {} }))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-b' })
-    .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new UserNotFoundException({ message: '', $metadata: {} }))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-c' })
-    .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new UserNotFoundException({ message: '', $metadata: {} }))
 
     .on(AdminCreateUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
-    .resolvesOnce({})
+    .resolves({})
     .on(AdminCreateUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-b' })
-    .resolvesOnce({})
+    .resolves({})
     .on(AdminCreateUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-c' })
-    .resolvesOnce({});
+    .resolves({});
 
   mockQuicksightClient
     .on(ListGroupsCommand)
-    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
+    .resolves({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
 
     .on(DescribeUserCommand, { UserName: 'user-a' })
-    .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
-    .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-c' })
-    .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
 
     .on(ListUserGroupsCommand, { UserName: 'user-a' })
-    .resolvesOnce({ GroupList: [] })
+    .resolves({ GroupList: [] })
     .on(ListUserGroupsCommand, { UserName: 'user-b' })
-    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }] })
+    .resolves({ GroupList: [{ GroupName: 'group-one' }] })
     .on(ListUserGroupsCommand, { UserName: 'user-c' })
-    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
+    .resolves({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
 
     .on(RegisterUserCommand, { UserName: 'user-a' })
-    .resolvesOnce({})
+    .resolves({})
     .on(RegisterUserCommand, { UserName: 'user-b' })
-    .resolvesOnce({})
+    .resolves({})
     .on(RegisterUserCommand, { UserName: 'user-c' })
-    .resolvesOnce({})
+    .resolves({})
 
     .on(CreateGroupMembershipCommand, { MemberName: 'user-a', GroupName: 'group-one' })
-    .resolvesOnce({})
+    .resolves({})
     .on(CreateGroupMembershipCommand, { MemberName: 'user-a', GroupName: 'group-two' })
-    .resolvesOnce({})
+    .resolves({})
     .on(CreateGroupMembershipCommand, { MemberName: 'user-b', GroupName: 'group-two' })
-    .resolvesOnce({});
+    .resolves({});
 
   // user a should be created and added to both groups
   // user b should be created and added to group-two (already in group-one)
@@ -135,22 +135,22 @@ test('successes', async () => {
 test('user existence failures', async () => {
   mockCognitoClient
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
-    .resolvesOnce(mockCognitoUser('user-a', 'a@a.com'))
+    .resolves(mockCognitoUser('user-a', 'a@a.com'))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-b' })
-    .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new UserNotFoundException({ message: '', $metadata: {} }))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-c' })
-    .resolvesOnce(mockCognitoUser('user-c', 'c@c.com'));
+    .resolves(mockCognitoUser('user-c', 'c@c.com'));
 
   mockQuicksightClient
     .on(ListGroupsCommand)
-    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
+    .resolves({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
 
     .on(DescribeUserCommand, { UserName: 'user-a' })
-    .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
-    .resolvesOnce({ User: { UserName: 'user-b', Email: 'b@b.com' } })
+    .resolves({ User: { UserName: 'user-b', Email: 'b@b.com' } })
     .on(DescribeUserCommand, { UserName: 'user-c' })
-    .resolvesOnce({ User: { UserName: 'user-c', Email: 'c@c.com' } })
+    .resolves({ User: { UserName: 'user-c', Email: 'c@c.com' } })
 
     .on(ListUserGroupsCommand)
     .resolves({ GroupList: [] });
@@ -196,29 +196,29 @@ test('user existence failures', async () => {
 test('user status errors', async () => {
   mockCognitoClient
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
-    .rejectsOnce('Cognito get user error')
+    .rejects('Cognito get user error')
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-b' })
-    .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new UserNotFoundException({ message: '', $metadata: {} }))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-c' })
-    .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }));
+    .rejects(new UserNotFoundException({ message: '', $metadata: {} }));
 
   mockQuicksightClient
     .on(ListGroupsCommand)
-    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
+    .resolves({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
 
     .on(DescribeUserCommand, { UserName: 'user-a' })
-    .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
-    .rejectsOnce('Quicksight get user error')
+    .rejects('Quicksight get user error')
     .on(DescribeUserCommand, { UserName: 'user-c' })
-    .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
 
     .on(ListUserGroupsCommand, { UserName: 'user-a' })
-    .resolvesOnce({ GroupList: [] })
+    .resolves({ GroupList: [] })
     .on(ListUserGroupsCommand, { UserName: 'user-b' })
-    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }] })
+    .resolves({ GroupList: [{ GroupName: 'group-one' }] })
     .on(ListUserGroupsCommand, { UserName: 'user-c' })
-    .rejectsOnce('Quicksight get groups error');
+    .rejects('Quicksight get groups error');
 
   // user a should be created and added to both groups - but there is an error getting user status from cognito
   // user b should be created and added to group-two (already in group-one) - but there is an error getting user status from quicksight
@@ -261,50 +261,50 @@ test('user status errors', async () => {
 test('user and group add errors', async () => {
   mockCognitoClient
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
-    .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new UserNotFoundException({ message: '', $metadata: {} }))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-b' })
-    .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new UserNotFoundException({ message: '', $metadata: {} }))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-c' })
-    .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new UserNotFoundException({ message: '', $metadata: {} }))
 
     .on(AdminCreateUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
-    .rejectsOnce('Cognito add user error')
+    .rejects('Cognito add user error')
     .on(AdminCreateUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-b' })
-    .resolvesOnce({})
+    .resolves({})
     .on(AdminCreateUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-c' })
-    .resolvesOnce({});
+    .resolves({});
 
   mockQuicksightClient
     .on(ListGroupsCommand)
-    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
+    .resolves({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
 
     .on(DescribeUserCommand, { UserName: 'user-a' })
-    .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-b' })
-    .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user-c' })
-    .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
 
     .on(ListUserGroupsCommand, { UserName: 'user-a' })
-    .resolvesOnce({ GroupList: [] })
+    .resolves({ GroupList: [] })
     .on(ListUserGroupsCommand, { UserName: 'user-b' })
-    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }] })
+    .resolves({ GroupList: [{ GroupName: 'group-one' }] })
     .on(ListUserGroupsCommand, { UserName: 'user-c' })
-    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
+    .resolves({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
 
     .on(RegisterUserCommand, { UserName: 'user-a' })
-    .resolvesOnce({})
+    .resolves({})
     .on(RegisterUserCommand, { UserName: 'user-b' })
-    .resolvesOnce({})
+    .resolves({})
     .on(RegisterUserCommand, { UserName: 'user-c' })
-    .rejectsOnce('Quicksight add user error')
+    .rejects('Quicksight add user error')
 
     .on(CreateGroupMembershipCommand, { MemberName: 'user-a', GroupName: 'group-one' })
-    .resolvesOnce({})
+    .resolves({})
     .on(CreateGroupMembershipCommand, { MemberName: 'user-a', GroupName: 'group-two' })
-    .resolvesOnce({})
+    .resolves({})
     .on(CreateGroupMembershipCommand, { MemberName: 'user-b', GroupName: 'group-two' })
-    .rejectsOnce('Quicksight add to group error');
+    .rejects('Quicksight add to group error');
 
   // user a should be created and added to both groups - but there is an error creating the user in cognito
   // user b should be created and added to group-two (already in group-one) - but there is an error adding the user to the quicksight group
@@ -347,28 +347,28 @@ test('user and group add errors', async () => {
 test('group existence failures', async () => {
   mockCognitoClient
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
-    .rejectsOnce(new UserNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new UserNotFoundException({ message: '', $metadata: {} }))
 
     .on(AdminCreateUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user-a' })
-    .resolvesOnce({});
+    .resolves({});
 
   mockQuicksightClient
     .on(ListGroupsCommand)
-    .resolvesOnce({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
+    .resolves({ GroupList: [{ GroupName: 'group-one' }, { GroupName: 'group-two' }] })
 
     .on(DescribeUserCommand, { UserName: 'user-a' })
-    .rejectsOnce(new ResourceNotFoundException({ message: '', $metadata: {} }))
+    .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
 
     .on(ListUserGroupsCommand, { UserName: 'user-a' })
-    .resolvesOnce({ GroupList: [] })
+    .resolves({ GroupList: [] })
 
     .on(RegisterUserCommand, { UserName: 'user-a' })
-    .resolvesOnce({})
+    .resolves({})
 
     .on(CreateGroupMembershipCommand, { MemberName: 'user-a', GroupName: 'group-one' })
-    .resolvesOnce({})
+    .resolves({})
     .on(CreateGroupMembershipCommand, { MemberName: 'user-a', GroupName: 'group-two' })
-    .resolvesOnce({});
+    .resolves({});
 
   // user a has only existing groups
   // user b has a mixture of existing and non-existent groups

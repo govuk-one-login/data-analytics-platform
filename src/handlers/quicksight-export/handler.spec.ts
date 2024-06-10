@@ -124,7 +124,7 @@ const setupQuicksightMocks = (event: QuicksightExportEvent, config?: QuicksightM
   const analysisArn = `arn:aws:quicksight:eu-west-2:${ACCOUNT_ID}:analysis/${event.analysisId}`;
   mockQuicksightClient
     .on(StartAssetBundleExportJobCommand, { AwsAccountId: ACCOUNT_ID, ResourceArns: [analysisArn] })
-    .resolvesOnce({ Status: config?.startJobStatus ?? 200, AssetBundleExportJobId: event.analysisId })
+    .resolves({ Status: config?.startJobStatus ?? 200, AssetBundleExportJobId: event.analysisId })
     .on(DescribeAssetBundleExportJobCommand, { AwsAccountId: ACCOUNT_ID, AssetBundleExportJobId: event.analysisId })
     .resolvesOnce({ Status: 200, JobStatus: 'IN_PROGRESS', DownloadUrl: undefined })
     .resolves({

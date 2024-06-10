@@ -184,15 +184,15 @@ class MockExecution {
   }
 }
 
-const mockSetup = (currentExecution: MockExecution, ...extraExecutions: MockExecution[]) => {
+const mockSetup = (currentExecution: MockExecution, ...extraExecutions: MockExecution[]): void => {
   const allExecutions = [currentExecution, ...extraExecutions];
 
-  mockSFNClient.on(ListExecutionsCommand, { stateMachineArn: STATE_MACHINE_ARN }).resolvesOnce({
+  mockSFNClient.on(ListExecutionsCommand, { stateMachineArn: STATE_MACHINE_ARN }).resolves({
     executions: allExecutions.map(e => executionListItem(e)),
   });
 
   allExecutions.forEach(execution => {
-    mockSFNClient.on(DescribeExecutionCommand, { executionArn: execution.executionArn }).resolvesOnce({
+    mockSFNClient.on(DescribeExecutionCommand, { executionArn: execution.executionArn }).resolves({
       stateMachineArn: STATE_MACHINE_ARN,
       executionArn: execution.executionArn,
       input: executionInput(execution.messageGroupId),
@@ -228,5 +228,5 @@ const executionInput = (messageGroupId = MESSAGE_GROUP_ID): string => {
 };
 
 const getStartedBeforeWithSameId = (): unknown[] => {
-  return (loggerSpy.mock.calls[0][1] as never)['startedBeforeWithSameId'];
+  return (loggerSpy.mock.calls[0][1] as unknown as Record<string, never>).startedBeforeWithSameId;
 };

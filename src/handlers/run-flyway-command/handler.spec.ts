@@ -348,7 +348,7 @@ const spawnSyncResult = (
 };
 
 class MockReadable extends Readable {
-  pipe<T extends NodeJS.WritableStream>(destination: T, options?: { end?: boolean | undefined }): T {
+  pipe<T extends NodeJS.WritableStream>(destination: T, options?: { end?: boolean }): T {
     // @ts-expect-error this is fine as it's just for creating a mock
     return this;
   }
@@ -374,12 +374,12 @@ const mockS3Responses = (config?: { errorMessage?: string; contents?: Array<{ Ke
     mockS3Client.onAnyCommand().rejects(config.errorMessage);
     return;
   }
-  mockS3Client.on(ListObjectsV2Command, { Bucket: FLYWAY_FILES_BUCKET_NAME }).resolvesOnce({ Contents: contents });
+  mockS3Client.on(ListObjectsV2Command, { Bucket: FLYWAY_FILES_BUCKET_NAME }).resolves({ Contents: contents });
 
   contents.forEach(({ Key }) => {
     mockS3Client
       .on(GetObjectCommand, { Bucket: FLYWAY_FILES_BUCKET_NAME, Key })
-      .resolvesOnce({ Body: new MockReadable() as never });
+      .resolves({ Body: new MockReadable() as never });
   });
 };
 
@@ -390,5 +390,5 @@ const mockSecretsManagerResponses = (errorMessage?: string): void => {
   }
   mockSecretsManagerClient
     .on(GetSecretValueCommand, { SecretId: SECRET_ID })
-    .resolvesOnce({ SecretString: JSON.stringify(SECRET_VALUE) });
+    .resolves({ SecretString: JSON.stringify(SECRET_VALUE) });
 };

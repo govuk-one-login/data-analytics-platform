@@ -49,7 +49,7 @@ const startExportJob = async (event: QuicksightExportEvent, accountId: string): 
       IncludePermissions: true,
     }),
   );
-  if (response.Status === undefined || !response.Status.toString().startsWith('2')) {
+  if (!response?.Status?.toString().startsWith('2')) {
     throw new Error(
       `Start export job request with id ${response?.AssetBundleExportJobId} returned status code of ${response.Status}`,
     );

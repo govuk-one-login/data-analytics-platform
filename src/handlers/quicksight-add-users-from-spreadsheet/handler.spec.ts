@@ -128,19 +128,19 @@ test('filter out users', async () => {
     .on(AdminGetUserCommand)
     .rejects(new UserNotFoundException({ message: '', $metadata: {} }))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user.one@dbs.gov.uk' })
-    .resolvesOnce(mockCognitoUser('user.one@dbs.gov.uk', 'user.one@dbs.gov.uk'))
+    .resolves(mockCognitoUser('user.one@dbs.gov.uk', 'user.one@dbs.gov.uk'))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user.three@dbs.gov.uk' })
-    .resolvesOnce(mockCognitoUser('user.three@dbs.gov.uk', 'user.three@dbs.gov.uk'));
+    .resolves(mockCognitoUser('user.three@dbs.gov.uk', 'user.three@dbs.gov.uk'));
 
   mockQuicksightClient
     .on(DescribeUserCommand)
     .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user.one@dbs.gov.uk' })
-    .resolvesOnce({ User: { UserName: 'user.one@dbs.gov.uk', Email: 'user.one@dbs.gov.uk' } })
+    .resolves({ User: { UserName: 'user.one@dbs.gov.uk', Email: 'user.one@dbs.gov.uk' } })
     .on(DescribeUserCommand, { UserName: 'user.three@dbs.gov.uk' })
-    .resolvesOnce({ User: { UserName: 'user.three@dbs.gov.uk', Email: 'user.three@dbs.gov.uk' } })
+    .resolves({ User: { UserName: 'user.three@dbs.gov.uk', Email: 'user.three@dbs.gov.uk' } })
     .on(DescribeUserCommand, { UserName: 'user.six@dvsa.gov.uk' })
-    .resolvesOnce({ User: { UserName: 'user.six@dvsa.gov.uk', Email: 'user.six@dvsa.gov.uk' } })
+    .resolves({ User: { UserName: 'user.six@dvsa.gov.uk', Email: 'user.six@dvsa.gov.uk' } })
     .on(ListUserGroupsCommand)
     .resolves({ GroupList: [] });
 
@@ -166,17 +166,15 @@ test('dry run', async () => {
     .on(AdminGetUserCommand)
     .rejects(new UserNotFoundException({ message: '', $metadata: {} }))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user.one@digital.cabinet-office.gov.uk' })
-    .resolvesOnce(mockCognitoUser('user.one@digital.cabinet-office.gov.uk', 'user.one@digital.cabinet-office.gov.uk'))
+    .resolves(mockCognitoUser('user.one@digital.cabinet-office.gov.uk', 'user.one@digital.cabinet-office.gov.uk'))
     .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: 'user.three@digital.cabinet-office.gov.uk' })
-    .resolvesOnce(
-      mockCognitoUser('user.three@digital.cabinet-office.gov.uk', 'user.three@digital.cabinet-office.gov.uk'),
-    );
+    .resolves(mockCognitoUser('user.three@digital.cabinet-office.gov.uk', 'user.three@digital.cabinet-office.gov.uk'));
 
   mockQuicksightClient
     .on(DescribeUserCommand)
     .rejects(new ResourceNotFoundException({ message: '', $metadata: {} }))
     .on(DescribeUserCommand, { UserName: 'user.one@digital.cabinet-office.gov.uk' })
-    .resolvesOnce({
+    .resolves({
       User: { UserName: 'user.one@digital.cabinet-office.gov.uk', Email: 'user.one@digital.cabinet-office.gov.uk' },
     })
     .on(ListUserGroupsCommand)
@@ -212,10 +210,10 @@ test('user status batching', async () => {
     if (index % 2 === 0) {
       mockCognitoClient
         .on(AdminGetUserCommand, { UserPoolId: USER_POOL_ID, Username: user.Email })
-        .resolvesOnce(mockCognitoUser(user.Email, user.Email));
+        .resolves(mockCognitoUser(user.Email, user.Email));
       mockQuicksightClient
         .on(DescribeUserCommand, { UserName: user.Email })
-        .resolvesOnce({ User: { UserName: user.Email, Email: user.Email } });
+        .resolves({ User: { UserName: user.Email, Email: user.Email } });
     } else {
       expectedEmails.push(user.Email);
     }
