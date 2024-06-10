@@ -112,7 +112,7 @@ const setupQuicksightMocks = (event: QuicksightImportEvent, config?: QuicksightM
   }
   mockQuicksightClient
     .on(StartAssetBundleImportJobCommand, startCommandInput)
-    .resolvesOnce({ Status: config?.startJobStatus ?? 200, AssetBundleImportJobId: analysisId })
+    .resolves({ Status: config?.startJobStatus ?? 200, AssetBundleImportJobId: analysisId })
     .on(DescribeAssetBundleImportJobCommand, { AwsAccountId: ACCOUNT_ID, AssetBundleImportJobId: analysisId })
     .resolvesOnce({ Status: 200, JobStatus: 'IN_PROGRESS' })
     .resolves({ Status: 200, JobStatus: config?.importFinalStatus ?? 'SUCCESSFUL' });

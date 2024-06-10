@@ -55,7 +55,7 @@ const startImportJob = async (event: QuicksightImportEvent, accountId: string, a
   }
 
   const response = await quicksightClient.send(new StartAssetBundleImportJobCommand(input));
-  if (response.Status === undefined || !response.Status.toString().startsWith('2')) {
+  if (!response?.Status?.toString().startsWith('2')) {
     throw new Error(
       `Start import job request with id ${response.AssetBundleImportJobId} returned status code of ${response.Status}`,
     );

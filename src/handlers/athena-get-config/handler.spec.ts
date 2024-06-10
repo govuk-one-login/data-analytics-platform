@@ -44,7 +44,7 @@ test('missing required params', async () => {
 });
 
 test('client error', async () => {
-  mockS3Client.rejectsOnce('S3 Error');
+  mockS3Client.rejects('S3 Error');
 
   await expect(handler(TEST_EVENT)).rejects.toThrow('S3 Error');
   expect(mockS3Client.calls()).toHaveLength(1);

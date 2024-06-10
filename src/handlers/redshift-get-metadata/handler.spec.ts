@@ -145,7 +145,7 @@ test('success', async () => {
       Bucket: METADATA_BUCKET_NAME,
       Key: METADATA_KEY,
     })
-    .resolvesOnce({ Body: mockS3BodyStream({ stringValue: TEST_CONFIG_FILE }) });
+    .resolves({ Body: mockS3BodyStream({ stringValue: TEST_CONFIG_FILE }) });
 
   // test second and third of the file path parts (benefits_dashboard and account_login) indirectly as they should have led to the right bit of JSON being returned
   const response = await handler(TEST_EVENT);
