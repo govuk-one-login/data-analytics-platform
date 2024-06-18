@@ -15,6 +15,17 @@ const EVENTBRIDGE_ENTRY_BASE = {
   DetailType: 'ingestion-status: failure',
 };
 
+const sqsEvent = (...bodies: unknown[]): SQSEvent => {
+  const records: SQSRecord[] = bodies.map(
+    body =>
+      ({
+        messageId: Math.random().toString(36).substring(2),
+        body: typeof body === 'string' ? body : JSON.stringify(body),
+      }) as unknown as SQSRecord,
+  );
+  return { Records: records };
+};
+
 beforeEach(() => {
   loggerSpy.mockReset();
   mockEventbridgeClient.reset();
@@ -70,9 +81,14 @@ test('process redshift file metadata', async () => {
   expect(mockEventbridgeClient.calls()).toHaveLength(1);
 });
 
-test('unknown input event', async () => {
-  const event = sqsEvent({ hello: 'world' });
-
+test.each([
+  {
+    name: 'unknown',
+    event: sqsEvent({ hello: 'world' }),
+    expectedError: 'Could not parse input event as any of the expected event types',
+  },
+  { name: 'unparseable', event: sqsEvent('hello world'), expectedError: 'Unexpected token h in JSON at position 0' },
+])('$name input event', async ({ event, expectedError }) => {
   const batchResponse = await handler(event);
   expect(batchResponse.batchItemFailures).toHaveLength(1);
   expect(batchResponse.batchItemFailures[0]).toEqual({ itemIdentifier: event.Records[0].messageId });
@@ -81,22 +97,7 @@ test('unknown input event', async () => {
 
   expect(loggerSpy).toHaveBeenCalledTimes(1);
   expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: new Error('Could not parse input event as any of the expected event types'),
-  });
-});
-
-test('unparseable input event', async () => {
-  const event = sqsEvent('hello world');
-
-  const batchResponse = await handler(event);
-  expect(batchResponse.batchItemFailures).toHaveLength(1);
-  expect(batchResponse.batchItemFailures[0]).toEqual({ itemIdentifier: event.Records[0].messageId });
-
-  expect(mockEventbridgeClient.calls()).toHaveLength(0);
-
-  expect(loggerSpy).toHaveBeenCalledTimes(1);
-  expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: new Error('Unexpected token h in JSON at position 0'),
+    error: new Error(expectedError),
   });
 });
 
@@ -132,14 +133,3 @@ test('multiple events', async () => {
     error: new Error('Unexpected token h in JSON at position 0'),
   });
 });
-
-const sqsEvent = (...bodies: unknown[]): SQSEvent => {
-  const records: SQSRecord[] = bodies.map(
-    body =>
-      ({
-        messageId: Math.random().toString(36).substring(2),
-        body: typeof body === 'string' ? body : JSON.stringify(body),
-      }) as unknown as SQSRecord,
-  );
-  return { Records: records };
-};

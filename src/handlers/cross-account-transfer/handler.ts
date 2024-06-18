@@ -1,4 +1,4 @@
-import { SendMessageBatchCommand } from '@aws-sdk/client-sqs';
+import { SendMessageBatchCommand, SendMessageBatchRequestEntry } from '@aws-sdk/client-sqs';
 import { ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client, sqsClient } from '../../shared/clients';
 import { createGunzip } from 'zlib';
@@ -35,36 +35,17 @@ export const handler = async (event: Event): Promise<{ statusCode: number; body:
         const contents = await s3Client.send(new ListObjectsV2Command(s3Params)).then(response => response.Contents);
 
         if (contents !== undefined && contents.length > 0) {
-          const messages = [];
+          const messages: SendMessageBatchRequestEntry[] = [];
           for (const obj of contents) {
             const getObjectParams = { Bucket: s3Bucket, Key: obj.Key };
             const objectResponse = await s3Client.send(new GetObjectCommand(getObjectParams));
             const objectContent = await getDecompressedContent(objectResponse);
             const jsonEvents = objectContent.trim().split('\n');
-
-            for (const event of jsonEvents) {
-              messages.push({
-                Id: uuidv4(),
-                MessageBody: event,
-                MessageAttributes: {
-                  date: { DataType: 'String', StringValue: date },
-                  bucket: { DataType: 'String', StringValue: s3Bucket },
-                  key: { DataType: 'String', StringValue: obj.Key },
-                },
-              });
-            }
+            getMessages(jsonEvents, date, s3Bucket, obj.Key).forEach(message => messages.push(message));
           }
 
-          const batchSize = 10;
-          const batches = [];
-          for (let i = 0; i < messages.length; i += batchSize) {
-            batches.push(messages.slice(i, i + batchSize));
-          }
-
-          for (const batch of batches) {
-            const params = { Entries: batch, QueueUrl: event.queue_url };
-            await sqsClient.send(new SendMessageBatchCommand(params));
-          }
+          const batches = getMessageBatches(messages);
+          await sendMessageBatches(batches, event.queue_url);
         }
       }
     }
@@ -75,6 +56,43 @@ export const handler = async (event: Event): Promise<{ statusCode: number; body:
     return { statusCode: 500, body: JSON.stringify('Error sending messages to SQS') };
   }
 };
+
+function getMessages(
+  jsonEvents: string[],
+  date: string,
+  s3Bucket: string,
+  key: string | undefined,
+): SendMessageBatchRequestEntry[] {
+  const messages = [];
+  for (const event of jsonEvents) {
+    messages.push({
+      Id: uuidv4(),
+      MessageBody: event,
+      MessageAttributes: {
+        date: { DataType: 'String', StringValue: date },
+        bucket: { DataType: 'String', StringValue: s3Bucket },
+        key: { DataType: 'String', StringValue: key },
+      },
+    });
+  }
+  return messages;
+}
+
+function getMessageBatches(messages: SendMessageBatchRequestEntry[]): SendMessageBatchRequestEntry[][] {
+  const batchSize = 10;
+  const batches = [];
+  for (let i = 0; i < messages.length; i += batchSize) {
+    batches.push(messages.slice(i, i + batchSize));
+  }
+  return batches;
+}
+
+async function sendMessageBatches(batches: SendMessageBatchRequestEntry[][], queueUrl: string): Promise<void> {
+  for (const batch of batches) {
+    const params = { Entries: batch, QueueUrl: queueUrl };
+    await sqsClient.send(new SendMessageBatchCommand(params));
+  }
+}
 
 async function getDecompressedContent(objectResponse: { Body: NodeJS.ReadableStream }): Promise<string> {
   return await new Promise((resolve, reject) => {
