@@ -62,7 +62,7 @@ const getFirehoseCommand = (body: Uint8Array): PutRecordCommand => {
 const shouldLogEvents = (): boolean => {
   try {
     const environment = getAWSEnvironment();
-    return environment === 'dev' || environment === 'test';
+    return environment === 'dev' || environment === 'test' || environment === 'production-preview';
   } catch (e) {
     return false;
   }
