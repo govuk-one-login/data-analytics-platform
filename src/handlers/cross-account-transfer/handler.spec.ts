@@ -1,8 +1,9 @@
-import { handler, logger } from './handler';
 import type { Event } from './handler';
+import { handler, logger } from './handler';
 import { SQSClient } from '@aws-sdk/client-sqs';
-import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
+import fs from 'node:fs';
 
 const loggerSpy = jest.spyOn(logger, 'info').mockImplementation(() => undefined);
 jest.spyOn(logger, 'error').mockImplementation(() => undefined);
@@ -46,4 +47,34 @@ test('should handle errors gracefully', async () => {
   // Assertions
   expect(mockS3Client.calls()).toHaveLength(1);
   expect(mockSQSClient.calls()).toHaveLength(0);
+});
+
+test('success', async () => {
+  const contents = Array(32)
+    .fill(0)
+    .map(() => ({ Key: `file.json` }));
+  mockS3Client.callsFake(input => {
+    // ListObjectsV2Command
+    if (input.Prefix !== undefined) {
+      return Promise.resolve({ Contents: contents });
+      // GetObjectCommand
+    } else if (input.Key !== undefined) {
+      return Promise.resolve({
+        Body: fs.createReadStream('src/test-resources/raw-event.gz'),
+        ContentEncoding: 'gzip',
+      });
+    }
+  });
+
+  await expect(handler(TEST_EVENT)).resolves.toStrictEqual({
+    statusCode: 200,
+    body: JSON.stringify('Messages sent to SQS successfully!'),
+  });
+
+  expect(mockS3Client.calls()).toHaveLength(33); // 1 to list objects and 32 (one for each of the contents)
+  expect(mockSQSClient.calls()).toHaveLength(4); // 3 batches of ten and 1 of two
+  expect(mockSQSClient.calls()[0].firstArg.input.Entries).toHaveLength(10);
+  expect(mockSQSClient.calls()[1].firstArg.input.Entries).toHaveLength(10);
+  expect(mockSQSClient.calls()[2].firstArg.input.Entries).toHaveLength(10);
+  expect(mockSQSClient.calls()[3].firstArg.input.Entries).toHaveLength(2);
 });
