@@ -1,7 +1,7 @@
 CREATE TABLE conformed_refactored.fact_user_journey_event_refactored_new (
     user_journey_event_key integer NOT NULL identity(1, 1) ENCODE raw,
     event_key integer NOT NULL ENCODE az64,
-    date_key integer NOT NULL ENCODE az64,
+    date_key integer NOT NULL ENCODE az64 distkey,
     user_key integer NOT NULL ENCODE az64,
     journey_channel_key integer NOT NULL ENCODE az64,
     relying_party_key integer NOT NULL ENCODE az64,
@@ -10,9 +10,7 @@ CREATE TABLE conformed_refactored.fact_user_journey_event_refactored_new (
     event_time character varying(1000) ENCODE lzo,
     component_id character varying(100) ENCODE bytedict,
     event_count integer ENCODE az64,
-    processed_date character varying(100) ENCODE lzo
-    distkey
-,
+    processed_date character varying(100) ENCODE lzo,
         created_by character varying(100) ENCODE lzo,
         created_date date ENCODE az64,
         modified_by character varying(100) ENCODE lzo,
