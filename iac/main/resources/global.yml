@@ -47,27 +47,7 @@ GlobalLogBucketPolicy:
           Resource: !Sub ${GlobalLogBucket.Arn}/*
           Condition:
             ArnLike:
-              aws:SourceArn:
-                - !GetAtt AthenaWorkgroupBucket.Arn
-                - !GetAtt GlobalNonEventBucket.Arn
-                - !GetAtt VPCFlowLogsBucket.Arn
-                - !GetAtt TrailBucket.Arn
-                - !GetAtt GlueJobResultsBucket.Arn
-                - !GetAtt RawLayerBucket.Arn
-                - !GetAtt FlywayFilesBucket.Arn
-                - !GetAtt StageLayerBucket.Arn
-                - !GetAtt ELTMetadataBucket.Arn
-                - !GetAtt StateMachineResultsBucket.Arn
-                - !GetAtt DataQualityMetricsBucket.Arn
-                - !If
-                  - IsQuicksightEnvironment
-                  # can't use !Ref QuicksightExportBucket here as QuicksightExportBucket is in the quicksight access stack
-                  - !Sub arn:aws:s3:::${Environment}-dap-quicksight-exports
-                  - !Ref AWS::NoValue
-                - !If
-                  - IsQuicksightEnvironment
-                  - !GetAtt DAPAnalystsFilesBucket.Arn
-                  - !Ref AWS::NoValue
+              aws:SourceArn: !Sub arn:aws:s3:::${Environment}-dap-*
             StringEquals:
               aws:SourceAccount: !Ref AWS::AccountId
 
