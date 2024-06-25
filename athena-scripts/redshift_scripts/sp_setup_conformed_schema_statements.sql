@@ -141,7 +141,8 @@ INSERT INTO conformed.REF_RELYING_PARTIES(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME)
 ('9uEx86ZHEp8ycgdHNqC8VK87E1A',	'Find and Use an API','DFE - Find and Use an API'),
 ('tPCCSyoMaFNbLTt0gEW609h15Uc',	'Fisheries Permit','MF - Fisheries Permit'),
 ('Gk-D7WMvytB44Nze7oEC5KcThQZ4yl7sAA',	'Immigration Advisor Self-Service','HO - Immigration Advice Authority'),
-('XbPzF-ccO0utCxlifxSyA4Ng0API2XTCQQ',	'Visit someone in prison','MOJ - Visit someone in prison');
+('XbPzF-ccO0utCxlifxSyA4Ng0API2XTCQQ',	'Visit someone in prison','MOJ - Visit someone in prison'),
+('S1hl5G31dSsMYqPaOuiRVOLhBX0',	'ATE Update your Capital Schemes','DFT - ATE Update your Capital Schemes');
 
 
     raise info 'Setup of conformed layer ran successfully';
