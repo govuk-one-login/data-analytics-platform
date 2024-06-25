@@ -40,6 +40,16 @@ GlobalLogBucketPolicy:
           Resource: !Sub ${GlobalLogBucket.Arn}/*
           Principal:
             AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+        - Effect: Allow
+          Action: s3:PutObject
+          Principal:
+            Service: logging.s3.amazonaws.com
+          Resource: !Sub ${GlobalLogBucket.Arn}/*
+          Condition:
+            ArnLike:
+              aws:SourceArn: !Sub arn:aws:s3:::${Environment}-dap-*
+            StringEquals:
+              aws:SourceAccount: !Ref AWS::AccountId
 
 GlobalNonEventBucket:
   Type: 'AWS::S3::Bucket'
