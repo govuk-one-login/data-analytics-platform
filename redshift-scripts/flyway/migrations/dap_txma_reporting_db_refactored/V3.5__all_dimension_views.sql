@@ -1,4 +1,4 @@
-CREATE VIEW conformed_refactored.vw_dim_user_refactored
+CREATE OR REPLACE VIEW conformed_refactored.vw_dim_user_refactored
 AS
 SELECT
     *
@@ -7,7 +7,7 @@ FROM
  union all
  select -1,'unknown','admin','1999-01-01','IAMR:dev-dap-redshift-processing-role','1999-01-01';
 
-CREATE VIEW conformed_refactored.vw_dim_user_journey_event_refactored
+CREATE OR REPLACE VIEW conformed_refactored.vw_dim_user_journey_event_refactored
 AS
 SELECT
     *
@@ -17,7 +17,7 @@ FROM
  select -1,'unknown','admin','1999-01-01','IAMR:dev-dap-redshift-processing-role','1999-01-01';   
 
 
-CREATE VIEW conformed_refactored.vw_dim_journey_channel_refactored
+CREATE OR REPLACE VIEW conformed_refactored.vw_dim_journey_channel_refactored
 AS
 SELECT
     *
