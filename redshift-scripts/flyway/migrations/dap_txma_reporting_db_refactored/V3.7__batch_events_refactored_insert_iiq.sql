@@ -1,0 +1,1 @@
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('IPV_KBV_CRI_EXPERIAN_IIQ_STARTED',sysdate,'1999-01-01');
