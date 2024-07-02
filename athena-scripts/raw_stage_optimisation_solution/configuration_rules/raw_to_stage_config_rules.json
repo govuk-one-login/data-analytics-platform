@@ -5,8 +5,8 @@
       "limit": 0
     },
     "event_processing_testing_criteria": {
-      "enabled": false,
-      "filter": "event_id in ('xxxx','xxxx')"
+      "enabled": true,
+      "filter": "partition_0='IPV_IDENTITY_ISSUED' AND event_id ='24fcfcc2-5ae1-40e1-9430-989eac396e93'"
     }
   },
   "data_cleaning": {
