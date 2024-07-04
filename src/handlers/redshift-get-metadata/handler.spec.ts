@@ -102,7 +102,7 @@ test('json parse error', async () => {
   mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: badJson }) });
 
   await expect(handler(TEST_EVENT)).rejects.toThrow(
-    `Error parsing JSON string "${badJson}" - Unexpected token h in JSON at position 0`,
+    `Error parsing JSON string "${badJson}" - Unexpected token 'h', "${badJson}" is not valid JSON`,
   );
 
   expect(mockS3Client.calls()).toHaveLength(1);

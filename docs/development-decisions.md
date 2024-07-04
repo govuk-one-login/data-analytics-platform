@@ -32,7 +32,7 @@ Prettier uses the rules in the EditorConfig [to add to its configuration](https:
 
 [TypeScript itself is configured](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) with the [tsconfig.json](../tsconfig.json) file at the top-level.
 The BTM and TxMA `tsconfig.json` files didn't seem especially consistent, so it was decided to instead use a [TSConfig base configuration](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html#tsconfig-bases)
-instead (specifically [the one for Node 18](https://www.npmjs.com/package/@tsconfig/node18)) to adhere to best practices. 
+instead (specifically [the one for Node 20](https://www.npmjs.com/package/@tsconfig/node20)) to adhere to best practices. 
 
 ## TypeScript Building
 

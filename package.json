@@ -4,6 +4,9 @@
   "description": "Data and Analytics platform which will enable the implementation of the OneLogin reporting strategy",
   "license": "MIT",
   "repository": "github:govuk-one-login/data-analytics-platform",
+  "engines": {
+    "node": "20"
+  },
   "devDependencies": {
     "@aws-lambda-powertools/logger": "^2.6.0",
     "@aws-lambda-powertools/metrics": "^2.6.0",
