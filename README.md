@@ -6,7 +6,7 @@ Data and Analytics platform which will enable the implementation of the [OneLogi
 
 #### Install development tools
 
-The project uses the current (as of 03/05/2023) LTS of Node, version 18.
+The project uses the current (as of 02/09/2024) LTS of Node, version 20.
 The GDS recommendation is to use `nvm` to manage Node versions - installation instructions can be found [here](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ###### Core

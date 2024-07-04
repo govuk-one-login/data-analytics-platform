@@ -87,7 +87,11 @@ test.each([
     event: sqsEvent({ hello: 'world' }),
     expectedError: 'Could not parse input event as any of the expected event types',
   },
-  { name: 'unparseable', event: sqsEvent('hello world'), expectedError: 'Unexpected token h in JSON at position 0' },
+  {
+    name: 'unparseable',
+    event: sqsEvent('hello world'),
+    expectedError: 'Unexpected token \'h\', "hello world" is not valid JSON',
+  },
 ])('$name input event', async ({ event, expectedError }) => {
   const batchResponse = await handler(event);
   expect(batchResponse.batchItemFailures).toHaveLength(1);
@@ -130,6 +134,6 @@ test('multiple events', async () => {
     error: new Error('Could not parse input event as any of the expected event types'),
   });
   expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: new Error('Unexpected token h in JSON at position 0'),
+    error: new Error('Unexpected token \'h\', "hello world" is not valid JSON'),
   });
 });
