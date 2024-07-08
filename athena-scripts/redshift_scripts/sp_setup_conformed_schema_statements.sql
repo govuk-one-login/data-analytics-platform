@@ -144,7 +144,8 @@ INSERT INTO conformed.REF_RELYING_PARTIES(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME)
 ('XbPzF-ccO0utCxlifxSyA4Ng0API2XTCQQ',	'Visit someone in prison','MOJ - Visit someone in prison'),
 ('S1hl5G31dSsMYqPaOuiRVOLhBX0',	'ATE Update your Capital Schemes','DFT - ATE Update your Capital Schemes'),
 ('CCdLjqwGtpAA1Td2CrNHT1yFbqa',	'Find an Apprenticeship','NAS - Find an Apprenticeship'),
-('iJNgycwBNEWGQvkuiLxOdVmVzG9',	'Driving with a medical condition','DVLA - Driving with a medical condition');
+('iJNgycwBNEWGQvkuiLxOdVmVzG9',	'Driving with a medical condition','DVLA - Driving with a medical condition'),
+('jdLmZNsFSD6zgt0MNRpOCsCvfCp',	'Send a Supervising engineer’s annual statement','EA - Send a Supervising engineer’s annual statement');
 
 
     raise info 'Setup of conformed layer ran successfully';

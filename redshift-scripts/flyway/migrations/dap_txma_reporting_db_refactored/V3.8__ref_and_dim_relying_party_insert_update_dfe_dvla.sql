@@ -22,3 +22,16 @@ SET relying_party_name='Driving with a medical condition'
     ,department_name='DVLA'
     ,agency_name='DVLA'
 WHERE  client_id='iJNgycwBNEWGQvkuiLxOdVmVzG9';
+
+
+INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
+    VALUES
+('jdLmZNsFSD6zgt0MNRpOCsCvfCp',	'Send a Supervising engineer’s annual statement','EA - Send a Supervising engineer’s annual statement','DEFRA','EA');
+
+
+UPDATE conformed_refactored.dim_relying_party_refactored
+SET relying_party_name='Send a Supervising engineer’s annual statement'
+    ,display_name='EA - Send a Supervising engineer’s annual statement'
+    ,department_name='DEFRA'
+    ,agency_name='EA'
+WHERE  client_id='jdLmZNsFSD6zgt0MNRpOCsCvfCp';
