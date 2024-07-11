@@ -71,6 +71,28 @@ class DataPreprocessing:
             print(f"Error renaming columns: {str(e)}")
             return None
         
+    def remove_columns(self, df, columns, silent):
+        """
+        Add new columns to the DataFrame.
+
+        Parameters:
+        df (DataFrame): The input DataFrame.
+        columns (list): A list of columns
+        silent (bool): true if errors should be supressed
+
+        Returns:
+        DataFrame: A DataFrame with specified columns removed if found.
+        """
+        
+        try:
+            errors = 'ignore' if silent else 'raise'
+            if not isinstance(columns, (list)):
+                raise ValueError("Invalid field of columns provided, require list")
+            return df.drop(columns, axis=1, errors=errors)
+        except Exception as e:
+            print(f"Error removing columns: {str(e)}")
+            return None
+        
     def add_new_column(self, df, fields):
         """
         Add new columns to the DataFrame.
@@ -244,7 +266,5 @@ class DataPreprocessing:
         except Exception as e:
             print(f"Error generating key/value records: {str(e)}")
             return None
-        
-    
-        
+            
 

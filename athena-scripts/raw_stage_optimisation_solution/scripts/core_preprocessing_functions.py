@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, stage_target_table):
+def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, stage_target_table, stage_table_exists):
 
     """
     Get the maximum processed_dt from the specified stage table.
@@ -11,6 +11,7 @@ def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, st
     raw_source_table (str): The name of the source table in the raw database.
     stage_target_table (str): The name of the target table in the stage database.
     stage_database (str): The name of the database containing the stage_target_table.
+    stage_table_exists (bool): True if stage table exists
 
     Returns:
     int: The maximum processed_dt value from the stagetable, 
@@ -19,7 +20,7 @@ def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, st
 
     try:
         
-        if app.does_glue_table_exist(stage_database, stage_target_table):
+        if stage_table_exists:
             sql=f'''select max(
 			                cast(
 				                concat(
@@ -125,7 +126,7 @@ def extract_element_by_name(json_data, element_name, parent_name=None):
         return None
     
     
-def generate_raw_select_filter(json_data, database, table, filter_processed_dt):
+def generate_raw_select_filter(json_data, database, table, filter_processed_dt, stage_table_exists):
 
     """
     Generate a SQL select criteria for the raw data-set based on JSON configuration.
@@ -167,15 +168,37 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt):
             raise ValueError("filter value for event_processing_testing_criteria is not found within config rules")
         print(f'config rule: event_processing_testing_criteria | filter: {event_processing_testing_criteria_filter}')
 
-        sql=f'''select * from \"{database}\".\"{table}\"'''
-
+        sql = f'''select * from \"{database}\".\"{table}\" where_clause'''
+        
+        subquery = f'''select *,
+			            row_number() over (
+				            partition by event_id
+				            order by cast(
+                                        concat(
+                                            cast(year as varchar),
+                                            cast(lpad(cast(month as varchar), 2, '0') as varchar), 
+                                            cast(lpad(cast(day as varchar), 2, '0') as varchar)
+                                        ) as int
+                                    ) desc
+			                ) as row_num
+               		    from \"{database}\".\"{table}\" as t
+                        where_clause'''
+                        
+        sql_with_subquery = f'''select * from ({subquery}) where row_num = 1'''
+                    
         if event_processing_testing_criteria_enabled and event_processing_testing_criteria_filter is not None:
-            sql = sql + f' where {event_processing_testing_criteria_filter}'
+            sql = sql_with_subquery.replace('where_clause',  f' where {event_processing_testing_criteria_filter} ')
+    
         elif event_processing_selection_criteria_filter is not None:
+            if not stage_table_exists:
+                sql = sql_with_subquery
+            
             update_process_dt = event_processing_selection_criteria_filter.replace('processed_dt', str(filter_processed_dt))
-            sql = sql + f' where {update_process_dt}'
+            sql = sql.replace('where_clause', f' where {update_process_dt} ')
             if event_processing_selection_criteria_limit is not None and event_processing_selection_criteria_limit > 0:
-                sql = sql + f' limit {event_processing_selection_criteria_limit}'
+                sql = sql + f' limit {event_processing_selection_criteria_limit} '
+        else:
+            sql = sql.replace("where_clause", "")
 
         return sql
 
@@ -433,6 +456,34 @@ def generate_key_value_records(preprocessing, json_data, df_raw, key_value_schem
     except Exception as e:
         print(f"Exception Error within function generate_key_value_records: {str(e)}")
         return None
+
+def remove_columns(preprocessing, json_data, df_raw):
+
+    """
+
+    remove columns based on configuration
     
-    
-    
+    Parameters:
+    preprocessing (DataPreprocessing): An instance of the DataPreprocessing class.
+    json_data (dict or list): The JSON configuration data.
+    df_raw (DataFrame): The raw DataFrame.
+
+    Returns:
+    DataFrame: The data frame with columns removed 
+    """
+        
+    try:
+        
+        if not isinstance(json_data, (dict, list)):
+            raise ValueError("Invalid JSON data provided")
+        
+        data_cleaning_columns_removal_list  = extract_element_by_name(json_data, "data_cleaning", "remove_columns")
+        if data_cleaning_columns_removal_list is None:
+            raise ValueError("generate_key_value_records value for data_transformations is not found within config rules")
+        print(f'config rule: data_transformations | remove_columns: {data_cleaning_columns_removal_list}')
+
+        return preprocessing.remove_columns(df_raw, data_cleaning_columns_removal_list, True)
+    except Exception as e:
+        print(f"Error removing columns: {str(e)}")
+        return None
+        

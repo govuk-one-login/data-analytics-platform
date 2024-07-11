@@ -21,6 +21,9 @@
     ],
     "empty_string_replacement": [
       "client_id"
+    ],
+    "remove_columns": [
+      "row_num"
     ]
   },
   "data_transformations": {
