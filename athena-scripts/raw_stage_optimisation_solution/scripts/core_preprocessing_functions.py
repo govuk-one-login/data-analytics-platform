@@ -168,7 +168,7 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
             raise ValueError("filter value for event_processing_testing_criteria is not found within config rules")
         print(f'config rule: event_processing_testing_criteria | filter: {event_processing_testing_criteria_filter}')
 
-        sql = f'''select * from \"{database}\".\"{table}\" where_clause'''
+        sql = f'''select * from \"{database}\".\"{table}\"'''
         
         subquery = f'''select *,
 			            row_number() over (
@@ -181,24 +181,21 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
                                         ) as int
                                     ) desc
 			                ) as row_num
-               		    from \"{database}\".\"{table}\" as t
-                        where_clause'''
+               		    from \"{database}\".\"{table}\" as t'''
                         
-        sql_with_subquery = f'''select * from ({subquery}) where row_num = 1'''
-                    
         if event_processing_testing_criteria_enabled and event_processing_testing_criteria_filter is not None:
-            sql = sql_with_subquery.replace('where_clause',  f' where {event_processing_testing_criteria_filter} ')
-    
+            subquery = subquery + f'where {event_processing_selection_criteria_filter}'
+            sql = f'select * from ({subquery}) where row_num = 1'
         elif event_processing_selection_criteria_filter is not None:
-            if not stage_table_exists:
-                sql = sql_with_subquery
-            
             update_process_dt = event_processing_selection_criteria_filter.replace('processed_dt', str(filter_processed_dt))
-            sql = sql.replace('where_clause', f' where {update_process_dt} ')
+
+            if not stage_table_exists:
+                subquery = subquery + f'where {update_process_dt}'
+                sql = f'select * from ({subquery}) where row_num = 1'
+            
+            sql = sql + f' where {update_process_dt}'
             if event_processing_selection_criteria_limit is not None and event_processing_selection_criteria_limit > 0:
                 sql = sql + f' limit {event_processing_selection_criteria_limit} '
-        else:
-            sql = sql.replace("where_clause", "")
 
         return sql
 
