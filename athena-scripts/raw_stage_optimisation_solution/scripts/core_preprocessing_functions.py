@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, stage_target_table):
+def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, stage_target_table, stage_table_exists):
 
     """
     Get the maximum processed_dt from the specified stage table.
@@ -19,7 +19,7 @@ def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, st
 
     try:
         
-        if app.does_glue_table_exist(stage_database, stage_target_table):
+        if stage_table_exists:
             sql=f'''select max(
 			                cast(
 				                concat(
@@ -125,7 +125,7 @@ def extract_element_by_name(json_data, element_name, parent_name=None):
         return None
     
     
-def generate_raw_select_filter(json_data, database, table, filter_processed_dt):
+def generate_raw_select_filter(json_data, database, table, filter_processed_dt, stage_table_exists):
 
     """
     Generate a SQL select criteria for the raw data-set based on JSON configuration.
@@ -167,15 +167,26 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt):
             raise ValueError("filter value for event_processing_testing_criteria is not found within config rules")
         print(f'config rule: event_processing_testing_criteria | filter: {event_processing_testing_criteria_filter}')
 
-        sql=f'''select * from \"{database}\".\"{table}\"'''
-
+        if stage_table_exists:
+            sql=f'''select * from \"{database}\".\"{table}\" where_clause'''
+        else:  
+            subquery = f'''select *,
+			                row_number() over (
+				            partition by event_id
+				            order by cast(concat(year, month, day) as int) desc
+			            ) as row_num
+               		    from \"{database}\".\"{table}\" as t
+                        where_clause'''
+            sql=f'''select * from ({subquery}) where row_num = 1'''
+                    
         if event_processing_testing_criteria_enabled and event_processing_testing_criteria_filter is not None:
-            sql = sql + f' where {event_processing_testing_criteria_filter}'
+            sql = sql.replace('where_clause',  f' where {event_processing_testing_criteria_filter} ')
+    
         elif event_processing_selection_criteria_filter is not None:
             update_process_dt = event_processing_selection_criteria_filter.replace('processed_dt', str(filter_processed_dt))
-            sql = sql + f' where {update_process_dt}'
+            sql = sql.replace('where_clause', f' where {update_process_dt} ')
             if event_processing_selection_criteria_limit is not None and event_processing_selection_criteria_limit > 0:
-                sql = sql + f' limit {event_processing_selection_criteria_limit}'
+                sql = sql + f' limit {event_processing_selection_criteria_limit} '
 
         return sql
 
