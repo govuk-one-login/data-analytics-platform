@@ -11,6 +11,7 @@ def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, st
     raw_source_table (str): The name of the source table in the raw database.
     stage_target_table (str): The name of the target table in the stage database.
     stage_database (str): The name of the database containing the stage_target_table.
+    stage_table_exists (bool): true if stage table exists
 
     Returns:
     int: The maximum processed_dt value from the stagetable, 
@@ -135,6 +136,7 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
     database (str): The name of the database.
     table (str): The name of the table.
     filter_processed_dt (int): The processed_dt value for filtering.
+    stage_table_exists (bool): true if stage table exists
 
     Returns:
     str: The SQL select criteria for the raw data-set.
@@ -167,22 +169,31 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
             raise ValueError("filter value for event_processing_testing_criteria is not found within config rules")
         print(f'config rule: event_processing_testing_criteria | filter: {event_processing_testing_criteria_filter}')
 
-        if stage_table_exists:
-            sql=f'''select * from \"{database}\".\"{table}\" where_clause'''
-        else:  
-            subquery = f'''select *,
-			                row_number() over (
+        sql = f'''select * from \"{database}\".\"{table}\" where_clause'''
+        
+        subquery = f'''select *,
+			            row_number() over (
 				            partition by event_id
-				            order by cast(concat(year, month, day) as int) desc
-			            ) as row_num
+				            order by cast(
+                                        concat(
+                                            cast(year as varchar),
+                                            cast(lpad(cast(month as varchar), 2, '0') as varchar), 
+                                            cast(lpad(cast(day as varchar), 2, '0') as varchar)
+                                        ) as int
+                                    ) desc
+			                ) as row_num
                		    from \"{database}\".\"{table}\" as t
                         where_clause'''
-            sql=f'''select * from ({subquery}) where row_num = 1'''
+                        
+        sql_with_subquery = f'''select * from ({subquery}) where row_num = 1'''
                     
         if event_processing_testing_criteria_enabled and event_processing_testing_criteria_filter is not None:
-            sql = sql.replace('where_clause',  f' where {event_processing_testing_criteria_filter} ')
+            sql = sql_with_subquery.replace('where_clause',  f' where {event_processing_testing_criteria_filter} ')
     
         elif event_processing_selection_criteria_filter is not None:
+            if not stage_table_exists:
+                sql = sql_with_subquery
+            
             update_process_dt = event_processing_selection_criteria_filter.replace('processed_dt', str(filter_processed_dt))
             sql = sql.replace('where_clause', f' where {update_process_dt} ')
             if event_processing_selection_criteria_limit is not None and event_processing_selection_criteria_limit > 0:
