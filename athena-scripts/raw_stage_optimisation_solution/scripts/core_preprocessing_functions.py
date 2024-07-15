@@ -476,8 +476,8 @@ def remove_columns(preprocessing, json_data, df_raw):
         
         data_cleaning_columns_removal_list  = extract_element_by_name(json_data, "remove_columns", "data_cleaning")
         if data_cleaning_columns_removal_list is None:
-            raise ValueError("generate_key_value_records value for data_transformations is not found within config rules")
-        print(f'config rule: data_transformations | remove_columns: {data_cleaning_columns_removal_list}')
+            raise ValueError("remove_columns value for data_cleaning is not found within config rules")
+        print(f'config rule: data cleaning | remove_columns: {data_cleaning_columns_removal_list}')
 
         return preprocessing.remove_columns(df_raw, data_cleaning_columns_removal_list, True)
     except Exception as e:
