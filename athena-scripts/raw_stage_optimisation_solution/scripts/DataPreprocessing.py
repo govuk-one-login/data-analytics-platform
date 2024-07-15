@@ -73,7 +73,7 @@ class DataPreprocessing:
         
     def remove_columns(self, df, columns, silent):
         """
-        Add new columns to the DataFrame.
+        remove columns from the data frame
 
         Parameters:
         df (DataFrame): The input DataFrame.
