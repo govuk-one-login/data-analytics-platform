@@ -181,10 +181,10 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
                                         ) as int
                                     ) desc
 			                ) as row_num
-               		    from \"{database}\".\"{table}\" as t'''
+               		    from \"{database}\".\"{table}\" as t '''
                         
         if event_processing_testing_criteria_enabled and event_processing_testing_criteria_filter is not None:
-            subquery = subquery + f'where {event_processing_selection_criteria_filter}'
+            subquery = subquery + f'where {event_processing_testing_criteria_filter}'
             sql = f'select * from ({subquery}) where row_num = 1'
         elif event_processing_selection_criteria_filter is not None:
             update_process_dt = event_processing_selection_criteria_filter.replace('processed_dt', str(filter_processed_dt))
@@ -474,7 +474,7 @@ def remove_columns(preprocessing, json_data, df_raw):
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
         
-        data_cleaning_columns_removal_list  = extract_element_by_name(json_data, "data_cleaning", "remove_columns")
+        data_cleaning_columns_removal_list  = extract_element_by_name(json_data, "remove_columns", "data_cleaning")
         if data_cleaning_columns_removal_list is None:
             raise ValueError("generate_key_value_records value for data_transformations is not found within config rules")
         print(f'config rule: data_transformations | remove_columns: {data_cleaning_columns_removal_list}')
