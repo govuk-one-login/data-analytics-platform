@@ -168,6 +168,17 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
             raise ValueError("filter value for event_processing_testing_criteria is not found within config rules")
         print(f'config rule: event_processing_testing_criteria | filter: {event_processing_testing_criteria_filter}')
         
+        event_processing_view_criteria_enabled = extract_element_by_name(json_data, "enabled", "event_processing_view_criteria")
+        if event_processing_view_criteria_enabled is None:
+            raise ValueError("enabled value for event_processing_view_criteria is not found within config rules")
+        print(f'config rule: event_processing_view_criteria | enabled: {event_processing_view_criteria_enabled}')
+
+        event_processing_view_criteria_view = extract_element_by_name(json_data, "view_name", "event_processing_view_criteria")
+        if event_processing_view_criteria_view is None:
+            raise ValueError("filter value for event_processing_view_criteria is not found within config rules")
+        print(f'config rule: event_processing_view_criteria | view: {event_processing_view_criteria_view}')
+        
+        
         deduplicate_subquery = f'''select *,
 			            row_number() over (
 				            partition by event_id
@@ -181,9 +192,11 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
 			                ) as row_num
                		    from \"{database}\".\"{table}\" as t '''
                      
-        sql = 'select * from \"{database}\".\"{table}\"'
+        sql = f'''select * from \"{database}\".\"{table}\"'''
         
-        if event_processing_testing_criteria_enabled and event_processing_testing_criteria_filter is not None:
+        if event_processing_view_criteria_enabled and event_processing_view_criteria_view is not None:
+            sql = f'select * from \"{database}\".\"{event_processing_view_criteria_view}\"'
+        elif event_processing_testing_criteria_enabled and event_processing_testing_criteria_filter is not None:
             deduplicate_subquery = deduplicate_subquery + f'where {event_processing_testing_criteria_filter}'
             sql = f'select * from ({deduplicate_subquery}) where row_num = 1'
         elif event_processing_selection_criteria_filter is not None:
@@ -193,7 +206,7 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
                 deduplicate_subquery = deduplicate_subquery + f'where {update_process_dt}'
                 sql = f'select * from ({deduplicate_subquery}) where row_num = 1'
             else:
-                sql = sql + f'where {update_process_dt}'
+                sql = sql + f' where {update_process_dt}'
             
             if event_processing_selection_criteria_limit is not None and event_processing_selection_criteria_limit > 0:
                 sql = sql + f' limit {event_processing_selection_criteria_limit}'

@@ -7,6 +7,10 @@
     "event_processing_testing_criteria": {
       "enabled": false,
       "filter": "event_id in ('xxx', 'xxx')"
+    },
+    "event_processing_view_criteria": {
+      "enabled": true,
+      "view_name": "txma_and_splunk_dedup_view_batch_4"
     }
   },
   "data_cleaning": {
