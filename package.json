@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": "github:govuk-one-login/data-analytics-platform",
   "devDependencies": {
-    "@aws-lambda-powertools/logger": "^2.5.0",
+    "@aws-lambda-powertools/logger": "^2.6.0",
     "@aws-lambda-powertools/metrics": "^2.5.0",
     "@aws-sdk/client-athena": "^3.616.0",
     "@aws-sdk/client-cloudwatch-logs": "^3.616.0",
