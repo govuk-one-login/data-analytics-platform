@@ -91,28 +91,23 @@ def main():
             raise ValueError("Class 's3_app' returned None, which is not allowed.")
         formatted_json = json.dumps(json_data, indent=4)
         print(f'configuration rules:\n {formatted_json}')
-        
-        stage_table_exists= glue_app.does_glue_table_exist(args['stage_database'], args['stage_target_table'])
-        
+                
         # Query for max(processed_dt)   
-        # filter_processed_dt = get_max_processed_dt(glue_app,
-        #                                            args['raw_database'], 
-        #                                             args['raw_source_table'],
-        #                                             args['stage_database'],
-        #                                             args['stage_target_table'],
-        #                                             stage_table_exists)
+        filter_processed_dt = get_max_processed_dt(glue_app,
+                                                   args['raw_database'], 
+                                                    args['raw_source_table'],
+                                                    args['stage_database'],
+                                                    args['stage_target_table'])
         
-        # if filter_processed_dt is None:
-        #     raise ValueError("Function 'get_max_processed_dt' returned None, which is not allowed.")
-        # print(f'retrieved processed_dt filter value: {filter_processed_dt}')
+        if filter_processed_dt is None:
+            raise ValueError("Function 'get_max_processed_dt' returned None, which is not allowed.")
+        print(f'retrieved processed_dt filter value: {filter_processed_dt}')
         
-        filter_processed_dt = 20240206
         # Generate the raw data select criteria
         raw_sql_select = generate_raw_select_filter(json_data, 
                                                     args['raw_database'], 
                                                     args['raw_source_table'],
-                                                    filter_processed_dt,
-                                                    stage_table_exists)
+                                                    filter_processed_dt)
         
         if raw_sql_select is None:
             raise ValueError("Function 'generate_raw_select_filter' returned None, which is not allowed.")

@@ -6,11 +6,11 @@
     },
     "event_processing_testing_criteria": {
       "enabled": false,
-      "filter": "event_id in ('xxx', 'xxx')"
+      "filter": "partition_0 = 'IPV_IDENTITY_ISSUED'"
     },
     "event_processing_view_criteria": {
-      "enabled": true,
-      "view_name": "txma_and_splunk_dedup_view_batch_4"
+      "enabled": false,
+      "view_name": "xxx"
     }
   },
   "data_cleaning": {

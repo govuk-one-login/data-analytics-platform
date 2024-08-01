@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, stage_target_table, stage_table_exists):
+def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, stage_target_table):
 
     """
     Get the maximum processed_dt from the specified stage table.
@@ -20,7 +20,7 @@ def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, st
 
     try:
         
-        if stage_table_exists:
+        if app.does_glue_table_exist(stage_database, stage_target_table):
             sql=f'''select max(
 			                cast(
 				                concat(
@@ -126,7 +126,7 @@ def extract_element_by_name(json_data, element_name, parent_name=None):
         return None
     
     
-def generate_raw_select_filter(json_data, database, table, filter_processed_dt, stage_table_exists):
+def generate_raw_select_filter(json_data, database, table, filter_processed_dt):
 
     """
     Generate a SQL select criteria for the raw data-set based on JSON configuration.
@@ -197,16 +197,12 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
         if event_processing_view_criteria_enabled and event_processing_view_criteria_view is not None:
             sql = f'select * from \"{database}\".\"{event_processing_view_criteria_view}\"'
         elif event_processing_testing_criteria_enabled and event_processing_testing_criteria_filter is not None:
-            deduplicate_subquery = deduplicate_subquery + f'where {event_processing_testing_criteria_filter}'
+            deduplicate_subquery = deduplicate_subquery + f' where {event_processing_testing_criteria_filter}'
             sql = f'select * from ({deduplicate_subquery}) where row_num = 1'
         elif event_processing_selection_criteria_filter is not None:
             update_process_dt = event_processing_selection_criteria_filter.replace('processed_dt', str(filter_processed_dt))
 
-            if not stage_table_exists:
-                deduplicate_subquery = deduplicate_subquery + f'where {update_process_dt}'
-                sql = f'select * from ({deduplicate_subquery}) where row_num = 1'
-            else:
-                sql = sql + f' where {update_process_dt}'
+            sql = sql + f' where {update_process_dt}'
             
             if event_processing_selection_criteria_limit is not None and event_processing_selection_criteria_limit > 0:
                 sql = sql + f' limit {event_processing_selection_criteria_limit}'
