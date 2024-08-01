@@ -6,7 +6,7 @@
     },
     "event_processing_testing_criteria": {
       "enabled": true,
-      "filter": "CAST(concat(year, month, day) AS INT) = 20240731"
+      "filter": "CAST(concat(year, month, day) AS INT) = yyyymmdd"
     },
     "event_processing_view_criteria": {
       "enabled": false,
