@@ -46,7 +46,6 @@ export const poll = async <Resolution>(
       clearInterval(intervalHandle);
       // Rejecting with a string rather than an error so that the failure
       // bubbles up to the test, giving better output
-      // eslint-disable-next-line prefer-promise-reject-errors
       reject(nonCompleteErrorMessage);
     }, timeout);
     // using a stack even though we only intend to have one promise at a time

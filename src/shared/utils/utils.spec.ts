@@ -17,7 +17,6 @@ import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import { mockS3BodyStream } from './test-utils';
 import type { Context, S3Event } from 'aws-lambda';
 
-/* eslint-disable @typescript-eslint/consistent-type-assertions */
 test('get required params correctly errors', () => {
   interface TestType {
     a?: string;
@@ -45,7 +44,6 @@ test('get required params correctly errors', () => {
     'Object is missing the following required fields: a, c, e',
   );
 });
-/* eslint-enable @typescript-eslint/consistent-type-assertions */
 
 test('get required params preserves optional params', () => {
   const requiredOnly = getRequiredParams({ Bucket: 'bucket-name' }, 'Bucket');

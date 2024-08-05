@@ -33,9 +33,7 @@ describe('IPV_CRI_F2F GROUP Test - valid TXMA Event F2F_CRI_VC_ISSUED to SQS and
       setEventData(event, data);
       const restricts = data.issuing_country.map(issuingCountry => {
         const restrict = {};
-        //  eslint-disable-next-line @typescript-eslint/dot-notation
         restrict['documentType'] = data.document_type;
-        //  eslint-disable-next-line @typescript-eslint/dot-notation
         restrict['issuingCountry'] = issuingCountry;
         return restrict;
       });
@@ -79,9 +77,7 @@ describe('IPV_CRI_F2F GROUP Test - valid TXMA Event F2F_YOTI_START to SQS and ex
       setEventData(event, data);
       const restricts = data.issuing_country.map(issuingCountry => {
         const restrict = {};
-        //  eslint-disable-next-line @typescript-eslint/dot-notation
         restrict['documentType'] = data.document_type;
-        //  eslint-disable-next-line @typescript-eslint/dot-notation
         restrict['issuingCountry'] = issuingCountry;
         return restrict;
       });
