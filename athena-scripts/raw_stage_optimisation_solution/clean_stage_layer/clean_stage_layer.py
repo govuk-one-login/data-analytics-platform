@@ -155,8 +155,8 @@ def main():
         clean_job_config = json.load(config_file)
         config_file.close()
 
-    if clean_job_config['clean_by_event_name_and_ids']['enabled']:
-        config = config['clean_by_event_name_and_ids']['config']
+    if clean_job_config['clean_by_event_name']['enabled']:
+        config = clean_job_config['clean_by_event_name']['config']
         print(config)
 
         event_name = config['event_name']
