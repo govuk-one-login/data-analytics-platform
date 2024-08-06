@@ -16,7 +16,6 @@ export class DatabaseAccess {
     this.logger = logger;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getDatabaseConnection(secret: RedshiftSecret): Promise<Database | null> {
     try {
       const connectionDetails = {

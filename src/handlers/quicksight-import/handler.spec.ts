@@ -45,7 +45,6 @@ test('success with name change', async () => {
 
 test('bad s3 uri', async () => {
   const event = getEvent({ s3Uri: '1234' });
-  // eslint-disable-next-line no-template-curly-in-string
   const expectedFormat = 's3://${bucketName}/export-${analysisId}-${timestamp}.zip';
   await expect(handler(event, CONTEXT)).rejects.toThrow(
     `Invalid S3 URI (expected format '${expectedFormat}') - received 1234`,
