@@ -7,6 +7,10 @@
     "event_processing_testing_criteria": {
       "enabled": false,
       "filter": "event_id in ('xxxx','xxxx')"
+    },
+    "event_processing_view_criteria": {
+      "enabled": false,
+      "view_name": "xxx"
     }
   },
   "data_cleaning": {
@@ -21,6 +25,9 @@
     ],
     "empty_string_replacement": [
       "client_id"
+    ],
+    "remove_columns": [
+      "row_num"
     ]
   },
   "data_transformations": {

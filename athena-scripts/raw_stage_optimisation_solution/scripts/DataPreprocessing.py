@@ -71,6 +71,28 @@ class DataPreprocessing:
             print(f"Error renaming columns: {str(e)}")
             return None
         
+    def remove_columns(self, df, columns, silent):
+        """
+        remove columns from the data frame
+
+        Parameters:
+        df (DataFrame): The input DataFrame.
+        columns (list): A list of columns
+        silent (bool): true if errors should be supressed
+
+        Returns:
+        DataFrame: A DataFrame with specified columns removed if found.
+        """
+        
+        try:
+            errors = 'ignore' if silent else 'raise'
+            if not isinstance(columns, (list)):
+                raise ValueError("Invalid field of columns provided, require list")
+            return df.drop(columns, axis=1, errors=errors)
+        except Exception as e:
+            print(f"Error removing columns: {str(e)}")
+            return None
+        
     def add_new_column(self, df, fields):
         """
         Add new columns to the DataFrame.
@@ -175,13 +197,13 @@ class DataPreprocessing:
                                 if isinstance(item, (dict, list)):
                                     items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
                                 else:
-                                    items.append((new_key, item))
+                                    items.append((f"{new_key}[{i}]", item))
                         elif isinstance(value, np.ndarray):
                             for i, item in enumerate(value):
                                 if isinstance(item, (dict, list)):
                                     items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
                                 else:
-                                    items.append((new_key, item))
+                                    items.append((f"{new_key}[{i}]", item))
                         else:
                             if isinstance(value, str):  # Check if item is a string
                                 try:
@@ -244,7 +266,5 @@ class DataPreprocessing:
         except Exception as e:
             print(f"Error generating key/value records: {str(e)}")
             return None
-        
-    
-        
+            
 

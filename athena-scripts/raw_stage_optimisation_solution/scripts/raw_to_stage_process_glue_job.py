@@ -84,13 +84,14 @@ def main():
         '''
         
         
+        
         # Read config rules json
         json_data = s3_app.read_json(args['config_bucket'], args['config_key_path'])
         if json_data is None:
             raise ValueError("Class 's3_app' returned None, which is not allowed.")
         formatted_json = json.dumps(json_data, indent=4)
         print(f'configuration rules:\n {formatted_json}')
-        
+                
         # Query for max(processed_dt)   
         filter_processed_dt = get_max_processed_dt(glue_app,
                                                    args['raw_database'], 
@@ -101,7 +102,6 @@ def main():
         if filter_processed_dt is None:
             raise ValueError("Function 'get_max_processed_dt' returned None, which is not allowed.")
         print(f'retrieved processed_dt filter value: {filter_processed_dt}')
-        
         
         # Generate the raw data select criteria
         raw_sql_select = generate_raw_select_filter(json_data, 
@@ -136,6 +136,11 @@ def main():
                 return
 
             df_raw_row_count = int(len(df_raw))
+            
+            
+            df_raw = remove_columns(preprocessing, json_data, df_raw)
+            if df_raw is None:
+                raise ValueError(f"Function: remove_columns returned None.")
             
             # Remove row duplicates
             df_raw = remove_row_duplicates(preprocessing, json_data, df_raw)
