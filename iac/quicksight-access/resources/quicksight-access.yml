@@ -513,6 +513,7 @@ DataAnalyticsQuicksightSyncRole:
               Action:
                 - cognito-idp:AdminCreateUser
                 - cognito-idp:AdminDeleteUser
+                - cognito-idp:AdminGetUser
                 - cognito-idp:DescribeUserPool
                 - cognito-idp:ListUsers
               Resource: !GetAtt QuicksightAccessUserPool.Arn
@@ -526,5 +527,6 @@ DataAnalyticsQuicksightSyncRole:
                 - quicksight:CreateGroupMembership
                 - quicksight:DeleteGroupMembership
                 - quicksight:RegisterUser
+                - quicksight:DescribeUser
                 - quicksight:DeleteUser
               Resource: '*'
