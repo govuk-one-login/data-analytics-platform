@@ -8,7 +8,7 @@
     "@aws-lambda-powertools/logger": "^2.6.0",
     "@aws-lambda-powertools/metrics": "^2.6.0",
     "@aws-sdk/client-athena": "^3.623.0",
-    "@aws-sdk/client-cloudwatch-logs": "^3.623.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.624.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.623.0",
     "@aws-sdk/client-eventbridge": "^3.623.0",
     "@aws-sdk/client-firehose": "^3.623.0",
