@@ -52,7 +52,7 @@
     "prettier-plugin-sh": "^0.14.0",
     "tar": "^7.4.3",
     "typescript": "^5.5.4",
-    "typescript-eslint": "^8.0.0",
+    "typescript-eslint": "^8.1.0",
     "uuid": "^10.0.0"
   },
   "scripts": {
