@@ -332,7 +332,6 @@ KmsKey:
               - events.amazonaws.com
             AWS:
               - !GetAtt RawGlueCrawlerRole.Arn
-              - !GetAtt StageGlueCrawlerRole.Arn
               - !GetAtt StepFunctionRole.Arn
               - !GetAtt GlueScriptsExecutionRole.Arn
               - !GetAtt StepFunctionRedshiftProcessRole.Arn
