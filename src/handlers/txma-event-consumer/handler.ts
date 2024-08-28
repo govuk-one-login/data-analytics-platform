@@ -21,8 +21,7 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
         const firehoseRequest = getFirehoseCommand(buffer);
         await sendMessageToKinesisFirehose(firehoseRequest);
 
-        logger.info(`processed event ${JSON.stringify(record.body)}`)
-
+        logger.info(`processed event ${JSON.stringify(record.body)}`);
       } catch (e) {
         logger.error(`Error in TxMA Event Consumer for record with body "${JSON.stringify(record.body)}"`, { e });
         batchItemFailures.push({ itemIdentifier: record.messageId });
