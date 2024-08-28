@@ -11,6 +11,7 @@ import gzip
 config_file = 'input config file path'
 reconciliation_file = 'output file path'
 
+access_key = ''
 
 # update to retrieve from secrets manager
 username= 'xxx'
@@ -21,7 +22,7 @@ host_port = '8089'
 aws_region_name = 'eu-west-2'
 s3_client = boto3.client('s3', region_name=aws_region_name)
 
-service = connect(username=username, password=password, host=host_name, port=host_port, autologin=True)
+service = connect(token=access_key, host=host_name, port=host_port, autologin=True)
 
 
 def write_jsonl_to_s3(jsonl_data, s3_bucket, file_name):
