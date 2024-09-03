@@ -13,7 +13,7 @@ cd /test-app || exit 1
 export TXMA_QUEUE_URL=$CFN_TXMAQueueURL
 export TXMA_BUCKET=$CFN_TXMABucket
 
-npm run smoke-test
+npm run smoke-test-restructuring
 
 TESTS_EXIT_CODE=$?
 
