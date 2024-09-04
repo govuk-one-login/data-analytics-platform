@@ -2,7 +2,7 @@ module.exports = async () => {
   return {
     verbose: true,
     transform: {
-      '^.+\\.tsx?$': 'esbuild-jest',
+      '^.+\\.tsx?$': '@swc/jest',
     },
     collectCoverage: true,
     testResultsProcessor: './node_modules/jest-stare',
