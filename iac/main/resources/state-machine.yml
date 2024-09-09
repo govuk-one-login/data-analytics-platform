@@ -139,37 +139,6 @@ AthenaRawLayerProcessingLogGroup:
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
-AthenaRawLayerProcessingStateMachine:
-  Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
-  Properties:
-    DefinitionUri: statemachine/athena_raw_layer_processing.asl.json
-    Name: !Sub ${Environment}-dap-raw-to-stage-process
-    Role: !GetAtt StepFunctionRole.Arn
-    Logging:
-      Destinations:
-        - CloudWatchLogsLogGroup:
-            LogGroupArn: !GetAtt AthenaRawLayerProcessingLogGroup.Arn
-      IncludeExecutionData: true
-      Level: ALL
-    DefinitionSubstitutions:
-      GetEventConfigFunctionArn: !GetAtt AthenaGetConfigLambda.Arn
-      GetAthenaStatementFunctionArn: !GetAtt AthenaGetStatementLambda.Arn
-      GlueCrawlerStageName: !Ref StageGlueCrawler
-      AthenaWorkGroupName: !Ref AthenaWorkGroup
-      S3RawBucketName: !Ref RawLayerBucket
-      S3StageBucketName: !Ref StageLayerBucket
-      S3MetaDataBucketName: !Ref ELTMetadataBucket
-      RawDatabaseName: !Ref RawGlueDatabase
-      StateMachineResultsBucket: !Ref StateMachineResultsBucket
-      DataQualityGlueJobname: !Ref DataQualityPythonGlueJob
-      RedshiftProcessingStepFunctionArn: !Ref RedshiftProcessingStateMachine
-    Events:
-      DailySchedule:
-        Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
-        Properties:
-          Enabled: !Not IsTest
-          Schedule: cron(0 3 * * ? *)
-
 StepFunctionRole:
   Type: AWS::IAM::Role
   Properties:

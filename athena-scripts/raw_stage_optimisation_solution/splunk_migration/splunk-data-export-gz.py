@@ -6,23 +6,33 @@ import boto3
 from splunklib.client import connect
 import uuid
 import gzip
-
+import json
 
 config_file = 'input config file path'
 reconciliation_file = 'output file path'
 
-
-# update to retrieve from secrets manager
-username= 'xxx'
-password= 'xxx'
-
 host_name = 'gds.splunkcloud.com'
 host_port = '8089'
 aws_region_name = 'eu-west-2'
+
 s3_client = boto3.client('s3', region_name=aws_region_name)
+secrets_client = boto3.client('secretsmanager', region_name=aws_region_name)
+secret_name = 'dev-SplunkPerformanceIndexSecret'
+
+def get_splunk_credentials():
+    try:
+        secrets_string = secrets_client.get_secret_value(
+            SecretId=secret_name
+        )['SecretString']
+        return json.loads(secrets_string)
+    except Exception as e:
+        raise e
+    
+splunk_credentials = get_splunk_credentials()
+username = splunk_credentials['username']
+password = splunk_credentials['password']
 
 service = connect(username=username, password=password, host=host_name, port=host_port, autologin=True)
-
 
 def write_jsonl_to_s3(jsonl_data, s3_bucket, file_name):
     compressed_data = gzip.compress(jsonl_data.encode('utf-8'))

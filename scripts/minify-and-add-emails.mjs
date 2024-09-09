@@ -1,7 +1,7 @@
 'use strict';
 
 import fs from 'fs';
-import { minify } from 'html-minifier';
+import { minify } from 'html-minifier-terser';
 
 const EMAIL_TEMPLATES_DIR = `${process.cwd()}/iac/quicksight-access/templates`;
 const YAML_FILE = `${process.cwd()}/template.yaml`;
@@ -12,10 +12,10 @@ const emailMessages = [...yamlString.matchAll(/\s+EmailMessage: (<(.*-email)>.*)
   ([line, placeholder, templateName]) => ({ line, placeholder, templateName }),
 );
 
-emailMessages.forEach(({ line, placeholder, templateName }) => {
+for (const { line, placeholder, templateName } of emailMessages) {
   const filename = `${EMAIL_TEMPLATES_DIR}/${templateName}.html`;
   const htmlString = fs.readFileSync(filename).toString('utf-8');
-  const minified = minify(htmlString, {
+  const minified = await minify(htmlString, {
     collapseWhitespace: true,
     html5: true,
     minifyCSS: true,
@@ -24,6 +24,6 @@ emailMessages.forEach(({ line, placeholder, templateName }) => {
     useShortDoctype: true,
   });
   yamlString = yamlString.replace(line, line.replace(placeholder, `"${minified}"`));
-});
+}
 
 fs.writeFileSync(YAML_FILE, yamlString, { encoding: 'utf-8' });
