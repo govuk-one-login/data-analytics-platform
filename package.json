@@ -78,8 +78,6 @@
     "iac:format:fix": "prettier --write iac",
     "scripts:format:check": "prettier --check scripts",
     "scripts:format:fix": "prettier --write scripts",
-    "teardown:prepare": "scripts/teardown-prepare.sh",
-    "teardown:delete-stack": "sam delete --region eu-west-2 --no-prompts --debug --stack-name",
     "husky:install": "husky"
   },
   "lint-staged": {

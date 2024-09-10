@@ -84,20 +84,17 @@ Below is a list of workflows. The ✳️ symbol at the start of a workflow name 
 
 | Name                                            | File                             | Triggers                                                                                                                                                                                                                                                                                                                                                                        | Purpose                                                                                                                                                                            |
 |-------------------------------------------------|----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Deploy to an AWS environment                    | deploy-to-aws.yml                | <ul><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li></ul>                                                                                                                                                                                                                                             | Deploys to a deployable AWS environment (dev, build, test)                                                                                                                         |
-| ✳️ Deploy to the test environment               | deploy-to-test.yml               | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li></ul>                                                                                                                        | Deploys IaC and lambda code to the test AWS                                                                                                                                        |
+| Deploy to an AWS environment                    | deploy-to-aws.yml                | <ul><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li></ul>                                                                                                                                                                                                                                             | Deploys to a deployable AWS environment (dev, build)                                                                                                                               |
 | ✳️ Deploy to the dev environment                | deploy-to-dev.yml                | <ul><li>[merge to main](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push)</li><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                   | Deploys IaC and lambda code to the dev AWS                                                                                                                                         |
 | Deploy to the build environment                 | deploy-to-build.yml              | <ul><li>[merge to main](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push)</li></ul>                                                                                                                                                                                                                                                        | Deploys IaC and lambda code to the build AWS                                                                                                                                       |
 | ✳️ Test and validate iac and lambdas            | test-and-validate.yml            | <ul><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li><li>[pull requests](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request)</li><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul> | Runs linting, formatting and testing of lambda code, and linting and scanning of IaC code                                                                                          |
 | ✳️ Upload Athena files to S3                    | upload-athena-files.yml          | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Uploads athena scripts for a particular environment (under [athena-scripts](athena-scripts)) to S3                                                                                 |
-| ✳️ Pull request deploy and test                 | pull-request-deploy-and-test.yml | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li><li>[pull requests (on open, reopen and update)](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request)</li></ul>                                                                                              | Deploys a pull request branch to the feature environment and runs integration tests when a pull request is opened, reopened or updated                                             |
-| ✳️ Pull request tear down                       | pull-request-tear-down.yml       | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li><li><s>[pull requests (on close)](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request)</s></li></ul>                                                                                                         | Tears down the feature environment <s>when a pull request is merged or otherwise closed</s>                                                                                        |
 | Upload testing image to ECR                     | upload-testing-image.yml         | <ul><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li></ul>                                                                                                                                                                                                                                             | Builds a testing dockerfile in `tests/scripts/` and uploads the image to ECR                                                                                                       |
 | ✳️ Upload testing images to ECR                 | upload-testing-images.yml        | <ul><li>[merge to main](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push)</li><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                   | Builds one or more testing dockerfiles in `tests/scripts/` and uploads the images to ECR. Which dockerfiles to build can be specified via inputs                                   |
 | SonarCloud Code Analysis                        | code-quality-sonarcloud.yml      | <ul><li>[pull requests (on open, reopen and update)](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request)</li></ul>                                                                                                                                                                                                                   | Runs a SonarCloud analysis on the repository                                                                                                                                       |
 | ✳️ Run flyway command on redshift               | run-flyway-command.yml           | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Runs a specified flyway command on the redshift database in a specified environment. For more on how to use this workflow see the README [here](redshift-scripts/flyway/README.md) |
 | ✳️ Deploy to the production preview environment | deploy-to-production-preview.yml | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Deploys to the production-preview environment                                                                                                                                      |
-| SAM deploy                                      | sam-deploy.yml                   | <ul><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li></ul>                                                                                                                                                                                                                                             | Performs a SAM deploy to an environment without secure pipelines (feature, production-preview)                                                                                     |
+| SAM deploy                                      | sam-deploy.yml                   | <ul><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li></ul>                                                                                                                                                                                                                                             | Performs a SAM deploy to an environment without secure pipelines (used for production-preview)                                                                                     |
 | ✳️ Upload Flyway files to S3                    | upload-flyway-files.yml          | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li><li>[other workflows](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call)</li></ul>                                                                                                                        | Uploads flyway files for a particular environment (under [redshift-scripts/flyway](redshift-scripts/flyway)) to S3                                                                 |
 | ✳️ Export analysis from Quicksight              | quicksight-export.yml            | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Exports a Quicksight analysis to S3 using the [asset bundle APIs](https://docs.aws.amazon.com/quicksight/latest/developerguide/asset-bundle-ops.html)                              |
 | ✳️ Import analysis to Quicksight                | quicksight-import.yml            | <ul><li>[manual](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch)</li></ul>                                                                                                                                                                                                                                                  | Imports a Quicksight analysis from S3 using the [asset bundle APIs](https://docs.aws.amazon.com/quicksight/latest/developerguide/asset-bundle-ops.html)                            |
@@ -213,17 +210,17 @@ so many `AllowedService`s in the SAM deployment stack. The solution was to make 
 and split off some of the IaC to become its own application deployed by that stack (the Cognito and Quicksight functionality as it was the source of the most recent permissions we had requested that had put our permissions boundary over the limit).
 
 From a Secure Pipelines point-of-view, environments can be split into two types: 'higher' and 'lower' environments.
-The lower environments are _test_, _dev_ and _build_&ast;&ast;. The higher environments are _staging_, _integration_ and _production_.
+The lower environments are _dev_ and _build_&ast;&ast;. The higher environments are _staging_, _integration_ and _production_.
 More information can be found using the Secure Pipelines link above, but the key differences are that the lower environments are the only ones
 that can be deployed to directly from GitHub. Deployment to the higher environments relies on 'promotion' from a lower environment, specifically
 the _build_ environment. In addition, the higher environment lambdas are triggered by real TxMA event queues&ast;&ast;&ast;, whereas lower environments use a
 placeholder one that we create and must put our own test events onto.
 
-&ast; With the exception of the feature environment - see section below
+&ast; With the exception of the production preview environment - see section below
 
-&ast;&ast; Strictly speaking, `test` and `dev` do not form part of the Secure Pipelines build system which takes an application
-that is deployed to `build` all the way to `production` via the other higher environments. Our `test` and `dev` environments are
-disconnected sandboxes; however they still use Secure Pipelines to deploy directly from GitHub
+&ast;&ast; Strictly speaking, `dev` does not form part of the Secure Pipelines build system which takes an application
+that is deployed to `build` all the way to `production` via the other higher environments. Our `dev` environment is a
+disconnected sandbox; however it still uses Secure Pipelines to deploy directly from GitHub
 
 &ast;&ast;&ast; An important exception is that _dev_ is connected to the real TxMA staging queue. This is intended to be temporary
 since at time of writing we do not have the higher environments set up. Once our own _staging_ account is ready, it will receive
@@ -231,17 +228,12 @@ the real TxMA staging queue and _dev_ will get a placeholder queue
 
 #### Lower Environments
 
-###### Test
-
-Our _test_ environment is a standalone environment and can therefore be used as a sandbox.
-A dedicated GitHub Action [Deploy to the test environment](.github/workflows/deploy-to-test.yml) exists to enable this.
-It can be manually invoked on a chosen branch by finding it in the [GitHub Actions tab](https://github.com/govuk-one-login/data-analytics-platform/actions) and using the _Run workflow_ button.
-
 ###### Dev
 
-Our _dev_ environment is also a standalone environment and can therefore be used as a sandbox.
-A dedicated GitHub Action [Deploy to the dev environment](.github/workflows/deploy-to-dev.yml) exists to enable this, allowing manual deploys like the one for test.
+Our _dev_ environment is a standalone environment and can therefore be used as a sandbox.
+A dedicated GitHub Action [Deploy to the dev environment](.github/workflows/deploy-to-dev.yml) exists to enable this, allowing manual deployments.
 
+It can be manually invoked on a chosen branch by finding it in the [GitHub Actions tab](https://github.com/govuk-one-login/data-analytics-platform/actions) and using the _Run workflow_ button.
 Additionally, the action will automatically run after a merge into the `main` branch after a Pull Request is approved.
 
 ###### Build
@@ -294,32 +286,15 @@ The `integration` and `production` environments are the second (and final) level
 They behave like the `staging` environment in the sense that they cannot be deployed to but instead poll for promoted artifacts from a lower environment.
 The difference between them and `staging` is that the promotion bucket `integration` and `production` poll is the one in `staging`.
 
-#### Other Environments
+#### Production Preview
 
-The following accounts are not in secure pipelines.
+The _production preview_ environment is a standalone environment that exists outside of Secure Pipelines (it is deployed with a manual `sam deploy`).
+It has a GitHub Action [Deploy to the production preview environment](.github/workflows/deploy-to-production-preview.yml) but no corresponding tear down one.
 
-###### Feature
-
-The _feature_ environment is a standalone environment for the purpose of testing GitHub pull requests.
-It has a GitHub Action [Pull request deploy and test](.github/workflows/pull-request-deploy-and-test.yml) which deploys there and then runs integration tests.
-This deployment is _not_ done via Secure Pipelines, but just manual `sam deploy` commands. Likewise, the tests are
-_not_ run with the Secure Pipelines testing container approach, but instead manually invoked with `npm run`.
-This action can be manually invoked, but will also automatically run when a pull request is opened, reopened or updated.
-Unlike other environments, _feature_ has a second GitHub Action [Pull request tear down](.github/workflows/pull-request-tear-down.yml) which completely deletes the stacks.
-Like the first action it can be manually invoked, ~~but will also automatically run when a pull request is merged or otherwise closed~~.
-_Automatic running has been disabled until [DAC-1862](https://govukverify.atlassian.net/browse/DAC-1862) is done._
-
-To perform the deployments and tear downs we use a special role in the _feature_ environment called `dap-feature-tear-down-role`.
+To perform the deployments we use a special role in the _production preview_ environment called `dap-production-preview-deploy-role`.
 It is not in the IaC because it causes one of the following issues:
 * Without a `DeletionPolicy`, it gets deleted while the stack is being deleted and so the deletion fails part way through as there are then no longer the permissions to do the deletion
 * With an appropriate `DeletionPolicy` this doesn't happen, but instead the next stack creation fails because the resource already exists
-
-###### Production Preview
-
-The _production preview_ environment is another standalone environment that exists outside of Secure Pipelines (like the _feature_ environment it is deployed with a manual `sam deploy`).
-It has a GitHub Action [Deploy to the production preview environment](.github/workflows/deploy-to-production-preview.yml) but no corresponding tear down one.
-
-The deployments use a special role in the _production preview_ environment, `dap-production-preview-deploy-role`, much like the role in _feature_.
 
 _Production preview_ has a real TxMA queue in addition to its placeholder queue and so requires the SSM parameters mentioned above in the _Higher environment config_ section.
 

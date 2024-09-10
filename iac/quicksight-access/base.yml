@@ -9,8 +9,6 @@ Parameters:
     Default: dev
     AllowedValues:
       - dev
-      - test
-      - feature
       - build
       - staging
       - integration
@@ -34,32 +32,26 @@ Conditions:
     - !Equals
       - !Ref PermissionsBoundary
       - none
-  IsTest: !Equals [!Ref Environment, test]
-  IsFeature: !Equals [!Ref Environment, feature]
   IsDev: !Equals [!Ref Environment, dev]
   IsProduction: !Equals [!Ref Environment, production]
   IsProductionPreview: !Equals [!Ref Environment, production-preview]
-  IsNotFeature: !Not [!Equals [!Ref Environment, feature]]
   IsNotProductionPreview: !Not [!Equals [!Ref Environment, production-preview]]
   IsBuild: !Equals [!Ref Environment, build]
   IsIntegration: !Equals [!Ref Environment, integration]
   IsStaging: !Equals [!Ref Environment, staging]
   IsQuicksightEnvironment: !Or
     - !Condition IsDev
-    - !Condition IsTest
-    - !Condition IsFeature
     - !Condition IsProduction
     - !Condition IsProductionPreview
   # only dev and prod have the configuration (SES, Route53, etc) for sending Cognito emails via SES
   IsDevOrProd: !Or
     - !Condition IsDev
     - !Condition IsProduction
-  # is this a quicksight environment that uses secure pipelines for deployments (feature and production-preview do direct sam deploys)
+  # is this a quicksight environment that uses secure pipelines for deployments (production-preview does a direct sam deploy)
   # used to determine if extra policies need to be added to the secure pipelines deploy role in pipeline.yml
   IsQuicksightEnvironmentAndIsSecurePipelinesEnvironment:
     Fn::And:
       - Condition: IsQuicksightEnvironment
-      - Condition: IsNotFeature
       - Condition: IsNotProductionPreview
 
 Globals:
