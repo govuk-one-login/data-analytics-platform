@@ -6,7 +6,7 @@ module.exports = async () => {
     testTimeout: 300000,
     verbose: true,
     transform: {
-      '^.+\\.tsx?$': 'esbuild-jest',
+      '^.+\\.tsx?$': '@swc/jest',
     },
     collectCoverage: true,
     testResultsProcessor: 'jest-junit',

@@ -48,7 +48,7 @@ Usage can be seen in the [build-lambdas.sh](../scripts/build-lambdas.sh) script.
 Unit testing is done with [Jest](https://jestjs.io) which is commonly used in GDS, and used in the BTM and TxMA repositories.
 
 [Configuration for Jest](https://jestjs.io/docs/configuration) can be found in the [jest.config.ts](../jest.config.js) file at the top-level,
-and is pretty trivial in that is merely sets a verbosity setting (in line with TxMA) and tells jest to use the `esbuild-jest` to convert the code to JavaScript.
+and is pretty trivial in that is merely sets a verbosity setting (in line with TxMA) and tells jest to use `@swc/jest` to convert the code to JavaScript.
 
 ## SAM Template
 
