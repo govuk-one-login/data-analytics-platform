@@ -1,6 +1,7 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import { handler } from './handler';
+import type { RunFlywayEvent } from './handler';
 import * as child_process from 'node:child_process';
 import { getTestResource } from '../../shared/utils/test-utils';
 import * as fs from 'node:fs';
@@ -8,6 +9,8 @@ import { GetObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/clien
 import { Readable } from 'node:stream';
 import * as path from 'node:path';
 import * as tar from 'tar';
+import type { SdkStream } from '@aws-sdk/types';
+import type { RedshiftSecret } from '../../shared/types/secrets-manager';
 
 const mockS3Client = mockClient(S3Client);
 const mockSecretsManagerClient = mockClient(SecretsManagerClient);
@@ -18,8 +21,7 @@ const SECRET_ID = 'MySecretId';
 
 const FLYWAY_FILES_BUCKET_NAME = 'flyway-files-bucket';
 
-// this is of type RedshiftSecret but we can't use type annotations in this file (see further explanation above jest.mock call)
-const SECRET_VALUE = {
+const SECRET_VALUE: RedshiftSecret = {
   engine: 'redshift',
   host: 'host',
   username: 'admin',
@@ -28,9 +30,7 @@ const SECRET_VALUE = {
   port: '5439',
 };
 
-// event is of type RunFlywayEvent but we can't use type annotations in this file (see further explanation above jest.mock call)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const expectedEnvironment = (event: { database: string }, cleanDisabled: boolean = false): any => {
+const expectedEnvironment = (event: { database: string }, cleanDisabled: boolean = false): RunFlywayEvent => {
   return expect.objectContaining({
     FLYWAY_URL: `jdbc:redshift://${SECRET_VALUE.host}:${SECRET_VALUE.port}/dap_txma_reporting_db`,
     FLYWAY_USER: SECRET_VALUE.username,
@@ -48,15 +48,9 @@ const FLYWAY_TAR_NAME = 'flyway-commandline-10.7.2-linux-x64.tar.gz';
 
 const REDSHIFT_JAR_NAME = 'redshift-jdbc42-2.1.0.25.jar';
 
-// this is of type RunFlywayEvent but we can't use type annotations in this file (see further explanation above jest.mock call)
-const TEST_EVENT = { command: 'info', database: DATABASE };
+const TEST_EVENT: RunFlywayEvent = { command: 'info', database: DATABASE };
 
-/*
-  because we use jest mocking in this test file, esbuild-jest transforms the file differently
-  such that it can no longer have type annotations (e.g. this function should return child_process.SpawnSyncReturns<Buffer>)
-  see https://github.com/aelbore/esbuild-jest/issues/57
- */
-jest.mock('node:child_process', () => {
+jest.mock('node:child_process', (): child_process.SpawnSyncReturns<Buffer> => {
   return {
     __esModule: true,
     ...jest.requireActual('node:child_process'),
@@ -105,15 +99,11 @@ beforeAll(async () => {
   FLYWAY_INFO = JSON.parse(await getTestResource('flyway-info.json'));
   mkdirSyncSpy.mockImplementation();
   createWriteStreamSpy.mockImplementation();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readdirSyncSpy.mockReturnValue([FLYWAY_TAR_NAME, REDSHIFT_JAR_NAME] as any);
-  parseSpy.mockImplementation(
-    path =>
-      ({
-        base: path.substring(path.lastIndexOf('/') + 1),
-        dir: path.substring(0, path.lastIndexOf('/')),
-      }) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-  );
+  readdirSyncSpy.mockReturnValue([FLYWAY_TAR_NAME, REDSHIFT_JAR_NAME]);
+  parseSpy.mockImplementation(path => ({
+    base: path.substring(path.lastIndexOf('/') + 1),
+    dir: path.substring(0, path.lastIndexOf('/')),
+  }));
   tarExtractSpy.mockImplementation(options => {
     expect(options.file).toEqual(`${LIBRARY_FILES_PATH}/${FLYWAY_TAR_NAME}`);
     expect(options.stripComponents).toEqual(1);
@@ -331,14 +321,12 @@ const testClean = async (cleanShouldBeDisabled: boolean): Promise<void> => {
   expect(mockSecretsManagerClient.calls()).toHaveLength(1);
 };
 
-// this should return type child_process.SpawnSyncReturns<Buffer> but we can't use type annotations in this file (see further explanation above jest.mock call)
 const spawnSyncResult = (
   status: number,
   stdout: Record<string, unknown>,
   stderr: Record<string, unknown>,
   error?: Error,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any => {
+): child_process.SpawnSyncReturns<Buffer> => {
   return {
     status,
     stdout: Buffer.from(JSON.stringify(stdout), 'utf-8'),
@@ -362,7 +350,6 @@ class MockReadable extends Readable {
   }
 }
 
-// the Body properties below need an 'as SdkStream<Readable>' but we can't use type annotations in this file (see further explanation above jest.mock call)
 const mockS3Responses = (config?: { errorMessage?: string; contents?: Array<{ Key: string }> }): void => {
   const contents = config?.contents ?? [
     { Key: 'flyway.conf' },
@@ -379,7 +366,7 @@ const mockS3Responses = (config?: { errorMessage?: string; contents?: Array<{ Ke
   contents.forEach(({ Key }) => {
     mockS3Client
       .on(GetObjectCommand, { Bucket: FLYWAY_FILES_BUCKET_NAME, Key })
-      .resolves({ Body: new MockReadable() as never });
+      .resolves({ Body: new MockReadable() as SdkStream<Readable> });
   });
 };
 
