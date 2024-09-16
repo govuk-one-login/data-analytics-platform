@@ -12,7 +12,7 @@ on:
         type: choice
         required: true
         description: AWS environment
-        options: [DEV, TEST, FEATURE, BUILD, STAGING, INTEGRATION, PRODUCTION, PRODUCTION-PREVIEW]
+        options: [DEV, BUILD, STAGING, INTEGRATION, PRODUCTION, PRODUCTION-PREVIEW]
 
 jobs:
   validate-environment:

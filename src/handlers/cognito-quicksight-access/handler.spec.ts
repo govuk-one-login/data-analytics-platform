@@ -182,11 +182,10 @@ test('session duration', async () => {
     .callsFake(async input => ({ EmbedUrl: input.SessionLifetimeInMinutes.toString() }));
 
   await expectSessionDuration('dev', 15);
-  await expectSessionDuration('test', 15);
-  await expectSessionDuration('feature', 15);
   await expectSessionDuration('production', 55);
+  await expectSessionDuration('production-preview', 15);
 
-  expect(mockQuicksightClient.calls()).toHaveLength(4);
+  expect(mockQuicksightClient.calls()).toHaveLength(3);
 });
 
 const setUpSuccessfulFetch = (): void => {

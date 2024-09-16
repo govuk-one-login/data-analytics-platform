@@ -1,4 +1,4 @@
-export const envName = (): string => process.env.ENVIRONMENT ?? 'test';
+export const envName = (): string => process.env.ENVIRONMENT ?? 'dev';
 
 export const sqsQueueName = (): string => `${envName()}-placeholder-txma-event-queue`;
 

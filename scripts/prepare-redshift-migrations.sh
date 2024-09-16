@@ -8,7 +8,7 @@ AWS_ACCOUNT_ID=$2
 
 usage_and_exit() {
   echo "Usage: prepare-redshift-migrations.sh [-d] ENVIRONMENT AWS_ACCOUNT_ID"
-  echo "  environment must be one of dev, test, feature, build, staging, integration or production"
+  echo "  environment must be one of dev, build, staging, integration or production"
   echo "  account id must be a 12 digit aws account id"
   exit 1
 }

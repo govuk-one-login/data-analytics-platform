@@ -22,7 +22,7 @@ on:
         type: choice
         required: true
         description: AWS Environment
-        options: [DEV, TEST, FEATURE, PRODUCTION, PRODUCTION-PREVIEW]
+        options: [DEV, PRODUCTION, PRODUCTION-PREVIEW]
       analysisId:
         type: string
         required: true

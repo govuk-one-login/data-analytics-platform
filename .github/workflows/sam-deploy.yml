@@ -22,7 +22,7 @@ jobs:
       - name: Validate ahead of main
         run: scripts/validate-branch-ahead.sh
 
-  # manual sam deploy is only for feature and production-preview
+  # manual sam deploy is only for production-preview
   # all other environments use secure pipelines and the deploy-to-aws workflow
   validate-sam-deploy-environment:
     runs-on: ubuntu-latest
@@ -30,7 +30,7 @@ jobs:
       - name: Validate input environment
         env:
           ENVIRONMENT: ${{ inputs.lowercase-environment }}
-        run: if [ "$ENVIRONMENT" = "feature" ]; then true; elif [ "$ENVIRONMENT" = "production-preview" ]; then true; else false; fi
+        run: if [ "$ENVIRONMENT" = "production-preview" ]; then true; else false; fi
 
   get-deployment-role:
     needs: [test-and-validate, validate-branch-ahead, validate-sam-deploy-environment]
@@ -42,9 +42,7 @@ jobs:
         env:
           ENVIRONMENT: ${{ inputs.lowercase-environment }}
         run: |
-          if [ "$ENVIRONMENT" = "feature" ]; then
-            NAME="FEATURE_ENVIRONMENT_TEAR_DOWN_ROLE_ARN"
-          elif [ "$ENVIRONMENT" = "production-preview" ]; then
+          if [ "$ENVIRONMENT" = "production-preview" ]; then
             NAME="PRODUCTION_PREVIEW_ENVIRONMENT_DEPLOY_ROLE_ARN"
           else
             exit 1

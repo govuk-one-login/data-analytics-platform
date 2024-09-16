@@ -18,8 +18,6 @@ Parameters:
     Default: dev
     AllowedValues:
       - dev
-      - test
-      - feature
       - build
       - staging
       - integration
@@ -84,38 +82,27 @@ Conditions:
     - !Equals
       - !Ref TestRoleArn
       - none
-  IsTest: !Equals [!Ref Environment, test]
-  IsFeature: !Equals [!Ref Environment, feature]
-  IsNotFeature: !Not [!Equals [!Ref Environment, feature]]
   IsDev: !Equals [!Ref Environment, dev]
   IsBuild: !Equals [!Ref Environment, build]
   IsIntegration: !Equals [!Ref Environment, integration]
   IsStaging: !Equals [!Ref Environment, staging]
   IsProduction: !Equals [!Ref Environment, production]
   IsProductionPreview: !Equals [!Ref Environment, production-preview]
-  IsNotProductionPreview: !Not [!Equals [!Ref Environment, production-preview]]
   IsQuicksightEnvironment: !Or
     - !Condition IsDev
-    - !Condition IsTest
-    - !Condition IsFeature
     - !Condition IsProduction
     - !Condition IsProductionPreview
-
   IsCrossAccountDataSyncEnvironment: !Or
     - !Condition IsStaging
     - !Condition IsProductionPreview
-  UsePlaceholderTxMAQueue: !Or
-    - !Condition IsTest
-    - !Condition IsFeature
-    # todo replace line below with `- !Condition IsDev` when txma queue has been moved from dev to staging
+  UsePlaceholderTxMAQueue:
+    !Or # todo replace line below with `- !Condition IsDev` when txma queue has been moved from dev to staging
     - !Condition IsStaging
     - !Condition IsBuild
     - !Condition IsProductionPreview
-  # is this an environment that uses secure pipelines for deployments (feature and production-preview do direct sam deploys)
+  # is this an environment that uses secure pipelines for deployments (production-preview does a direct sam deploy)
   # used to determine if extra policies need to be added to the secure pipelines deploy role in pipeline.yml
-  IsSecurePipelinesEnvironment: !And
-    - !Condition IsNotFeature
-    - !Condition IsNotProductionPreview
+  IsSecurePipelinesEnvironment: !Not [!Condition IsProductionPreview]
   IsManualReferenceDataEnvironment: !Or
     - !Condition IsProduction
     - !Condition IsProductionPreview
