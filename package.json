@@ -19,7 +19,7 @@
     "@aws-sdk/client-secrets-manager": "^3.645.0",
     "@aws-sdk/client-sfn": "^3.645.0",
     "@aws-sdk/client-sqs": "^3.645.0",
-    "@aws-sdk/types": "^3.609.0",
+    "@aws-sdk/types": "^3.649.0",
     "@eslint/js": "^9.10.0",
     "@faker-js/faker": "^9.0.0",
     "@smithy/util-retry": "^3.0.4",
