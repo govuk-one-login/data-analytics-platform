@@ -1,4 +1,3 @@
-insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('CIC_CRI_START',sysdate,'1999-01-01');
 insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('BAV_CRI_START',sysdate,'1999-01-01');
 insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('BAV_EXPERIAN_REQUEST_SENT',sysdate,'1999-01-01');
 insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('BAV_EXPERIAN_RESPONSE_RECEIVED',sysdate,'1999-01-01');
