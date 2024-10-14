@@ -124,6 +124,7 @@ GluePolicy:
             - 'glue:GetCrawlerMetrics'
             - 'glue:CreateCrawler'
             - 'glue:TagResource'
+            - 'glue:UntagResource'
             - 'glue:GetTags'
           Resource: '*'
         - Sid: 'VisualEditor3'
