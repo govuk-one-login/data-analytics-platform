@@ -1,0 +1,48 @@
+SustainabilityBucket:
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub ${Environment}-dap-sustainability
+    LoggingConfiguration:
+      DestinationBucketName: !Ref GlobalLogBucket
+      LogFilePrefix: dap-sustainability/log
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+    LifecycleConfiguration:
+      # Permanently removing files after 40 days
+      Rules:
+        - Id: CleanupRule
+          Status: Enabled
+          ExpirationInDays: 30
+          NoncurrentVersionExpiration:
+            NoncurrentDays: 10
+
+SustainabilityBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref SustainabilityBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${SustainabilityBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - 's3:PutObject'
+            - 's3:GetBucketLocation'
+            - 's3:ListBucket'
+          Resource:
+            - !Sub ${SustainabilityBucket.Arn}
+            - !Sub ${SustainabilityBucket.Arn}/*
+          Principal:
+            AWS: !Ref IAMRoleRedshiftServerless
