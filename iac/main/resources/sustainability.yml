@@ -14,9 +14,13 @@ SustainabilityBucket:
     VersioningConfiguration:
       Status: Enabled
     LifecycleConfiguration:
+      # Permanently removing files after 40 days
       Rules:
-        - ExpirationInDays: 365
+        - Id: CleanupRule
           Status: Enabled
+          ExpirationInDays: 30
+          NoncurrentVersionExpiration:
+            NoncurrentDays: 10
 
 SustainabilityBucketPolicy:
   Type: AWS::S3::BucketPolicy
