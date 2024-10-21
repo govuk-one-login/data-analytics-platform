@@ -45,4 +45,4 @@ SustainabilityBucketPolicy:
             - !Sub ${SustainabilityBucket.Arn}
             - !Sub ${SustainabilityBucket.Arn}/*
           Principal:
-            AWS: !Ref IAMRoleRedshiftServerless
+            AWS: !GetAtt IAMRoleRedshiftServerless.Arn
