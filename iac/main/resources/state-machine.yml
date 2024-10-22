@@ -724,7 +724,7 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
         Type: Schedule
         Enabled: False
         Properties:
-          Schedule: cron(0 5,12,14 * * ? *)
+          Schedule: cron(0 5,11,14 * * ? *)
 
 RawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job
