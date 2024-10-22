@@ -41,7 +41,7 @@ GlueJobResultsBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-glue-job-process-results
+    BucketName: !Sub ${Environment}-dap-glue-job-process-results-new
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-glue-job-process-results/log

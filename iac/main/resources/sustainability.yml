@@ -2,7 +2,7 @@ SustainabilityBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-sustainability
+    BucketName: !Sub ${Environment}-dap-sustainability-new
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-sustainability/log

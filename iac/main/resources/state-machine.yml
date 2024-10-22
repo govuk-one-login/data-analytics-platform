@@ -2,7 +2,7 @@ ELTMetadataBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-elt-metadata
+    BucketName: !Sub ${Environment}-dap-elt-metadata-new
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-elt-metadata/log
@@ -83,7 +83,7 @@ StateMachineResultsBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-step-function-process-results
+    BucketName: !Sub ${Environment}-dap-step-function-process-results-new
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-step-function-process-results/log
@@ -323,7 +323,7 @@ DataQualityMetricsBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-data-quality-metrics
+    BucketName: !Sub ${Environment}-dap-data-quality-metrics-new
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-data-quality-metrics/log

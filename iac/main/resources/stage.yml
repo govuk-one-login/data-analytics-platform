@@ -2,7 +2,7 @@ StageLayerBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-stage-layer
+    BucketName: !Sub ${Environment}-dap-stage-layer-new
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-stage-layer/log
