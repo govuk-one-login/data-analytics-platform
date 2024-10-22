@@ -112,7 +112,7 @@ def main():
             raise ValueError("Function 'get_max_timestamp' returned None, which is not allowed.")
         print(f'retrieved timestamp filter value: {filter_timestamp}')
         
-        adjusted_filter_processed_dt = adjust_with_buffer(filter_timestamp, 1)
+        adjusted_filter_processed_dt = adjust_with_buffer(filter_processed_dt, 1)
         adjusted_filter_timestamp = adjust_with_buffer(filter_timestamp, 20 * 60)
         
         

@@ -222,17 +222,7 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
         if event_processing_view_criteria_view is None:
             raise ValueError("filter value for event_processing_view_criteria is not found within config rules")
         print(f'config rule: event_processing_view_criteria | view: {event_processing_view_criteria_view}')
-        
-        event_processing_latest_criteria_enabled = extract_element_by_name(json_data, "enabled", "event_processing_latest_criteria")
-        if event_processing_view_criteria_view is None:
-            raise ValueError("enabled value for event_processing_latest_criteria is not found within config rules")
-        print(f'config rule: event_processing_latest_criteria | enabled: {event_processing_latest_criteria_enabled}')
-        
-        event_processing_latest_criteria_filter= extract_element_by_name(json_data, "filter", "event_processing_latest_criteria")
-        if event_processing_latest_criteria_filter is None:
-            raise ValueError("filter value for event_processing_latest_criteria is not found within config rules")
-        print(f'config rule: event_processing_latest_criteria | filter: {event_processing_latest_criteria_filter}')
-        
+
         
         deduplicate_subquery = f'''select *,
 			            row_number() over (
@@ -254,13 +244,10 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
         elif event_processing_testing_criteria_enabled and event_processing_testing_criteria_filter is not None:
             deduplicate_subquery = deduplicate_subquery + f' where {event_processing_testing_criteria_filter}'
             sql = f'select * from ({deduplicate_subquery}) where row_num = 1'
-        elif event_processing_latest_criteria_enabled and event_processing_latest_criteria_filter is not None:
-            update_process_dt_and_timestamp = event_processing_latest_criteria_filter.replace('processed_dt', str(filter_processed_dt)).replace('replace_timestamp', str(filter_timestamp))
-            sql = sql + f' where {update_process_dt_and_timestamp}'
         elif event_processing_selection_criteria_filter is not None:
-            update_process_dt = event_processing_selection_criteria_filter.replace('processed_dt', str(filter_processed_dt))
+            update_filter = event_processing_selection_criteria_filter.replace('processed_dt', str(filter_processed_dt)).replace('replace_timestamp', str(filter_timestamp))
 
-            sql = sql + f' where {update_process_dt}'
+            sql = sql + f' where {update_filter}'
             
             if event_processing_selection_criteria_limit is not None and event_processing_selection_criteria_limit > 0:
                 sql = sql + f' limit {event_processing_selection_criteria_limit}'
