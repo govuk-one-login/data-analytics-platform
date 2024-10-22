@@ -809,7 +809,6 @@ StatemachineFailuerEventRule:
                   ]
                 }
               }
-              
 
 TopicRoutingPolicy:
   Type: AWS::SNS::TopicPolicy
@@ -927,7 +926,7 @@ HypercareAdjustedScheduleEventBridgeRule:
   Type: AWS::Events::Rule
   Properties:
     Description: Rule to be enabled when rps require hypercare during onboarding
-    ScheduleExpression: "cron(0 5,11,14 * * ? *)"
+    ScheduleExpression: 'cron(0 5,11,14 * * ? *)'
     Name: !Sub ${Environment}-dap-hypercare-adjusted-schedule-txma-statemachine-eventbridge-rule
     State: DISABLED
     Targets:
@@ -938,19 +937,19 @@ HypercareAdjustedScheduleEventBridgeRule:
 HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole:
   Type: AWS::IAM::Role
   Properties:
-    RoleName: "HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole"
+    RoleName: 'HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole'
     AssumeRolePolicyDocument:
-      Version: "2012-10-17"
+      Version: '2012-10-17'
       Statement:
-        - Effect: "Allow"
+        - Effect: 'Allow'
           Principal:
-            Service: "events.amazonaws.com"
-          Action: "sts:AssumeRole"
+            Service: 'events.amazonaws.com'
+          Action: 'sts:AssumeRole'
       Policies:
-        - PolicyName: "InvokeStepFunctionPolicy"
+        - PolicyName: 'InvokeStepFunctionPolicy'
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
-              - Effect: "Allow"
-                Action: "states:StartExecution"
+              - Effect: 'Allow'
+                Action: 'states:StartExecution'
                 Resource: !Ref TxmaRawLayerConsolidatedSchemaProcessingStateMachine
