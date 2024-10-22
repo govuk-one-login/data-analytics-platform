@@ -1,5 +1,49 @@
 from datetime import datetime, timedelta
 
+
+def get_max_timestamp(app, stage_database, stage_target_table):
+
+    """
+    Get the maximum timestamp from the specified stage table.
+
+    Parameters:
+    app (object): An object representing the Glue class.
+    raw_database (str): The name of the database containing the raw table.
+    raw_source_table (str): The name of the source table in the raw database.
+    stage_target_table (str): The name of the target table in the stage database.
+    stage_database (str): The name of the database containing the stage_target_table.
+    stage_table_exists (bool): True if stage table exists
+
+    Returns:
+    int: The maximum timestamp value from the stagetable
+    """
+
+    try:
+        if app.does_glue_table_exist(stage_database, stage_target_table):
+            sql=f'''select max(timestamp) as timestamp
+                    from \"{stage_database}\".\"{stage_target_table}\"
+                 '''
+            dfs = app.query_glue_table(stage_database, sql)
+            if dfs is None:
+                raise ValueError(f"Athena query return value is None, query ran was: {str(sql)}")
+            else:
+                for df in dfs:
+                    if len(df.index) == 1:
+                        if 'timestamp' in df.columns:
+                            # The column exists, so you can work with it
+                            timestamp = int(df['timestamp'].iloc[0])
+                            return timestamp
+                        else:
+                            raise Exception("Stage table does not contain the timestamp column.")
+                
+        else:
+            raise Exception("Error returned querying the raw table for the min(year,month,day) value.")
+
+    except Exception as e:
+        print(f"Exception Error retrieving max timestamp: {str(e)}")
+        return None
+
+
 def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, stage_target_table):
 
     """
@@ -126,7 +170,7 @@ def extract_element_by_name(json_data, element_name, parent_name=None):
         return None
     
     
-def generate_raw_select_filter(json_data, database, table, filter_processed_dt):
+def generate_raw_select_filter(json_data, database, table, filter_processed_dt, filter_timestamp):
 
     """
     Generate a SQL select criteria for the raw data-set based on JSON configuration.
@@ -136,6 +180,7 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt):
     database (str): The name of the database.
     table (str): The name of the table.
     filter_processed_dt (int): The processed_dt value for filtering.
+    filter_timestamp (int): the timestamp for filtering
 
     Returns:
     str: The SQL select criteria for the raw data-set.
@@ -178,6 +223,16 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt):
             raise ValueError("filter value for event_processing_view_criteria is not found within config rules")
         print(f'config rule: event_processing_view_criteria | view: {event_processing_view_criteria_view}')
         
+        event_processing_latest_criteria_enabled = extract_element_by_name(json_data, "enabled", "event_processing_latest_criteria")
+        if event_processing_view_criteria_view is None:
+            raise ValueError("enabled value for event_processing_latest_criteria is not found within config rules")
+        print(f'config rule: event_processing_latest_criteria | enabled: {event_processing_latest_criteria_enabled}')
+        
+        event_processing_latest_criteria_filter= extract_element_by_name(json_data, "filter", "event_processing_latest_criteria")
+        if event_processing_latest_criteria_filter is None:
+            raise ValueError("filter value for event_processing_latest_criteria is not found within config rules")
+        print(f'config rule: event_processing_latest_criteria | filter: {event_processing_latest_criteria_filter}')
+        
         
         deduplicate_subquery = f'''select *,
 			            row_number() over (
@@ -199,6 +254,9 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt):
         elif event_processing_testing_criteria_enabled and event_processing_testing_criteria_filter is not None:
             deduplicate_subquery = deduplicate_subquery + f' where {event_processing_testing_criteria_filter}'
             sql = f'select * from ({deduplicate_subquery}) where row_num = 1'
+        elif event_processing_latest_criteria_enabled and event_processing_latest_criteria_filter is not None:
+            update_process_dt_and_timestamp = event_processing_latest_criteria_filter.replace('processed_dt', str(filter_processed_dt)).replace('replace_timestamp', str(filter_timestamp))
+            sql = sql + f' where {update_process_dt_and_timestamp}'
         elif event_processing_selection_criteria_filter is not None:
             update_process_dt = event_processing_selection_criteria_filter.replace('processed_dt', str(filter_processed_dt))
 
@@ -494,3 +552,18 @@ def remove_columns(preprocessing, json_data, df_raw):
         print(f"Error removing columns: {str(e)}")
         return None
         
+        
+def adjust_with_buffer(number, buffer): 
+    
+    """
+    adjust number by a buffer
+    
+    Parameters:
+    number (Number): number to adjust.
+    buffer (DataFrame): adjustment buffer.
+
+    Returns:
+    number: adjusted number 
+    """
+    
+    return number - buffer

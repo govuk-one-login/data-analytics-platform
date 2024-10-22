@@ -1,7 +1,7 @@
 {
   "event_record_selection": {
     "event_processing_selection_criteria": {
-      "filter": "CAST(concat(year, month, day) AS INT) > processed_dt AND CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)",
+      "filter": "CAST(concat(year, month, day) AS INT) >= processed_dt AND CAST(timestamp as INT) > replace_timestamp",
       "limit": 0
     },
     "event_processing_testing_criteria": {
@@ -11,6 +11,10 @@
     "event_processing_view_criteria": {
       "enabled": false,
       "view_name": "xxx"
+    },
+    "event_processing_latest_criteria": {
+      "enabled": false,
+      "filter": "CAST(concat(year, month, day) AS INT) >= processed_dt AND CAST(timestamp as INT) > replace_timestamp"
     }
   },
   "data_cleaning": {
