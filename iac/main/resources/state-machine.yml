@@ -921,3 +921,35 @@ SplunkMigratedRawStageTransformProcessPythonGlueJob:
     SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-splunk-migration-raw-stage-transform-process
     Role: !Ref GlueScriptsExecutionRole
+
+HypercareAdjustedScheduleEventBridgeRule:
+  Type: AWS::Events::Rule
+  Properties:
+    Description: Rule to be enabled when rps require hypercare during onboarding
+    ScheduleExpression: 'cron(30 8,11,14 * * ? *)'
+    Name: !Sub ${Environment}-dap-hypercare-eventbridge-rule
+    State: DISABLED
+    Targets:
+      - Id: hypercare-adjusted-schedule-txma-statemachine
+        Arn: !Ref TxmaRawLayerConsolidatedSchemaProcessingStateMachine
+        RoleArn: !GetAtt HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole.Arn
+
+HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole:
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: !Sub ${Environment}-dap-hypercare-eventbridge-role
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: 'Allow'
+          Principal:
+            Service: 'events.amazonaws.com'
+          Action: 'sts:AssumeRole'
+    Policies:
+      - PolicyName: !Sub ${Environment}-dap-hypercare-eventbridge-policy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Action: 'states:StartExecution'
+              Resource: !Ref TxmaRawLayerConsolidatedSchemaProcessingStateMachine

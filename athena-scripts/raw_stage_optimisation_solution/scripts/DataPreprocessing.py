@@ -13,6 +13,7 @@ class DataPreprocessing:
     def __init__(self):
         self.now = datetime.now()
         self.processed_dt = int(self.now.strftime("%Y%m%d"))
+        self.processed_time = int(self.now.strftime("%H%M%S"))
 
     def remove_duplicate_rows(self, df, fields):
         """
@@ -110,6 +111,8 @@ class DataPreprocessing:
             for column_name, value in fields.items():
                 if column_name == 'processed_dt':
                     df[column_name] = self.processed_dt
+                if column_name == 'processed_time':
+                    df[column_name] = self.processed_time
             return df
         except Exception as e:
             print(f"Error adding new columns: {str(e)}")
@@ -260,6 +263,7 @@ class DataPreprocessing:
             # Filter out rows with null values
             result_df = result_df[result_df['value'].notna()]
             result_df['processed_dt'] = self.processed_dt
+            result_df['processed_time'] = self.processed_time
             result_df.columns = column_names_list
             
             return result_df
