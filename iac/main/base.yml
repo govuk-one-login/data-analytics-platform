@@ -109,7 +109,6 @@ Conditions:
   IsADMEnvironment: !Or
     - !Condition IsProduction
     - !Condition IsProductionPreview
-  CreateNewBucket: !Equals [!Ref BucketName, '']
 
 Globals:
   Function:
