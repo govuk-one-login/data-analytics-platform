@@ -3,7 +3,7 @@ DAPAnalystsFilesBucket:
   Condition: IsQuicksightEnvironment
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-analysts-files-new'
+    BucketName: !Sub '${Environment}-dap-analysts-files'
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-analysts-assets/log

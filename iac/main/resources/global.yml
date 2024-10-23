@@ -3,7 +3,7 @@ GlobalLogBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-s3-logs-new'
+    BucketName: !Sub '${Environment}-dap-s3-logs'
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
@@ -55,7 +55,7 @@ GlobalNonEventBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-s3-non-event-new'
+    BucketName: !Sub '${Environment}-dap-s3-non-event'
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-s3-non-event/log
@@ -100,7 +100,7 @@ VPCFlowLogsBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-vpc-flow-logs-new'
+    BucketName: !Sub '${Environment}-dap-vpc-flow-logs'
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-s3-flow-log/log
@@ -717,7 +717,7 @@ TrailBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-cloud-trail-new'
+    BucketName: !Sub '${Environment}-dap-cloud-trail'
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: cloudtrail/trail

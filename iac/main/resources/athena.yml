@@ -2,7 +2,7 @@ AthenaWorkgroupBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-athena-workgroup-new
+    BucketName: !Sub ${Environment}-dap-athena-workgroup
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-athena-workgroup/log

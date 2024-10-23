@@ -4,7 +4,7 @@ QuickSightLogBucket:
   Condition: IsQuicksightEnvironment
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-quicksight-s3-logs-new'
+    BucketName: !Sub '${Environment}-dap-quicksight-s3-logs'
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
