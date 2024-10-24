@@ -927,7 +927,7 @@ HypercareAdjustedScheduleEventBridgeRule:
   Properties:
     Description: Rule to be enabled when rps require hypercare during onboarding
     ScheduleExpression: 'cron(0 5,11,14 * * ? *)'
-    Name: !Sub ${Environment}-dap-hypercare-adjusted-schedule-txma-statemachine-eventbridge-rule
+    Name: !Sub ${Environment}-dap-hypercare-eventbridge-rule
     State: DISABLED
     Targets:
       - Id: hypercare-adjusted-schedule-txma-statemachine
@@ -946,7 +946,7 @@ HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole:
             Service: 'events.amazonaws.com'
           Action: 'sts:AssumeRole'
     Policies:
-      - PolicyName: !Sub ${Environment}-dap-hyperbridge-rule-role
+      - PolicyName: !Sub ${Environment}-dap-hypercare-eventbridge-policy
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
