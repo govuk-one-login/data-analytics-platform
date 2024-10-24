@@ -937,7 +937,7 @@ HypercareAdjustedScheduleEventBridgeRule:
 HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole:
   Type: AWS::IAM::Role
   Properties:
-    RoleName: 'HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole'
+    RoleName: !Sub ${Environment}-dap-hypercare-eventbridge-role
     AssumeRolePolicyDocument:
       Version: '2012-10-17'
       Statement:
@@ -945,11 +945,11 @@ HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole:
           Principal:
             Service: 'events.amazonaws.com'
           Action: 'sts:AssumeRole'
-      Policies:
-        - PolicyName: !Sub ${Environment}-dap-hyperbridge-rule-role
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: 'Allow'
-                Action: 'states:StartExecution'
-                Resource: !Ref TxmaRawLayerConsolidatedSchemaProcessingStateMachine
+    Policies:
+      - PolicyName: !Sub ${Environment}-dap-hyperbridge-rule-role
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Action: 'states:StartExecution'
+              Resource: !Ref TxmaRawLayerConsolidatedSchemaProcessingStateMachine
