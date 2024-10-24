@@ -76,7 +76,8 @@
       "year": "int",
       "month": "int",
       "day": "int",
-      "processed_dt": "int"
+      "processed_dt": "int",
+      "processed_time": "int"
     },
     "partition_columns": [
       "processed_dt",
@@ -89,7 +90,8 @@
       "parent_column_name": "string",
       "key": "string",
       "value": "string",
-      "processed_dt": "int"
+      "processed_dt": "int",
+      "processed_time": "int"
     },
     "partition_columns": [
       "processed_dt"
