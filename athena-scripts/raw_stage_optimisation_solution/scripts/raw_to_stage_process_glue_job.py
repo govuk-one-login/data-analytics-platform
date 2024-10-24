@@ -112,16 +112,16 @@ def main():
             raise ValueError("Function 'get_max_timestamp' returned None, which is not allowed.")
         print(f'retrieved timestamp filter value: {filter_timestamp}')
         
-        adjusted_filter_processed_dt = adjust_with_buffer(filter_processed_dt, 1)
-        adjusted_filter_timestamp = adjust_with_buffer(filter_timestamp, 20 * 60)
+        # adjusted_filter_processed_dt = adjust_with_buffer(filter_processed_dt, 1)
+        # adjusted_filter_timestamp = adjust_with_buffer(filter_timestamp, 20 * 60)
         
         
         # Generate the raw data select criteria
         raw_sql_select = generate_raw_select_filter(json_data, 
                                                     args['raw_database'], 
                                                     args['raw_source_table'],
-                                                    adjusted_filter_processed_dt,
-                                                    adjusted_filter_timestamp)
+                                                    filter_processed_dt,
+                                                    filter_timestamp)
         
         if raw_sql_select is None:
             raise ValueError("Function 'generate_raw_select_filter' returned None, which is not allowed.")

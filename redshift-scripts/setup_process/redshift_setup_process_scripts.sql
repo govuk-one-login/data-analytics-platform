@@ -30,9 +30,9 @@ ii. IAM_ROLE
 --**REPLACE {aws-account-id}**
 CREATE EXTERNAL SCHEMA IF NOT EXISTS dap_txma_stage
 FROM DATA CATALOG
-DATABASE '{env}-txma-stage'
+DATABASE 'dev-txma-stage'
 REGION 'eu-west-2'
-IAM_ROLE 'arn:aws:iam::{aws-account-id}:role/{env}-redshift-serverless-role';
+IAM_ROLE 'arn:aws:iam::563887642259:role/dev-redshift-serverless-role';
 
 
 /*
@@ -67,7 +67,7 @@ copy the contents of the file: redshift-scripts/setup_process/sp_conformed_date_
 -- paste into the redshift query editor
 
 
-click [Run] button to create the stored procedure: conformed.redshift_date_dim
+-- click [Run] button to create the stored procedure: conformed.redshift_date_dim
 
 -- run the following cmd once confirmed SP has been created
 -- passing in the start, end dates for the date range to populate
@@ -102,7 +102,7 @@ Create IAM user (used by the Redshift Step Function)
 */
 
 --**REPLACE {env}**
-CREATE USER "IAMR:{env}-dap-redshift-processing-role" PASSWORD DISABLE;
+CREATE USER "IAMR:dev-dap-redshift-processing-role" PASSWORD DISABLE;
 
 
 
@@ -216,7 +216,7 @@ User association to group
 */
 
 --**REPLACE {env}**
-ALTER GROUP dap_elt_processing ADD USER "IAMR:{env}-dap-redshift-processing-role";
+ALTER GROUP dap_elt_processing ADD USER "IAMR:dev-dap-redshift-processing-role";
 
 
 /*
@@ -224,8 +224,8 @@ Alter table ownership
 */
 
 --**REPLACE {env}**
-ALTER TABLE dap_txma_reporting_db.conformed.ref_events OWNER TO "IAMR:{env}-dap-redshift-processing-role";
-ALTER TABLE dap_txma_reporting_db.conformed.ref_relying_parties OWNER TO "IAMR:{env}-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.conformed.ref_events OWNER TO "IAMR:dev-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.conformed.ref_relying_parties OWNER TO "IAMR:dev-dap-redshift-processing-role";
 
 
 /*
@@ -234,20 +234,20 @@ Alter table ownership
 
 --**REPLACE {env}**
 
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_account_creation_1 OWNER TO "IAMR:{env}-dap-redshift-processing-role";	
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_orchestration_2	OWNER TO "IAMR:{env}-dap-redshift-processing-role";
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_account_user_login_3 OWNER TO "IAMR:{env}-dap-redshift-processing-role";	
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_dcmaw_cri_4 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_account_mfa_5 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_account_management_6 OWNER TO "IAMR:{env}-dap-redshift-processing-role";	
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_address_7 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_driving_license_8 OWNER TO "IAMR:{env}-dap-redshift-processing-role";	
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_fraud_9 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_journey_10 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_kbv_11 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_passport_12 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_cic_13 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
-ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_f2f_14 OWNER TO "IAMR:{env}-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_account_creation_1 OWNER TO "IAMR:dev-dap-redshift-processing-role";	
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_orchestration_2	OWNER TO "IAMR:dev-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_account_user_login_3 OWNER TO "IAMR:dev-dap-redshift-processing-role";	
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_dcmaw_cri_4 OWNER TO "IAMR:dev-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_account_mfa_5 OWNER TO "IAMR:dev-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_auth_account_management_6 OWNER TO "IAMR:dev-dap-redshift-processing-role";	
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_address_7 OWNER TO "IAMR:dev-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_driving_license_8 OWNER TO "IAMR:dev-dap-redshift-processing-role";	
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_fraud_9 OWNER TO "IAMR:dev-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_journey_10 OWNER TO "IAMR:dev-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_kbv_11 OWNER TO "IAMR:dev-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_passport_12 OWNER TO "IAMR:dev-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_cic_13 OWNER TO "IAMR:dev-dap-redshift-processing-role";
+ALTER TABLE dap_txma_reporting_db.audit.err_duplicate_event_id_ipv_cri_f2f_14 OWNER TO "IAMR:dev-dap-redshift-processing-role";
 
 -- run the following cmds once confirmed SPs has been created
 

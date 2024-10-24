@@ -37,8 +37,7 @@ def get_max_timestamp(app, stage_database, stage_target_table):
                             raise Exception("Stage table does not contain the timestamp column.")
                 
         else:
-            raise Exception("Error returned querying the raw table for the min(year,month,day) value.")
-
+            return 0
     except Exception as e:
         print(f"Exception Error retrieving max timestamp: {str(e)}")
         return None
