@@ -30,9 +30,9 @@ ii. IAM_ROLE
 --**REPLACE {aws-account-id}**
 CREATE EXTERNAL SCHEMA IF NOT EXISTS dap_txma_stage
 FROM DATA CATALOG
-DATABASE 'dev-txma-stage'
+DATABASE '{env}-txma-stage'
 REGION 'eu-west-2'
-IAM_ROLE 'arn:aws:iam::{aws-account-id}:role/dev-redshift-serverless-role';
+IAM_ROLE 'arn:aws:iam::{aws-account-id}:role/{env}-redshift-serverless-role';
 
 
 /*
@@ -67,7 +67,7 @@ copy the contents of the file: redshift-scripts/setup_process/sp_conformed_date_
 -- paste into the redshift query editor
 
 
-- click [Run] button to create the stored procedure: conformed.redshift_date_dim
+click [Run] button to create the stored procedure: conformed.redshift_date_dim
 
 -- run the following cmd once confirmed SP has been created
 -- passing in the start, end dates for the date range to populate
@@ -216,7 +216,7 @@ User association to group
 */
 
 --**REPLACE {env}**
-ALTER GROUP dap_elt_processing ADD USER "IAMR:dev-dap-redshift-processing-role";
+ALTER GROUP dap_elt_processing ADD USER "IAMR:{env}-dap-redshift-processing-role";
 
 
 /*
