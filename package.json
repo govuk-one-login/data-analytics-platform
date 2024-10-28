@@ -13,7 +13,7 @@
     "@aws-sdk/client-eventbridge": "^3.670.0",
     "@aws-sdk/client-firehose": "^3.670.0",
     "@aws-sdk/client-lambda": "^3.670.0",
-    "@aws-sdk/client-quicksight": "^3.670.0",
+    "@aws-sdk/client-quicksight": "^3.679.0",
     "@aws-sdk/client-redshift-data": "^3.670.0",
     "@aws-sdk/client-s3": "^3.670.0",
     "@aws-sdk/client-secrets-manager": "^3.670.0",
