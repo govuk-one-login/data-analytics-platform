@@ -24,7 +24,7 @@
     "@faker-js/faker": "^9.1.0",
     "@smithy/util-retry": "^3.0.8",
     "@swc/core": "^1.7.40",
-    "@swc/jest": "^0.2.36",
+    "@swc/jest": "^0.2.37",
     "@tsconfig/node18": "^18.2.4",
     "@types/aws-lambda": "^8.10.145",
     "@types/jest": "^29.5.14",
