@@ -31,7 +31,7 @@
     "@types/tar": "^6.1.13",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.11.0",
-    "@typescript-eslint/parser": "^8.11.0",
+    "@typescript-eslint/parser": "^8.12.2",
     "aws-sdk-client-mock": "^4.1.0",
     "esbuild": "^0.24.0",
     "eslint": "^9.13.0",
