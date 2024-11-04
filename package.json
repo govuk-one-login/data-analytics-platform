@@ -20,7 +20,7 @@
     "@aws-sdk/client-sfn": "^3.679.0",
     "@aws-sdk/client-sqs": "^3.679.0",
     "@aws-sdk/types": "^3.679.0",
-    "@eslint/js": "^9.13.0",
+    "@eslint/js": "^9.14.0",
     "@faker-js/faker": "^9.1.0",
     "@smithy/util-retry": "^3.0.8",
     "@swc/core": "^1.7.40",
