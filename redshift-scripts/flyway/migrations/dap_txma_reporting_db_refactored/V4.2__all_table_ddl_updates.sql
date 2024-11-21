@@ -1,0 +1,18 @@
+ALTER TABLE conformed_refactored.batch_events_refactored
+ADD COLUMN update_timestamp TIMESTAMP;
+
+
+UPDATE conformed_refactored.batch_events_refactored
+SET update_timestamp = max_run_date
+FROM conformed_refactored.batch_events_refactored
+WHERE conformed_refactored.batch_events_refactored.event_name = conformed_refactored.batch_events_refactored.event_name;
+
+
+alter table conformed_refactored.batch_events_refactored
+drop column max_run_date;
+
+ALTER TABLE conformed_refactored.batch_events_refactored
+RENAME COLUMN update_timestamp TO max_run_date;
+
+ALTER TABLE conformed_refactored.FACT_USER_JOURNEY_EVENT_refactored
+add COLUMN processed_time int;
