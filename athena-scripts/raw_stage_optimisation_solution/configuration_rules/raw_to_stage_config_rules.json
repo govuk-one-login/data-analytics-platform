@@ -1,7 +1,7 @@
 {
   "event_record_selection": {
     "event_processing_selection_criteria": {
-      "filter": "CAST(concat(year, month, day) AS INT) > processed_dt AND CAST(concat(year, month, day) AS INT) < CAST(date_format(now(), '%Y%m%d') as INT)",
+      "filter": "CAST(concat(year, month, day) AS INT) >= processed_dt AND CAST(timestamp as INT) > replace_timestamp",
       "limit": 0
     },
     "event_processing_testing_criteria": {
@@ -35,7 +35,8 @@
       "partition_0": "partition_event_name"
     },
     "new_column": {
-      "processed_dt": "%Y%m%d"
+      "processed_dt": "%Y%m%d",
+      "processed_time": "%H%M%S"
     },
     "new_column_struct_extract": {
       "user": [
@@ -76,7 +77,8 @@
       "year": "int",
       "month": "int",
       "day": "int",
-      "processed_dt": "int"
+      "processed_dt": "int",
+      "processed_time": "int"
     },
     "partition_columns": [
       "processed_dt",
@@ -89,7 +91,8 @@
       "parent_column_name": "string",
       "key": "string",
       "value": "string",
-      "processed_dt": "int"
+      "processed_dt": "int",
+      "processed_time": "int"
     },
     "partition_columns": [
       "processed_dt"
