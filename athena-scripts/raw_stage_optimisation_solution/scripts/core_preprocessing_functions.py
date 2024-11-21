@@ -721,19 +721,3 @@ def remove_columns(preprocessing, json_data, df_raw):
         print(f"Error removing columns: {str(e)}")
         return None
         
-        
-def adjust_with_buffer(number, buffer): 
-    
-    """
-    adjust number by a buffer
-    
-    Parameters:
-    number (Number): number to adjust.
-    buffer (DataFrame): adjustment buffer.
-
-    Returns:
-    number: adjusted number 
-    """
-    
-    return number - buffer
-
