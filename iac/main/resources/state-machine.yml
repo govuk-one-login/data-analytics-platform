@@ -926,7 +926,7 @@ HypercareAdjustedScheduleEventBridgeRule:
   Type: AWS::Events::Rule
   Properties:
     Description: Rule to be enabled when rps require hypercare during onboarding
-    ScheduleExpression: 'cron(30 8,13 * * ? *)'
+    ScheduleExpression: 'cron(30 9,13 * * ? *)'
     Name: !Sub ${Environment}-dap-hypercare-eventbridge-rule
     State: DISABLED
     Targets:
