@@ -13,6 +13,10 @@ SustainabilityBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
+    # NotificationConfiguration:
+    #   TopicConfigurations:
+    #     - Event: s3:Replication:OperationFailedReplication
+    #       Topic: !Ref SNSAlertTopic
     LifecycleConfiguration:
       # Permanently removing files after 40 days
       Rules:
@@ -21,6 +25,20 @@ SustainabilityBucket:
           ExpirationInDays: 30
           NoncurrentVersionExpiration:
             NoncurrentDays: 10
+    ReplicationConfiguration:
+      Role: !GetAtt SustainabilityBucketRole.Arn
+      Rules:
+        - Id: SustainabilityBucketRule
+          Status: Enabled
+          Priority: 1
+          DeleteMarkerReplication:
+            Status: Enabled
+          Destination:
+            Bucket: !Sub 'arn:aws:s3:::production-dap-sustainability-921370741319-shared'
+            Metrics:
+              Status: Enabled
+          Filter:
+            Prefix: ''
 
 SustainabilityBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -46,3 +64,40 @@ SustainabilityBucketPolicy:
             - !Sub ${SustainabilityBucket.Arn}/*
           Principal:
             AWS: !GetAtt IAMRoleRedshiftServerless.Arn
+
+SustainabilityBucketIamPolicy:
+  Type: 'AWS::IAM::Policy'
+  Properties:
+    PolicyDocument:
+      Statement:
+        - Action:
+            - 's3:GetReplicationConfiguration'
+            - 's3:ListBucket'
+            - 's3:GetObjectVersionForReplication'
+            - 's3:GetObjectVersionAcl'
+          Effect: Allow
+          Resource:
+            - !Sub ${SustainabilityBucket.Arn}
+            - !Sub ${SustainabilityBucket.Arn}/*
+        - Action:
+            - 's3:ReplicateObject'
+            - 's3:ReplicateDelete'
+          Effect: Allow
+          Resource:
+            - !Sub 'arn:aws:s3:::production-dap-sustainability-921370741319-shared'
+            - !Sub 'arn:aws:s3:::production-dap-sustainability-921370741319-shared/*'
+    PolicyName: !Sub ${Environment}-dap-sustainabilityBucketIamPolicy
+    Roles:
+      - !Ref SustainabilityBucketRole
+
+SustainabilityBucketRole:
+  Type: 'AWS::IAM::Role'
+  Properties:
+    AssumeRolePolicyDocument:
+      Statement:
+        - Action:
+            - 'sts:AssumeRole'
+          Effect: Allow
+          Principal:
+            Service:
+              - s3.amazonaws.com
