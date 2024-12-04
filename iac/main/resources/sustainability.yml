@@ -117,7 +117,7 @@ SendReplicationFailureAlertsLambda:
               - kms:GenerateDataKey*
               - kms:Encrypt
             Resource: !GetAtt KmsKey.Arn
-    
+
     ReservedConcurrentExecutions: 10
     Tags:
       Environment: !Ref Environment
@@ -128,7 +128,6 @@ SendReplicationFailureAlertsLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
-
 # BuildNotificationTopic:
 #   Type: AWS::SNS::Topic
 #   Properties:
