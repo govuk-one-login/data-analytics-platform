@@ -8,7 +8,6 @@ import { getEnvironmentVariable } from '../../shared/utils/utils';
 const snsClient = new SNSClient({ region: 'eu-west-2' });
 const topicArn = getEnvironmentVariable('SNS_TOPIC_ARN');
 
-
 // interface ReplicationDetails {
 //   status: string;
 //   replicationFailureDetails?: {
