@@ -16,7 +16,8 @@ SustainabilityBucket:
     NotificationConfiguration:
       TopicConfigurations:
         - Event: s3:Replication:OperationFailedReplication
-          Topic: !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
+          #Topic: !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
+          Topic: !Ref SendReplicationFailureAlertsLambda
     LifecycleConfiguration:
       # Permanently removing files after 40 days
       Rules:
@@ -101,6 +102,33 @@ SustainabilityBucketRole:
           Principal:
             Service:
               - s3.amazonaws.com
+
+SendReplicationFailureAlertsLambda:
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub send-replication-alerts-${Environment}
+    Handler: send-slack-alerts.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+            Resource: !GetAtt KmsKey.Arn
+    
+    ReservedConcurrentExecutions: 10
+    Tags:
+      Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
+
 # BuildNotificationTopic:
 #   Type: AWS::SNS::Topic
 #   Properties:
