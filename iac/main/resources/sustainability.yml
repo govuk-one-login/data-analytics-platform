@@ -17,7 +17,7 @@ SustainabilityBucket:
       TopicConfigurations:
         - Event: s3:Replication:OperationFailedReplication
           #Topic: !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
-          Topic: !Ref SendReplicationFailureAlertsLambda
+          Topic: !GetAtt SendReplicationFailureAlertsLambda.Arn
     LifecycleConfiguration:
       # Permanently removing files after 40 days
       Rules:
