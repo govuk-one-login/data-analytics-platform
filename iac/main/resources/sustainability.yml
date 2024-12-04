@@ -101,3 +101,131 @@ SustainabilityBucketRole:
           Principal:
             Service:
               - s3.amazonaws.com
+
+BuildNotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      KmsMasterKeyId:
+        Ref: BuildNotificationTopicKey
+      # Subscription:
+      #   Fn::If:
+      #   - EnableEnrichedNotifications
+      #   - - Protocol: lambda
+      #       Endpoint:
+      #         Fn::GetAtt:
+      #         - BuildNotificationEnricherFunction
+      #         - Arn
+      #   - Ref: AWS::NoValue
+    #   Tags:
+    #   - Key: Name
+    #     Value:
+    #       Fn::Join:
+    #       - '-'
+    #       - - Ref: AWS::StackName
+    #         - BuildNotificationTopic
+    #   - Key: Service
+    #     Value: ci/cd
+    #   - Key: Source
+    #     Value: govuk-one-login/devplatform-deploy/build-notifications/template.yaml
+    # Metadata:
+    #   SamResourceId: BuildNotificationTopic
+
+BuildNotificationTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+      - Ref: BuildNotificationTopic
+      PolicyDocument:
+        Statement:
+        - Action: sns:Publish
+          Effect: Allow
+          Resource:
+            Ref: BuildNotificationTopic
+          Principal:
+            Service:
+            - codestar-notifications.amazonaws.com
+            - cloudwatch.amazonaws.com
+            - events.amazonaws.com
+            - budgets.amazonaws.com
+            - s3.amazonaws.com
+    # Metadata:
+    #   SamResourceId: BuildNotificationTopicPolicy
+
+BuildNotificationTopicKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: Allow CodeStar Notifications to enqueue encrypted messages
+          Effect: Allow
+          Resource: '*'
+          Action:
+          - kms:Decrypt
+          - kms:GenerateDataKey
+          Principal:
+            Service:
+            - codestar-notifications.amazonaws.com
+            - cloudwatch.amazonaws.com
+            - events.amazonaws.com
+            - budgets.amazonaws.com
+            - s3.amazonaws.com
+        - Sid: Allow the account to manage the key
+          Effect: Allow
+          Principal:
+            AWS:
+              Fn::Sub: arn:aws:iam::${AWS::AccountId}:root
+          Action: kms:*
+          Resource: '*'
+    #   Tags:
+    #   - Key: Name
+    #     Value:
+    #       Fn::Sub: ${AWS::StackName}-BuildNotificationTopicKey
+    #   - Key: Service
+    #     Value: ci/cd
+    #   - Key: Source
+    #     Value: govuk-one-login/devplatform-deploy/build-notifications/template.yaml
+    # Metadata:
+    #   SamResourceId: BuildNotificationTopicKey
+ChatbotRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: chatbot.amazonaws.com
+          Action:
+          - sts:AssumeRole
+    #   Tags:
+    #   - Key: Name
+    #     Value:
+    #       Fn::Join:
+    #       - '-'
+    #       - - Ref: AWS::StackName
+    #         - ChatbotRole
+    #   - Key: Service
+    #     Value: ci/cd
+    #   - Key: Source
+    #     Value: govuk-one-login/devplatform-deploy/build-notifications/template.yaml
+    # Metadata:
+    #   SamResourceId: ChatbotRole
+
+  ChatbotChannelConfiguration:
+    #Condition: CreateChatbotChannelConfiguration
+    Type: AWS::Chatbot::SlackChannelConfiguration
+    Properties:
+      ConfigurationName:
+        Fn::Sub: ${AWS::StackName}-notifications
+      IamRoleArn:
+        Fn::GetAtt:
+        - ChatbotRole
+        - Arn
+      SlackChannelId: "C083A3B482G"
+      SlackWorkspaceId: "T8GT9416G"
+      SnsTopicArns:
+        - Ref: BuildNotificationTopic
+    # Metadata:
+    #   SamResourceId: ChatbotChannelConfiguration
