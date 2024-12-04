@@ -3,9 +3,11 @@ import { getLogger } from '../../shared/powertools';
 const logger = getLogger('lambda/send-slack-alerts');
 
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+import { getEnvironmentVariable } from '../../shared/utils/utils';
 
 const snsClient = new SNSClient({ region: 'eu-west-2' });
-const topicArn = 'YOUR_SNS_TOPIC_ARN';
+const topicArn = getEnvironmentVariable('SNS_TOPIC_ARN');
+
 
 // interface ReplicationDetails {
 //   status: string;
@@ -23,6 +25,7 @@ const topicArn = 'YOUR_SNS_TOPIC_ARN';
 export const handler = async (event): Promise<void> => {
   // Accept any event type
   try {
+    logger.info('Sns topic arn is', { topicArn });
     // Check if the event is an array of S3 events
     if (
       Array.isArray(event.Records) &&
