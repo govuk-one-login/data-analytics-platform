@@ -104,6 +104,8 @@ SustainabilityBucketRole:
               - s3.amazonaws.com
 
 SendReplicationFailureAlertsLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed
+  # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: !Sub send-replication-alerts-${Environment}
