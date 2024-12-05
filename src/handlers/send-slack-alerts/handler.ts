@@ -42,14 +42,14 @@ export const handler = async (event): Promise<void> => {
 
           const bucketName = record.s3.bucket.name;
           const objectKey = record.s3.object.key;
-          const replicationStatus = record.s3.replication.status;
-          const errorMessage = record.s3.replication.replicationFailureDetails?.message || 'N/A';
+          const replicationFailure = record.replicationEventData.failureReason;
+          const s3Operation = record.replicationEventData.s3Operation;
 
           const message = JSON.stringify({
             bucketName,
             objectKey,
-            replicationStatus,
-            errorMessage,
+            s3Operation,
+            replicationFailure
           });
 
           const params = {
