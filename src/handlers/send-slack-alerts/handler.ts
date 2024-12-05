@@ -41,11 +41,15 @@ export const handler = async (event): Promise<void> => {
         // ) {
         //const s3ReplicationRecord = record as S3EventRecord; // Type assertion for clarity
 
-        logger.info('Processing record');
+        logger.info('Processing record', { record });
         const bucketName = record.s3.bucket.name;
+        logger.info('Bucket name', { bucketName });
         const objectKey = record.s3.object.key;
+        logger.info('objectKey', { objectKey });
         const replicationFailure = record.replicationEventData.failureReason;
+        logger.info('replicationFailure', { replicationFailure });
         const s3Operation = record.replicationEventData.s3Operation;
+        logger.info('s3Operation', { s3Operation });
 
         const message = JSON.stringify({
           bucketName,
