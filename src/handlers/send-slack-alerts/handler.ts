@@ -31,42 +31,46 @@ export const handler = async (event): Promise<void> => {
       Array.isArray(event.Records) &&
       event.Records.some((record: { eventSource: string }) => record.eventSource === 'aws:s3')
     ) {
+      logger.info('Records found ');
       for (const record of event.Records) {
         // Process only S3 replication events
-        if (
-          record.awsRegion === 'eu-west-2' && // Replace with your replication region
-          record.eventName &&
-          record.eventName.startsWith('Replication:')
-        ) {
-          //const s3ReplicationRecord = record as S3EventRecord; // Type assertion for clarity
+        // if (
+        //   record.awsRegion === 'eu-west-2' && // Replace with your replication region
+        //   record.eventName &&
+        //   record.eventName.startsWith('Replication:')
+        // ) {
+        //const s3ReplicationRecord = record as S3EventRecord; // Type assertion for clarity
 
-          const bucketName = record.s3.bucket.name;
-          const objectKey = record.s3.object.key;
-          const replicationFailure = record.replicationEventData.failureReason;
-          const s3Operation = record.replicationEventData.s3Operation;
+        logger.info('Processing record');
+        const bucketName = record.s3.bucket.name;
+        const objectKey = record.s3.object.key;
+        const replicationFailure = record.replicationEventData.failureReason;
+        const s3Operation = record.replicationEventData.s3Operation;
 
-          const message = JSON.stringify({
-            bucketName,
-            objectKey,
-            s3Operation,
-            replicationFailure,
-          });
+        const message = JSON.stringify({
+          bucketName,
+          objectKey,
+          s3Operation,
+          replicationFailure,
+        });
 
-          const params = {
-            Message: message,
-            TopicArn: topicArn,
-          };
+        logger.debug('Formed message to send');
+        const params = {
+          Message: message,
+          TopicArn: topicArn,
+        };
 
-          const command = new PublishCommand(params);
+        const command = new PublishCommand(params);
 
-          await snsClient.send(command);
+        logger.debug('Attempting to send');
+        await snsClient.send(command);
 
-          logger.debug(`Successfully sent S3 replication event to SNS: ${message}`);
-        }
+        logger.debug(`Successfully sent S3 replication event to SNS: ${message}`);
       }
-    } else {
-      logger.debug('Received a non-S3 event. Skipping processing.');
     }
+    // } else {
+    //   logger.debug('Received a non-S3 event. Skipping processing.');
+    // }
   } catch (error) {
     logger.error('Error processing event:', { error });
   }
