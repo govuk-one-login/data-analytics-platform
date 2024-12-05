@@ -13,10 +13,10 @@ SustainabilityBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
-    # NotificationConfiguration:
-    #   LambdaConfigurations:
-    #     - Function: 'arn:aws:lambda:eu-west-2:563887642259:function:send-replication-alerts-dev'
-    #       Event: s3:Replication:*
+    NotificationConfiguration:
+      LambdaConfigurations:
+        - Function: 'arn:aws:lambda:eu-west-2:563887642259:function:send-replication-alerts-dev'
+          Event: s3:Replication:*
     LifecycleConfiguration:
       # Permanently removing files after 40 days
       Rules:
@@ -146,6 +146,15 @@ SendReplicationFailureAlertsLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
+
+s3Permission:
+  Type: AWS::Lambda::Permission
+  Properties:
+    FunctionName: !GetAtt SendReplicationFailureAlertsLambda.Arn
+    Action: lambda:InvokeFunction
+    Principal: s3.amazonaws.com
+    SourceAccount: !Ref 'AWS::AccountId'
+    SourceArn: !GetAtt SustainabilityBucket.Arn
 # BuildNotificationTopic:
 #   Type: AWS::SNS::Topic
 #   Properties:
