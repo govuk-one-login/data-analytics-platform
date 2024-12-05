@@ -36,7 +36,7 @@ export const handler = async (event): Promise<void> => {
         if (
           record.awsRegion === 'eu-west-2' && // Replace with your replication region
           record.eventName &&
-          record.eventName.startsWith('ObjectReplication:')
+          record.eventName.startsWith('Replication:')
         ) {
           //const s3ReplicationRecord = record as S3EventRecord; // Type assertion for clarity
 
