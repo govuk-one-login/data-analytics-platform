@@ -50,13 +50,16 @@ export const handler = async (event): Promise<void> => {
         logger.info('replicationFailure', { replicationFailure });
         const s3Operation = record.replicationEventData.s3Operation;
         logger.info('s3Operation', { s3Operation });
+        const description = `*S3 Replication Failure*\nBucket: ${bucketName}\nObject: ${objectKey}\nOperation: ${s3Operation}\nError: ${replicationFailure}`;
 
-        const message = JSON.stringify({
-          bucketName,
-          objectKey,
-          s3Operation,
-          replicationFailure,
-        });
+        const message = {
+          version: '1.0',
+          source: 'custom',
+          content: {
+            textType: 'client-markdown',
+            description: description,
+          },
+        };
 
         logger.debug('Formed message to send');
         const params = {
