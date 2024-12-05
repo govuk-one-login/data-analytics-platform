@@ -13,12 +13,10 @@ SustainabilityBucket:
       RestrictPublicBuckets: true
     VersioningConfiguration:
       Status: Enabled
-    # NotificationConfiguration:
-    #   TopicConfigurations:
-    #     - Event: s3:Replication:OperationFailedReplication
-    #       #Topic: !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
-    #       #Topic: !GetAtt SendReplicationFailureAlertsLambda.Arn
-    #       Topic: 'arn:aws:lambda:eu-west-2:563887642259:function:send-replication-alerts-dev'
+    NotificationConfiguration:
+        LambdaConfigurations:
+          - Function: 'arn:aws:lambda:eu-west-2:563887642259:function:send-replication-alerts-dev'
+            Event: s3:Replication:*
     LifecycleConfiguration:
       # Permanently removing files after 40 days
       Rules:
@@ -66,6 +64,15 @@ SustainabilityBucketPolicy:
             - !Sub ${SustainabilityBucket.Arn}/*
           Principal:
             AWS: !GetAtt IAMRoleRedshiftServerless.Arn
+        - Effect: Allow
+          Action:
+            - 's3:*'
+
+          Resource:
+            - !Sub ${SustainabilityBucket.Arn}
+            - !Sub ${SustainabilityBucket.Arn}/*
+          Principal:
+            AWS: !GetAtt SendReplicationFailureAlertsLambda.Arn
 
 SustainabilityBucketIamPolicy:
   Type: 'AWS::IAM::Policy'
