@@ -25,6 +25,7 @@ export const handler = async (event): Promise<void> => {
   // Accept any event type
   try {
     logger.info('Sns topic arn is', { topicArn });
+    logger.info('Incoming event', { event });
     // Check if the event is an array of S3 events
     if (
       Array.isArray(event.Records) &&
