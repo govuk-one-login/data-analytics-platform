@@ -136,6 +136,7 @@ SendReplicationFailureAlertsLambda:
     ReservedConcurrentExecutions: 10
     Environment:
       Variables:
+        ENVIRONMENT: !Ref Environment
         SNS_TOPIC_ARN: !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
     Tags:
       Environment: !Ref Environment
