@@ -49,7 +49,7 @@ export const handler = async (event): Promise<void> => {
             bucketName,
             objectKey,
             s3Operation,
-            replicationFailure
+            replicationFailure,
           });
 
           const params = {
