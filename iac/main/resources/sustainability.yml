@@ -65,14 +65,19 @@ SustainabilityBucketPolicy:
           Principal:
             AWS: !GetAtt IAMRoleRedshiftServerless.Arn
         - Effect: Allow
-          Action:
-            - 's3:*'
-
-          Resource:
-            - !Sub ${SustainabilityBucket.Arn}
-            - !Sub ${SustainabilityBucket.Arn}/*
           Principal:
-            AWS: !GetAtt SendReplicationFailureAlertsLambda.Arn
+            Service: s3.amazonaws.com
+          Action: s3:InvokeFunction
+          Resource: !GetAtt SendReplicationFailureAlertsLambda.Arn
+        # - Effect: Allow
+        #   Action:
+        #     - 's3:*'
+
+        #   Resource:
+        #     - !Sub ${SustainabilityBucket.Arn}
+        #     - !Sub ${SustainabilityBucket.Arn}/*
+        #   Principal:
+        #     AWS: !GetAtt SendReplicationFailureAlertsLambda.Arn
 
 SustainabilityBucketIamPolicy:
   Type: 'AWS::IAM::Policy'
