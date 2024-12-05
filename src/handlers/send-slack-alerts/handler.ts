@@ -2,7 +2,7 @@ import { getLogger } from '../../shared/powertools';
 
 const logger = getLogger('lambda/send-slack-alerts');
 
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+import { SNSClient, PublishCommand, PublishCommandInput } from '@aws-sdk/client-sns';
 import { getEnvironmentVariable } from '../../shared/utils/utils';
 
 const snsClient = new SNSClient({ region: 'eu-west-2' });
@@ -52,6 +52,7 @@ export const handler = async (event): Promise<void> => {
         logger.info('s3Operation', { s3Operation });
         const description = `*S3 Replication Failure*\nBucket: ${bucketName}\nObject: ${objectKey}\nOperation: ${s3Operation}\nError: ${replicationFailure}`;
 
+        logger.info(description, { description });
         const message = {
           version: '1.0',
           source: 'custom',
@@ -61,9 +62,9 @@ export const handler = async (event): Promise<void> => {
           },
         };
 
-        logger.debug('Formed message to send');
-        const params = {
-          Message: message,
+        logger.debug('Formed message to send ', { message });
+        const params: PublishCommandInput = {
+          Message: JSON.stringify(message),
           TopicArn: topicArn,
         };
 
