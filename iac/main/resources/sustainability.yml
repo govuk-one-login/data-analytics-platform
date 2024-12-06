@@ -133,13 +133,18 @@ SendReplicationFailureAlertsLambda:
               - kms:Encrypt
             #Resource: !GetAtt KmsKey.Arn
             Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'sns:Publish'
+            Resource:
+              - !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
 
     ReservedConcurrentExecutions: 10
     Environment:
       Variables:
         ENVIRONMENT: !Ref Environment
-        #SNS_TOPIC_ARN: !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
-        SNS_TOPIC_ARN: 'test'
+        SNS_TOPIC_ARN: !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
+        #SNS_TOPIC_ARN: 'test'
     Tags:
       Environment: !Ref Environment
     VpcConfig:
