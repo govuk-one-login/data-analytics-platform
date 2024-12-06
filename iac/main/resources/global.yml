@@ -677,6 +677,20 @@ VPCEndpointEC2Messages:
     SecurityGroupIds:
       - !Ref VpcEndpointSecurityGroup
 
+VPCEndpointSNS:
+  Type: AWS::EC2::VPCEndpoint
+  Properties:
+    VpcEndpointType: Interface
+    ServiceName: com.amazonaws.eu-west-2.sns
+    VpcId: !Ref VPCForDAP
+    PrivateDnsEnabled: true
+    SubnetIds:
+      - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3
+    SecurityGroupIds:
+      - !Ref VpcEndpointSecurityGroup
+
 AWSSupportReadOnlyRole:
   Type: 'AWS::IAM::Role'
   Properties:
