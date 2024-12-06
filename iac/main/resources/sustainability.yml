@@ -143,8 +143,8 @@ SendReplicationFailureAlertsLambda:
     Environment:
       Variables:
         ENVIRONMENT: !Ref Environment
-        SNS_TOPIC_ARN: !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
-        #SNS_TOPIC_ARN: 'test'
+        #SNS_TOPIC_ARN: !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
+        SNS_TOPIC_ARN: 'test'
     Tags:
       Environment: !Ref Environment
     VpcConfig:
@@ -163,126 +163,80 @@ s3Permission:
     Principal: s3.amazonaws.com
     SourceAccount: !Ref 'AWS::AccountId'
     SourceArn: !GetAtt SustainabilityBucket.Arn
+# BuildNotificationTopic:
+#   Type: AWS::SNS::Topic
+#   Properties:
+#     TopicName: !Sub ${AWS::StackName}-notifications-topic
+#     KmsMasterKeyId:
+#       Ref: BuildNotificationTopicKey
 
-BuildNotificationTopic:
-  Type: AWS::SNS::Topic
-  Properties:
-    TopicName: !Sub ${AWS::StackName}-notifications-topic
-    KmsMasterKeyId:
-      Ref: BuildNotificationTopicKey
-    # Subscription:
-    #   Fn::If:
-    #   - EnableEnrichedNotifications
-    #   - - Protocol: lambda
-    #       Endpoint:
-    #         Fn::GetAtt:
-    #         - BuildNotificationEnricherFunction
-    #         - Arn
-    #   - Ref: AWS::NoValue
-  #   Tags:
-  #   - Key: Name
-  #     Value:
-  #       Fn::Join:
-  #       - '-'
-  #       - - Ref: AWS::StackName
-  #         - BuildNotificationTopic
-  #   - Key: Service
-  #     Value: ci/cd
-  #   - Key: Source
-  #     Value: govuk-one-login/devplatform-deploy/build-notifications/template.yaml
-  # Metadata:
-  #   SamResourceId: BuildNotificationTopic
+# BuildNotificationTopicPolicy:
+#   Type: AWS::SNS::TopicPolicy
+#   Properties:
+#     Topics:
+#       - Ref: BuildNotificationTopic
+#     PolicyDocument:
+#       Statement:
+#         - Action: sns:Publish
+#           Effect: Allow
+#           Resource:
+#             Ref: BuildNotificationTopic
+#           Principal:
+#             Service:
+#               - s3.amazonaws.com
 
-BuildNotificationTopicPolicy:
-  Type: AWS::SNS::TopicPolicy
-  Properties:
-    Topics:
-      - Ref: BuildNotificationTopic
-    PolicyDocument:
-      Statement:
-        - Action: sns:Publish
-          Effect: Allow
-          Resource:
-            Ref: BuildNotificationTopic
-          Principal:
-            Service:
-              - s3.amazonaws.com
-  # Metadata:
-  #   SamResourceId: BuildNotificationTopicPolicy
+# BuildNotificationTopicKey:
+#   Type: AWS::KMS::Key
+#   Properties:
+#     EnableKeyRotation: true
+#     KeyPolicy:
+#       Version: '2012-10-17'
+#       Statement:
+#         - Sid: Allow CodeStar Notifications to enqueue encrypted messages
+#           Effect: Allow
+#           Resource: '*'
+#           Action:
+#             - kms:Decrypt
+#             - kms:GenerateDataKey
+#           Principal:
+#             Service:
+#               - s3.amazonaws.com
+#         - Sid: Allow the account to manage the key
+#           Effect: Allow
+#           Principal:
+#             AWS:
+#               Fn::Sub: arn:aws:iam::${AWS::AccountId}:root
+#           Action: kms:*
+#           Resource: '*'
 
-BuildNotificationTopicKey:
-  Type: AWS::KMS::Key
-  Properties:
-    EnableKeyRotation: true
-    KeyPolicy:
-      Version: '2012-10-17'
-      Statement:
-        - Sid: Allow CodeStar Notifications to enqueue encrypted messages
-          Effect: Allow
-          Resource: '*'
-          Action:
-            - kms:Decrypt
-            - kms:GenerateDataKey
-          Principal:
-            Service:
-              - s3.amazonaws.com
-        - Sid: Allow the account to manage the key
-          Effect: Allow
-          Principal:
-            AWS:
-              Fn::Sub: arn:aws:iam::${AWS::AccountId}:root
-          Action: kms:*
-          Resource: '*'
-  #   Tags:
-  #   - Key: Name
-  #     Value:
-  #       Fn::Sub: ${AWS::StackName}-BuildNotificationTopicKey
-  #   - Key: Service
-  #     Value: ci/cd
-  #   - Key: Source
-  #     Value: govuk-one-login/devplatform-deploy/build-notifications/template.yaml
-  # Metadata:
-  #   SamResourceId: BuildNotificationTopicKey
-ChatbotRole:
-  Type: AWS::IAM::Role
-  Properties:
-    AssumeRolePolicyDocument:
-      Version: '2012-10-17'
-      Statement:
-        - Effect: Allow
-          Principal:
-            Service: chatbot.amazonaws.com
-          Action:
-            - sts:AssumeRole
-    RoleName: !Sub ${AWS::StackName}-notifications-chatbot-role
-    ManagedPolicyArns:
-      - arn:aws:iam::aws:policy/AWSResourceExplorerReadOnlyAccess
-  #   Tags:
-  #   - Key: Name
-  #     Value:
-  #       Fn::Join:
-  #       - '-'
-  #       - - Ref: AWS::StackName
-  #         - ChatbotRole
-  #   - Key: Service
-  #     Value: ci/cd
-  #   - Key: Source
-  #     Value: govuk-one-login/devplatform-deploy/build-notifications/template.yaml
-  # Metadata:
-  #   SamResourceId: ChatbotRole
+# ChatbotRole:
+#   Type: AWS::IAM::Role
+#   Properties:
+#     AssumeRolePolicyDocument:
+#       Version: '2012-10-17'
+#       Statement:
+#         - Effect: Allow
+#           Principal:
+#             Service: chatbot.amazonaws.com
+#           Action:
+#             - sts:AssumeRole
+#     RoleName: !Sub ${AWS::StackName}-notifications-chatbot-role
+#     ManagedPolicyArns:
+#       - arn:aws:iam::aws:policy/AWSResourceExplorerReadOnlyAccess
 
-ChatbotChannelConfiguration:
-  #Condition: CreateChatbotChannelConfiguration
-  Type: AWS::Chatbot::SlackChannelConfiguration
-  Properties:
-    ConfigurationName: !Sub ${AWS::StackName}-notifications
-    IamRoleArn:
-      Fn::GetAtt:
-        - ChatbotRole
-        - Arn
-    SlackChannelId: 'C083A3B482G'
-    SlackWorkspaceId: 'T8GT9416G'
-    SnsTopicArns:
-      - Ref: BuildNotificationTopic
-# Metadata:
-#   SamResourceId: ChatbotChannelConfiguration
+# ChatbotChannelConfiguration:
+
+#   Type: AWS::Chatbot::SlackChannelConfiguration
+#   Properties:
+#     ConfigurationName: !Sub ${AWS::StackName}-notifications
+#     GuardrailPolicies:
+#         - arn:aws:iam::aws:policy/ReadOnlyAccess
+#     IamRoleArn:
+#       Fn::GetAtt:
+#         - ChatbotRole
+#         - Arn
+#     SlackChannelId: 'C083A3B482G'
+#     SlackWorkspaceId: 'T8GT9416G'
+#     SnsTopicArns:
+#       - Ref: BuildNotificationTopic
+
