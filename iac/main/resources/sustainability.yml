@@ -133,19 +133,20 @@ SendReplicationFailureAlertsLambda:
               - kms:Encrypt
             #Resource: !GetAtt KmsKey.Arn
             Resource: '*'
-          # - Effect: Allow
-          #   Action:
-          #     - 'sns:Publish'
-          #   Resource:
-          #     - !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
+          - Effect: Allow
+            Action:
+              - 'sns:Publish'
+            Resource:
+              #- !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
+              - !Ref BuildNotificationTopic
 
     ReservedConcurrentExecutions: 10
     Environment:
       Variables:
         ENVIRONMENT: !Ref Environment
         #SNS_TOPIC_ARN: !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
-        SNS_TOPIC_ARN: 'test'
-        #SNS_TOPIC_ARN: !Ref BuildNotificationTopic
+        #SNS_TOPIC_ARN: 'test'
+        SNS_TOPIC_ARN: !Ref BuildNotificationTopic
     Tags:
       Environment: !Ref Environment
     VpcConfig:
@@ -164,80 +165,78 @@ s3Permission:
     Principal: s3.amazonaws.com
     SourceAccount: !Ref 'AWS::AccountId'
     SourceArn: !GetAtt SustainabilityBucket.Arn
-# BuildNotificationTopic:
-#   Type: AWS::SNS::Topic
-#   Properties:
-#     TopicName: !Sub ${AWS::StackName}-notifications-topic
-#     KmsMasterKeyId:
-#       Ref: BuildNotificationTopicKey
+BuildNotificationTopic:
+  Type: AWS::SNS::Topic
+  Properties:
+    TopicName: !Sub ${AWS::StackName}-notifications-topic
+    KmsMasterKeyId:
+      Ref: BuildNotificationTopicKey
 
-# BuildNotificationTopicPolicy:
-#   Type: AWS::SNS::TopicPolicy
-#   Properties:
-#     Topics:
-#       - Ref: BuildNotificationTopic
-#     PolicyDocument:
-#       Statement:
-#         - Action: sns:Publish
-#           Effect: Allow
-#           Resource:
-#             Ref: BuildNotificationTopic
-#           Principal:
-#             Service:
-#               - s3.amazonaws.com
+BuildNotificationTopicPolicy:
+  Type: AWS::SNS::TopicPolicy
+  Properties:
+    Topics:
+      - Ref: BuildNotificationTopic
+    PolicyDocument:
+      Statement:
+        - Action: sns:Publish
+          Effect: Allow
+          Resource:
+            Ref: BuildNotificationTopic
+          Principal:
+            Service:
+              - s3.amazonaws.com
 
-# BuildNotificationTopicKey:
-#   Type: AWS::KMS::Key
-#   Properties:
-#     EnableKeyRotation: true
-#     KeyPolicy:
-#       Version: '2012-10-17'
-#       Statement:
-#         - Sid: Allow CodeStar Notifications to enqueue encrypted messages
-#           Effect: Allow
-#           Resource: '*'
-#           Action:
-#             - kms:Decrypt
-#             - kms:GenerateDataKey
-#           Principal:
-#             Service:
-#               - s3.amazonaws.com
-#         - Sid: Allow the account to manage the key
-#           Effect: Allow
-#           Principal:
-#             AWS:
-#               Fn::Sub: arn:aws:iam::${AWS::AccountId}:root
-#           Action: kms:*
-#           Resource: '*'
+BuildNotificationTopicKey:
+  Type: AWS::KMS::Key
+  Properties:
+    EnableKeyRotation: true
+    KeyPolicy:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: Allow CodeStar Notifications to enqueue encrypted messages
+          Effect: Allow
+          Resource: '*'
+          Action:
+            - kms:Decrypt
+            - kms:GenerateDataKey
+          Principal:
+            Service:
+              - s3.amazonaws.com
+        - Sid: Allow the account to manage the key
+          Effect: Allow
+          Principal:
+            AWS:
+              Fn::Sub: arn:aws:iam::${AWS::AccountId}:root
+          Action: kms:*
+          Resource: '*'
 
-# ChatbotRole:
-#   Type: AWS::IAM::Role
-#   Properties:
-#     AssumeRolePolicyDocument:
-#       Version: '2012-10-17'
-#       Statement:
-#         - Effect: Allow
-#           Principal:
-#             Service: chatbot.amazonaws.com
-#           Action:
-#             - sts:AssumeRole
-#     RoleName: !Sub ${AWS::StackName}-notifications-chatbot-role
-#     ManagedPolicyArns:
-#       - arn:aws:iam::aws:policy/AWSResourceExplorerReadOnlyAccess
+ChatbotRole:
+  Type: AWS::IAM::Role
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: chatbot.amazonaws.com
+          Action:
+            - sts:AssumeRole
+    RoleName: !Sub ${AWS::StackName}-notifications-chatbot-role
+    ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AWSResourceExplorerReadOnlyAccess
 
-# ChatbotChannelConfiguration:
-
-#   Type: AWS::Chatbot::SlackChannelConfiguration
-#   Properties:
-#     ConfigurationName: !Sub ${AWS::StackName}-notifications
-#     GuardrailPolicies:
-#         - arn:aws:iam::aws:policy/ReadOnlyAccess
-#     IamRoleArn:
-#       Fn::GetAtt:
-#         - ChatbotRole
-#         - Arn
-#     SlackChannelId: 'C083A3B482G'
-#     SlackWorkspaceId: 'T8GT9416G'
-#     SnsTopicArns:
-#       - Ref: BuildNotificationTopic
-
+ChatbotChannelConfiguration:
+  Type: AWS::Chatbot::SlackChannelConfiguration
+  Properties:
+    ConfigurationName: !Sub ${AWS::StackName}-notifications
+    GuardrailPolicies:
+      - arn:aws:iam::aws:policy/ReadOnlyAccess
+    IamRoleArn:
+      Fn::GetAtt:
+        - ChatbotRole
+        - Arn
+    SlackChannelId: 'C083A3B482G'
+    SlackWorkspaceId: 'T8GT9416G'
+    SnsTopicArns:
+      - Ref: BuildNotificationTopic
