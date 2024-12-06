@@ -256,7 +256,7 @@ ChatbotRole:
             - sts:AssumeRole
     RoleName: !Sub ${AWS::StackName}-notifications-chatbot-role
     ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AWSResourceExplorerReadOnlyAccess
+      - arn:aws:iam::aws:policy/AWSResourceExplorerReadOnlyAccess
   #   Tags:
   #   - Key: Name
   #     Value:
