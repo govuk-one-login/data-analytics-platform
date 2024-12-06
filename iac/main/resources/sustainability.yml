@@ -131,7 +131,8 @@ SendReplicationFailureAlertsLambda:
               - kms:Decrypt
               - kms:GenerateDataKey*
               - kms:Encrypt
-            Resource: !GetAtt KmsKey.Arn
+            #Resource: !GetAtt KmsKey.Arn
+            Resource: "*"
 
     ReservedConcurrentExecutions: 10
     Environment:
