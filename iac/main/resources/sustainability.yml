@@ -167,6 +167,7 @@ s3Permission:
 BuildNotificationTopic:
   Type: AWS::SNS::Topic
   Properties:
+    TopicName: !Sub ${AWS::StackName}-notifications-topic
     KmsMasterKeyId:
       Ref: BuildNotificationTopicKey
     # Subscription:
@@ -205,10 +206,6 @@ BuildNotificationTopicPolicy:
             Ref: BuildNotificationTopic
           Principal:
             Service:
-              - codestar-notifications.amazonaws.com
-              - cloudwatch.amazonaws.com
-              - events.amazonaws.com
-              - budgets.amazonaws.com
               - s3.amazonaws.com
   # Metadata:
   #   SamResourceId: BuildNotificationTopicPolicy
@@ -228,10 +225,6 @@ BuildNotificationTopicKey:
             - kms:GenerateDataKey
           Principal:
             Service:
-              - codestar-notifications.amazonaws.com
-              - cloudwatch.amazonaws.com
-              - events.amazonaws.com
-              - budgets.amazonaws.com
               - s3.amazonaws.com
         - Sid: Allow the account to manage the key
           Effect: Allow
@@ -261,6 +254,9 @@ ChatbotRole:
             Service: chatbot.amazonaws.com
           Action:
             - sts:AssumeRole
+    RoleName: !Sub ${AWS::StackName}-notifications-chatbot-role
+    ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSResourceExplorerReadOnlyAccess
   #   Tags:
   #   - Key: Name
   #     Value:
@@ -280,7 +276,7 @@ ChatbotChannelConfiguration:
   Type: AWS::Chatbot::SlackChannelConfiguration
   Properties:
     ConfigurationName:
-      Fn::Sub: ${AWS::StackName}-notifications
+      Fn::Sub: !Sub ${AWS::StackName}-notifications
     IamRoleArn:
       Fn::GetAtt:
         - ChatbotRole
