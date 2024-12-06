@@ -50,7 +50,15 @@ export const handler = async (event): Promise<void> => {
         logger.info('replicationFailure', { replicationFailure });
         const s3Operation = record.replicationEventData.s3Operation;
         logger.info('s3Operation', { s3Operation });
-        const description = `*S3 Replication Failure*\nBucket: ${bucketName}\nObject: ${objectKey}\nOperation: ${s3Operation}\nError: ${replicationFailure}`;
+        const description =
+          '*S3 Replication Failure*\nBucket: ' +
+          `${bucketName}` +
+          '\nObject: ' +
+          `${objectKey}` +
+          '\nOperation: ' +
+          `${s3Operation}` +
+          '\nError: ' +
+          `${replicationFailure}`;
 
         logger.info(description, { description });
         const message = {
