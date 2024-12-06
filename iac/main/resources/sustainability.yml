@@ -138,7 +138,8 @@ SendReplicationFailureAlertsLambda:
     Environment:
       Variables:
         ENVIRONMENT: !Ref Environment
-        SNS_TOPIC_ARN: !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
+        #SNS_TOPIC_ARN: !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
+        SNS_TOPIC_ARN: 'test'
     Tags:
       Environment: !Ref Environment
     VpcConfig:
