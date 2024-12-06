@@ -275,8 +275,7 @@ ChatbotChannelConfiguration:
   #Condition: CreateChatbotChannelConfiguration
   Type: AWS::Chatbot::SlackChannelConfiguration
   Properties:
-    ConfigurationName:
-      Fn::Sub: !Sub ${AWS::StackName}-notifications
+    ConfigurationName: !Sub ${AWS::StackName}-notifications
     IamRoleArn:
       Fn::GetAtt:
         - ChatbotRole
