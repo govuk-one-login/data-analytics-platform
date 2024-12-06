@@ -289,5 +289,5 @@ ChatbotChannelConfiguration:
     SlackWorkspaceId: 'T8GT9416G'
     SnsTopicArns:
       - Ref: BuildNotificationTopic
-Metadata:
-  SamResourceId: ChatbotChannelConfiguration
+# Metadata:
+#   SamResourceId: ChatbotChannelConfiguration
