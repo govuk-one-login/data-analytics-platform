@@ -114,6 +114,7 @@ SendReplicationFailureAlertsLambda:
     Handler: send-slack-alerts.handler
     Policies:
       - AWSLambdaBasicExecutionRole
+      - AWSLambdaVPCAccessExecutionRole
       - Statement:
           - Effect: Allow
             Action:
