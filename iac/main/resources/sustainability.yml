@@ -135,6 +135,13 @@ SendReplicationFailureAlertsLambda:
               - 'sns:Publish'
             Resource:
               - !Ref BuildNotificationTopic
+          - Effect: Allow
+            Action:
+              - "ec2:DescribeNetworkInterfaces"
+              - "ec2:CreateNetworkInterface"
+              - "ec2:DeleteNetworkInterface"
+            Resource:
+              - '*'
 
     ReservedConcurrentExecutions: 10
     Environment:
