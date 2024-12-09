@@ -67,20 +67,6 @@ SustainabilityBucketPolicy:
             - !Sub ${SustainabilityBucket.Arn}/*
           Principal:
             AWS: !GetAtt IAMRoleRedshiftServerless.Arn
-        # - Effect: Allow
-        #   Principal:
-        #     Service: s3.amazonaws.com
-        #   Action: s3:InvokeFunction
-        #   Resource: !GetAtt SendReplicationFailureAlertsLambda.Arn
-        # - Effect: Allow
-        #   Action:
-        #     - 's3:*'
-
-        #   Resource:
-        #     - !Sub ${SustainabilityBucket.Arn}
-        #     - !Sub ${SustainabilityBucket.Arn}/*
-        #   Principal:
-        #     AWS: !GetAtt SendReplicationFailureAlertsLambda.Arn
 
 SustainabilityBucketIamPolicy:
   Type: 'AWS::IAM::Policy'
@@ -134,13 +120,19 @@ SendReplicationFailureAlertsLambda:
               - kms:Decrypt
               - kms:GenerateDataKey*
               - kms:Encrypt
+            Resource: !GetAtt KmsKey.Arn
+            #Resource: '*'
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey*
+              - kms:Encrypt
             #Resource: !GetAtt KmsKey.Arn
-            Resource: '*'
+            Resource: !GetAtt BuildNotificationTopicKey.Arn
           - Effect: Allow
             Action:
               - 'sns:Publish'
             Resource:
-              #- !ImportValue dap-alarms-slack-alerts-BuildNotificationTopicArn
               - !Ref BuildNotificationTopic
 
     ReservedConcurrentExecutions: 10
@@ -168,6 +160,7 @@ s3Permission:
     Principal: s3.amazonaws.com
     SourceAccount: !Ref 'AWS::AccountId'
     SourceArn: !GetAtt SustainabilityBucket.Arn
+
 BuildNotificationTopic:
   Type: AWS::SNS::Topic
   Properties:
