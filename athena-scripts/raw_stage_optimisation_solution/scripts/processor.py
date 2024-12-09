@@ -53,7 +53,6 @@ def process_job(json_data, args, glue_app, s3_app, data_preprocessing):
         print(f'retrieved timestamp filter value: {max_timestamp}')
         
         scheduled_raw_sql = get_raw_sql_scheduled(json_data, raw_database, raw_table, max_processed_dt, max_timestamp)
-       
         # query raw layer
         dfs = get_raw_data(glue_app, raw_database, scheduled_raw_sql, athena_query_chunksize)
         
@@ -96,11 +95,13 @@ def process_job(json_data, args, glue_app, s3_app, data_preprocessing):
         if min_timestamp_filter_for_missing_events is None:
             print(f'Could not calculate a minimum timestamp to filter for missing events, ending process')
             return
+
+
             
         backfill_raw_sql = get_raw_sql_backfill(raw_database, raw_table, stage_database, stage_target_table, min_timestamp_filter_for_missing_events, max_timestamp, max_processed_dt, filter_processed_time,penultimate_processed_dt)
         # query raw layer
         dfs = get_raw_data(glue_app, raw_database, backfill_raw_sql, athena_query_chunksize)
-
+        
         process_results(dfs, args, data_preprocessing, json_data, glue_app, s3_app)
      
 def get_raw_sql_testing(json_data, database, table):
@@ -439,4 +440,8 @@ def process_results(dfs, args, preprocessing, json_data, glue_app, s3_app):
         print(f"total duplicate rows removed: {cummulative_duplicate_rows_removed}")
 
 def get_raw_data(glue_app, raw_database, raw_sql, athena_query_chunksize):
-    
+    dfs = glue_app.query_glue_table(
+            raw_database, raw_sql, athena_query_chunksize)
+    if dfs is None:
+        raise ValueError(f"Function: query_glue_table returned None.  Using query {str(raw_sql)}")
+    return dfs
