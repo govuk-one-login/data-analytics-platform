@@ -2,7 +2,7 @@ from Strategy import Strategy
 from processing_utilities import extract_element_by_name
 
 
-class ScheduledStrategy(Strategy):
+class BackfillStrategy(Strategy):
 
     def extract(self):
         
@@ -12,6 +12,11 @@ class ScheduledStrategy(Strategy):
         # get max processed_dt
         max_timestamp= 0
         
+        # get min timestamp
+        min_timestamp = 0
+        
+        # get processed_time
+        processed_time = 0
         event_processing_selection_criteria_filter = extract_element_by_name(self.config_data, "filter", "event_processing_selection_criteria")
         
         if event_processing_selection_criteria_filter is None:
@@ -30,10 +35,22 @@ class ScheduledStrategy(Strategy):
         
         return self.get_raw_data(sql_query)
         
-    def generate_sql_query(self, filter, limit, filter_processed_dt, filter_timestamp):
-        update_filter = filter.replace('processed_dt', str(filter_processed_dt - 1)).replace('replace_timestamp', str(filter_timestamp))
-        sql = f'''select * from \"{self.args['raw_database']}\".\"{self.args['raw_source_table']}\" where {update_filter}'''
-
-        if filter is not None and limit > 0:
-            sql = sql + f' limit {limit}'
-        return sql
+    def generate_sql_query(self, min_timestamp, max_timestamp, processed_time, processed_dt):
+        penultimate_processed_dt = 0
+        
+        return f'''
+                SELECT *
+                FROM \"{self.args['raw_database']}\".\"{self.args['raw_source_table']}\"
+                WHERE event_id IN (
+		            SELECT raw.event_id
+		            FROM \\"{self.args['raw_database']}\".\"{self.args['raw_source_table']}\" raw
+			        LEFT OUTER JOIN \"{self.args['stage_database']}\".\"{self.args['stage_target_table']}\" sl ON raw.event_id = sl.event_id
+                    AND sl.processed_dt = {processed_dt}
+                    AND sl.processed_time = {processed_time}
+		            WHERE sl.event_id is null
+			        AND CAST(concat(raw.year, raw.month, raw.day) AS INT) >= {penultimate_processed_dt} - 1
+			        AND CAST(raw.timestamp as int) > {min_timestamp}
+			        AND CAST(raw.timestamp as int) <= {max_timestamp}
+	            )
+	            AND CAST(concat(year, month, day) AS INT) >= {penultimate_processed_dt} - 1
+             '''

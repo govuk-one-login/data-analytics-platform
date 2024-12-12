@@ -12,15 +12,14 @@ from GlueTableQueryAndWrite import GlueTableQueryAndWrite
 from DataPreprocessing import DataPreprocessing
 from AthenaReadWrite import AthenaReadWrite
 from Processor import RawToStageProcessor
-from strategies import *
 
-from core_preprocessing_functions import *
+from CustomStrategy import CustomStrategy
+from ViewStrategy import ViewStrategy
+from ScheduledStrategy import ScheduledStrategy
+from processing_utilities import extract_element_by_name
 
 
 def main():
-
-    athena_query_chunksize = 1000000
-
     try:
 
         # Glue Job Inputs
@@ -49,9 +48,7 @@ def main():
 
         # Athena processing class
         athena_app = AthenaReadWrite()
-        
-        processor = None
-        
+                
         json_data = s3_app.read_json(
             args['config_bucket'], args['config_key_path'])
         if json_data is None:
@@ -60,23 +57,21 @@ def main():
         formatted_json = json.dumps(json_data, indent=4)
         print(f'configuration rules:\n {formatted_json}')
 
-        # Trigger regeneration of raw layer deduplication view
-        # Required to avoid "stale" view error, which occurs when new fields
-        # are introduced within the txma table, hence the view definition is out of date
-        # Read deduplication view definition sql
+        
         job_type = get_job_type(json_data)
+        processor = None
 
-        if job_type is None: 
+        if job_type is None:
             raise ValueError("No job type specified to run")
         
-        if job_type is 'TESTING':
-            processor = RawToStageProcessor(CustomStrategy(json_data, glue_app, s3_app))
+        if job_type == 'TESTING':
+            processor = RawToStageProcessor(CustomStrategy(args, json_data, glue_app, s3_app, preprocessing))
 
-        elif job_type is 'VIEW':
-            processor = RawToStageProcessor(ViewStrategy(json_data, glue_app, s3_app))
+        elif job_type == 'VIEW':
+            processor = RawToStageProcessor(ViewStrategy(args, json_data, glue_app, s3_app, preprocessing))
 
-        elif job_type is 'SCHEDULED':
-            processor = RawToStageProcessor(ScheduledStrategy(json_data, glue_app, s3_app))
+        elif job_type == 'SCHEDULED':
+            processor = RawToStageProcessor(ScheduledStrategy(args, json_data, glue_app, s3_app, preprocessing))
 
         processor.process()
         
