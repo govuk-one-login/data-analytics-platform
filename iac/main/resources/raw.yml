@@ -181,7 +181,23 @@ RawEventTable:
           - { Name: year, Type: string }
           - { Name: month, Type: string }
           - { Name: day, Type: string }
-          - { Name: event_name, Type: string }
+          - { Name: partition_0, Type: string }
+        Parameters:
+          projection.enabled: true
+          projection.partition_0.type: injected
+          projection.year.type: integer
+		      projection.year.range: 2022,2030
+		      projection.year.digits: 4
+		      projection.month.type: integer
+		      projection.month.range: 01,12
+		      projection.month.digits: 2
+		      projection.day.type: integer
+		      projection.day.range: 01,31
+		      projection.day.digits: 2
+		      storage.location.template: !Join [
+              '',
+              ['s3://', !Ref RawLayerBucket, '/txma/${partition_0}/year=${year}/month=${month}/day=${day}/']
+            ]
         StorageDescriptor:
           Columns:
             - Name: event_id
@@ -197,7 +213,7 @@ RawEventTable:
             - Name: user
               Type: string
             - Name: event_timestamp_ms
-              Type: bigint
+              Type: string
             - Name: event_timestamp_ms_formatted
               Type: string
             - Name: txma
