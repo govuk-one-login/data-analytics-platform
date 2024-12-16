@@ -752,6 +752,7 @@ RawStageTransformProcessPythonGlueJob:
             !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/DataPreprocessing.py',
             !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/GlueTableQueryAndWrite.py',
             !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/S3ReadWrite.py',
+            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/processor.py',
           ],
         ]
     ExecutionProperty:
