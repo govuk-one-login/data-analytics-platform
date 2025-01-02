@@ -2,8 +2,8 @@
     "clean_by_event_name": {
         "enabled": true,
         "config": {
-            "environment": "dev",
-            "event_name": "xxx"
+            "environment": "production",
+            "event_name": "BAV_CRI_VC_ISSUED"
         }
     }
 }
