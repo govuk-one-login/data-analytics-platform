@@ -1,0 +1,3 @@
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('IPV_ASYNC_CRI_VC_CONSUMED',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('IPV_ASYNC_CRI_VC_ERROR',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('IPV_ASYNC_CRI_VC_RECEIVED',sysdate,'1999-01-01');
