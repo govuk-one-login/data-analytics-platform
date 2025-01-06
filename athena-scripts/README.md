@@ -55,3 +55,5 @@ To run formatters and checks, use -
 black .
 flake8 
 `
+
+currently flake8 ignores S608,C901 rules, which need to be addressed
