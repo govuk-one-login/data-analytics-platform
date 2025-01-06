@@ -47,9 +47,10 @@ To create virtual env -
 `python3 -m venv venvlocal
 source venvlocal/bin/activate
 `
-
+Install dev dependencies including the pre commit hook -
 `cd src && pip install -r requirements.txt`
 
+To run formatters and checks, use -
 `isort .
 black .
 flake8 
