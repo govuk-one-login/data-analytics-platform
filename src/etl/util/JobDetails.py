@@ -1,4 +1,3 @@
 class PreviousJobDetails:
-    
-    def __init__(self, cache):
-        cache = {}
+    def __init__(self):
+        pass

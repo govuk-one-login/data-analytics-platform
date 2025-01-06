@@ -1,5 +1,7 @@
 import json
+
 import boto3
+
 
 class S3ReadWrite:
     """
@@ -16,15 +18,12 @@ class S3ReadWrite:
         read_file(self)
             Reads file data from the specified S3 bucket and key path, and returns the file data as a text object.
     """
+
     def __init__(self):
         """
         Initialize a new S3ReadWrite instance.
-
-        Args:
-            bucket_name (str): The name of the S3 bucket where the JSON file is stored.
-            key_path (str): The key path of the JSON file within the S3 bucket.
         """
-        self.s3 = boto3.client('s3')
+        self.s3 = boto3.client("s3")
 
     def read_json(self, bucket_name, key_path):
         """
@@ -38,14 +37,14 @@ class S3ReadWrite:
         """
         try:
             response = self.s3.get_object(Bucket=bucket_name, Key=key_path)
-            json_data = json.loads(response['Body'].read().decode('utf-8'))
+            json_data = json.loads(response["Body"].read().decode("utf-8"))
             if json_data is None:
                 raise ValueError("return value is None")
             return json_data
         except Exception as e:
             print(f"Error reading JSON from S3: {str(e)}")
             return None
-        
+
     def write_json(self, bucket_name, key_path, body):
         """
         Writes JSON data to a specified S3 bucket and key path.
@@ -64,7 +63,7 @@ class S3ReadWrite:
         except Exception as e:
             print(f"Error writing JSON to S3: {str(e)}")
             return None
-        
+
     def read_file(self, bucket_name, key_path):
         """
         Reads file data from the specified S3 bucket and key path, and returns a string object.
@@ -77,11 +76,10 @@ class S3ReadWrite:
         """
         try:
             response = self.s3.get_object(Bucket=bucket_name, Key=key_path)
-            data = response['Body'].read().decode('utf-8')
+            data = response["Body"].read().decode("utf-8")
             if data is None:
                 raise ValueError("return value is None")
             return data
         except Exception as e:
             print(f"Error reading file from S3: {str(e)}")
             return None
-

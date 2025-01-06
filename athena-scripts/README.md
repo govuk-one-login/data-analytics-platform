@@ -41,3 +41,16 @@ The State machine initially reads the `product_family_config.json` configuration
 
 
 Any failures processing a product family are isolated and do not impact the other running processes.  All logging from the State machine is delivered to the following S3 bucket `${Environment}-dap-step-function-process-results` for further analysis.
+
+# Local Setup for ETL job development
+To create virtual env - 
+`python3 -m venv venvlocal
+source venvlocal/bin/activate
+`
+
+`cd src && pip install -r requirements.txt`
+
+`isort .
+black .
+flake8 
+`

@@ -1,5 +1,4 @@
 def extract_element_by_name(json_data, element_name, parent_name=None):
-
     """
     Extract an element from a JSON data structure by name, optionally matching a parent name.
 
@@ -13,7 +12,6 @@ def extract_element_by_name(json_data, element_name, parent_name=None):
     """
 
     try:
-
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
 
@@ -23,8 +21,8 @@ def extract_element_by_name(json_data, element_name, parent_name=None):
                     return json_data[element_name]
             elif parent_name in json_data and element_name in json_data[parent_name]:
                 return json_data[parent_name][element_name]
-            
-            for key, value in json_data.items():
+
+            for _key, value in json_data.items():
                 if isinstance(value, (dict, list)):
                     result = extract_element_by_name(value, element_name, parent_name)
                     if result is not None:
@@ -37,9 +35,7 @@ def extract_element_by_name(json_data, element_name, parent_name=None):
                         return result
 
         return None
-    
+
     except Exception as e:
         print(f"Exception Error retrieving config rule value: {str(e)}")
         return None
-    
-    

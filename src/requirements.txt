@@ -1,0 +1,12 @@
+pre-commit==4.0.1
+boto3==1.35.83
+pandas==2.2.3
+awswrangler==3.10.1
+#awsglue-dev==2021.12.30
+black==24.10.0
+pyupgrade==3.19.1
+isort==5.13.2
+flake8==7.1.1
+flake8-bandit
+flake8-bugbear
+reindent
