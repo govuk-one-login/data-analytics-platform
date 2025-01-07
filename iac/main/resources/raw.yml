@@ -168,3 +168,55 @@ SplunkPerformanceIndexSecret:
     Description: 'a secret to store username and password for access the performance index'
     Name: !Sub ${Environment}-SplunkPerformanceIndexSecret
     SecretString: '{"username":"xxx","password":"xxx"}'
+
+RawLayerTestCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: txma_raw_layer_test
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: DELETE_FROM_DATABASE
+
+TxmaCrawlerInvoke:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub trigger-txma-crawler-${Environment}
+    Handler: trigger-txma-crawler.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - glue:StartCrawler
+              - glue:UpdateCrawler
+              - glue:GetCrawler
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogStream
+            Resource: 'arn:aws:logs:*:*:*'
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+    Tags:
+      Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3

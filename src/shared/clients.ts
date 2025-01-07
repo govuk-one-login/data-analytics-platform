@@ -1,4 +1,5 @@
 import { S3Client } from '@aws-sdk/client-s3';
+import { GlueClient } from '@aws-sdk/client-glue';
 import { CloudWatchLogsClient } from '@aws-sdk/client-cloudwatch-logs';
 import { AWS_CLIENT_BASE_CONFIG } from './constants';
 import { LambdaClient } from '@aws-sdk/client-lambda';
@@ -39,3 +40,5 @@ export const secretsManagerClient = new SecretsManagerClient(AWS_CLIENT_BASE_CON
 export const sqsClient = new SQSClient(AWS_CLIENT_BASE_CONFIG);
 
 export const sfnClient = new SFNClient(AWS_CLIENT_BASE_CONFIG);
+
+export const glueClient = new GlueClient(AWS_CLIENT_BASE_CONFIG);
