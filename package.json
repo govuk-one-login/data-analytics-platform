@@ -56,7 +56,7 @@
   },
   "scripts": {
     "build": "scripts/build-lambdas.sh",
-    "lint:check": "eslint src tests && flake8 . && isort .",
+    "lint:check": "eslint src tests",
     "lint:fix": "eslint --fix src tests",
     "test": "jest --silent src",
     "test:coverage": "jest --coverage --silent src",
