@@ -1,4 +1,6 @@
 npx lint-staged
+npx run format
+npx lint
 
 git diff --cached --name-only | if grep --quiet 'iac/'; then
   echo "Running sam validate and checkov checks on IaC code"

@@ -58,7 +58,7 @@
     "format": "black . && isort .",
     "lint": "flake8 .",
     "build": "scripts/build-lambdas.sh",
-    "lint:check": "eslint src tests",
+    "lint:check": "eslint src tests && flake8 . && isort .",
     "lint:fix": "eslint --fix src tests",
     "test": "jest --silent src",
     "test:coverage": "jest --coverage --silent src",
