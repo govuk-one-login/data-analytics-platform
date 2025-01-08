@@ -1,4 +1,3 @@
-import datetime
 from datetime import datetime
 
 import awswrangler as wr
@@ -31,9 +30,7 @@ class DataPreprocessing:
         """
         try:
             if not isinstance(fields, (list)):
-                raise ValueError(
-                    "Invalid field list structure provided, require list object"
-                )
+                raise ValueError("Invalid field list structure provided, require list object")
             return df.drop_duplicates(subset=fields)
         except Exception as e:
             print(f"Error dropping row duplicates: {str(e)}")
@@ -52,9 +49,7 @@ class DataPreprocessing:
         """
         try:
             if not isinstance(fields, (list)):
-                raise ValueError(
-                    "Invalid field list structure provided, require list object"
-                )
+                raise ValueError("Invalid field list structure provided, require list object")
             return df.dropna(subset=fields)
         except Exception as e:
             print(f"Error dropping rows missing mandatory field: {str(e)}")
@@ -73,9 +68,7 @@ class DataPreprocessing:
         """
         try:
             if not isinstance(fields, (dict)):
-                raise ValueError(
-                    "Invalid field list structure provided, require dict object"
-                )
+                raise ValueError("Invalid field list structure provided, require dict object")
             return df.rename(columns=fields)
         except Exception as e:
             print(f"Error renaming columns: {str(e)}")
@@ -116,9 +109,7 @@ class DataPreprocessing:
         """
         try:
             if not isinstance(fields, (dict)):
-                raise ValueError(
-                    "Invalid field list structure provided, require dict object"
-                )
+                raise ValueError("Invalid field list structure provided, require dict object")
             for column_name, value in fields.items():
                 if column_name == "processed_dt":
                     df[column_name] = self.processed_dt
@@ -143,19 +134,13 @@ class DataPreprocessing:
         """
         try:
             if not isinstance(fields, (dict)):
-                raise ValueError(
-                    "Invalid field list structure provided, require dict object"
-                )
+                raise ValueError("Invalid field list structure provided, require dict object")
 
             for key, value in fields.items():
                 for item in value:
                     col_name = f"{key}_{item}"
                     df[col_name] = df.apply(
-                        lambda x: None
-                        if x[key] is None
-                        or x[key].get(item) is None
-                        or (not x[key].get(item).strip())
-                        else x[key].get(item),
+                        lambda x: None if x[key] is None or x[key].get(item) is None or (not x[key].get(item).strip()) else x[key].get(item),
                         axis=1,
                     )
 
@@ -177,16 +162,10 @@ class DataPreprocessing:
         """
         try:
             if not isinstance(fields, (list)):
-                raise ValueError(
-                    "Invalid field list structure provided, require list object"
-                )
+                raise ValueError("Invalid field list structure provided, require list object")
 
             for column_name in fields:
-                df[column_name] = df[column_name].apply(
-                    lambda x: None
-                    if isinstance(x, str) and (x.isspace() or not x)
-                    else x
-                )
+                df[column_name] = df[column_name].apply(lambda x: None if isinstance(x, str) and (x.isspace() or not x) else x)
 
             return df
         except Exception as e:
@@ -221,25 +200,19 @@ class DataPreprocessing:
                         elif isinstance(value, list):
                             for i, item in enumerate(value):
                                 if isinstance(item, (dict, list)):
-                                    items.extend(
-                                        self.extract_key_values(item, f"{new_key}[{i}]")
-                                    )
+                                    items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
                                 else:
                                     items.append((f"{new_key}[{i}]", item))
                         elif isinstance(value, np.ndarray):
                             for i, item in enumerate(value):
                                 if isinstance(item, (dict, list)):
-                                    items.extend(
-                                        self.extract_key_values(item, f"{new_key}[{i}]")
-                                    )
+                                    items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
                                 else:
                                     items.append((f"{new_key}[{i}]", item))
                         else:
                             if isinstance(value, str):  # Check if item is a string
                                 try:
-                                    value = float(
-                                        value
-                                    )  # Attempt to convert the string to a float
+                                    value = float(value)  # Attempt to convert the string to a float
                                 except ValueError:
                                     pass  # Ignore if conversion fails
                             if isinstance(value, (int, float)):
@@ -269,30 +242,23 @@ class DataPreprocessing:
         """
         try:
             if not isinstance(fields, (list)):
-                raise ValueError(
-                    "Invalid field list structure provided, require list object"
-                )
+                raise ValueError("Invalid field list structure provided, require list object")
 
             # Initialize an empty list to store DataFrames
             dfs = []
 
             for column_name in fields:
                 df_key_value = df.apply(
-                    lambda row: [
-                        (row["event_id"], column_name, key, value)
-                        for key, value in self.extract_key_values(
-                            row[column_name], field_name=column_name
-                        )
-                    ]
-                    if pd.notna(row[column_name])
-                    else [],
+                    lambda row: (
+                        [(row["event_id"], column_name, key, value) for key, value in self.extract_key_values(row[column_name], field_name=column_name)]
+                        if pd.notna(row[column_name])
+                        else []
+                    ),
                     axis=1,
                 )
                 dfs.append(df_key_value)
 
-            print(
-                f"class: DataPreprocessing | method=generate_key_value_records | dfs row count: {len(dfs)}"
-            )
+            print(f"class: DataPreprocessing | method=generate_key_value_records | dfs row count: {len(dfs)}")
 
             key_value_pairs = pd.concat(dfs, ignore_index=True)
 

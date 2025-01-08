@@ -7,3 +7,10 @@ build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 160
+
+[[tool.mypy.overrides]]
+module = ["untyped_package.*"]
+follow_untyped_imports = true
+
+[tool.mypy]
+disable_error_code = ["import-untyped"]

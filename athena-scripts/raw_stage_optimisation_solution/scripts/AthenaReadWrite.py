@@ -1,4 +1,3 @@
-import json
 import time
 
 import boto3
@@ -47,9 +46,7 @@ class AthenaReadWrite:
 
             # Check the status of the query periodically until it completes
             while True:
-                query_execution = self.athena_client.get_query_execution(
-                    QueryExecutionId=query_execution_id
-                )
+                query_execution = self.athena_client.get_query_execution(QueryExecutionId=query_execution_id)
                 status = query_execution["QueryExecution"]["Status"]["State"]
 
                 if status in ["SUCCEEDED", "FAILED", "CANCELLED"]:

@@ -55,8 +55,10 @@
     "uuid": "^11.0.3"
   },
   "scripts": {
-    "format": "black ./athena-scripts/raw_stage_optimisation_solution/scripts/ && isort ./athena-scripts/raw_stage_optimisation_solution/scripts/",
-    "lint": "flake8 ./athena-scripts/raw_stage_optimisation_solution/scripts/",
+    "format": "reindent ./athena-scripts/raw_stage_optimisation_solution/scripts/ && black ./athena-scripts/raw_stage_optimisation_solution/scripts/ && isort ./athena-scripts/raw_stage_optimisation_solution/scripts/",
+    "pylint": "pyupgrade ./athena-scripts/raw_stage_optimisation_solution/scripts/* && mypy ./athena-scripts/raw_stage_optimisation_solution/scripts/",
+    "disabled": "pydocstyle ./athena-scripts/raw_stage_optimisation_solution/scripts/",
+    "flake8": "flake8 ./athena-scripts/raw_stage_optimisation_solution/scripts/ && flake8-bandit ./athena-scripts/raw_stage_optimisation_solution/scripts/* && flake8-bugbear ./athena-scripts/raw_stage_optimisation_solution/scripts/*",
     "build": "scripts/build-lambdas.sh",
     "lint:check": "eslint src tests && flake8 . && isort .",
     "lint:fix": "eslint --fix src tests",

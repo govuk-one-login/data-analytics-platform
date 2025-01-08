@@ -1,6 +1,6 @@
 npx lint-staged
 npm run format
-npm run lint
+npm run pylint
 
 git diff --cached --name-only | if grep --quiet 'iac/'; then
   echo "Running sam validate and checkov checks on IaC code"

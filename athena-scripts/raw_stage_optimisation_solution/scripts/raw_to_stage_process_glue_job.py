@@ -51,11 +51,11 @@ def main():
         # commented out due to timeout issues being experienced within account
         # mitigation is to use the txma source table from (raw) until the issue
         # can be resolved.
-        
+
         view_sql = s3_app.read_file(args['config_bucket'], args['txma_raw_dedup_view_key_path'])
         if view_sql is None:
             raise ValueError("Class 's3_json_reader' returned None, which is not allowed.")
-        
+
         view_generation_sql = view_sql.replace('raw_database', str(args['raw_database']))
         print(view_generation_sql)
 

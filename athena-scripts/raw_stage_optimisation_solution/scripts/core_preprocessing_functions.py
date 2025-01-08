@@ -28,13 +28,9 @@ def get_min_timestamp_from_previous_run(
     try:
         if daily_processes_df.empty or len(daily_processes_df.index) <= 1:
             # If there are <= 1 processes for a given day, then we need to get the latest timestamp processed from the previous processed day
-            max_timestamp = get_max_timestamp(
-                app, stage_database, stage_target_table, penultimate_processed_dt
-            )
+            max_timestamp = get_max_timestamp(app, stage_database, stage_target_table, penultimate_processed_dt)
 
-            print(
-                f"""Retrieved timestamp:{max_timestamp} from date:{penultimate_processed_dt} to filter for missing events"""
-            )
+            print(f"""Retrieved timestamp:{max_timestamp} from date:{penultimate_processed_dt} to filter for missing events""")
             return max_timestamp
 
         # if there are multiple processes on the day, then get the max timestamp from the process that ran before the last
@@ -53,15 +49,11 @@ def get_min_timestamp_from_previous_run(
 
         return max_timestamp
     except Exception as e:
-        print(
-            f"Exception Error retrieving max timestamp for reprocess missing events job {str(e)}"
-        )
+        print(f"Exception Error retrieving max timestamp for reprocess missing events job {str(e)}")
         return None
 
 
-def get_all_processed_dts(
-    app, stage_database, stage_target_table, max_processed_dt, current_process_dt
-):
+def get_all_processed_dts(app, stage_database, stage_target_table, max_processed_dt, current_process_dt):
     try:
         if app.does_glue_table_exist(stage_database, stage_target_table):
             sql = f"""select distinct processed_dt as processed_dt
@@ -75,9 +67,7 @@ def get_all_processed_dts(
             dfs = app.query_glue_table(stage_database, sql, 10)
 
             if dfs is None:
-                raise ValueError(
-                    f"Athena query return value is None, query ran was: {str(sql)}"
-                )
+                raise ValueError(f"Athena query return value is None, query ran was: {str(sql)}")
 
             for df in dfs:
                 if "processed_dt" in df.columns:
@@ -87,9 +77,7 @@ def get_all_processed_dts(
         return None
 
 
-def get_all_processed_times_per_day(
-    app, stage_database, stage_target_table, max_processed_dt, current_process_time=None
-):
+def get_all_processed_times_per_day(app, stage_database, stage_target_table, max_processed_dt, current_process_time=None):
     """
     Get all processes that ran on any given day
 
@@ -120,9 +108,7 @@ def get_all_processed_times_per_day(
             dfs = app.query_glue_table(stage_database, sql, 10)
 
             if dfs is None:
-                raise ValueError(
-                    f"Athena query return value is None, query ran was: {str(sql)}"
-                )
+                raise ValueError(f"Athena query return value is None, query ran was: {str(sql)}")
 
             for df in dfs:
                 if "processed_time" in df.columns:
@@ -175,9 +161,7 @@ def get_penultimate_processed_dt(all_processed_dts):
         return None
 
 
-def get_max_timestamp(
-    app, stage_database, stage_target_table, processed_dt=None, processed_time=None
-):
+def get_max_timestamp(app, stage_database, stage_target_table, processed_dt=None, processed_time=None):
     """
     Get the maximum timestamp from the specified stage table. filters for specific processes and
     if processed_dt or processed_time are provided
@@ -210,9 +194,7 @@ def get_max_timestamp(
             dfs = app.query_glue_table(stage_database, sql)
 
             if dfs is None:
-                raise ValueError(
-                    f"Athena query return value is None, query ran was: {str(sql)}"
-                )
+                raise ValueError(f"Athena query return value is None, query ran was: {str(sql)}")
             else:
                 for df in dfs:
                     if len(df.index) == 1:
@@ -221,9 +203,7 @@ def get_max_timestamp(
                             timestamp = int(df["timestamp"].iloc[0])
                             return timestamp
                         else:
-                            raise Exception(
-                                "Stage table does not contain the timestamp column."
-                            )
+                            raise Exception("Stage table does not contain the timestamp column.")
 
         else:
             return 0
@@ -232,9 +212,7 @@ def get_max_timestamp(
         return None
 
 
-def get_max_processed_dt(
-    app, raw_database, raw_source_table, stage_database, stage_target_table
-):
+def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, stage_target_table):
     """
     Get the maximum processed_dt from the specified stage table.
 
@@ -254,21 +232,19 @@ def get_max_processed_dt(
     try:
         if app.does_glue_table_exist(stage_database, stage_target_table):
             sql = f'''select max(
-			                cast(
-				                concat(
-					                cast(year as varchar),
-					                cast(lpad(cast(month as varchar), 2, '0') as varchar),
-					                cast(lpad(cast(day as varchar), 2, '0') as varchar)
-				                    ) 
+                                        cast(
+                                                concat(
+                                                        cast(year as varchar),
+                                                        cast(lpad(cast(month as varchar), 2, '0') as varchar),
+                                                        cast(lpad(cast(day as varchar), 2, '0') as varchar)
+                                                    )
                                 as int
-			                )
-		            ) as processed_dt
+                                        )
+                            ) as processed_dt
                     from \"{stage_database}\".\"{stage_target_table}\"'''
             dfs = app.query_glue_table(stage_database, sql)
             if dfs is None:
-                raise ValueError(
-                    f"Athena query return value is None, query ran was: {str(sql)}"
-                )
+                raise ValueError(f"Athena query return value is None, query ran was: {str(sql)}")
             else:
                 for df in dfs:
                     if len(df.index) == 1:
@@ -277,9 +253,7 @@ def get_max_processed_dt(
                             filter_processed_dt = int(df["processed_dt"].iloc[0])
                             return filter_processed_dt
                         else:
-                            raise Exception(
-                                "Stage table does not contain the processed_dt column."
-                            )
+                            raise Exception("Stage table does not contain the processed_dt column.")
 
         else:
             # Initial processing activity, so return the min(year,month,day) partition value
@@ -290,16 +264,14 @@ def get_max_processed_dt(
                                     cast(year as varchar),
                                     cast(lpad(cast(month as varchar), 2, '0') as varchar),
                                     cast(lpad(cast(day as varchar), 2, '0') as varchar)
-                                    ) 
+                                    )
                                 as int
                             )
                     ) as processed_dt
                     from \"{raw_database}\".\"{raw_source_table}\"'''
             dfs = app.query_glue_table(raw_database, sql)
             if dfs is None:
-                raise ValueError(
-                    f"Athena query return value is None, query ran was: {str(sql)}"
-                )
+                raise ValueError(f"Athena query return value is None, query ran was: {str(sql)}")
             else:
                 for df in dfs:
                     if len(df.index) == 1:
@@ -312,9 +284,7 @@ def get_max_processed_dt(
                             new_filter_processed_dt = new_date_obj.strftime("%Y%m%d")
                             return new_filter_processed_dt
                 else:
-                    raise Exception(
-                        "Error returned querying the raw table for the min(year,month,day) value."
-                    )
+                    raise Exception("Error returned querying the raw table for the min(year,month,day) value.")
 
     except Exception as e:
         print(f"Exception Error retrieving max processed_dt: {str(e)}")
@@ -364,9 +334,7 @@ def extract_element_by_name(json_data, element_name, parent_name=None):
         return None
 
 
-def generate_raw_select_filter(
-    json_data, database, table, filter_processed_dt, filter_timestamp
-):
+def generate_raw_select_filter(json_data, database, table, filter_processed_dt, filter_timestamp):
     """
     Generate a SQL select criteria for the raw data-set based on JSON configuration.
 
@@ -387,112 +355,64 @@ def generate_raw_select_filter(
 
         sql = None
 
-        event_processing_selection_criteria_filter = extract_element_by_name(
-            json_data, "filter", "event_processing_selection_criteria"
-        )
+        event_processing_selection_criteria_filter = extract_element_by_name(json_data, "filter", "event_processing_selection_criteria")
         if event_processing_selection_criteria_filter is None:
-            raise ValueError(
-                "filter value for event_processing_selection_criteria is not found within config rules"
-            )
-        print(
-            f"config rule: event_processing_selection_criteria | filter: {event_processing_selection_criteria_filter}"
-        )
+            raise ValueError("filter value for event_processing_selection_criteria is not found within config rules")
+        print(f"config rule: event_processing_selection_criteria | filter: {event_processing_selection_criteria_filter}")
 
-        event_processing_selection_criteria_limit = extract_element_by_name(
-            json_data, "limit", "event_processing_selection_criteria"
-        )
+        event_processing_selection_criteria_limit = extract_element_by_name(json_data, "limit", "event_processing_selection_criteria")
         if event_processing_selection_criteria_limit is None:
-            raise ValueError(
-                "limit value for event_processing_selection_criteria is not found within config rules"
-            )
-        print(
-            f"config rule: event_processing_selection_criteria | limit: {event_processing_selection_criteria_limit}"
-        )
+            raise ValueError("limit value for event_processing_selection_criteria is not found within config rules")
+        print(f"config rule: event_processing_selection_criteria | limit: {event_processing_selection_criteria_limit}")
 
-        event_processing_testing_criteria_enabled = extract_element_by_name(
-            json_data, "enabled", "event_processing_testing_criteria"
-        )
+        event_processing_testing_criteria_enabled = extract_element_by_name(json_data, "enabled", "event_processing_testing_criteria")
         if event_processing_selection_criteria_limit is None:
-            raise ValueError(
-                "enabled value for event_processing_testing_criteria is not found within config rules"
-            )
-        print(
-            f"config rule: event_processing_testing_criteria | enabled: {event_processing_testing_criteria_enabled}"
-        )
+            raise ValueError("enabled value for event_processing_testing_criteria is not found within config rules")
+        print(f"config rule: event_processing_testing_criteria | enabled: {event_processing_testing_criteria_enabled}")
 
-        event_processing_testing_criteria_filter = extract_element_by_name(
-            json_data, "filter", "event_processing_testing_criteria"
-        )
+        event_processing_testing_criteria_filter = extract_element_by_name(json_data, "filter", "event_processing_testing_criteria")
         if event_processing_selection_criteria_limit is None:
-            raise ValueError(
-                "filter value for event_processing_testing_criteria is not found within config rules"
-            )
-        print(
-            f"config rule: event_processing_testing_criteria | filter: {event_processing_testing_criteria_filter}"
-        )
+            raise ValueError("filter value for event_processing_testing_criteria is not found within config rules")
+        print(f"config rule: event_processing_testing_criteria | filter: {event_processing_testing_criteria_filter}")
 
-        event_processing_view_criteria_enabled = extract_element_by_name(
-            json_data, "enabled", "event_processing_view_criteria"
-        )
+        event_processing_view_criteria_enabled = extract_element_by_name(json_data, "enabled", "event_processing_view_criteria")
         if event_processing_view_criteria_enabled is None:
-            raise ValueError(
-                "enabled value for event_processing_view_criteria is not found within config rules"
-            )
-        print(
-            f"config rule: event_processing_view_criteria | enabled: {event_processing_view_criteria_enabled}"
-        )
+            raise ValueError("enabled value for event_processing_view_criteria is not found within config rules")
+        print(f"config rule: event_processing_view_criteria | enabled: {event_processing_view_criteria_enabled}")
 
-        event_processing_view_criteria_view = extract_element_by_name(
-            json_data, "view_name", "event_processing_view_criteria"
-        )
+        event_processing_view_criteria_view = extract_element_by_name(json_data, "view_name", "event_processing_view_criteria")
         if event_processing_view_criteria_view is None:
-            raise ValueError(
-                "filter value for event_processing_view_criteria is not found within config rules"
-            )
-        print(
-            f"config rule: event_processing_view_criteria | view: {event_processing_view_criteria_view}"
-        )
+            raise ValueError("filter value for event_processing_view_criteria is not found within config rules")
+        print(f"config rule: event_processing_view_criteria | view: {event_processing_view_criteria_view}")
 
         deduplicate_subquery = f"""select *,
-			            row_number() over (
-				            partition by event_id
-				            order by cast(
+                                    row_number() over (
+                                            partition by event_id
+                                            order by cast(
                                         concat(
                                             cast(year as varchar),
-                                            cast(lpad(cast(month as varchar), 2, '0') as varchar), 
+                                            cast(lpad(cast(month as varchar), 2, '0') as varchar),
                                             cast(lpad(cast(day as varchar), 2, '0') as varchar)
                                         ) as int
                                     ) desc
-			                ) as row_num
-               		    from \"{database}\".\"{table}\" as t """
+                                        ) as row_num
+                            from \"{database}\".\"{table}\" as t """
 
         sql = f'''select * from \"{database}\".\"{table}\"'''
 
-        if (
-            event_processing_view_criteria_enabled
-            and event_processing_view_criteria_view is not None
-        ):
+        if event_processing_view_criteria_enabled and event_processing_view_criteria_view is not None:
             sql = f'select * from "{database}"."{event_processing_view_criteria_view}"'
-        elif (
-            event_processing_testing_criteria_enabled
-            and event_processing_testing_criteria_filter is not None
-        ):
-            deduplicate_subquery = (
-                deduplicate_subquery
-                + f" where {event_processing_testing_criteria_filter}"
-            )
+        elif event_processing_testing_criteria_enabled and event_processing_testing_criteria_filter is not None:
+            deduplicate_subquery = deduplicate_subquery + f" where {event_processing_testing_criteria_filter}"
             sql = f"select * from ({deduplicate_subquery}) where row_num = 1"
         elif event_processing_selection_criteria_filter is not None:
-            update_filter = event_processing_selection_criteria_filter.replace(
-                "processed_dt", str(filter_processed_dt - 1)
-            ).replace("replace_timestamp", str(filter_timestamp))
+            update_filter = event_processing_selection_criteria_filter.replace("processed_dt", str(filter_processed_dt - 1)).replace(
+                "replace_timestamp", str(filter_timestamp)
+            )
 
             sql = sql + f" where {update_filter}"
 
-            if (
-                event_processing_selection_criteria_limit is not None
-                and event_processing_selection_criteria_limit > 0
-            ):
+            if event_processing_selection_criteria_limit is not None and event_processing_selection_criteria_limit > 0:
                 sql = sql + f" limit {event_processing_selection_criteria_limit}"
 
         return sql
@@ -530,17 +450,17 @@ def generate_missing_event_ids_select_filter(
             SELECT *
             FROM \"{raw_database}\"."txma"
             WHERE event_id IN (
-		            SELECT raw.event_id
-		            FROM \"{raw_database}\"."txma" raw
-			        LEFT OUTER JOIN \"{stage_layer_database}\"."txma_stage_layer" sl ON raw.event_id = sl.event_id
+                            SELECT raw.event_id
+                            FROM \"{raw_database}\"."txma" raw
+                                LEFT OUTER JOIN \"{stage_layer_database}\"."txma_stage_layer" sl ON raw.event_id = sl.event_id
                     AND sl.processed_dt = {filter_processed_dt}
                     AND sl.processed_time = {filter_processed_time}
-		            WHERE sl.event_id is null
-			        AND CAST(concat(raw.year, raw.month, raw.day) AS INT) >= {penultimate_processed_dt} - 1
-			        AND CAST(raw.timestamp as int) > {filter_min_timestamp}
-			        AND CAST(raw.timestamp as int) <= {filter_max_timestamp}
-	        )
-	        AND CAST(concat(year, month, day) AS INT) >= {penultimate_processed_dt} - 1
+                            WHERE sl.event_id is null
+                                AND CAST(concat(raw.year, raw.month, raw.day) AS INT) >= {penultimate_processed_dt} - 1
+                                AND CAST(raw.timestamp as int) > {filter_min_timestamp}
+                                AND CAST(raw.timestamp as int) <= {filter_max_timestamp}
+                )
+                AND CAST(concat(year, month, day) AS INT) >= {penultimate_processed_dt} - 1
     """
 
 
@@ -561,24 +481,14 @@ def remove_row_duplicates(preprocessing, json_data, df_raw):
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
 
-        data_cleaning_duplicate_row_removal_criteria_fields = extract_element_by_name(
-            json_data, "duplicate_row_removal_criteria_fields", "data_cleaning"
-        )
+        data_cleaning_duplicate_row_removal_criteria_fields = extract_element_by_name(json_data, "duplicate_row_removal_criteria_fields", "data_cleaning")
         if data_cleaning_duplicate_row_removal_criteria_fields is None:
-            raise ValueError(
-                "duplicate_row_removal_criteria_fields value for data_cleaning is not found within config rules"
-            )
-        print(
-            f"config rule: data_cleaning | duplicate_row_removal_criteria_fields: {data_cleaning_duplicate_row_removal_criteria_fields}"
-        )
+            raise ValueError("duplicate_row_removal_criteria_fields value for data_cleaning is not found within config rules")
+        print(f"config rule: data_cleaning | duplicate_row_removal_criteria_fields: {data_cleaning_duplicate_row_removal_criteria_fields}")
 
-        df_raw = preprocessing.remove_duplicate_rows(
-            df_raw, data_cleaning_duplicate_row_removal_criteria_fields
-        )
+        df_raw = preprocessing.remove_duplicate_rows(df_raw, data_cleaning_duplicate_row_removal_criteria_fields)
         if df_raw is None:
-            raise ValueError(
-                "Class: preprocessing method: remove_duplicate_rows returned None object"
-            )
+            raise ValueError("Class: preprocessing method: remove_duplicate_rows returned None object")
         return df_raw
 
     except Exception as e:
@@ -603,30 +513,18 @@ def remove_rows_missing_mandatory_values(preprocessing, json_data, df_raw):
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
 
-        data_cleaning_mandatory_row_removal_criteria_fields = extract_element_by_name(
-            json_data, "mandatory_row_removal_criteria_fields", "data_cleaning"
-        )
+        data_cleaning_mandatory_row_removal_criteria_fields = extract_element_by_name(json_data, "mandatory_row_removal_criteria_fields", "data_cleaning")
         if data_cleaning_mandatory_row_removal_criteria_fields is None:
-            raise ValueError(
-                "mandatory_row_removal_criteria_fields value for data_cleaning is not found within config rules"
-            )
-        print(
-            f"config rule: data_cleaning | mandatory_row_removal_criteria_fields: {data_cleaning_mandatory_row_removal_criteria_fields}"
-        )
+            raise ValueError("mandatory_row_removal_criteria_fields value for data_cleaning is not found within config rules")
+        print(f"config rule: data_cleaning | mandatory_row_removal_criteria_fields: {data_cleaning_mandatory_row_removal_criteria_fields}")
 
-        df_raw = preprocessing.remove_rows_missing_mandatory_values(
-            df_raw, data_cleaning_mandatory_row_removal_criteria_fields
-        )
+        df_raw = preprocessing.remove_rows_missing_mandatory_values(df_raw, data_cleaning_mandatory_row_removal_criteria_fields)
         if df_raw is None:
-            raise ValueError(
-                "Class: preprocessing method: remove_rows_missing_mandatory_values returned None object"
-            )
+            raise ValueError("Class: preprocessing method: remove_rows_missing_mandatory_values returned None object")
         return df_raw
 
     except Exception as e:
-        print(
-            f"Exception Error within function remove_rows_missing_mandatory_values: {str(e)}"
-        )
+        print(f"Exception Error within function remove_rows_missing_mandatory_values: {str(e)}")
         return None
 
 
@@ -647,24 +545,14 @@ def rename_column_names(preprocessing, json_data, df_raw):
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
 
-        data_transformations_rename_column = extract_element_by_name(
-            json_data, "rename_column", "data_transformations"
-        )
+        data_transformations_rename_column = extract_element_by_name(json_data, "rename_column", "data_transformations")
         if data_transformations_rename_column is None:
-            raise ValueError(
-                "rename_column value for data_transformations is not found within config rules"
-            )
-        print(
-            f"config rule: data_transformations | rename_column: {data_transformations_rename_column}"
-        )
+            raise ValueError("rename_column value for data_transformations is not found within config rules")
+        print(f"config rule: data_transformations | rename_column: {data_transformations_rename_column}")
 
-        df_raw = preprocessing.rename_column_names(
-            df_raw, data_transformations_rename_column
-        )
+        df_raw = preprocessing.rename_column_names(df_raw, data_transformations_rename_column)
         if df_raw is None:
-            raise ValueError(
-                "Class: preprocessing method: rename_column_names returned None object"
-            )
+            raise ValueError("Class: preprocessing method: rename_column_names returned None object")
         return df_raw
 
     except Exception as e:
@@ -689,22 +577,14 @@ def add_new_column(preprocessing, json_data, df_raw):
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
 
-        data_transformations_new_column = extract_element_by_name(
-            json_data, "new_column", "data_transformations"
-        )
+        data_transformations_new_column = extract_element_by_name(json_data, "new_column", "data_transformations")
         if data_transformations_new_column is None:
-            raise ValueError(
-                "new_column value for data_transformations is not found within config rules"
-            )
-        print(
-            f"config rule: data_transformations | new_column: {data_transformations_new_column}"
-        )
+            raise ValueError("new_column value for data_transformations is not found within config rules")
+        print(f"config rule: data_transformations | new_column: {data_transformations_new_column}")
 
         df_raw = preprocessing.add_new_column(df_raw, data_transformations_new_column)
         if df_raw is None:
-            raise ValueError(
-                "Class: preprocessing method: add_new_column returned None object"
-            )
+            raise ValueError("Class: preprocessing method: add_new_column returned None object")
         return df_raw
 
     except Exception as e:
@@ -729,24 +609,14 @@ def add_new_column_from_struct(preprocessing, json_data, df_raw):
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
 
-        data_transformations_new_column_struct_extract = extract_element_by_name(
-            json_data, "new_column_struct_extract", "data_transformations"
-        )
+        data_transformations_new_column_struct_extract = extract_element_by_name(json_data, "new_column_struct_extract", "data_transformations")
         if data_transformations_new_column_struct_extract is None:
-            raise ValueError(
-                "new_column_struct_extract value for data_transformations is not found within config rules"
-            )
-        print(
-            f"config rule: data_transformations | new_column_struct_extract: {data_transformations_new_column_struct_extract}"
-        )
+            raise ValueError("new_column_struct_extract value for data_transformations is not found within config rules")
+        print(f"config rule: data_transformations | new_column_struct_extract: {data_transformations_new_column_struct_extract}")
 
-        df_raw = preprocessing.add_new_column_from_struct(
-            df_raw, data_transformations_new_column_struct_extract
-        )
+        df_raw = preprocessing.add_new_column_from_struct(df_raw, data_transformations_new_column_struct_extract)
         if df_raw is None:
-            raise ValueError(
-                "Class: preprocessing method: add_new_column_from_struct returned None object"
-            )
+            raise ValueError("Class: preprocessing method: add_new_column_from_struct returned None object")
         return df_raw
 
     except Exception as e:
@@ -771,24 +641,14 @@ def empty_string_to_null(preprocessing, json_data, df_raw):
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
 
-        data_cleaning_empty_string_replacement = extract_element_by_name(
-            json_data, "empty_string_replacement", "data_cleaning"
-        )
+        data_cleaning_empty_string_replacement = extract_element_by_name(json_data, "empty_string_replacement", "data_cleaning")
         if data_cleaning_empty_string_replacement is None:
-            raise ValueError(
-                "empty_string_replacement value for data_cleaning is not found within config rules"
-            )
-        print(
-            f"config rule: data_cleaning | empty_string_replacement: {data_cleaning_empty_string_replacement}"
-        )
+            raise ValueError("empty_string_replacement value for data_cleaning is not found within config rules")
+        print(f"config rule: data_cleaning | empty_string_replacement: {data_cleaning_empty_string_replacement}")
 
-        df_raw = preprocessing.empty_string_to_null(
-            df_raw, data_cleaning_empty_string_replacement
-        )
+        df_raw = preprocessing.empty_string_to_null(df_raw, data_cleaning_empty_string_replacement)
         if df_raw is None:
-            raise ValueError(
-                "Class: preprocessing method: empty_string_to_null returned None object"
-            )
+            raise ValueError("Class: preprocessing method: empty_string_to_null returned None object")
         return df_raw
 
     except Exception as e:
@@ -827,12 +687,8 @@ def generate_key_value_records(
             "data_transformations",
         )
         if data_transformations_key_value_cols_exclusion_list is None:
-            raise ValueError(
-                "generate_key_value_records value for data_transformations is not found within config rules"
-            )
-        print(
-            f"config rule: data_transformations | key_value_record_generation_column_exclusion_list: {data_transformations_key_value_cols_exclusion_list}"
-        )
+            raise ValueError("generate_key_value_records value for data_transformations is not found within config rules")
+        print(f"config rule: data_transformations | key_value_record_generation_column_exclusion_list: {data_transformations_key_value_cols_exclusion_list}")
 
         # Extract column names as list
         col_names_list = list(key_value_schema_columns.keys())
@@ -840,21 +696,13 @@ def generate_key_value_records(
         # Generate a set of column names to generate key/value record(s)
         # Logic: df_raw original column names minus the key/value exclusion columns list
         #        convert set to list object to aid processing
-        process_columns_set = set(df_raw_col_names_original) - set(
-            data_transformations_key_value_cols_exclusion_list
-        )
+        process_columns_set = set(df_raw_col_names_original) - set(data_transformations_key_value_cols_exclusion_list)
         process_columns_list = list(process_columns_set)
-        print(
-            f"key/value records to be created for the following columns: {process_columns_list}"
-        )
+        print(f"key/value records to be created for the following columns: {process_columns_list}")
 
-        df_keys = preprocessing.generate_key_value_records(
-            df_raw, process_columns_list, col_names_list
-        )
+        df_keys = preprocessing.generate_key_value_records(df_raw, process_columns_list, col_names_list)
         if df_keys is None:
-            raise ValueError(
-                "Class: preprocessing method: extract_key_values returned None object"
-            )
+            raise ValueError("Class: preprocessing method: extract_key_values returned None object")
         return df_keys
 
     except Exception as e:
@@ -880,20 +728,12 @@ def remove_columns(preprocessing, json_data, df_raw):
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
 
-        data_cleaning_columns_removal_list = extract_element_by_name(
-            json_data, "remove_columns", "data_cleaning"
-        )
+        data_cleaning_columns_removal_list = extract_element_by_name(json_data, "remove_columns", "data_cleaning")
         if data_cleaning_columns_removal_list is None:
-            raise ValueError(
-                "remove_columns value for data_cleaning is not found within config rules"
-            )
-        print(
-            f"config rule: data cleaning | remove_columns: {data_cleaning_columns_removal_list}"
-        )
+            raise ValueError("remove_columns value for data_cleaning is not found within config rules")
+        print(f"config rule: data cleaning | remove_columns: {data_cleaning_columns_removal_list}")
 
-        return preprocessing.remove_columns(
-            df_raw, data_cleaning_columns_removal_list, True
-        )
+        return preprocessing.remove_columns(df_raw, data_cleaning_columns_removal_list, True)
     except Exception as e:
         print(f"Error removing columns: {str(e)}")
         return None
