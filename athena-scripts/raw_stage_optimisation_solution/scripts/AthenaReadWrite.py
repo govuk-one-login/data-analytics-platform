@@ -3,6 +3,7 @@ import time
 
 import boto3
 
+
 class AthenaReadWrite:
     """
     A class for interacting with Athena data objects, which is not possible using AWSDataWrangler

@@ -1,14 +1,13 @@
 import json
 import sys
 
-from awsglue.utils import getResolvedOptions
-from S3ReadWrite import S3ReadWrite
-from GlueTableQueryAndWrite import GlueTableQueryAndWrite
-from DataPreprocessing import DataPreprocessing
 from AthenaReadWrite import AthenaReadWrite
-
+from awsglue.utils import getResolvedOptions
 from core_preprocessing_functions import *
+from DataPreprocessing import DataPreprocessing
+from GlueTableQueryAndWrite import GlueTableQueryAndWrite
 from processor import *
+from S3ReadWrite import S3ReadWrite
 
 
 def main():

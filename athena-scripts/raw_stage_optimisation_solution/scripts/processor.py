@@ -1,12 +1,13 @@
 
+import gc
+import json
+import sys
+import time
+from datetime import datetime
+
+import pandas as pd
 from core_preprocessing_functions import *
 
-import sys
-import gc
-from datetime import datetime
-import pandas as pd
-import time
-import json
 
 def process_job(json_data, args, glue_app, s3_app, data_preprocessing):
     athena_query_chunksize = 1000000

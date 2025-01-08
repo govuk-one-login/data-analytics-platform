@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+
 def get_min_timestamp_from_previous_run(daily_processes_df, app, stage_database, stage_target_table, max_processed_dt, penultimate_processed_dt): 
     """
     Get the minimum timestamp to filter for any missing events. This value is taken from the maximum timestamp from the job previous 

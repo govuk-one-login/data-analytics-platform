@@ -1,5 +1,6 @@
 import awswrangler as wr
 
+
 class GlueTableQueryAndWrite:
     """
         
