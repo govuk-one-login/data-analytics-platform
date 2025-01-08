@@ -5,6 +5,7 @@ test-report/
 *.md
 .eslintignore
 .prettierignore
+.flake8
 .husky/
 *.properties
 Dockerfile
