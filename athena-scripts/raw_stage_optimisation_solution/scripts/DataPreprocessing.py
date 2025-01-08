@@ -1,6 +1,5 @@
 from datetime import datetime
 
-import awswrangler as wr
 import numpy as np
 import pandas as pd
 
@@ -108,9 +107,9 @@ class DataPreprocessing:
         DataFrame: A DataFrame with new columns added.
         """
         try:
-            if not isinstance(fields, (dict)):
+            if not isinstance(fields, dict):
                 raise ValueError("Invalid field list structure provided, require dict object")
-            for column_name, value in fields.items():
+            for column_name, _value in fields.items():
                 if column_name == "processed_dt":
                     df[column_name] = self.processed_dt
                 if column_name == "processed_time":
@@ -133,14 +132,14 @@ class DataPreprocessing:
         DataFrame: A DataFrame with new columns added from struct fields.
         """
         try:
-            if not isinstance(fields, (dict)):
+            if not isinstance(fields, dict):
                 raise ValueError("Invalid field list structure provided, require dict object")
 
             for key, value in fields.items():
                 for item in value:
                     col_name = f"{key}_{item}"
                     df[col_name] = df.apply(
-                        lambda x: None if x[key] is None or x[key].get(item) is None or (not x[key].get(item).strip()) else x[key].get(item),
+                        lambda x, k=key, i=item: None if x[k] is None or x[k].get(i) is None or (not x[k].get(i).strip()) else x[k].get(i),
                         axis=1,
                     )
 
@@ -249,10 +248,8 @@ class DataPreprocessing:
 
             for column_name in fields:
                 df_key_value = df.apply(
-                    lambda row: (
-                        [(row["event_id"], column_name, key, value) for key, value in self.extract_key_values(row[column_name], field_name=column_name)]
-                        if pd.notna(row[column_name])
-                        else []
+                    lambda row, col=column_name: (
+                        [(row["event_id"], col, key, value) for key, value in self.extract_key_values(row[col], field_name=col)] if pd.notna(row[col]) else []
                     ),
                     axis=1,
                 )

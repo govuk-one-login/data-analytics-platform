@@ -315,7 +315,7 @@ def extract_element_by_name(json_data, element_name, parent_name=None):
             elif parent_name in json_data and element_name in json_data[parent_name]:
                 return json_data[parent_name][element_name]
 
-            for key, value in json_data.items():
+            for _key, value in json_data.items():
                 if isinstance(value, (dict, list)):
                     result = extract_element_by_name(value, element_name, parent_name)
                     if result is not None:

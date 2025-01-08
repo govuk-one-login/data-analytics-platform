@@ -1,12 +1,10 @@
 import json
 import sys
 
-from AthenaReadWrite import AthenaReadWrite
 from awsglue.utils import getResolvedOptions
-from core_preprocessing_functions import *
 from DataPreprocessing import DataPreprocessing
 from GlueTableQueryAndWrite import GlueTableQueryAndWrite
-from processor import *
+from processor import process_job
 from S3ReadWrite import S3ReadWrite
 
 
@@ -39,9 +37,6 @@ def main():
         # Data transformation class
         preprocessing = DataPreprocessing()
 
-        # Athena processing class
-        athena_app = AthenaReadWrite()
-
         # Trigger regeneration of raw layer deduplication view
         # Required to avoid "stale" view error, which occurs when new fields
         # are introduced within the txma table, hence the view definition is out of date
@@ -51,6 +46,8 @@ def main():
         # commented out due to timeout issues being experienced within account
         # mitigation is to use the txma source table from (raw) until the issue
         # can be resolved.
+        # Athena processing class
+        athena_app = AthenaReadWrite()
 
         view_sql = s3_app.read_file(args['config_bucket'], args['txma_raw_dedup_view_key_path'])
         if view_sql is None:

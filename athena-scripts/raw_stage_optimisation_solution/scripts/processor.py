@@ -5,7 +5,12 @@ import time
 from datetime import datetime
 
 import pandas as pd
-from core_preprocessing_functions import *
+from core_preprocessing_functions import (add_new_column, add_new_column_from_struct, empty_string_to_null,
+                                          extract_element_by_name, generate_key_value_records, get_all_processed_dts,
+                                          get_all_processed_times_per_day, get_last_processed_time,
+                                          get_max_processed_dt, get_max_timestamp, get_min_timestamp_from_previous_run,
+                                          get_penultimate_processed_dt, remove_columns, remove_row_duplicates,
+                                          remove_rows_missing_mandatory_values, rename_column_names)
 
 
 def process_job(json_data, args, glue_app, s3_app, data_preprocessing):
@@ -21,7 +26,6 @@ def process_job(json_data, args, glue_app, s3_app, data_preprocessing):
     stage_database = args["stage_database"]
     stage_target_table = args["stage_target_table"]
     # stage_target_table = args['stage_target_key_value_table']
-    stage_bucket = args["stage_bucket"]
 
     if job_type == "TESTING":
         testing_raw_sql = get_raw_sql_testing(json_data, raw_database, raw_table)
@@ -76,7 +80,7 @@ def process_job(json_data, args, glue_app, s3_app, data_preprocessing):
 
         filter_processed_time = get_last_processed_time(all_previous_processed_times)
         if filter_processed_time is None:
-            print(f"no filter process time found, ending process")
+            print("no filter process time found, ending process")
             return
 
         all_previous_processed_dts = get_all_processed_dts(
@@ -89,7 +93,7 @@ def process_job(json_data, args, glue_app, s3_app, data_preprocessing):
 
         penultimate_processed_dt = get_penultimate_processed_dt(all_previous_processed_dts)
         if penultimate_processed_dt is None:
-            print(f"no penultimate processed dt, ending process")
+            print("no penultimate processed dt, ending process")
             return
 
         min_timestamp_filter_for_missing_events = get_min_timestamp_from_previous_run(
@@ -102,7 +106,7 @@ def process_job(json_data, args, glue_app, s3_app, data_preprocessing):
         )
 
         if min_timestamp_filter_for_missing_events is None:
-            print(f"Could not calculate a minimum timestamp to filter for missing events, ending process")
+            print("Could not calculate a minimum timestamp to filter for missing events, ending process")
             return
 
         backfill_raw_sql = get_raw_sql_backfill(
@@ -254,12 +258,12 @@ def process_results(dfs, args, preprocessing, json_data, glue_app, s3_app):
 
         df_raw = remove_columns(preprocessing, json_data, df_raw)
         if df_raw is None:
-            raise ValueError(f"Function: remove_columns returned None.")
+            raise ValueError("Function: remove_columns returned None.")
 
         # Remove row duplicates
         df_raw = remove_row_duplicates(preprocessing, json_data, df_raw)
         if df_raw is None:
-            raise ValueError(f"Function: remove_row_duplicates returned None.")
+            raise ValueError("Function: remove_row_duplicates returned None.")
 
         if df_raw.empty:
             print("No raw records returned for processing following duplicate row removal. Program is stopping.")
@@ -272,7 +276,7 @@ def process_results(dfs, args, preprocessing, json_data, glue_app, s3_app):
         # Remove rows with missing mandatory field values
         df_raw = remove_rows_missing_mandatory_values(preprocessing, json_data, df_raw)
         if df_raw is None:
-            raise ValueError(f"Function: remove_rows_missing_mandatory_values returned None.")
+            raise ValueError("Function: remove_rows_missing_mandatory_values returned None.")
 
         if df_raw.empty:
             print("No raw records returned for processing following missing mandatory fields row removal. Program is stopping.")
@@ -288,7 +292,7 @@ def process_results(dfs, args, preprocessing, json_data, glue_app, s3_app):
         # Rename column(s)
         df_raw = rename_column_names(preprocessing, json_data, df_raw)
         if df_raw is None:
-            raise ValueError(f"Function: rename_column_names returned None.")
+            raise ValueError("Function: rename_column_names returned None.")
 
         if df_raw.empty:
             print("No raw records returned for processing following rename of columns. Program is stopping.")
@@ -298,7 +302,7 @@ def process_results(dfs, args, preprocessing, json_data, glue_app, s3_app):
         # New column(s)
         df_raw = add_new_column(preprocessing, json_data, df_raw)
         if df_raw is None:
-            raise ValueError(f"Function: add_new_column returned None.")
+            raise ValueError("Function: add_new_column returned None.")
 
         if df_raw.empty:
             print("No raw records returned for processing following adding of new columns. Program is stopping.")
@@ -308,7 +312,7 @@ def process_results(dfs, args, preprocessing, json_data, glue_app, s3_app):
         # New column(s) from struct
         df_raw = add_new_column_from_struct(preprocessing, json_data, df_raw)
         if df_raw is None:
-            raise ValueError(f"Function: add_new_column_from_struct returned None.")
+            raise ValueError("Function: add_new_column_from_struct returned None.")
 
         if df_raw.empty:
             print("No raw records returned for processing following adding of new columns from struct. Program is stopping.")
@@ -318,7 +322,7 @@ def process_results(dfs, args, preprocessing, json_data, glue_app, s3_app):
         # Empty string replacement with sql null
         df_raw = empty_string_to_null(preprocessing, json_data, df_raw)
         if df_raw is None:
-            raise ValueError(f"Function: empty_string_to_null returned None.")
+            raise ValueError("Function: empty_string_to_null returned None.")
 
         if df_raw.empty:
             print("No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
@@ -354,7 +358,7 @@ def process_results(dfs, args, preprocessing, json_data, glue_app, s3_app):
         )
 
         if df_keys is None:
-            raise ValueError(f"Function: generate_key_value_records returned None.")
+            raise ValueError("Function: generate_key_value_records returned None.")
 
         if df_keys.empty:
             print("No raw records returned for processing following the generation of key/value records. Program is stopping.")
@@ -395,11 +399,11 @@ def process_results(dfs, args, preprocessing, json_data, glue_app, s3_app):
 
             if not stage_key_value_update:
                 sys.exit("Update to stage key/value table did not return boolean(True) response")
-
+            raw_metadata_time_json = f'raw_stage_metadata_{datetime.now().strftime("%Y%m%d%H%M%S")}.json'
             # write Glue table insert metadata to S3
             http_response = s3_app.write_json(
                 stage_bucket,
-                f'{metadata_root_folder}/{stage_target_key_value_table}/{datetime.now().strftime("%Y%m%d")}/raw_stage_metadata_{datetime.now().strftime("%Y%m%d%H%M%S")}.json',
+                f'{metadata_root_folder}/{stage_target_key_value_table}/{datetime.now().strftime("%Y%m%d")}/{raw_metadata_time_json}',
                 json.dumps(stage_key_value_update),
             )
             if http_response is None:
@@ -417,11 +421,11 @@ def process_results(dfs, args, preprocessing, json_data, glue_app, s3_app):
             )
             if not stage_table_update:
                 sys.exit("Update to stage table did not return boolean(True) response")
-
+            raw_metadata_time_json = f'raw_stage_metadata_{datetime.now().strftime("%Y%m%d%H%M%S")}.json'
             # write Glue table insert metadata to S3
             http_response = s3_app.write_json(
                 stage_bucket,
-                f'{metadata_root_folder}/{stage_target_table}/{datetime.now().strftime("%Y%m%d")}/raw_stage_metadata_{datetime.now().strftime("%Y%m%d%H%M%S")}.json',
+                f'{metadata_root_folder}/{stage_target_table}/{datetime.now().strftime("%Y%m%d")}/{raw_metadata_time_json}',
                 json.dumps(stage_table_update),
             )
             if http_response is None:
@@ -447,7 +451,7 @@ def process_results(dfs, args, preprocessing, json_data, glue_app, s3_app):
         del df_keys
 
         gc.collect()  # Explicitly trigger garbage collection
-        print(f"stage layer successfully updated")
+        print("stage layer successfully updated")
         print(f"total stage table records inserted: {cummulative_stage_table_rows_inserted}")
         print(f"total stage key table records inserted: {cummulative_stage_key_rows_inserted}")
         print(f"total duplicate rows removed: {cummulative_duplicate_rows_removed}")
