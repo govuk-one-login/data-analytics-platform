@@ -42,6 +42,7 @@ class AthenaReadWrite:
                 WorkGroup=workgroup,
             )
 
+
             # Get the query execution ID
             query_execution_id = response["QueryExecutionId"]
 

@@ -83,6 +83,6 @@
   "lint-staged": {
     "*": "prettier --write",
     "*.{js,ts}": "eslint --fix",
-    "*scripts/*.py": "flake8"
+    "*scripts/*.py": "pre-commit"
   }
 }
