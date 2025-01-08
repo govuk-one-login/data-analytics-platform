@@ -1,4 +1,3 @@
-import json
 import time
 
 import boto3
@@ -41,7 +40,6 @@ class AthenaReadWrite:
                 QueryExecutionContext={"Database": database},
                 WorkGroup=workgroup,
             )
-
 
             # Get the query execution ID
             query_execution_id = response["QueryExecutionId"]

@@ -55,6 +55,8 @@
     "uuid": "^11.0.3"
   },
   "scripts": {
+    "format": "black . && isort .",
+    "lint": "flake8 .",
     "build": "scripts/build-lambdas.sh",
     "lint:check": "eslint src tests",
     "lint:fix": "eslint --fix src tests",
@@ -82,7 +84,11 @@
   },
   "lint-staged": {
     "*": "prettier --write",
-    "*.{js,ts}": "eslint --fix",
-    "*scripts/*.py": "pre-commit"
+    "*.{js,ts}": "eslint --fix"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run format && npm run lint"
+    }
   }
 }
