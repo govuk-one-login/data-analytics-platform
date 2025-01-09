@@ -82,6 +82,15 @@
   },
   "lint-staged": {
     "*": "prettier --write",
-    "*.{js,ts}": "eslint --fix"
+    "*.{js,ts}": "eslint --fix",
+    "*.py": [
+      "reindent",
+      "black",
+      "isort",
+      "pyupgrade",
+      "mypy",
+      "flake8",
+      "pydocstyle"
+    ]
   }
 }

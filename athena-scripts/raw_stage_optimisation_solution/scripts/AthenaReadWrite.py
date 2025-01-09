@@ -1,7 +1,7 @@
-import json
 import time
 
 import boto3
+
 
 class AthenaReadWrite:
     """
@@ -13,13 +13,14 @@ class AthenaReadWrite:
 
         run_query(self, database, sql, workgroup)
             Runs a query against the Athena service.
-        
+
     """
+
     def __init__(self):
         """
         Initialize a new AthenaReadWrite instance.
         """
-        self.athena_client = boto3.client('athena', region_name='eu-west-2')
+        self.athena_client = boto3.client("athena", region_name="eu-west-2")
 
     def run_query(self, database, sql, workgroup):
         """
@@ -36,26 +37,24 @@ class AthenaReadWrite:
         try:
             response = self.athena_client.start_query_execution(
                 QueryString=sql,
-                QueryExecutionContext={
-                    'Database': database
-                },
-                WorkGroup=workgroup
+                QueryExecutionContext={"Database": database},
+                WorkGroup=workgroup,
             )
 
             # Get the query execution ID
-            query_execution_id = response['QueryExecutionId']
+            query_execution_id = response["QueryExecutionId"]
 
             # Check the status of the query periodically until it completes
             while True:
                 query_execution = self.athena_client.get_query_execution(QueryExecutionId=query_execution_id)
-                status = query_execution['QueryExecution']['Status']['State']
+                status = query_execution["QueryExecution"]["Status"]["State"]
 
-                if status in ['SUCCEEDED', 'FAILED', 'CANCELLED']:
+                if status in ["SUCCEEDED", "FAILED", "CANCELLED"]:
                     break
 
                 time.sleep(5)  # Wait for 5 seconds before checking again
 
-            if status == 'SUCCEEDED':
+            if status == "SUCCEEDED":
                 print("Athena query successfully completed")
                 return True
             else:
@@ -64,4 +63,3 @@ class AthenaReadWrite:
         except Exception as e:
             print(f"Exception when running Athena query: {str(e)}")
             return False
-        
