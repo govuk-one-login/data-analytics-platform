@@ -92,10 +92,5 @@
       "flake8",
       "pydocstyle"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run format && npm run lint"
-    }
   }
 }
