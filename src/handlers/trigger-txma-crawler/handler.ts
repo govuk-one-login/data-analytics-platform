@@ -20,7 +20,6 @@ export const handler = async (): Promise<unknown> => {
   });
   try {
     const response = await glueClient.send(updateCrawlerCommand);
-
     logger.info(`update crawler response ${response}`);
   } catch (error) {
     logger.error(`error updating crawler ${error}`);
