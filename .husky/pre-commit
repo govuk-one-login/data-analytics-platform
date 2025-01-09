@@ -1,3 +1,7 @@
+for cmd in reindent isort black pyupgrade mypy pydocstyle flake8; do
+  command -v "$cmd" >/dev/null 2>&1 || { echo >&2 "Install $cmd (Follow instructions from 'Set up husky hooks' section of Readme.md file)"; exit 2; }
+done
+
 npx lint-staged
 
 git diff --cached --name-only | if grep --quiet 'iac/'; then
