@@ -19,7 +19,9 @@ export const handler = async (): Promise<unknown> => {
     },
   });
   try {
-    await glueClient.send(updateCrawlerCommand);
+    const response = await glueClient.send(updateCrawlerCommand);
+
+    logger.info(`update crawler response ${response}`);
   } catch (error) {
     logger.error(`error updating crawler ${error}`);
   }
@@ -29,7 +31,8 @@ export const handler = async (): Promise<unknown> => {
   });
 
   try {
-    await glueClient.send(startCrawlerCommand);
+    const response = await glueClient.send(startCrawlerCommand);
+    logger.info(`update crawler response ${response}`);
   } catch (error) {
     logger.error(`error starting crawler ${error}`);
   }
