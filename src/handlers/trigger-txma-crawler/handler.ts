@@ -29,7 +29,7 @@ export const handler = async (): Promise<unknown> => {
     }),
     RecrawlPolicy: {
       RecrawlBehavior: 'CRAWL_EVERYTHING',
-    }
+    },
   });
   try {
     const response = await glueClient.send(updateCrawlerCommand);
