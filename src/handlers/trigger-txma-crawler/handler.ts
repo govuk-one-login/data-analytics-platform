@@ -32,7 +32,7 @@ export const handler = async (): Promise<unknown> => {
         ],
       },
     }),
-    TablePrefix: ''
+    TablePrefix: '',
   });
   try {
     const response = await glueClient.send(updateCrawlerCommand);
