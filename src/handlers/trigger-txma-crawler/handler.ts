@@ -32,10 +32,7 @@ export const handler = async (): Promise<unknown> => {
         ],
       },
     }),
-    TablePrefix: '',
-    RecrawlPolicy: {
-      RecrawlBehavior: 'CRAWL_NEW_FOLDERS_ONLY',
-    },
+    TablePrefix: ''
   });
   try {
     const response = await glueClient.send(updateCrawlerCommand);
