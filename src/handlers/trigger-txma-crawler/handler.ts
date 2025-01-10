@@ -13,7 +13,6 @@ export const handler = async (): Promise<unknown> => {
   const updateCrawlerCommand = new UpdateCrawlerCommand({
     Name: 'txma_raw_layer_test',
     DatabaseName: 'dev-txma-raw',
-    TablePrefix: 'txma',
     Targets: {
       S3Targets: paths.map(path => ({
         Path: path,
