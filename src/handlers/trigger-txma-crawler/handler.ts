@@ -12,6 +12,8 @@ export const handler = async (): Promise<unknown> => {
   });
   const updateCrawlerCommand = new UpdateCrawlerCommand({
     Name: 'txma_raw_layer_test',
+    DatabaseName: 'dev-txma-raw',
+    TablePrefix: 'txma',
     Targets: {
       S3Targets: paths.map(path => ({
         Path: path,
@@ -23,16 +25,11 @@ export const handler = async (): Promise<unknown> => {
         Partitions: {
           AddOrUpdateBehavior: 'InheritFromTable',
         },
-        TableLevelConfiguration: [
-          {
-            DatabaseName: 'dev-txma-raw',
-            TableName: 'txma-poc',
-            Path: 's3://dev-txma-raw/txma/',
-          },
-        ],
       },
     }),
-    TablePrefix: '',
+    RecrawlPolicy: {
+      RecrawlBehavior: 'CRAWL_EVERYTHING',
+    }
   });
   try {
     const response = await glueClient.send(updateCrawlerCommand);
