@@ -5,19 +5,14 @@ import { getLoggerAndMetrics } from '../../shared/powertools';
 export const { logger, metrics } = getLoggerAndMetrics('lambda/trigger-txma-crawler');
 
 export const handler = async (): Promise<unknown> => {
-  const paths = getLast5DaysPaths();
+  const partitionPredicate = getLast5daysPredicate();
 
-  logger.info('triggering the last 5 days of AUTH_LOG_IN_SUCCESS', {
-    paths: paths,
+  logger.info('triggering the last 5 days', {
+    partitionPredicate: partitionPredicate,
   });
   const updateCrawlerCommand = new UpdateCrawlerCommand({
     Name: 'txma_raw_layer_test',
     DatabaseName: 'dev-txma-raw',
-    Targets: {
-      S3Targets: paths.map(path => ({
-        Path: path,
-      })),
-    },
     Configuration: JSON.stringify({
       Version: 1.0,
       CrawlerOutput: {
@@ -25,10 +20,10 @@ export const handler = async (): Promise<unknown> => {
           AddOrUpdateBehavior: 'InheritFromTable',
         },
       },
+      Grouping: {
+        Partitions: [partitionPredicate],
+      },
     }),
-    RecrawlPolicy: {
-      RecrawlBehavior: 'CRAWL_EVERYTHING',
-    },
   });
   try {
     const response = await glueClient.send(updateCrawlerCommand);
@@ -53,17 +48,14 @@ export const handler = async (): Promise<unknown> => {
   };
 };
 
-const getLast5DaysPaths = () => {
+const getLast5daysPredicate = () => {
   const today = new Date();
-  const paths: string[] = [];
-  for (let index = 0; index < 5; index++) {
-    const date = new Date();
-    date.setDate(today.getDate() - index);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    paths.push(`s3://dev-dap-raw-layer/txma/AUTH_LOG_IN_SUCCESS/year=${year}/month=${month}/day=${day}/`);
-  }
+  const fiveDaysAgo = new Date();
+  fiveDaysAgo.setDate(today.getDate() - 5);
 
-  return paths;
+  const yearPredicate = `year BETWEEN ${fiveDaysAgo.getFullYear()} AND ${today.getFullYear()}`;
+  const monthPredicate = `month BETWEEN ${fiveDaysAgo.getMonth() + 1} AND ${today.getMonth() + 1}`;
+  const dayPredicate = `day BETWEEN ${fiveDaysAgo.getDate()} AND ${today.getDate()}`;
+
+  return `${yearPredicate} AND ${monthPredicate} AND ${dayPredicate}`;
 };
