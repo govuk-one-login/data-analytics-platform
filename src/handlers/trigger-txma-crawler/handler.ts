@@ -17,6 +17,25 @@ export const handler = async (): Promise<unknown> => {
         Path: path,
       })),
     },
+    Configuration: JSON.stringify({
+      Version: 1.0,
+      CrawlerOutput: {
+        Partitions: {
+          AddOrUpdateBehavior: 'InheritFromTable',
+        },
+        TableLevelConfiguration: [
+          {
+            DatabaseName: 'dev-txma-raw',
+            TableName: 'txma-poc',
+            Path: 's3://dev-txma-raw/txma/',
+          },
+        ],
+      },
+    }),
+    TablePrefix: '',
+    RecrawlPolicy: {
+      RecrawlBehavior: 'CRAWL_NEW_FOLDERS_ONLY',
+    },
   });
   try {
     const response = await glueClient.send(updateCrawlerCommand);

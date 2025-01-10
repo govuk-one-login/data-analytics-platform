@@ -179,11 +179,18 @@ RawLayerTestCrawler:
         - Path: !Sub 's3://${RawLayerBucket}/txma/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    PartitionKeys:
+      - Name: year
+        Type: string
+      - Name: month
+        Type: string
+      - Name: day
+        Type: string
+    TableName: txma-poc
     RecrawlPolicy:
       RecrawlBehavior: CRAWL_EVERYTHING
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
-      DeleteBehavior: DELETE_FROM_DATABASE
 
 TxmaCrawlerInvoke:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
