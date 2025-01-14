@@ -30,7 +30,19 @@ You may need to install `gpg` first - on a GDS Mac open the terminal and run `br
 #### Set up husky hooks
 
 [Husky](https://typicode.github.io/husky) is used to run [githooks](https://git-scm.com/docs/githooks), specifically `pre-commit` and `pre-push`.
-To install the hooks run `npm run husky:install`. After this, the hooks defined under the [.husky](.husky) directory will automatically run when you commit or push.&ast;
+To install the hooks run
+
+`npm run husky:install`
+
+`python3 -m venv venvlocal` (Run only if venv doesn't exist already)
+
+`source venvlocal/bin/activate`
+
+`pip install -r athena-scripts/raw_stage_optimisation_solution/scripts/requirements.txt` (Only need to be run first time)
+
+`
+
+After this, the hooks defined under the [.husky](.husky) directory will automatically run when you commit or push.&ast;
 The [lint-staged](https://github.com/okonet/lint-staged) library is used to only run certain tasks if certain files are modified.
 
 Config can be found in the `lint-staged` block in [package.json](package.json). Note that `lint-staged` works by passing

@@ -5,6 +5,8 @@ test-report/
 *.md
 .eslintignore
 .prettierignore
+Pyproject.toml
+.flake8
 .husky/
 *.properties
 Dockerfile
@@ -12,3 +14,4 @@ Dockerfile
 *.jar
 *.tar.gz
 flyway.conf
+*.py
