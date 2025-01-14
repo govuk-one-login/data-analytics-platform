@@ -1,16 +1,17 @@
 {
-  "environment": "dev",
+  "environment": "production-preview",
   "clean_by_event_name": {
     "enabled": false,
     "config": {
-      "event_name": "TICF_ACCOUNT_INTERVENTION"
+      "event_name": "xxx"
     }
   },
   "clean_by_event_id": {
-    "enabled": true,
+    "enabled": false,
     "config": {
       "event_ids": [
-        "7502335e-4e4a-48fa-bdc0-15f17dfd4203"
+        "xxx",
+        "xxx"
       ]
     }
   }

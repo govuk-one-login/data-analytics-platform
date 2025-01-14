@@ -33,7 +33,7 @@ def upload_parquet_file(df, path):
         print(f"Error writing file: {str(e)}")
         return None
 
-def get_stage_layer_sql(database, event_name):
+def get_stage_layer_sql(database):
     """Constructs the SQL query for fetching event data from stage layer."""
     return f"""
         SELECT event_id, "$path" as sl_path
@@ -81,7 +81,7 @@ def delete_objects(bucket, objects_to_delete):
 
 def process_clean_job(clean_job_type, database, bucket, event_name=None, event_ids=None):
     """Processes a data cleaning job based on event name or event IDs."""
-    stage_layer_sql = get_stage_layer_sql(database, event_name)
+    stage_layer_sql = get_stage_layer_sql(database)
     
     if clean_job_type == 'EVENT_NAME':
         stage_layer_sql += f" WHERE event_name = '{event_name}'"
@@ -122,7 +122,6 @@ def process_clean_job(clean_job_type, database, bucket, event_name=None, event_i
     if clean_job_type == 'EVENT_ID':
         if sl_paths:
             for sl_path in sl_paths:
-                print(f'sl paths {sl_paths}')
                 process_file(sl_path, event_ids_from_query, bucket, objects_to_delete)
 
     print(f'deleting objects {objects_to_delete}')
