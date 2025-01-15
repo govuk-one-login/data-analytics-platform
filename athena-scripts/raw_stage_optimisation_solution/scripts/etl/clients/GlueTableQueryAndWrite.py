@@ -2,15 +2,12 @@ import awswrangler as wr
 
 
 class GlueTableQueryAndWrite:
-    """
-
-    A class for querying the Glue Data Catalog tables.
-
-    """
+    """A class for querying the Glue Data Catalog tables."""
 
     def __init__(self):
         """
-        Initializes an instance of the GlueTableQueryAndWrite class.
+        Initialize an instance of the GlueTableQueryAndWrite class.
+
         This class provides methods for querying and writing to AWS Glue tables.
 
         Parameters:

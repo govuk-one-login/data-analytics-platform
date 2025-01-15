@@ -31,7 +31,7 @@ class S3ReadWrite:
 
     def read_json(self, bucket_name, key_path):
         """
-        Reads JSON data from the specified S3 bucket and key path, and returns the parsed JSON data as a Python object.
+        Read JSON data from the specified S3 bucket and key path, and returns the parsed JSON data as a Python object.
 
         Returns:
             dict or list: The parsed JSON data as a Python dictionary or list.
@@ -51,7 +51,7 @@ class S3ReadWrite:
 
     def write_json(self, bucket_name, key_path, body):
         """
-        Writes JSON data to a specified S3 bucket and key path.
+        Write JSON data to a specified S3 bucket and key path.
 
         Returns:
             HTTP response object
@@ -70,7 +70,7 @@ class S3ReadWrite:
 
     def read_file(self, bucket_name, key_path):
         """
-        Reads file data from the specified S3 bucket and key path, and returns a string object.
+        Read file data from the specified S3 bucket and key path, and returns a string object.
 
         Returns:
             str: The file data as a string object.

@@ -9,9 +9,9 @@ def get_min_timestamp_from_previous_run(
     max_processed_dt,
     penultimate_processed_dt,
 ):
-    """
-    Get the minimum timestamp to filter for any missing events. This value is taken from the maximum timestamp from the job previous
-    to the last job
+    """Get the minimum timestamp to filter for any missing events.
+
+    This value is taken from the maximum timestamp from the job previous to the last job
 
     Parameters:
     app (object): An object representing the Glue class.
@@ -24,7 +24,6 @@ def get_min_timestamp_from_previous_run(
     Returns:
     int: The maximum timestamp value from the stagetable
     """
-
     try:
         if daily_processes_df.empty or len(daily_processes_df.index) <= 1:
             # If there are <= 1 processes for a given day, then we need to get the latest timestamp processed from the previous processed day
@@ -78,8 +77,7 @@ def get_all_processed_dts(app, stage_database, stage_target_table, max_processed
 
 
 def get_all_processed_times_per_day(app, stage_database, stage_target_table, max_processed_dt, current_process_time=None):
-    """
-    Get all processes that ran on any given day
+    """Get all processes that ran on any given day.
 
     Parameters:
     app (object): An object representing the Glue class.
@@ -128,7 +126,6 @@ def get_last_processed_time(daily_processes_df):
     Returns:
     int: The maximum processed time value from the stage layer table
     """
-
     try:
         if daily_processes_df.empty or daily_processes_df is None:
             return None
@@ -142,6 +139,7 @@ def get_last_processed_time(daily_processes_df):
 def get_penultimate_processed_dt(all_processed_dts):
     """
     Get the penultimate processed dt from the specified stage table.
+
     last processed dt that isn't current and isn't the last processed dt
 
     Parameters:
@@ -150,7 +148,6 @@ def get_penultimate_processed_dt(all_processed_dts):
     Returns:
     int: The maximum processed time value from the stage layer table
     """
-
     try:
         if all_processed_dts.empty or all_processed_dts is None:
             return None
@@ -163,8 +160,9 @@ def get_penultimate_processed_dt(all_processed_dts):
 
 def get_max_timestamp(app, stage_database, stage_target_table, processed_dt=None, processed_time=None):
     """
-    Get the maximum timestamp from the specified stage table. filters for specific processes and
-    if processed_dt or processed_time are provided
+    Get the maximum timestamp from the specified stage table.
+
+    Filters for specific processes if processed_dt or processed_time are provided
 
     Parameters:
     app (object): An object representing the Glue class.
@@ -176,7 +174,6 @@ def get_max_timestamp(app, stage_database, stage_target_table, processed_dt=None
     Returns:
     int: The maximum timestamp value from the stagetable
     """
-
     try:
         if app.does_glue_table_exist(stage_database, stage_target_table):
             sql = f"""select max(timestamp) as timestamp
@@ -228,7 +225,6 @@ def get_max_processed_dt(app, raw_database, raw_source_table, stage_database, st
     int: The maximum processed_dt value from the stagetable,
          or a the min value (from the raw table) if the stage table doesn't exist.
     """
-
     try:
         if app.does_glue_table_exist(stage_database, stage_target_table):
             sql = f'''select max(
@@ -303,7 +299,6 @@ def extract_element_by_name(json_data, element_name, parent_name=None):
     Returns:
     Any: The extracted element, or None if not found.
     """
-
     try:
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
@@ -348,7 +343,6 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
     Returns:
     str: The SQL select criteria for the raw data-set.
     """
-
     try:
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
@@ -445,7 +439,6 @@ def generate_missing_event_ids_select_filter(
     Returns:
     str: The SQL select criteria for the raw data-set.
     """
-
     return f"""
             SELECT *
             FROM \"{raw_database}\"."txma"
@@ -476,7 +469,6 @@ def remove_row_duplicates(preprocessing, json_data, df_raw):
     Returns:
     DataFrame: The DataFrame with duplicate rows removed.
     """
-
     try:
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
@@ -508,7 +500,6 @@ def remove_rows_missing_mandatory_values(preprocessing, json_data, df_raw):
     Returns:
     DataFrame: The DataFrame with rows containing mandatory values.
     """
-
     try:
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
@@ -540,7 +531,6 @@ def rename_column_names(preprocessing, json_data, df_raw):
     Returns:
     DataFrame: The DataFrame with renamed columns.
     """
-
     try:
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
@@ -572,7 +562,6 @@ def add_new_column(preprocessing, json_data, df_raw):
     Returns:
     DataFrame: The DataFrame with new columns added.
     """
-
     try:
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
@@ -604,7 +593,6 @@ def add_new_column_from_struct(preprocessing, json_data, df_raw):
     Returns:
     DataFrame: The DataFrame with new columns added from struct fields.
     """
-
     try:
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
@@ -636,7 +624,6 @@ def empty_string_to_null(preprocessing, json_data, df_raw):
     Returns:
     DataFrame: The DataFrame with empty strings replaced by None.
     """
-
     try:
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
@@ -676,7 +663,6 @@ def generate_key_value_records(
     Returns:
     DataFrame: The DataFrame with key/value pairs extracted from the raw DataFrame.
     """
-
     try:
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")
@@ -712,8 +698,7 @@ def generate_key_value_records(
 
 def remove_columns(preprocessing, json_data, df_raw):
     """
-
-    remove columns based on configuration
+    Remove columns based on configuration.
 
     Parameters:
     preprocessing (DataPreprocessing): An instance of the DataPreprocessing class.
@@ -723,7 +708,6 @@ def remove_columns(preprocessing, json_data, df_raw):
     Returns:
     DataFrame: The data frame with columns removed
     """
-
     try:
         if not isinstance(json_data, (dict, list)):
             raise ValueError("Invalid JSON data provided")

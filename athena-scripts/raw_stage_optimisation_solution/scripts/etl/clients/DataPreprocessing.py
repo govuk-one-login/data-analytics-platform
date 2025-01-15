@@ -5,11 +5,7 @@ import pandas as pd
 
 
 class DataPreprocessing:
-    """
-
-    A class for performing preprocessing tasks against a supplied dataframe
-
-    """
+    """A class for performing preprocessing tasks against a supplied dataframe."""
 
     def __init__(self):
         self.now = datetime.now()
@@ -75,7 +71,7 @@ class DataPreprocessing:
 
     def remove_columns(self, df, columns, silent):
         """
-        remove columns from the data frame
+        Remove columns from the data frame.
 
         Parameters:
         df (DataFrame): The input DataFrame.
@@ -85,7 +81,6 @@ class DataPreprocessing:
         Returns:
         DataFrame: A DataFrame with specified columns removed if found.
         """
-
         try:
             errors = "ignore" if silent else "raise"
             if not isinstance(columns, (list)):

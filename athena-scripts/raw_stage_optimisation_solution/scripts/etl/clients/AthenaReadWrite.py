@@ -5,7 +5,7 @@ import boto3
 
 class AthenaReadWrite:
     """
-    A class for interacting with Athena data objects, which is not possible using AWSDataWrangler
+    A class for interacting with Athena data objects, which is not possible using AWSDataWrangler.
 
     Methods:
         __init__(self)
@@ -17,14 +17,12 @@ class AthenaReadWrite:
     """
 
     def __init__(self):
-        """
-        Initialize a new AthenaReadWrite instance.
-        """
+        """Initialize a new AthenaReadWrite instance."""
         self.athena_client = boto3.client("athena", region_name="eu-west-2")
 
     def run_query(self, database, sql, workgroup):
         """
-        Runs input sql statement on Athena.
+        Run input sql statement on Athena.
 
         Args:
             database (str): The name of the database to set context for sql statement.
