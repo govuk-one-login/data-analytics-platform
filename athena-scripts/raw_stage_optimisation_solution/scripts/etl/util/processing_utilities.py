@@ -1,3 +1,6 @@
+import json
+
+
 def extract_element_by_name(json_data, element_name, parent_name=None):
     """
     Extract an element from a JSON data structure by name, optionally matching a parent name.
@@ -39,3 +42,14 @@ def extract_element_by_name(json_data, element_name, parent_name=None):
     except Exception as e:
         print(f"Exception Error retrieving config rule value: {str(e)}")
         return None
+
+
+def extract_element_by_name_and_validate(json_data, element_name, parent_name):
+    extracted = extract_element_by_name(json_data, element_name, parent_name)
+    if extracted is None:
+        raise ValueError(f"{element_name} value for {parent_name} is not found within config rules")
+    if isinstance(extracted, list):
+        print(f"stage layer {parent_name} partition column: {extracted}")
+    else:
+        print(f"stage layer {parent_name}:\n{json.dumps(extracted, indent=4)}")
+    return extracted
