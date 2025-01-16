@@ -1,5 +1,4 @@
-from ..old.core_preprocessing_functions import get_max_processed_dt, get_max_timestamp
-from ..util.processing_utilities import extract_element_by_name
+from ..util.processing_utilities import extract_element_by_name, get_max_processed_dt, get_max_timestamp
 from .Strategy import Strategy
 
 

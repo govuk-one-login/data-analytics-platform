@@ -1,6 +1,6 @@
-from ..old.core_preprocessing_functions import (get_all_processed_dts, get_all_processed_times_per_day,
-                                                get_last_processed_time, get_max_processed_dt, get_max_timestamp,
-                                                get_min_timestamp_from_previous_run, get_penultimate_processed_dt)
+from ..util.processing_utilities import (get_all_processed_dts, get_all_processed_times_per_day,
+                                         get_last_processed_time, get_max_processed_dt, get_max_timestamp,
+                                         get_min_timestamp_from_previous_run, get_penultimate_processed_dt)
 from .Strategy import Strategy
 
 
