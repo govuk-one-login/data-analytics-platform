@@ -7,6 +7,7 @@ from .clients.DataPreprocessing import DataPreprocessing
 from .clients.GlueTableQueryAndWrite import GlueTableQueryAndWrite
 from .clients.S3ReadWrite import S3ReadWrite
 from .Processor import RawToStageProcessor
+from .strategies.BackfillStrategy import BackfillStrategy
 from .strategies.CustomStrategy import CustomStrategy
 from .strategies.ScheduledStrategy import ScheduledStrategy
 from .strategies.ViewStrategy import ViewStrategy
@@ -62,6 +63,8 @@ def main():
             processor = RawToStageProcessor(ViewStrategy(args, json_data, glue_app, s3_app, preprocessing))
         elif job_type == "SCHEDULED":
             processor = RawToStageProcessor(ScheduledStrategy(args, json_data, glue_app, s3_app, preprocessing))
+            processor.process()
+            processor = RawToStageProcessor(BackfillStrategy(args, json_data, glue_app, s3_app, preprocessing))
 
         processor.process()
 

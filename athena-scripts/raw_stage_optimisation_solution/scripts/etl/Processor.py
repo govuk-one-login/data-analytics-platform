@@ -19,9 +19,9 @@ class RawToStageProcessor:
         dfs = self.strategy.extract()
 
         df_process_counter = 0
-        cummulative_stage_table_rows_inserted = 0
-        cummulative_stage_key_rows_inserted = 0
-        cummulative_duplicate_rows_removed = 0
+        cumulative_stage_table_rows_inserted = 0
+        cumulative_stage_key_rows_inserted = 0
+        cumulative_duplicate_rows_removed = 0
 
         # for each dataframe, transform and then load
         for df_raw in dfs:
@@ -33,9 +33,9 @@ class RawToStageProcessor:
             # Transform df chunk
             (df_stage, df_key_values, duplicate_rows_removed, stage_table_rows_inserted, stage_key_rows_inserted) = self.strategy.transform(df_raw)
 
-            cummulative_duplicate_rows_removed = cummulative_duplicate_rows_removed + duplicate_rows_removed
-            cummulative_stage_table_rows_inserted = cummulative_stage_table_rows_inserted + stage_table_rows_inserted
-            cummulative_stage_key_rows_inserted = cummulative_stage_key_rows_inserted + stage_key_rows_inserted
+            cumulative_duplicate_rows_removed = cumulative_duplicate_rows_removed + duplicate_rows_removed
+            cumulative_stage_table_rows_inserted = cumulative_stage_table_rows_inserted + stage_table_rows_inserted
+            cumulative_stage_key_rows_inserted = cumulative_stage_key_rows_inserted + stage_key_rows_inserted
 
             # Load transformed dfs
             self.strategy.load(df_stage, df_key_values)
@@ -52,6 +52,6 @@ class RawToStageProcessor:
             # Print the result
             print(f"Time taken to process dataframe {df_process_counter}: {elapsed_minutes:.2f} minutes")
             print("stage layer successfully updated")
-            print(f"total stage table records inserted: {cummulative_stage_table_rows_inserted}")
-            print(f"total stage key table records inserted: {cummulative_stage_key_rows_inserted}")
-            print(f"total duplicate rows removed: {cummulative_duplicate_rows_removed}")
+            print(f"total stage table records inserted: {cumulative_stage_table_rows_inserted}")
+            print(f"total stage key table records inserted: {cumulative_stage_key_rows_inserted}")
+            print(f"total duplicate rows removed: {cumulative_duplicate_rows_removed}")
