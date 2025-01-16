@@ -324,3 +324,10 @@ They use this to allow access to their SQS queues and usage of their KMS keys to
 For a guide to how and why certain development decisions, coding practices, etc. were made, please refer to the [Development Decisions document](docs/development-decisions.md).
 
 For a list of TODOs for the project, please see the [TODOs document](docs/todos.md).
+
+
+## Packaging:
+pip3 install --upgrade build
+python3 -m build
+
+pip install /Users/pswamireddy/IdeaProjects/data-analytics-platform/athena-scripts/raw_stage_optimisation_solution/scripts/dist/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl

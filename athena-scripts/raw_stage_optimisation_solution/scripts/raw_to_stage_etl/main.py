@@ -2,16 +2,15 @@ import json
 import sys
 
 from awsglue.utils import getResolvedOptions
-
-from .clients.DataPreprocessing import DataPreprocessing
-from .clients.GlueTableQueryAndWrite import GlueTableQueryAndWrite
-from .clients.S3ReadWrite import S3ReadWrite
-from .Processor import RawToStageProcessor
-from .strategies.BackfillStrategy import BackfillStrategy
-from .strategies.CustomStrategy import CustomStrategy
-from .strategies.ScheduledStrategy import ScheduledStrategy
-from .strategies.ViewStrategy import ViewStrategy
-from .util.processing_utilities import extract_element_by_name
+from raw_to_stage_etl.clients.DataPreprocessing import DataPreprocessing
+from raw_to_stage_etl.clients.GlueTableQueryAndWrite import GlueTableQueryAndWrite
+from raw_to_stage_etl.clients.S3ReadWrite import S3ReadWrite
+from raw_to_stage_etl.processor.Processor import RawToStageProcessor
+from raw_to_stage_etl.strategies.BackfillStrategy import BackfillStrategy
+from raw_to_stage_etl.strategies.CustomStrategy import CustomStrategy
+from raw_to_stage_etl.strategies.ScheduledStrategy import ScheduledStrategy
+from raw_to_stage_etl.strategies.ViewStrategy import ViewStrategy
+from raw_to_stage_etl.util.processing_utilities import extract_element_by_name
 
 
 def main():

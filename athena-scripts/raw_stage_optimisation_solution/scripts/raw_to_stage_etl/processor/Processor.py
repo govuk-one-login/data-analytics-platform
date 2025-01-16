@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 
-from .strategies.Strategy import Strategy
+from ..strategies.Strategy import Strategy
 
 METADATA_ROOT_FOLDER = "txma_raw_stage_metadata"
 
