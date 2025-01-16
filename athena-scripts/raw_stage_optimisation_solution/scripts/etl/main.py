@@ -63,10 +63,17 @@ def main():
             processor = RawToStageProcessor(ViewStrategy(args, json_data, glue_app, s3_app, preprocessing))
         elif job_type == "SCHEDULED":
             processor = RawToStageProcessor(ScheduledStrategy(args, json_data, glue_app, s3_app, preprocessing))
-            processor.process()
-            processor = RawToStageProcessor(BackfillStrategy(args, json_data, glue_app, s3_app, preprocessing))
 
         processor.process()
+
+        """
+        This next part of the process(Backfill) for SCHEDULED will be temporary until we figure out a way to load
+        events that were missing from the previous job
+        TODO: remove the backfill part of the job when there is no need.
+        """
+        if job_type == "SCHEDULED":
+            processor = RawToStageProcessor(BackfillStrategy(args, json_data, glue_app, s3_app, preprocessing))
+            processor.process()
 
     except ValueError as e:
         print(f"Value Error: {e}")
