@@ -11,13 +11,13 @@ class ScheduledStrategy(Strategy):
         max_processed_dt = get_max_processed_dt(self.glue_client, raw_database, raw_table, stage_database, stage_target_table)
         if max_processed_dt is None:
             raise ValueError("Function 'get_max_processed_dt' returned None, which is not allowed.")
-        print(f"retrieved processed_dt filter value: {max_processed_dt}")
+        self.logger.info("retrieved processed_dt filter value: %s", max_processed_dt)
 
         max_timestamp = get_max_timestamp(self.glue_client, stage_database, stage_target_table)
 
         if max_timestamp is None:
             raise ValueError("Function 'get_max_timestamp' returned None, which is not allowed.")
-        print(f"retrieved timestamp filter value: {max_timestamp}")
+        self.logger.info("retrieved timestamp filter value: %s", max_timestamp)
 
         sql_query = self.get_raw_sql(max_processed_dt, max_timestamp, raw_database, raw_table)
         return self.get_raw_data(sql_query)
@@ -26,11 +26,11 @@ class ScheduledStrategy(Strategy):
         event_processing_selection_criteria_filter = extract_element_by_name(self.config_data, "filter", "event_processing_selection_criteria")
         if event_processing_selection_criteria_filter is None:
             raise ValueError("filter value for event_processing_selection_criteria is not found within config rules")
-        print(f"config rule: event_processing_selection_criteria | filter: {event_processing_selection_criteria_filter}")
+        self.logger.info("config rule: event_processing_selection_criteria | filter: %s", event_processing_selection_criteria_filter)
         event_processing_selection_criteria_limit = extract_element_by_name(self.config_data, "limit", "event_processing_selection_criteria")
         if event_processing_selection_criteria_limit is None:
             raise ValueError("limit value for event_processing_selection_criteria is not found within config rules")
-        print(f"config rule: event_processing_selection_criteria | limit: {event_processing_selection_criteria_limit}")
+        self.logger.info("config rule: event_processing_selection_criteria | limit: %s", event_processing_selection_criteria_limit)
         update_filter = event_processing_selection_criteria_filter.replace("processed_dt", str(max_processed_dt - 1)).replace(
             "replace_timestamp", str(max_timestamp)
         )

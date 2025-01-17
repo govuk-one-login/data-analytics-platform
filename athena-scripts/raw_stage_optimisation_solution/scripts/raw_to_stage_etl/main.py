@@ -1,10 +1,13 @@
 import json
+import logging
 import sys
+import traceback
 
 from awsglue.utils import getResolvedOptions
 from raw_to_stage_etl.clients.DataPreprocessing import DataPreprocessing
 from raw_to_stage_etl.clients.GlueTableQueryAndWrite import GlueTableQueryAndWrite
 from raw_to_stage_etl.clients.S3ReadWrite import S3ReadWrite
+from raw_to_stage_etl.logger import logger
 from raw_to_stage_etl.processor.Processor import RawToStageProcessor
 from raw_to_stage_etl.strategies.BackfillStrategy import BackfillStrategy
 from raw_to_stage_etl.strategies.CustomStrategy import CustomStrategy
@@ -14,6 +17,9 @@ from raw_to_stage_etl.util.processing_utilities import extract_element_by_name
 
 
 def main():
+    main_logger = logging.getLogger(__name__)
+    logger.init({"LOG_LEVEL": "INFO"})
+    logger.configure(main_logger)
     try:
 
         # Glue Job Inputs
@@ -21,6 +27,7 @@ def main():
             sys.argv,
             [
                 "JOB_NAME",
+                "LOG_LEVEL",
                 "config_bucket",
                 "config_key_path",
                 "txma_raw_dedup_view_key_path",
@@ -47,8 +54,7 @@ def main():
         json_data = s3_app.read_json(args["config_bucket"], args["config_key_path"])
         if json_data is None:
             raise ValueError("Class 's3_app' returned None, which is not allowed.")
-        formatted_json = json.dumps(json_data, indent=4)
-        print(f"configuration rules:\n {formatted_json}")
+        main_logger.info("configuration rules: %s", json.dumps(json_data))
 
         job_type = get_job_type(json_data)
         processor = None
@@ -75,11 +81,11 @@ def main():
             processor.process()
 
     except ValueError as e:
-        print(f"Value Error: {e}")
+        main_logger.error("Value Error: %s, Stacktrace: %s", str(e), traceback.format_exc())
         sys.exit("Exception encountered within main, exiting process")
 
     except Exception as e:
-        print(f"Exception Error: {str(e)}")
+        main_logger.error("Exception Error: %s, Stacktrace: %s", str(e), traceback.format_exc())
         sys.exit("Exception encountered within main, exiting process")
 
 

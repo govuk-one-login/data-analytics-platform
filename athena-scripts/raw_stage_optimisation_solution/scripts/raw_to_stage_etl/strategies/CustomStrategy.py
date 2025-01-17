@@ -9,7 +9,7 @@ class CustomStrategy(Strategy):
 
         if event_processing_custom_filter is None:
             raise ValueError("filter value for event_processing_custom_filter is not found within config rules")
-        print(f"config rule: event_processing_view_criteria | view: {event_processing_custom_filter}")
+        self.logger.info("config rule: event_processing_view_criteria | view: %s", event_processing_custom_filter)
 
         sql_query = self.generate_sql_query(event_processing_custom_filter)
 

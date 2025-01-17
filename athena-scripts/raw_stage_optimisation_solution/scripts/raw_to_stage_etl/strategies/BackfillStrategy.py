@@ -42,7 +42,7 @@ class BackfillStrategy(Strategy):
         max_processed_dt = get_max_processed_dt(self.glue_client, raw_database, raw_table, stage_database, stage_target_table)
         if max_processed_dt is None:
             raise ValueError("Function 'get_max_processed_dt' returned None, which is not allowed.")
-        print(f"retrieved processed_dt filter value: {max_processed_dt}")
+        self.logger.info("retrieved processed_dt filter value: %s", max_processed_dt)
 
         # if the process_dt is today, that means there are multiple processes today, we need this value to filter it out from the daily processes
         if max_processed_dt == self.preprocessing.processed_dt:
@@ -58,7 +58,7 @@ class BackfillStrategy(Strategy):
 
         filter_processed_time = get_last_processed_time(all_previous_processed_times)
         if filter_processed_time is None:
-            print("no filter process time found, ending process")
+            self.logger.info("no filter process time found, ending process")
             return
 
         all_previous_processed_dts = get_all_processed_dts(
@@ -71,7 +71,7 @@ class BackfillStrategy(Strategy):
 
         penultimate_processed_dt = get_penultimate_processed_dt(all_previous_processed_dts)
         if penultimate_processed_dt is None:
-            print("no penultimate processed dt, ending process")
+            self.logger.info("no penultimate processed dt, ending process")
             return
 
         min_timestamp_filter_for_missing_events = get_min_timestamp_from_previous_run(
@@ -84,14 +84,14 @@ class BackfillStrategy(Strategy):
         )
 
         if min_timestamp_filter_for_missing_events is None:
-            print("Could not calculate a minimum timestamp to filter for missing events, ending process")
+            self.logger.info("Could not calculate a minimum timestamp to filter for missing events, ending process")
             return
 
         max_timestamp = get_max_timestamp(self.glue_client, stage_database, stage_target_table)
 
         if max_timestamp is None:
             raise ValueError("Function 'get_max_timestamp' returned None, which is not allowed.")
-        print(f"retrieved timestamp filter value: {max_timestamp}")
+        self.logger.info("retrieved timestamp filter value: %s", max_timestamp)
 
         backfill_raw_sql = get_raw_sql(
             raw_database,

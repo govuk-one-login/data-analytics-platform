@@ -1,17 +1,20 @@
 import gc
 import json
+import logging
 import sys
+from abc import ABC, abstractmethod
 from datetime import datetime
 
 import pandas as pd
 
+from ..logger import logger
 from ..util.processing_utilities import (add_new_column, add_new_column_from_struct, empty_string_to_null,
                                          extract_element_by_name_and_validate, generate_key_value_records,
                                          remove_columns, remove_row_duplicates, remove_rows_missing_mandatory_values,
                                          rename_column_names)
 
 
-class Strategy:
+class Strategy(ABC):
     METADATA_ROOT_FOLDER = "txma_raw_stage_metadata"
     DATASET = True
     INSERT_MODE = "append"
@@ -23,12 +26,16 @@ class Strategy:
         self.s3_client = s3_client
         self.preprocessing = preprocessing
         self.athena_query_chunksize = 1000000
+        self.logger = logging.getLogger(__name__)
+        logger.init(args)
+        logger.configure(self.logger)
 
+    @abstractmethod
     def extract(self):
         pass
 
     def get_raw_data(self, sql_query):
-        print(f"running query {sql_query}")
+        self.logger.info("running query %s", sql_query)
 
         dfs = self.glue_client.query_glue_table(self.args["raw_database"], sql_query, self.athena_query_chunksize)
         if dfs is None:
@@ -40,7 +47,7 @@ class Strategy:
 
     def transform(self, df_raw):
         if not isinstance(df_raw, pd.DataFrame) or df_raw.empty:
-            print("No raw records returned for processing. Program is stopping.")
+            self.logger.info("No raw records returned for processing. Program is stopping.")
             return
 
         df_raw_row_count = int(len(df_raw))
@@ -55,7 +62,7 @@ class Strategy:
             raise ValueError("Function: remove_row_duplicates returned None.")
 
         if df_stage.empty:
-            print("No raw records returned for processing following duplicate row removal. Program is stopping.")
+            self.logger.info("No raw records returned for processing following duplicate row removal. Program is stopping.")
             return
 
         df_raw_post_deduplication_row_count = int(len(df_stage))
@@ -67,14 +74,14 @@ class Strategy:
             raise ValueError("Function: remove_rows_missing_mandatory_values returned None.")
 
         if df_stage.empty:
-            print("No raw records returned for processing following missing mandatory fields row removal. Program is stopping.")
+            self.logger.info("No raw records returned for processing following missing mandatory fields row removal. Program is stopping.")
             return
 
         # Extract a list of column names from the original df_raw dataframe
         df_raw_col_names_original = list(df_stage.columns)
         if self.ROW_NUM in df_raw_col_names_original:
             df_raw_col_names_original.remove(self.ROW_NUM)
-        print(f"df_raw cols: {df_raw_col_names_original}")
+        self.logger.info("df_raw cols: %s", df_raw_col_names_original)
 
         # Rename column(s)
         df_stage = rename_column_names(self.preprocessing, self.config_data, df_stage)
@@ -82,7 +89,7 @@ class Strategy:
             raise ValueError("Function: rename_column_names returned None.")
 
         if df_stage.empty:
-            print("No raw records returned for processing following rename of columns. Program is stopping.")
+            self.logger.info("No raw records returned for processing following rename of columns. Program is stopping.")
             return
 
         # New column(s)
@@ -91,7 +98,7 @@ class Strategy:
             raise ValueError("Function: add_new_column returned None.")
 
         if df_stage.empty:
-            print("No raw records returned for processing following adding of new columns. Program is stopping.")
+            self.logger.info("No raw records returned for processing following adding of new columns. Program is stopping.")
             return
 
         # New column(s) from struct
@@ -100,7 +107,7 @@ class Strategy:
             raise ValueError("Function: add_new_column_from_struct returned None.")
 
         if df_stage.empty:
-            print("No raw records returned for processing following adding of new columns from struct. Program is stopping.")
+            self.logger.info("No raw records returned for processing following adding of new columns from struct. Program is stopping.")
             return
 
         # Empty string replacement with sql null
@@ -109,9 +116,9 @@ class Strategy:
             raise ValueError("Function: empty_string_to_null returned None.")
 
         if df_stage.empty:
-            print("No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
+            self.logger.info("No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
             return
-        print(f"rows to be ingested into the Stage layer from dataframe df_raw: {len(df_stage)}")
+        self.logger.info("rows to be ingested into the Stage layer from dataframe df_raw: %s", len(df_stage))
         stage_table_rows_inserted = int(len(df_stage))
 
         # Generate dtypes - for stage table
@@ -133,9 +140,9 @@ class Strategy:
             raise ValueError("Function: generate_key_value_records returned None.")
 
         if df_key_values.empty:
-            print("No raw records returned for processing following the generation of key/value records. Program is stopping.")
+            self.logger.info("No raw records returned for processing following the generation of key/value records. Program is stopping.")
             return
-        print(f"rows to be ingested into the Stage layer key/value table from dataframe df_key_values: {len(df_key_values)}")
+        self.logger.info("rows to be ingested into the Stage layer key/value table from dataframe df_key_values: %s", len(df_key_values))
         stage_key_rows_inserted = int(len(df_key_values))
 
         # Generate list object with column names only
@@ -173,6 +180,8 @@ class Strategy:
 
             if not stage_key_value_update:
                 sys.exit("Update to stage key/value table did not return boolean(True) response")
+            else:
+                self.logger.info("stage_key_value_update: %s", stage_key_value_update)
             raw_metadata_time_json = f'raw_stage_metadata_{datetime.now().strftime("%Y%m%d%H%M%S")}.json'
             # write Glue table insert metadata to S3
             http_response = self.s3_client.write_json(
@@ -211,7 +220,7 @@ class Strategy:
             if http_response is None:
                 sys.exit("Insert of stage table metadata returned invalid response")
         except Exception as e:
-            print(f"Exception Error writing to Stage layer: {str(e)}")
+            self.logger.error("Exception Error writing to Stage layer: %s", str(e))
         finally:
             # Release dataframe memory
             del df_stage
