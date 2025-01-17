@@ -54,7 +54,7 @@ def main():
         json_data = s3_app.read_json(args["config_bucket"], args["config_key_path"])
         if json_data is None:
             raise ValueError("Class 's3_app' returned None, which is not allowed.")
-        main_logger.info("configuration rules: %s", json.dumps(json_data))
+        main_logger.debug("configuration rules: %s", json.dumps(json_data))
 
         job_type = get_job_type(json_data)
         processor = None
@@ -62,7 +62,7 @@ def main():
         if job_type is None:
             raise ValueError("No job type specified to run")
 
-        if job_type == "TESTING":
+        if job_type == "CUSTOM":
             processor = RawToStageProcessor(args, CustomStrategy(args, json_data, glue_app, s3_app, preprocessing))
         elif job_type == "VIEW":
             processor = RawToStageProcessor(args, ViewStrategy(args, json_data, glue_app, s3_app, preprocessing))
