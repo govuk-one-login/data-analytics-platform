@@ -1,6 +1,9 @@
+import logging
 import time
 
 import boto3
+
+from ..logger import logger
 
 
 class AthenaReadWrite:
@@ -16,9 +19,12 @@ class AthenaReadWrite:
 
     """
 
-    def __init__(self):
+    def __init__(self, args):
         """Initialize a new AthenaReadWrite instance."""
         self.athena_client = boto3.client("athena", region_name="eu-west-2")
+        self.logger = logging.getLogger(__name__)
+        logger.init(args)
+        logger.configure(self.logger)
 
     def run_query(self, database, sql, workgroup):
         """
@@ -53,11 +59,11 @@ class AthenaReadWrite:
                 time.sleep(5)  # Wait for 5 seconds before checking again
 
             if status == "SUCCEEDED":
-                print("Athena query successfully completed")
+                self.logger.info("Athena query successfully completed")
                 return True
             else:
-                print(f"Error running Athena query. Status: {status}")
+                self.logger.info("Error running Athena query. Status: %s", status)
                 return False
         except Exception as e:
-            print(f"Exception when running Athena query: {str(e)}")
+            self.logger.error("Exception when running Athena query: %s", str(e))
             return False

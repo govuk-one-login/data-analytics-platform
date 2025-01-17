@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import logging
 import time
 
+from ..logger import logger
 from ..strategies.Strategy import Strategy
 
 METADATA_ROOT_FOLDER = "txma_raw_stage_metadata"
@@ -9,9 +11,12 @@ METADATA_ROOT_FOLDER = "txma_raw_stage_metadata"
 
 class RawToStageProcessor:
 
-    def __init__(self, strategy: Strategy) -> None:
+    def __init__(self, args: dict, strategy: Strategy) -> None:
         if strategy:
             self.strategy = strategy
+        self.logger = logging.getLogger(__name__)
+        logger.init(args)
+        logger.configure(self.logger)
 
     def process(self) -> None:
 
@@ -26,7 +31,7 @@ class RawToStageProcessor:
         # for each dataframe, transform and then load
         for df_raw in dfs:
             df_process_counter += 1
-            print(f"processing dataframe chunk: {df_process_counter}")
+            self.logger.info("processing dataframe chunk: %s", df_process_counter)
             # Record the start time
             start_time = time.time()
 
@@ -50,8 +55,8 @@ class RawToStageProcessor:
             elapsed_minutes = elapsed_time / 60
 
             # Print the result
-            print(f"Time taken to process dataframe {df_process_counter}: {elapsed_minutes:.2f} minutes")
-            print("stage layer successfully updated")
-            print(f"total stage table records inserted: {cumulative_stage_table_rows_inserted}")
-            print(f"total stage key table records inserted: {cumulative_stage_key_rows_inserted}")
-            print(f"total duplicate rows removed: {cumulative_duplicate_rows_removed}")
+            self.logger.info("Time taken to process dataframe %s: %2f minutes", df_process_counter, elapsed_minutes)
+            self.logger.info("stage layer successfully updated")
+            self.logger.info("total stage table records inserted: %s", cumulative_stage_table_rows_inserted)
+            self.logger.info("total stage key table records inserted: %s", cumulative_stage_key_rows_inserted)
+            self.logger.info("total duplicate rows removed: %s", cumulative_duplicate_rows_removed)

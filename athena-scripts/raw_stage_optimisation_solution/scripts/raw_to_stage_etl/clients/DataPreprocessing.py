@@ -1,16 +1,22 @@
+import logging
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
 
+from ..logger import logger
+
 
 class DataPreprocessing:
     """A class for performing preprocessing tasks against a supplied dataframe."""
 
-    def __init__(self):
+    def __init__(self, args):
         self.now = datetime.now()
         self.processed_dt = int(self.now.strftime("%Y%m%d"))
         self.processed_time = int(self.now.strftime("%H%M%S"))
+        self.logger = logging.getLogger(__name__)
+        logger.init(args)
+        logger.configure(self.logger)
 
     def remove_duplicate_rows(self, df, fields):
         """
@@ -28,7 +34,7 @@ class DataPreprocessing:
                 raise ValueError("Invalid field list structure provided, require list object")
             return df.drop_duplicates(subset=fields)
         except Exception as e:
-            print(f"Error dropping row duplicates: {str(e)}")
+            self.logger.error("Error dropping row duplicates: %s", str(e))
             return None
 
     def remove_rows_missing_mandatory_values(self, df, fields):
@@ -47,7 +53,7 @@ class DataPreprocessing:
                 raise ValueError("Invalid field list structure provided, require list object")
             return df.dropna(subset=fields)
         except Exception as e:
-            print(f"Error dropping rows missing mandatory field: {str(e)}")
+            self.logger.error("Error dropping rows missing mandatory field: %s", str(e))
             return None
 
     def rename_column_names(self, df, fields):
@@ -66,7 +72,7 @@ class DataPreprocessing:
                 raise ValueError("Invalid field list structure provided, require dict object")
             return df.rename(columns=fields)
         except Exception as e:
-            print(f"Error renaming columns: {str(e)}")
+            self.logger.error("Error renaming columns: %s", str(e))
             return None
 
     def remove_columns(self, df, columns, silent):
@@ -87,7 +93,7 @@ class DataPreprocessing:
                 raise ValueError("Invalid field of columns provided, require list")
             return df.drop(columns, axis=1, errors=errors)
         except Exception as e:
-            print(f"Error removing columns: {str(e)}")
+            self.logger.error("Error removing columns: %s", str(e))
             return None
 
     def add_new_column(self, df, fields):
@@ -111,7 +117,7 @@ class DataPreprocessing:
                     df[column_name] = self.processed_time
             return df
         except Exception as e:
-            print(f"Error adding new columns: {str(e)}")
+            self.logger.error("Error adding new columns: %s", str(e))
             return None
 
     def add_new_column_from_struct(self, df, fields):
@@ -140,7 +146,7 @@ class DataPreprocessing:
 
             return df
         except Exception as e:
-            print(f"Error adding new columns from struct: {str(e)}")
+            self.logger.error("Error adding new columns from struct: %s", str(e))
             return None
 
     def empty_string_to_null(self, df, fields):
@@ -163,7 +169,7 @@ class DataPreprocessing:
 
             return df
         except Exception as e:
-            print(f"Error replacing empty string with sql nulls: {str(e)}")
+            self.logger.error("Error replacing empty string with sql nulls: %s", str(e))
             return None
 
     def extract_key_values(self, obj, parent_key="", sep=".", field_name=""):
@@ -219,7 +225,7 @@ class DataPreprocessing:
             return items
 
         except Exception as e:
-            print(f"Error extracting key/value: {str(e)}")
+            self.logger.error("Error extracting key/value: %s", str(e))
             return None
 
     def generate_key_value_records(self, df, fields, column_names_list):
@@ -250,7 +256,7 @@ class DataPreprocessing:
                 )
                 dfs.append(df_key_value)
 
-            print(f"class: DataPreprocessing | method=generate_key_value_records | dfs row count: {len(dfs)}")
+            self.logger.info("class: DataPreprocessing | method=generate_key_value_records | dfs row count: %s", len(dfs))
 
             key_value_pairs = pd.concat(dfs, ignore_index=True)
 
@@ -271,5 +277,5 @@ class DataPreprocessing:
 
             return result_df
         except Exception as e:
-            print(f"Error generating key/value records: {str(e)}")
+            self.logger.error("Error generating key/value records: %s", str(e))
             return None

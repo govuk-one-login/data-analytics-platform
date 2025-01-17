@@ -43,13 +43,13 @@ def main():
         # init all helper classes
 
         # S3 config file reader class
-        s3_app = S3ReadWrite()
+        s3_app = S3ReadWrite(args)
 
         # Glue processing class
-        glue_app = GlueTableQueryAndWrite()
+        glue_app = GlueTableQueryAndWrite(args)
 
         # Data transformation class
-        preprocessing = DataPreprocessing()
+        preprocessing = DataPreprocessing(args)
 
         json_data = s3_app.read_json(args["config_bucket"], args["config_key_path"])
         if json_data is None:
@@ -63,11 +63,11 @@ def main():
             raise ValueError("No job type specified to run")
 
         if job_type == "TESTING":
-            processor = RawToStageProcessor(CustomStrategy(args, json_data, glue_app, s3_app, preprocessing))
+            processor = RawToStageProcessor(args, CustomStrategy(args, json_data, glue_app, s3_app, preprocessing))
         elif job_type == "VIEW":
-            processor = RawToStageProcessor(ViewStrategy(args, json_data, glue_app, s3_app, preprocessing))
+            processor = RawToStageProcessor(args, ViewStrategy(args, json_data, glue_app, s3_app, preprocessing))
         elif job_type == "SCHEDULED":
-            processor = RawToStageProcessor(ScheduledStrategy(args, json_data, glue_app, s3_app, preprocessing))
+            processor = RawToStageProcessor(args, ScheduledStrategy(args, json_data, glue_app, s3_app, preprocessing))
 
         processor.process()
 
@@ -77,7 +77,7 @@ def main():
         TODO: remove the backfill part of the job when there is no need.
         """
         if job_type == "SCHEDULED":
-            processor = RawToStageProcessor(BackfillStrategy(args, json_data, glue_app, s3_app, preprocessing))
+            processor = RawToStageProcessor(args, BackfillStrategy(args, json_data, glue_app, s3_app, preprocessing))
             processor.process()
 
     except ValueError as e:

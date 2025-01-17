@@ -1,10 +1,14 @@
+import logging
+
 import awswrangler as wr
+
+from ..logger import logger
 
 
 class GlueTableQueryAndWrite:
     """A class for querying the Glue Data Catalog tables."""
 
-    def __init__(self):
+    def __init__(self, args):
         """
         Initialize an instance of the GlueTableQueryAndWrite class.
 
@@ -13,7 +17,9 @@ class GlueTableQueryAndWrite:
         Parameters:
             None
         """
-        pass
+        self.logger = logging.getLogger(__name__)
+        logger.init(args)
+        logger.configure(self.logger)
 
     def does_glue_table_exist(self, database, table):
         """
@@ -29,7 +35,7 @@ class GlueTableQueryAndWrite:
         try:
             return wr.catalog.does_table_exist(database=database, table=table)
         except Exception as e:
-            print(f"Error querying glue data catalog: {str(e)}")
+            self.logger.error("Error querying glue data catalog: %s", str(e))
             return None
 
     def query_glue_table(self, database, query, chunksize=1):
@@ -49,7 +55,7 @@ class GlueTableQueryAndWrite:
             df = wr.athena.read_sql_query(query, database=database, chunksize=chunksize)
             return df
         except Exception as e:
-            print(f"Error reading Athena table: {str(e)}")
+            self.logger.error("Error reading Athena table: %s", str(e))
             return None
 
     def write_to_glue_table(
@@ -92,5 +98,5 @@ class GlueTableQueryAndWrite:
             )
             return s3_write_data_return_value
         except Exception as e:
-            print(f"Error writing to Athena table: {str(e)}")
+            self.logger.error("Error writing to Athena table: %s", str(e))
             return None
