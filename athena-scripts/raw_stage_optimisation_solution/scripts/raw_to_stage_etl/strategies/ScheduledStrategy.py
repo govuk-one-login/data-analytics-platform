@@ -3,23 +3,28 @@ from .Strategy import Strategy
 
 
 class ScheduledStrategy(Strategy):
+    def __init__(self, args, config_data, glue_client, s3_client, preprocessing, max_timestamp=None, max_processed_dt=None):
+        super().__init__(args, config_data, glue_client, s3_client, preprocessing)
+        self.max_timestamp = max_timestamp
+        self.max_processed_dt = max_processed_dt
+
     def extract(self):
         raw_database = self.args["raw_database"]
         raw_table = self.args["raw_source_table"]
         stage_database = self.args["stage_database"]
         stage_target_table = self.args["stage_target_table"]
-        max_processed_dt = get_max_processed_dt(self.glue_client, raw_database, raw_table, stage_database, stage_target_table)
-        if max_processed_dt is None:
+        self.max_processed_dt = get_max_processed_dt(self.glue_client, raw_database, raw_table, stage_database, stage_target_table)
+        if self.max_processed_dt is None:
             raise ValueError("Function 'get_max_processed_dt' returned None, which is not allowed.")
-        self.logger.info("retrieved processed_dt filter value: %s", max_processed_dt)
+        self.logger.info("retrieved processed_dt filter value: %s", self.max_processed_dt)
 
-        max_timestamp = get_max_timestamp(self.glue_client, stage_database, stage_target_table)
+        self.max_timestamp = get_max_timestamp(self.glue_client, stage_database, stage_target_table)
 
-        if max_timestamp is None:
+        if self.max_timestamp is None:
             raise ValueError("Function 'get_max_timestamp' returned None, which is not allowed.")
-        self.logger.info("retrieved timestamp filter value: %s", max_timestamp)
+        self.logger.info("retrieved timestamp filter value: %s", self.max_timestamp)
 
-        sql_query = self.get_raw_sql(max_processed_dt, max_timestamp, raw_database, raw_table)
+        sql_query = self.get_raw_sql(self.max_processed_dt, self.max_timestamp, raw_database, raw_table)
         return self.get_raw_data(sql_query)
 
     def get_raw_sql(self, max_processed_dt, max_timestamp, raw_database, raw_table):

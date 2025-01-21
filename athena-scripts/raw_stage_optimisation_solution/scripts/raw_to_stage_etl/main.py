@@ -11,6 +11,7 @@ from raw_to_stage_etl.logger import logger
 from raw_to_stage_etl.processor.Processor import RawToStageProcessor
 from raw_to_stage_etl.strategies.BackfillStrategy import BackfillStrategy
 from raw_to_stage_etl.strategies.CustomStrategy import CustomStrategy
+from raw_to_stage_etl.strategies.exceptions.NoDataFoundException import NoDataFoundException
 from raw_to_stage_etl.strategies.ScheduledStrategy import ScheduledStrategy
 from raw_to_stage_etl.strategies.ViewStrategy import ViewStrategy
 from raw_to_stage_etl.util.processing_utilities import extract_element_by_name
@@ -58,6 +59,7 @@ def main():
 
         job_type = get_job_type(json_data)
         processor = None
+        strategy = None
 
         if job_type is None:
             raise ValueError("No job type specified to run")
@@ -67,7 +69,8 @@ def main():
         elif job_type == "VIEW":
             processor = RawToStageProcessor(args, ViewStrategy(args, json_data, glue_app, s3_app, preprocessing))
         elif job_type == "SCHEDULED":
-            processor = RawToStageProcessor(args, ScheduledStrategy(args, json_data, glue_app, s3_app, preprocessing))
+            strategy = ScheduledStrategy(args, json_data, glue_app, s3_app, preprocessing)
+            processor = RawToStageProcessor(args, strategy)
 
         processor.process()
 
@@ -77,8 +80,14 @@ def main():
         TODO: remove the backfill part of the job when there is no need.
         """
         if job_type == "SCHEDULED":
-            processor = RawToStageProcessor(args, BackfillStrategy(args, json_data, glue_app, s3_app, preprocessing))
-            processor.process()
+            backfill_strategy = BackfillStrategy(args, json_data, glue_app, s3_app, preprocessing, strategy.max_timestamp, strategy.max_processed_dt)
+            processor = RawToStageProcessor(args, backfill_strategy)
+            try:
+                processor.process()
+            except NoDataFoundException as ndfe:
+                main_logger.error("%s", str(ndfe))
+                # as no data could be found for backfill, supress the exception
+                main_logger.info("Exiting without error")
 
     except ValueError as e:
         main_logger.error("Value Error: %s, Stacktrace: %s", str(e), traceback.format_exc())

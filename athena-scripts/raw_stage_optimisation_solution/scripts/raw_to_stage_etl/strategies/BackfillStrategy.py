@@ -1,7 +1,8 @@
+from raw_to_stage_etl.strategies.ScheduledStrategy import ScheduledStrategy
+
 from ..util.processing_utilities import (get_all_processed_dts, get_all_processed_times_per_day,
-                                         get_last_processed_time, get_max_processed_dt, get_max_timestamp,
-                                         get_min_timestamp_from_previous_run, get_penultimate_processed_dt)
-from .Strategy import Strategy
+                                         get_last_processed_time, get_min_timestamp_from_previous_run,
+                                         get_penultimate_processed_dt)
 
 
 def get_raw_sql(
@@ -32,27 +33,27 @@ def get_raw_sql(
             AND CAST(concat(year, month, day) AS INT) >= {penultimate_processed_dt} - 1"""
 
 
-class BackfillStrategy(Strategy):
+class BackfillStrategy(ScheduledStrategy):
+    def __init__(self, args, config_data, glue_client, s3_client, preprocessing, max_timestamp, max_processed_dt):
+        super().__init__(args, config_data, glue_client, s3_client, preprocessing, max_timestamp, max_processed_dt)
+
     def extract(self):
         current_process_time = None
         raw_database = self.args["raw_database"]
         raw_table = self.args["raw_source_table"]
         stage_database = self.args["stage_database"]
         stage_target_table = self.args["stage_target_table"]
-        max_processed_dt = get_max_processed_dt(self.glue_client, raw_database, raw_table, stage_database, stage_target_table)
-        if max_processed_dt is None:
-            raise ValueError("Function 'get_max_processed_dt' returned None, which is not allowed.")
-        self.logger.info("retrieved processed_dt filter value: %s", max_processed_dt)
+        self.logger.info("retrieved processed_dt filter value from Scheduled Strategy: %s", self.max_processed_dt)
 
         # if the process_dt is today, that means there are multiple processes today, we need this value to filter it out from the daily processes
-        if max_processed_dt == self.preprocessing.processed_dt:
+        if self.max_processed_dt == self.preprocessing.processed_dt:
             current_process_time = self.preprocessing.processed_time
 
         all_previous_processed_times = get_all_processed_times_per_day(
             self.glue_client,
             self.args["stage_database"],
             self.args["stage_target_table"],
-            max_processed_dt,
+            self.max_processed_dt,
             current_process_time,
         )
 
@@ -65,7 +66,7 @@ class BackfillStrategy(Strategy):
             self.glue_client,
             self.args["stage_database"],
             self.args["stage_target_table"],
-            max_processed_dt,
+            self.max_processed_dt,
             self.preprocessing.processed_dt,
         )
 
@@ -79,7 +80,7 @@ class BackfillStrategy(Strategy):
             self.glue_client,
             self.args["stage_database"],
             self.args["stage_target_table"],
-            max_processed_dt,
+            self.max_processed_dt,
             penultimate_processed_dt,
         )
 
@@ -87,11 +88,7 @@ class BackfillStrategy(Strategy):
             self.logger.info("Could not calculate a minimum timestamp to filter for missing events, ending process")
             return
 
-        max_timestamp = get_max_timestamp(self.glue_client, stage_database, stage_target_table)
-
-        if max_timestamp is None:
-            raise ValueError("Function 'get_max_timestamp' returned None, which is not allowed.")
-        self.logger.info("retrieved timestamp filter value: %s", max_timestamp)
+        self.logger.info("retrieved timestamp filter value: %s", self.max_timestamp)
 
         backfill_raw_sql = get_raw_sql(
             raw_database,
@@ -99,8 +96,8 @@ class BackfillStrategy(Strategy):
             stage_database,
             stage_target_table,
             min_timestamp_filter_for_missing_events,
-            max_timestamp,
-            max_processed_dt,
+            self.max_timestamp,
+            self.max_processed_dt,
             filter_processed_time,
             penultimate_processed_dt,
         )

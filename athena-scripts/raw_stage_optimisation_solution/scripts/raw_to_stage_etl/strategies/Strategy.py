@@ -12,6 +12,7 @@ from ..util.processing_utilities import (add_new_column, add_new_column_from_str
                                          extract_element_by_name_and_validate, generate_key_value_records,
                                          remove_columns, remove_row_duplicates, remove_rows_missing_mandatory_values,
                                          rename_column_names)
+from .exceptions.NoDataFoundException import NoDataFoundException
 
 
 class Strategy(ABC):
@@ -46,8 +47,7 @@ class Strategy(ABC):
 
     def transform(self, df_raw):
         if not isinstance(df_raw, pd.DataFrame) or df_raw.empty:
-            self.logger.info("No raw records returned for processing. Program is stopping.")
-            return
+            raise NoDataFoundException("No raw records returned for processing. Program is stopping.")
 
         df_raw_row_count = int(len(df_raw))
 
