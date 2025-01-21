@@ -28,6 +28,10 @@ class RawToStageProcessor:
         cumulative_stage_key_rows_inserted = 0
         cumulative_duplicate_rows_removed = 0
 
+        if dfs is None and str(self.strategy.__class__).__contains__("BackfillStrategy"):
+            self.logger.info("No data to backfill. Exiting process")
+            return
+
         # for each dataframe, transform and then load
         for df_raw in dfs:
             df_process_counter += 1

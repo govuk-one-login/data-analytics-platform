@@ -18,6 +18,7 @@ class Strategy(ABC):
     METADATA_ROOT_FOLDER = "txma_raw_stage_metadata"
     DATASET = True
     INSERT_MODE = "append"
+    ROW_NUM = "ROW_NUM"
 
     def __init__(self, args, config_data, glue_client, s3_client, preprocessing) -> None:
         self.args = args
@@ -42,8 +43,6 @@ class Strategy(ABC):
             raise ValueError(f"Function: query_glue_table returned None.  Using query {str(sql_query)}")
 
         return dfs
-
-    ROW_NUM = "ROW_NUM"
 
     def transform(self, df_raw):
         if not isinstance(df_raw, pd.DataFrame) or df_raw.empty:
