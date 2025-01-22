@@ -85,9 +85,9 @@ def main():
             try:
                 processor.process()
             except NoDataFoundException as ndfe:
-                main_logger.error("%s", str(ndfe))
+                main_logger.info("%s", str(ndfe))
                 # as no data could be found for backfill, supress the exception
-                main_logger.info("Exiting without error")
+                main_logger.info("Exiting without raising error(As no data could be found for backfill)")
 
     except ValueError as e:
         main_logger.error("Value Error: %s, Stacktrace: %s", str(e), traceback.format_exc())
