@@ -7,11 +7,11 @@ from awsglue.utils import getResolvedOptions
 from raw_to_stage_etl.clients.DataPreprocessing import DataPreprocessing
 from raw_to_stage_etl.clients.GlueTableQueryAndWrite import GlueTableQueryAndWrite
 from raw_to_stage_etl.clients.S3ReadWrite import S3ReadWrite
+from raw_to_stage_etl.exceptions.NoDataFoundException import NoDataFoundException
 from raw_to_stage_etl.logger import logger
 from raw_to_stage_etl.processor.Processor import RawToStageProcessor
 from raw_to_stage_etl.strategies.BackfillStrategy import BackfillStrategy
 from raw_to_stage_etl.strategies.CustomStrategy import CustomStrategy
-from raw_to_stage_etl.strategies.exceptions.NoDataFoundException import NoDataFoundException
 from raw_to_stage_etl.strategies.ScheduledStrategy import ScheduledStrategy
 from raw_to_stage_etl.strategies.ViewStrategy import ViewStrategy
 from raw_to_stage_etl.util.processing_utilities import extract_element_by_name
@@ -85,7 +85,7 @@ def main():
             try:
                 processor.process()
             except NoDataFoundException as ndfe:
-                main_logger.info("%s", str(ndfe))
+                main_logger.info("Exception Message: %s, Stacktrace: %s", str(ndfe), traceback.format_exc())
                 # as no data could be found for backfill, supress the exception
                 main_logger.info("Exiting without raising error(As no data could be found for backfill)")
 

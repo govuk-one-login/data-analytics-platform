@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import time
 
+from ..exceptions.NoDataFoundException import NoDataFoundException
 from ..logger import logger
 from ..strategies.Strategy import Strategy
 
@@ -29,8 +30,7 @@ class RawToStageProcessor:
         cumulative_duplicate_rows_removed = 0
 
         if dfs is None and str(self.strategy.__class__).__contains__("BackfillStrategy"):
-            self.logger.info("No data to backfill. Exiting process")
-            return
+            raise NoDataFoundException("No data to backfill. Exiting process")
 
         # for each dataframe, transform and then load
         for df_raw in dfs:
