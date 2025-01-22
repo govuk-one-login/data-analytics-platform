@@ -192,41 +192,38 @@ class DataPreprocessing:
             else:
                 for key, value in obj.items():
                     if value is None:
-                        pass
+                        continue
                     else:
-                        new_key = f"{parent_key}{sep}{key}" if parent_key else key
-                        if isinstance(value, dict):
-                            items.extend(self.extract_key_values(value, new_key))
-                        elif isinstance(value, list):
-                            for i, item in enumerate(value):
-                                if isinstance(item, (dict, list)):
-                                    items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
-                                else:
-                                    items.append((f"{new_key}[{i}]", item))
-                        elif isinstance(value, np.ndarray):
-                            for i, item in enumerate(value):
-                                if isinstance(item, (dict, list)):
-                                    items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
-                                else:
-                                    items.append((f"{new_key}[{i}]", item))
-                        else:
-                            if isinstance(value, str):  # Check if item is a string
-                                try:
-                                    value = float(value)  # Attempt to convert the string to a float
-                                except ValueError:
-                                    pass  # Ignore if conversion fails
-                            if isinstance(value, (int, float)):
-                                try:
-                                    if isinstance(value, float) and value.is_integer():
-                                        value = int(value)
-                                except ValueError:
-                                    pass  # Ignore if conversion fails
-                            items.append((new_key, value))
+                        self.extract_key_values_from_list_or_dict(items, key, parent_key, sep, value)
             return items
 
         except Exception as e:
             self.logger.error("Error extracting key/value: %s", str(e))
             return None
+
+    def extract_key_values_from_list_or_dict(self, items, key, parent_key, sep, value):
+        new_key = f"{parent_key}{sep}{key}" if parent_key else key
+        if isinstance(value, dict):
+            items.extend(self.extract_key_values(value, new_key))
+        elif isinstance(value, (list, np.ndarray)):
+            for i, item in enumerate(value):
+                if isinstance(item, (dict, list)):
+                    items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
+                else:
+                    items.append((f"{new_key}[{i}]", item))
+        else:
+            if isinstance(value, str):  # Check if item is a string
+                try:
+                    value = float(value)  # Attempt to convert the string to a float
+                except ValueError:
+                    pass  # Ignore if conversion fails
+            if isinstance(value, (int, float)):
+                try:
+                    if isinstance(value, float) and value.is_integer():
+                        value = int(value)
+                except ValueError:
+                    pass  # Ignore if conversion fails
+            items.append((new_key, value))
 
     def generate_key_value_records(self, df, fields, column_names_list):
         """

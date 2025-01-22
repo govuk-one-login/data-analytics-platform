@@ -49,32 +49,16 @@ class Strategy(ABC):
         if not isinstance(df_raw, pd.DataFrame) or df_raw.empty:
             raise NoDataFoundException("No raw records returned for processing. Program is stopping.")
 
-        df_raw_row_count = int(len(df_raw))
-
         df_stage = remove_columns(self.preprocessing, self.config_data, df_raw)
-        if df_stage is None:
-            raise ValueError("Function: remove_columns returned None.")
 
-        # Remove row duplicates
         df_stage = remove_row_duplicates(self.preprocessing, self.config_data, df_stage)
-        if df_stage is None:
-            raise ValueError("Function: remove_row_duplicates returned None.")
 
-        if df_stage.empty:
-            self.logger.info("No raw records returned for processing following duplicate row removal. Program is stopping.")
-            return
-
+        df_raw_row_count = int(len(df_raw))
         df_raw_post_deduplication_row_count = int(len(df_stage))
         duplicate_rows_removed = df_raw_row_count - df_raw_post_deduplication_row_count
 
         # Remove rows with missing mandatory field values
         df_stage = remove_rows_missing_mandatory_values(self.preprocessing, self.config_data, df_stage)
-        if df_stage is None:
-            raise ValueError("Function: remove_rows_missing_mandatory_values returned None.")
-
-        if df_stage.empty:
-            self.logger.info("No raw records returned for processing following missing mandatory fields row removal. Program is stopping.")
-            return
 
         # Extract a list of column names from the original df_raw dataframe
         df_raw_col_names_original = list(df_stage.columns)
@@ -82,41 +66,15 @@ class Strategy(ABC):
             df_raw_col_names_original.remove(self.ROW_NUM)
         self.logger.info("df_raw cols: %s", df_raw_col_names_original)
 
-        # Rename column(s)
         df_stage = rename_column_names(self.preprocessing, self.config_data, df_stage)
-        if df_stage is None:
-            raise ValueError("Function: rename_column_names returned None.")
 
-        if df_stage.empty:
-            self.logger.info("No raw records returned for processing following rename of columns. Program is stopping.")
-            return
-
-        # New column(s)
         df_stage = add_new_column(self.preprocessing, self.config_data, df_stage)
-        if df_stage is None:
-            raise ValueError("Function: add_new_column returned None.")
 
-        if df_stage.empty:
-            self.logger.info("No raw records returned for processing following adding of new columns. Program is stopping.")
-            return
-
-        # New column(s) from struct
         df_stage = add_new_column_from_struct(self.preprocessing, self.config_data, df_stage)
-        if df_stage is None:
-            raise ValueError("Function: add_new_column_from_struct returned None.")
-
-        if df_stage.empty:
-            self.logger.info("No raw records returned for processing following adding of new columns from struct. Program is stopping.")
-            return
 
         # Empty string replacement with sql null
         df_stage = empty_string_to_null(self.preprocessing, self.config_data, df_stage)
-        if df_stage is None:
-            raise ValueError("Function: empty_string_to_null returned None.")
 
-        if df_stage.empty:
-            self.logger.info("No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
-            return
         self.logger.info("rows to be ingested into the Stage layer from dataframe df_raw: %s", len(df_stage))
         stage_table_rows_inserted = int(len(df_stage))
 
@@ -137,10 +95,9 @@ class Strategy(ABC):
 
         if df_key_values is None:
             raise ValueError("Function: generate_key_value_records returned None.")
+        elif df_key_values.empty:
+            raise ValueError("No raw records returned for processing following the generation of key/value records. Program is stopping.")
 
-        if df_key_values.empty:
-            self.logger.info("No raw records returned for processing following the generation of key/value records. Program is stopping.")
-            return
         self.logger.info("rows to be ingested into the Stage layer key/value table from dataframe df_key_values: %s", len(df_key_values))
         stage_key_rows_inserted = int(len(df_key_values))
 

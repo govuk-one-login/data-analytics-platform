@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timedelta
 
+from .exceptions.OperationFailedException import OperationFailedException
 from .exceptions.TableQueryException import TableQueryException
 
 INVALID_JSON_ERROR = "Invalid JSON data provided"
@@ -19,7 +20,6 @@ def extract_element_by_name(json_data, element_name, parent_name=None):
     Any: The extracted element, or None if not found.
     """
     try:
-
         if not isinstance(json_data, (dict, list)):
             raise ValueError(INVALID_JSON_ERROR)
 
@@ -516,12 +516,13 @@ def remove_row_duplicates(preprocessing, json_data, df_raw):
 
         df_raw = preprocessing.remove_duplicate_rows(df_raw, data_cleaning_duplicate_row_removal_criteria_fields)
         if df_raw is None:
-            raise ValueError("Class: preprocessing method: remove_duplicate_rows returned None object")
+            raise ValueError("Function: remove_duplicate_rows returned None object")
+        elif df_raw.empty:
+            raise ValueError("No raw records returned for processing following duplicate row removal. Program is stopping.")
         return df_raw
 
     except Exception as e:
-        print(f"Exception Error within function remove_row_duplicates: {str(e)}")
-        return None
+        raise OperationFailedException(f"Exception Error within function remove_row_duplicates: {str(e)}")
 
 
 def remove_rows_missing_mandatory_values(preprocessing, json_data, df_raw):
@@ -547,12 +548,14 @@ def remove_rows_missing_mandatory_values(preprocessing, json_data, df_raw):
 
         df_raw = preprocessing.remove_rows_missing_mandatory_values(df_raw, data_cleaning_mandatory_row_removal_criteria_fields)
         if df_raw is None:
-            raise ValueError("Class: preprocessing method: remove_rows_missing_mandatory_values returned None object")
+            raise ValueError("Function: remove_rows_missing_mandatory_values returned None object")
+        elif df_raw.empty:
+            raise ValueError("No raw records returned for processing following missing mandatory fields row removal. Program is stopping.")
+
         return df_raw
 
     except Exception as e:
-        print(f"Exception Error within function remove_rows_missing_mandatory_values: {str(e)}")
-        return None
+        raise OperationFailedException(f"Exception Error within function remove_rows_missing_mandatory_values: {str(e)}")
 
 
 def rename_column_names(preprocessing, json_data, df_raw):
@@ -577,13 +580,16 @@ def rename_column_names(preprocessing, json_data, df_raw):
         print(f"config rule: data_transformations | rename_column: {data_transformations_rename_column}")
 
         df_raw = preprocessing.rename_column_names(df_raw, data_transformations_rename_column)
+
         if df_raw is None:
-            raise ValueError("Class: preprocessing method: rename_column_names returned None object")
+            raise ValueError("Function: rename_column_names returned None object.")
+        elif df_raw.empty:
+            raise ValueError("No raw records returned for processing following rename of columns. Program is stopping.")
+
         return df_raw
 
     except Exception as e:
-        print(f"Exception Error within function rename_column_names: {str(e)}")
-        return None
+        raise OperationFailedException(f"Exception Error within function rename_column_names: {str(e)}")
 
 
 def add_new_column(preprocessing, json_data, df_raw):
@@ -608,13 +614,16 @@ def add_new_column(preprocessing, json_data, df_raw):
         print(f"config rule: data_transformations | new_column: {data_transformations_new_column}")
 
         df_raw = preprocessing.add_new_column(df_raw, data_transformations_new_column)
+
         if df_raw is None:
-            raise ValueError("Class: preprocessing method: add_new_column returned None object")
+            raise ValueError("Function: add_new_column returned None object.")
+        elif df_raw.empty:
+            raise ValueError("No raw records returned for processing following adding of new columns. Program is stopping.")
+
         return df_raw
 
     except Exception as e:
-        print(f"Exception Error within function rename_column_names: {str(e)}")
-        return None
+        raise OperationFailedException(f"Exception Error within function rename_column_names: {str(e)}")
 
 
 def add_new_column_from_struct(preprocessing, json_data, df_raw):
@@ -639,13 +648,16 @@ def add_new_column_from_struct(preprocessing, json_data, df_raw):
         print(f"config rule: data_transformations | new_column_struct_extract: {data_transformations_new_column_struct_extract}")
 
         df_raw = preprocessing.add_new_column_from_struct(df_raw, data_transformations_new_column_struct_extract)
+
         if df_raw is None:
-            raise ValueError("Class: preprocessing method: add_new_column_from_struct returned None object")
+            raise ValueError("Function: add_new_column_from_struct returned None object.")
+        elif df_raw.empty:
+            raise ValueError("No raw records returned for processing following adding of new columns from struct. Program is stopping.")
+
         return df_raw
 
     except Exception as e:
-        print(f"Exception Error within function add_new_column_from_struct: {str(e)}")
-        return None
+        raise OperationFailedException(f"Exception Error within function add_new_column_from_struct: {str(e)}")
 
 
 def empty_string_to_null(preprocessing, json_data, df_raw):
@@ -670,13 +682,16 @@ def empty_string_to_null(preprocessing, json_data, df_raw):
         print(f"config rule: data_cleaning | empty_string_replacement: {data_cleaning_empty_string_replacement}")
 
         df_raw = preprocessing.empty_string_to_null(df_raw, data_cleaning_empty_string_replacement)
+
         if df_raw is None:
-            raise ValueError("Class: preprocessing method: empty_string_to_null returned None object")
+            raise ValueError("Function: empty_string_to_null returned None object.")
+        elif df_raw.empty:
+            raise ValueError("No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
+
         return df_raw
 
     except Exception as e:
-        print(f"Exception Error within function add_new_column_from_struct: {str(e)}")
-        return None
+        raise OperationFailedException(f"Exception Error within function add_new_column_from_struct: {str(e)}")
 
 
 def generate_key_value_records(
@@ -753,7 +768,10 @@ def remove_columns(preprocessing, json_data, df_raw):
             raise ValueError("remove_columns value for data_cleaning is not found within config rules")
         print(f"config rule: data cleaning | remove_columns: {data_cleaning_columns_removal_list}")
 
-        return preprocessing.remove_columns(df_raw, data_cleaning_columns_removal_list, True)
+        result_df = preprocessing.remove_columns(df_raw, data_cleaning_columns_removal_list, True)
+        if result_df is None:
+            raise ValueError("Function: remove_columns returned None.")
+        else:
+            return result_df
     except Exception as e:
-        print(f"Error removing columns: {str(e)}")
-        return None
+        raise OperationFailedException(f"Error removing columns: {str(e)}")
