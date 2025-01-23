@@ -1,9 +1,18 @@
+"""ViewStrategy is for ETL against a view."""
+
 from ..util.processing_utilities import extract_element_by_name
 from .Strategy import Strategy
 
 
 class ViewStrategy(Strategy):
+    """Class for ViewStrategy."""
+
     def extract(self):
+        """Extract data from view based on config data.
+
+        Returns
+         Pandas Dataframe
+        """
         raw_database = self.args["raw_database"]
         event_processing_view_criteria_view = extract_element_by_name(self.config_data, "view_name", "event_processing_view_criteria")
         if event_processing_view_criteria_view is None:

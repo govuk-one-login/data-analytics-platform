@@ -40,8 +40,8 @@ class ScheduledStrategy(Strategy):
         """Prepare sql query based on config data and filters passed.
 
         Parameters:
-         max_processed_dt (int): The max processed date filter to skip records before this date.
-         max_timestamp (int): The max timestamp filter to skip records before this time.
+         max_processed_dt (date as int): The max processed date filter to skip records before this date.
+         max_timestamp (date as int): The max timestamp filter to skip records before this time.
          raw_database (str): The name of the raw database to read from.
          raw_table (str): The name of the raw table to read from.
 

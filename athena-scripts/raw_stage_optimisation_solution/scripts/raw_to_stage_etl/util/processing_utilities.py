@@ -1,8 +1,7 @@
 import json
 from datetime import datetime, timedelta
 
-from .exceptions.OperationFailedException import OperationFailedException
-from .exceptions.TableQueryException import TableQueryException
+from .exceptions.UtilExceptions import OperationFailedException, TableQueryException
 
 INVALID_JSON_ERROR = "Invalid JSON data provided"
 

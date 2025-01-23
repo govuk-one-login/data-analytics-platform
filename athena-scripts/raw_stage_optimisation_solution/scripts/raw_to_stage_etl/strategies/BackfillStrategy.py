@@ -1,3 +1,5 @@
+"""BackfillStrategy is run after ScheduledStrategy to pick up records not picked up by ScheduledStrategy."""
+
 from raw_to_stage_etl.strategies.ScheduledStrategy import ScheduledStrategy
 
 from ..util.processing_utilities import (get_all_processed_dts, get_all_processed_times_per_day,
@@ -16,6 +18,22 @@ def get_raw_sql(
     filter_processed_time,
     penultimate_processed_dt,
 ):
+    """Prepare sql query based on args and filters passed.
+
+    Parameters
+     raw_database (str): The name of the raw database to read from.
+     raw_table (str): The name of the raw table to read from.
+     stage_layer_database (str): The stage layer database
+     stage_layer_target_table (str): The stage table to write data to
+     filter_min_timestamp (date as int): The data should be greater than this timestamp
+     filter_max_timestamp (date as int): The data should be less than this timestamp
+     filter_processed_dt (date as int): The date till which data has been processed already
+     filter_processed_time (date as int): The time till which data has been processed already
+     penultimate_processed_dt (date as int): The date on which data was processed before current processed date
+
+    Returns
+     str: SQL Query string
+    """
     return f"""
         SELECT *
         FROM \"{raw_database}\".\"{raw_table}\"
