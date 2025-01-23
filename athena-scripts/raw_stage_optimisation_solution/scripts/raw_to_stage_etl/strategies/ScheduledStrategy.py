@@ -14,7 +14,10 @@ class ScheduledStrategy(Strategy):
         self.max_processed_dt = max_processed_dt
 
     def extract(self):
-        """Extract data by getting raw sql query and executing on Athena. Return pandas dataframe."""
+        """Extract data by getting raw sql query and executing on Athena.
+
+        Returns pandas dataframe.
+        """
         raw_database = self.args["raw_database"]
         raw_table = self.args["raw_source_table"]
         stage_database = self.args["stage_database"]

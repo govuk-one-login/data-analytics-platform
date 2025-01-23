@@ -1,3 +1,5 @@
+"""Strategy is base class for ETL strategies."""
+
 import gc
 import json
 import logging
@@ -16,12 +18,26 @@ from ..util.processing_utilities import (add_new_column, add_new_column_from_str
 
 
 class Strategy(ABC):
+    """This class has default implementations for transform and load methods."""
+
     METADATA_ROOT_FOLDER = "txma_raw_stage_metadata"
     DATASET = True
     INSERT_MODE = "append"
     ROW_NUM = "ROW_NUM"
 
     def __init__(self, args, config_data, glue_client, s3_client, preprocessing) -> None:
+        """Initialise variables.
+
+        Parameters
+         args (dict): Glue job arguments
+         config_data (json obj): JSON Config file as object
+         glue_client (GlueTableQueryAndWrite): Glue client
+         s3_client (S3ReadWrite): S3 client
+         preprocessing (DataPreprocessing): Object to execute preprocessing functions
+
+        Returns
+         None
+        """
         self.args = args
         self.config_data = config_data
         self.glue_client = glue_client
@@ -34,9 +50,18 @@ class Strategy(ABC):
 
     @abstractmethod
     def extract(self):
+        """For implementation by subclasses."""
         pass
 
     def get_raw_data(self, sql_query):
+        """Query Raw Glue table using query string.
+
+        Parameters
+         sql_query(str): Query string
+
+        Returns
+         dfs(List of Pandas dataframes):
+        """
         self.logger.info("running query %s", sql_query)
 
         dfs = self.glue_client.query_glue_table(self.args["raw_database"], sql_query, self.athena_query_chunksize)
@@ -46,6 +71,18 @@ class Strategy(ABC):
         return dfs
 
     def transform(self, df_raw):
+        """Transform pandas dataframe if not empty. Perform various transformations on input df.
+
+        Parameters
+         df_raw (Pandas Dataframe): Input dataframe
+
+        Returns
+         df_stage (Pandas Dataframe): Transformed Staging table Dataframe
+         df_key_values (Pandas Dataframe): Transformed Key Value table Dataframe
+         duplicate_rows_removed (int): No of duplicate rows removed
+         stage_table_rows_to_be_inserted (int): No of rows to be inserted into stage table
+         stage_key_rows_inserted (int): No of rows to be inserted into key value table
+        """
         if not isinstance(df_raw, pd.DataFrame) or df_raw.empty:
             raise NoDataFoundException("No raw records returned for processing. Program is stopping.")
 
@@ -76,7 +113,7 @@ class Strategy(ABC):
         df_stage = empty_string_to_null(self.preprocessing, self.config_data, df_stage)
 
         self.logger.info("rows to be ingested into the Stage layer from dataframe df_raw: %s", len(df_stage))
-        stage_table_rows_inserted = int(len(df_stage))
+        stage_table_rows_to_be_inserted = int(len(df_stage))
 
         # Generate dtypes - for stage table
         stage_schema_columns = extract_element_by_name_and_validate(self.config_data, "columns", "stage_schema")
@@ -106,12 +143,18 @@ class Strategy(ABC):
         # Extract column names as list
         stage_select_col_names_list = list(stage_schema_columns.keys())
         df_stage = df_stage[stage_select_col_names_list]
-        return df_stage, df_key_values, duplicate_rows_removed, stage_table_rows_inserted, stage_key_rows_inserted
+        return df_stage, df_key_values, duplicate_rows_removed, stage_table_rows_to_be_inserted, stage_key_rows_inserted
 
     def load(self, df_stage, df_key_values):
-        # write to glue database
-        # 1. Key/value table
-        # 2. Stage table
+        """Load staging, key value dataframes into respective glue tables.
+
+        Parameters
+         df_stage (Pandas Dataframe): Transformed Staging table Dataframe
+         df_key_values (Pandas Dataframe): Transformed Key Value table Dataframe
+
+        Returns
+         None
+        """
         try:
             stage_bucket = self.args["stage_bucket"]
             stage_target_table = self.args["stage_target_table"]

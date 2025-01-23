@@ -1,10 +1,17 @@
+"""CustomStrategy is for ETL which can be run when required."""
+
 from ..util.processing_utilities import extract_element_by_name
 from .Strategy import Strategy
 
 
 class CustomStrategy(Strategy):
+    """This class extends Strategy and overrides extract method.Also creates & executes raw sql query and returns df."""
 
     def extract(self):
+        """Extract data by getting raw sql query and executing on Athena.
+
+        Returns pandas dataframe.
+        """
         event_processing_custom_filter = extract_element_by_name(self.config_data, "filter", "event_processing_testing_criteria")
 
         if event_processing_custom_filter is None:
@@ -16,6 +23,14 @@ class CustomStrategy(Strategy):
         return self.get_raw_data(sql_query)
 
     def generate_sql_query(self, custom_filter):
+        """Prepare sql query based on filters passed. Deduplicates and takes latest record for each event_id.
+
+        Parameters:
+         custom_filter (str): The max processed date filter to skip records before this date.
+
+        Returns:
+         str: The raw sql query to be used to extract data.
+        """
         deduplicate_subquery = f"""select *,
                                 row_number() over (
                                         partition by event_id
