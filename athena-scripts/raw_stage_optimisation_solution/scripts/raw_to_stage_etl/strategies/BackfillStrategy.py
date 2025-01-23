@@ -1,6 +1,6 @@
 """BackfillStrategy is run after ScheduledStrategy to pick up records not picked up by ScheduledStrategy."""
 
-from raw_to_stage_etl.strategies.ScheduledStrategy import ScheduledStrategy
+from raw_to_stage_etl.strategies.Strategy import Strategy
 from raw_to_stage_etl.util.exceptions.UtilExceptions import OperationFailedException
 
 from ..util.processing_utilities import (get_all_processed_dts, get_all_processed_times_per_day,
@@ -52,11 +52,31 @@ def get_raw_sql(
             AND CAST(concat(year, month, day) AS INT) >= {penultimate_processed_dt} - 1"""
 
 
-class BackfillStrategy(ScheduledStrategy):
+class BackfillStrategy(Strategy):
+    """Class for records missed by ScheduledStrategy. Extends Strategy class."""
+
     def __init__(self, args, config_data, glue_client, s3_client, preprocessing, max_timestamp, max_processed_dt):
-        super().__init__(args, config_data, glue_client, s3_client, preprocessing, max_timestamp, max_processed_dt)
+        """Initialise variables.
+
+        Parameters:
+         args (dict): Glue job arguments
+         config_data (json obj): JSON Config file as object
+         glue_client (GlueTableQueryAndWrite): Glue client
+         s3_client (S3ReadWrite): S3 client
+         preprocessing (DataPreprocessing): Object to execute preprocessing functions
+         max_processed_dt (date as int): The max processed date filter to skip records before this date.
+         max_timestamp (date as int): The max timestamp filter to skip records before this time.
+        """
+        super().__init__(args, config_data, glue_client, s3_client, preprocessing)
+        self.max_timestamp = max_timestamp
+        self.max_processed_dt = max_processed_dt
 
     def extract(self):
+        """Extract data after first run completion time for current day and before last processed time for current day.
+
+        Returns
+         Pandas Dataframe
+        """
         current_process_time = None
         raw_database = self.args["raw_database"]
         raw_table = self.args["raw_source_table"]

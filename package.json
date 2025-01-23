@@ -89,7 +89,8 @@
       "isort",
       "pyupgrade",
       "mypy",
-      "flake8"
+      "flake8",
+      "pydocstyle"
     ]
   }
 }

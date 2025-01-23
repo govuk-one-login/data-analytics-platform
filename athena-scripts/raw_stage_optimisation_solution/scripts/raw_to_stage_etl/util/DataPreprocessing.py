@@ -1,16 +1,26 @@
+"""Module to perform preprocessing transformation functions on Pandas dataframe."""
+
 import logging
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
+from raw_to_stage_etl.util.exceptions.UtilExceptions import OperationFailedException
 
 from ..logger import logger
+
+INVALID_FIELD_LIST_STRUCTURE = "Invalid field list structure provided, require list object"
 
 
 class DataPreprocessing:
     """A class for performing preprocessing tasks against a supplied dataframe."""
 
     def __init__(self, args):
+        """Initialise variables.
+
+        Parameters:
+         args (dict): Glue job args
+        """
         self.now = datetime.now()
         self.processed_dt = int(self.now.strftime("%Y%m%d"))
         self.processed_time = int(self.now.strftime("%H%M%S"))
@@ -30,12 +40,11 @@ class DataPreprocessing:
         DataFrame: A DataFrame with duplicates removed.
         """
         try:
-            if not isinstance(fields, (list)):
-                raise ValueError("Invalid field list structure provided, require list object")
+            if not isinstance(fields, list):
+                raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
             return df.drop_duplicates(subset=fields)
         except Exception as e:
-            self.logger.error("Error dropping row duplicates: %s", str(e))
-            return None
+            raise OperationFailedException("Error dropping row duplicates: %s", str(e))
 
     def remove_rows_missing_mandatory_values(self, df, fields):
         """
@@ -49,12 +58,11 @@ class DataPreprocessing:
         DataFrame: A DataFrame with rows containing mandatory values.
         """
         try:
-            if not isinstance(fields, (list)):
-                raise ValueError("Invalid field list structure provided, require list object")
+            if not isinstance(fields, list):
+                raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
             return df.dropna(subset=fields)
         except Exception as e:
-            self.logger.error("Error dropping rows missing mandatory field: %s", str(e))
-            return None
+            raise OperationFailedException("Error dropping rows missing mandatory field: %s", str(e))
 
     def rename_column_names(self, df, fields):
         """
@@ -69,11 +77,10 @@ class DataPreprocessing:
         """
         try:
             if not isinstance(fields, (dict)):
-                raise ValueError("Invalid field list structure provided, require dict object")
+                raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
             return df.rename(columns=fields)
         except Exception as e:
-            self.logger.error("Error renaming columns: %s", str(e))
-            return None
+            raise OperationFailedException("Error renaming columns: %s", str(e))
 
     def remove_columns(self, df, columns, silent):
         """
@@ -93,8 +100,7 @@ class DataPreprocessing:
                 raise ValueError("Invalid field of columns provided, require list")
             return df.drop(columns, axis=1, errors=errors)
         except Exception as e:
-            self.logger.error("Error removing columns: %s", str(e))
-            return None
+            raise OperationFailedException("Error removing columns: %s", str(e))
 
     def add_new_column(self, df, fields):
         """
@@ -117,8 +123,7 @@ class DataPreprocessing:
                     df[column_name] = self.processed_time
             return df
         except Exception as e:
-            self.logger.error("Error adding new columns: %s", str(e))
-            return None
+            raise OperationFailedException("Error adding new columns: %s", str(e))
 
     def add_new_column_from_struct(self, df, fields):
         """
@@ -146,8 +151,7 @@ class DataPreprocessing:
 
             return df
         except Exception as e:
-            self.logger.error("Error adding new columns from struct: %s", str(e))
-            return None
+            raise OperationFailedException("Error adding new columns from struct: %s", str(e))
 
     def empty_string_to_null(self, df, fields):
         """
@@ -162,15 +166,14 @@ class DataPreprocessing:
         """
         try:
             if not isinstance(fields, (list)):
-                raise ValueError("Invalid field list structure provided, require list object")
+                raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
 
             for column_name in fields:
                 df[column_name] = df[column_name].apply(lambda x: None if isinstance(x, str) and (x.isspace() or not x) else x)
 
             return df
         except Exception as e:
-            self.logger.error("Error replacing empty string with sql nulls: %s", str(e))
-            return None
+            raise OperationFailedException("Error replacing empty string with sql nulls: %s", str(e))
 
     def extract_key_values(self, obj, parent_key="", sep=".", field_name=""):
         """
@@ -198,10 +201,21 @@ class DataPreprocessing:
             return items
 
         except Exception as e:
-            self.logger.error("Error extracting key/value: %s", str(e))
-            return None
+            raise OperationFailedException("Error extracting key/value: %s", str(e))
 
     def extract_key_values_from_list_or_dict(self, items, key, parent_key, sep, value):
+        """Extract key value pairs from list or dict object.
+
+        Parameters:
+         items (list): A list of (key, value) pairs
+         key (str): key used to form new key in key value pair
+         parent_key (str): The parent key used for recursion.
+         sep (str): The separator used to join parent and child keys.
+         value (dict/list/ndarray/str/int/float):
+
+        Returns:
+         None
+        """
         new_key = f"{parent_key}{sep}{key}" if parent_key else key
         if isinstance(value, dict):
             items.extend(self.extract_key_values(value, new_key))
@@ -226,8 +240,7 @@ class DataPreprocessing:
             items.append((new_key, value))
 
     def generate_key_value_records(self, df, fields, column_names_list):
-        """
-        Generate Key/Value records from nested struct fields in the DataFrame.
+        """Generate Key/Value records from nested struct fields in the DataFrame.
 
         Parameters:
         df (DataFrame): The input DataFrame.
@@ -238,8 +251,8 @@ class DataPreprocessing:
         DataFrame: A DataFrame with extracted Key/Value records from nested struct fields.
         """
         try:
-            if not isinstance(fields, (list)):
-                raise ValueError("Invalid field list structure provided, require list object")
+            if not isinstance(fields, list):
+                raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
 
             # Initialize an empty list to store DataFrames
             dfs = []
@@ -274,5 +287,4 @@ class DataPreprocessing:
 
             return result_df
         except Exception as e:
-            self.logger.error("Error generating key/value records: %s", str(e))
-            return None
+            raise OperationFailedException("Error generating key/value records: %s", str(e))
