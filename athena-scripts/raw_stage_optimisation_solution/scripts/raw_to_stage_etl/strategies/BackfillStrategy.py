@@ -1,6 +1,7 @@
 """BackfillStrategy is run after ScheduledStrategy to pick up records not picked up by ScheduledStrategy."""
 
 from raw_to_stage_etl.strategies.ScheduledStrategy import ScheduledStrategy
+from raw_to_stage_etl.util.exceptions.UtilExceptions import OperationFailedException
 
 from ..util.processing_utilities import (get_all_processed_dts, get_all_processed_times_per_day,
                                          get_last_processed_time, get_min_timestamp_from_previous_run,
@@ -76,9 +77,6 @@ class BackfillStrategy(ScheduledStrategy):
         )
 
         filter_processed_time = get_last_processed_time(all_previous_processed_times)
-        if filter_processed_time is None:
-            self.logger.info("no filter process time found, ending process")
-            return
 
         all_previous_processed_dts = get_all_processed_dts(
             self.glue_client,
@@ -89,9 +87,6 @@ class BackfillStrategy(ScheduledStrategy):
         )
 
         penultimate_processed_dt = get_penultimate_processed_dt(all_previous_processed_dts)
-        if penultimate_processed_dt is None:
-            self.logger.info("no penultimate processed dt, ending process")
-            return
 
         min_timestamp_filter_for_missing_events = get_min_timestamp_from_previous_run(
             all_previous_processed_times,
@@ -103,8 +98,7 @@ class BackfillStrategy(ScheduledStrategy):
         )
 
         if min_timestamp_filter_for_missing_events is None:
-            self.logger.info("Could not calculate a minimum timestamp to filter for missing events, ending process")
-            return
+            raise OperationFailedException("Could not calculate a minimum timestamp to filter for missing events, ending process")
 
         self.logger.info("retrieved timestamp filter value: %s", self.max_timestamp)
 

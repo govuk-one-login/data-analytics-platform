@@ -1,6 +1,8 @@
 import json
 from datetime import datetime, timedelta
 
+from raw_to_stage_etl.exceptions.NoDataFoundException import NoDataFoundException
+
 from .exceptions.UtilExceptions import OperationFailedException, TableQueryException
 
 INVALID_JSON_ERROR = "Invalid JSON data provided"
@@ -179,19 +181,18 @@ def get_last_processed_time(daily_processes_df):
     Get the maximum processed time from the specified stage table.
 
     Parameters:
-    daily_processes_df (df): dataframe of all processed times for the last processed date
+     daily_processes_df (df): dataframe of all processed times for the last processed date
 
     Returns:
-    int: The maximum processed time value from the stage layer table
+     int: The maximum processed time value from the stage layer table
     """
     try:
         if daily_processes_df.empty or daily_processes_df is None:
-            return None
+            raise NoDataFoundException("No filter process time found, ending process")
 
         return int(daily_processes_df["processed_time"].iloc[0])
     except Exception as e:
-        print(f"Exception Error retrieving max timestamp: {str(e)}")
-        return None
+        raise OperationFailedException(f"Error Retrieving max timestamp: {str(e)}")
 
 
 def get_penultimate_processed_dt(all_processed_dts):
@@ -208,12 +209,11 @@ def get_penultimate_processed_dt(all_processed_dts):
     """
     try:
         if all_processed_dts.empty or all_processed_dts is None:
-            return None
+            raise NoDataFoundException("No penultimate processed dt, ending process")
 
         return int(all_processed_dts["processed_dt"].iloc[0])
     except Exception as e:
-        print(f"Exception Error retrieving max timestamp: {str(e)}")
-        return None
+        raise OperationFailedException(f"Exception Error retrieving max timestamp: {str(e)}")
 
 
 def get_max_timestamp(app, stage_database, stage_target_table, processed_dt=None, processed_time=None):
