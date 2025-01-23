@@ -1,3 +1,5 @@
+"""Module which controls Extract, Transform & Load flow of the Glue job."""
+
 from __future__ import annotations
 
 import logging
@@ -11,8 +13,10 @@ METADATA_ROOT_FOLDER = "txma_raw_stage_metadata"
 
 
 class RawToStageProcessor:
+    """Class for ETL flow control."""
 
     def __init__(self, args: dict, strategy: Strategy) -> None:
+        """Initialise, configure strategy & logger instance variables."""
         if strategy:
             self.strategy = strategy
         self.logger = logging.getLogger(__name__)
@@ -20,7 +24,12 @@ class RawToStageProcessor:
         logger.configure(self.logger)
 
     def process(self) -> None:
+        """Execute ETL on strategy passed to the class.
 
+        Extract method returns list of pandas dataframes.
+        These dfs are looped and for each df, performs transform and load operations.
+        Then prints various metrics like no of records, time taken etc.
+        """
         # extract data from raw layer
         dfs = self.strategy.extract()
 

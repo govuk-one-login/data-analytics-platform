@@ -1,14 +1,20 @@
+"""ScheduledStrategy is for ETL which runs everyday on schedule."""
+
 from ..util.processing_utilities import extract_element_by_name, get_max_processed_dt, get_max_timestamp
 from .Strategy import Strategy
 
 
 class ScheduledStrategy(Strategy):
+    """This class extends Strategy and overrides extract method.Also creates & executes raw sql query and returns df."""
+
     def __init__(self, args, config_data, glue_client, s3_client, preprocessing, max_timestamp=None, max_processed_dt=None):
+        """Initialise super class constructor and set other variables."""
         super().__init__(args, config_data, glue_client, s3_client, preprocessing)
         self.max_timestamp = max_timestamp
         self.max_processed_dt = max_processed_dt
 
     def extract(self):
+        """Extract data by getting raw sql query and executing on Athena. Return pandas dataframe."""
         raw_database = self.args["raw_database"]
         raw_table = self.args["raw_source_table"]
         stage_database = self.args["stage_database"]
@@ -28,6 +34,17 @@ class ScheduledStrategy(Strategy):
         return self.get_raw_data(sql_query)
 
     def get_raw_sql(self, max_processed_dt, max_timestamp, raw_database, raw_table):
+        """Prepare sql query based on config data and filters passed.
+
+        Parameters:
+         max_processed_dt (int): The max processed date filter to skip records before this date.
+         max_timestamp (int): The max timestamp filter to skip records before this time.
+         raw_database (str): The name of the raw database to read from.
+         raw_table (str): The name of the raw table to read from.
+
+        Returns:
+         str: The raw sql query to be used to extract data.
+        """
         event_processing_selection_criteria_filter = extract_element_by_name(self.config_data, "filter", "event_processing_selection_criteria")
         if event_processing_selection_criteria_filter is None:
             raise ValueError("filter value for event_processing_selection_criteria is not found within config rules")
@@ -43,19 +60,3 @@ class ScheduledStrategy(Strategy):
         if event_processing_selection_criteria_limit is not None and event_processing_selection_criteria_limit > 0:
             sql_query = sql_query + f" limit {event_processing_selection_criteria_limit}"
         return sql_query
-
-    def generate_sql_query(self, custom_filter):
-        deduplicate_subquery = f"""select *,
-                                row_number() over (
-                                        partition by event_id
-                                        order by cast(
-                                    concat(
-                                        cast(year as varchar),
-                                        cast(lpad(cast(month as varchar), 2, '0') as varchar),
-                                        cast(lpad(cast(day as varchar), 2, '0') as varchar)
-                                    ) as int
-                                ) desc
-                                        ) as row_num
-                        from \"{self.args['raw_database']}\".\"{self.args['raw_source_table']}\" as t
-                    where {custom_filter}"""
-        return f"select * from ({deduplicate_subquery}) where row_num = 1"
