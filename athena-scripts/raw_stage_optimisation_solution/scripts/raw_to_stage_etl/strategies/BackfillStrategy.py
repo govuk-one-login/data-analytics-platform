@@ -1,6 +1,6 @@
 """BackfillStrategy is run after ScheduledStrategy to pick up records not picked up by ScheduledStrategy."""
 
-from ..util.database_utilities import (get_all_processed_dts, get_all_processed_times_per_day,
+from ..util.database_utilities import (get_all_previous_processed_dts, get_all_processed_times_per_day,
                                        get_min_timestamp_from_previous_run)
 from ..util.exceptions.UtilExceptions import OperationFailedException
 from ..util.pandas_dataframe_utilities import get_last_processed_time, get_penultimate_processed_dt
@@ -97,7 +97,7 @@ class BackfillStrategy(Strategy):
 
         filter_processed_time = get_last_processed_time(all_previous_processed_times)
 
-        all_previous_processed_dts = get_all_processed_dts(
+        all_previous_processed_dts = get_all_previous_processed_dts(
             self.glue_client,
             self.args["stage_database"],
             self.args["stage_target_table"],

@@ -1,3 +1,5 @@
+"""Module for S3 read and write."""
+
 import json
 import logging
 
@@ -23,12 +25,10 @@ class S3ReadWrite:
     """
 
     def __init__(self, args):
-        """
-        Initialize a new S3ReadWrite instance.
+        """Initialize a new S3ReadWrite instance.
 
-        Args:
-            bucket_name (str): The name of the S3 bucket where the JSON file is stored.
-            key_path (str): The key path of the JSON file within the S3 bucket.
+        Parameters:
+         args (dict): Glue job arguments
         """
         self.s3 = boto3.client("s3")
         self.logger = logging.getLogger(__name__)

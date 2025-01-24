@@ -1,3 +1,5 @@
+"""Module for querying glue tables."""
+
 import logging
 
 import awswrangler as wr
@@ -15,7 +17,7 @@ class GlueTableQueryAndWrite:
         This class provides methods for querying and writing to AWS Glue tables.
 
         Parameters:
-            None
+         args (dict): Glue job arguments
         """
         self.logger = logging.getLogger(__name__)
         logger.init(args)
@@ -72,7 +74,7 @@ class GlueTableQueryAndWrite:
         """
         Write a Pandas DataFrame to a Glue table in the AWS Glue Data Catalog.
 
-        Args:
+        Parameters:
             dataframe (pd.DataFrame): The Pandas DataFrame to write to the table.
             s3_path (str): The S3 path where the data will be stored.
             dataset (str): If True store a parquet dataset instead of a ordinary file.

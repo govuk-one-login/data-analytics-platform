@@ -1,3 +1,5 @@
+"""Glue job main script."""
+
 import json
 import logging
 import sys
@@ -15,10 +17,11 @@ from raw_to_stage_etl.strategies.ScheduledStrategy import ScheduledStrategy
 from raw_to_stage_etl.strategies.ViewStrategy import ViewStrategy
 from raw_to_stage_etl.util.DataPreprocessing import DataPreprocessing
 from raw_to_stage_etl.util.exceptions.UtilExceptions import OperationFailedException
-from raw_to_stage_etl.util.processing_utilities import extract_element_by_name
+from raw_to_stage_etl.util.json_config_processing_utilities import extract_element_by_name
 
 
 def main():
+    """Start of the glue job. It controls flow of the whole job."""
     main_logger = logging.getLogger(__name__)
     logger.init({"LOG_LEVEL": "INFO"})
     logger.configure(main_logger)
@@ -100,6 +103,14 @@ def main():
 
 
 def get_job_type(json_data):
+    """Decide name of the strategy to invoke based on config file.
+
+    Parameters:
+     json_data
+
+    Returns
+     string: name of the strategy to be used
+    """
     event_processing_testing_criteria_enabled = extract_element_by_name(json_data, "enabled", "event_processing_testing_criteria")
     if event_processing_testing_criteria_enabled is None:
         raise ValueError("enabled value for event_processing_testing_criteria is not found within config rules")

@@ -1,3 +1,5 @@
+"""Module for accessing Athena service."""
+
 import logging
 import time
 
