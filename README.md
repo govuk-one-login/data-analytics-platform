@@ -34,13 +34,11 @@ To install the hooks run
 
 `npm run husky:install`
 
-`python3 -m venv venvlocal` (Run only if venv doesn't exist already)
+`python3 -m venv venvlocal` (Creates a [python venv](https://docs.python.org/3/library/venv.html) in the local directory [venvlocal/](venvlocal) - run only if this venv doesn't exist already)
 
-`source venvlocal/bin/activate`
+`source venvlocal/bin/activate` (Adds the venv directory to your PATH so running `python` will use the venv python and the packages it installed)
 
-`pip install -r athena-scripts/raw_stage_optimisation_solution/scripts/requirements.txt` (Only need to be run first time)
-
-`
+`pip install -r athena-scripts/raw_stage_optimisation_solution/scripts/requirements.txt` (Installs packages from [requirements.txt](athena-scripts/raw_stage_optimisation_solution/scripts/requirements.txt) - only needs to be run first time)
 
 After this, the hooks defined under the [.husky](.husky) directory will automatically run when you commit or push.&ast;
 The [lint-staged](https://github.com/okonet/lint-staged) library is used to only run certain tasks if certain files are modified.

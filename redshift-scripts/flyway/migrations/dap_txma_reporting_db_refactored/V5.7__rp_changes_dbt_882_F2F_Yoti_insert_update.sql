@@ -1,0 +1,1 @@
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('F2F_YOTI_PDF_LETTER_POSTED',sysdate,'1999-01-01');insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('IPV_INTERNATIONAL_ADDRESS_START',sysdate,'1999-01-01');
