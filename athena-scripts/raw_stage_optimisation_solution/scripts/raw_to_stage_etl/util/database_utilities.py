@@ -227,8 +227,7 @@ def get_max_processed_dt(glue_client, raw_database, raw_source_table, stage_data
         else:
             return get_max_processed_dt_when_table_doesnt_exist(glue_client, raw_database, raw_source_table)
     except Exception as e:
-        log.info(f"Exception Error retrieving max processed_dt: {str(e)}")
-        return None
+        raise QueryException(f"Exception Error retrieving max processed_dt: {str(e)}")
 
 
 def get_max_processed_dt_when_table_doesnt_exist(glue_client, raw_database, raw_source_table):
