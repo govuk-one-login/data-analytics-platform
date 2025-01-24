@@ -325,7 +325,11 @@ For a list of TODOs for the project, please see the [TODOs document](docs/todos.
 
 
 ## Packaging:
+cd to project root directory
+cd athena-scripts/raw_stage_optimisation_solution/scripts
+# Once you make changes to modules, build and install them to your local venv to be accessible from raw_to_stage_process_glue_job.py
+# The wheel file which is built in below step is used by glue job on AWS too
 pip3 install --upgrade build
 python3 -m build
 
-pip install /Users/pswamireddy/IdeaProjects/data-analytics-platform/athena-scripts/raw_stage_optimisation_solution/scripts/dist/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl
+pip install ./dist/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl  --force-reinstall
