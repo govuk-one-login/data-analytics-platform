@@ -11,10 +11,7 @@ import pandas as pd
 
 from ..exceptions.NoDataFoundException import NoDataFoundException
 from ..logger import logger
-from ..util.processing_utilities import (add_new_column, add_new_column_from_struct, empty_string_to_null,
-                                         extract_element_by_name_and_validate, generate_key_value_records,
-                                         remove_columns, remove_row_duplicates, remove_rows_missing_mandatory_values,
-                                         rename_column_names)
+from ..util.processing_utilities import extract_element_by_name_and_validate
 
 
 class Strategy(ABC):
@@ -86,16 +83,16 @@ class Strategy(ABC):
         if not isinstance(df_raw, pd.DataFrame) or df_raw.empty:
             raise NoDataFoundException("No raw records returned for processing. Program is stopping.")
 
-        df_stage = remove_columns(self.preprocessing, self.config_data, df_raw)
+        df_stage = self.preprocessing.remove_columns_by_json_config(self.config_data, df_raw)
 
-        df_stage = remove_row_duplicates(self.preprocessing, self.config_data, df_stage)
+        df_stage = self.preprocessing.remove_row_duplicates(self.config_data, df_stage)
 
         df_raw_row_count = int(len(df_raw))
         df_raw_post_deduplication_row_count = int(len(df_stage))
         duplicate_rows_removed = df_raw_row_count - df_raw_post_deduplication_row_count
 
         # Remove rows with missing mandatory field values
-        df_stage = remove_rows_missing_mandatory_values(self.preprocessing, self.config_data, df_stage)
+        df_stage = self.preprocessing.remove_rows_missing_mandatory_values_by_json_config(self.config_data, df_stage)
 
         # Extract a list of column names from the original df_raw dataframe
         df_raw_col_names_original = list(df_stage.columns)
@@ -103,14 +100,14 @@ class Strategy(ABC):
             df_raw_col_names_original.remove(self.ROW_NUM)
         self.logger.info("df_raw cols: %s", df_raw_col_names_original)
 
-        df_stage = rename_column_names(self.preprocessing, self.config_data, df_stage)
+        df_stage = self.preprocessing.rename_column_names_by_json_config(self.config_data, df_stage)
 
-        df_stage = add_new_column(self.preprocessing, self.config_data, df_stage)
+        df_stage = self.preprocessing.add_new_column_by_json_config(self.config_data, df_stage)
 
-        df_stage = add_new_column_from_struct(self.preprocessing, self.config_data, df_stage)
+        df_stage = self.preprocessing.add_new_column_from_struct_by_json_config(self.config_data, df_stage)
 
         # Empty string replacement with sql null
-        df_stage = empty_string_to_null(self.preprocessing, self.config_data, df_stage)
+        df_stage = self.preprocessing.empty_string_to_null_by_json_config(self.config_data, df_stage)
 
         self.logger.info("rows to be ingested into the Stage layer from dataframe df_raw: %s", len(df_stage))
         stage_table_rows_to_be_inserted = int(len(df_stage))
@@ -122,18 +119,12 @@ class Strategy(ABC):
         stage_key_value_schema_columns = extract_element_by_name_and_validate(self.config_data, "columns", "key_value_schema")
 
         # Generate key/value pairs
-        df_key_values = generate_key_value_records(
-            self.preprocessing,
+        df_key_values = self.preprocessing.generate_key_value_records_by_json_config(
             self.config_data,
             df_stage,
             stage_key_value_schema_columns,
             df_raw_col_names_original,
         )
-
-        if df_key_values is None:
-            raise ValueError("Function: generate_key_value_records returned None.")
-        elif df_key_values.empty:
-            raise ValueError("No raw records returned for processing following the generation of key/value records. Program is stopping.")
 
         self.logger.info("rows to be ingested into the Stage layer key/value table from dataframe df_key_values: %s", len(df_key_values))
         stage_key_rows_inserted = int(len(df_key_values))
