@@ -1,6 +1,6 @@
 """ViewStrategy is for ETL against a view."""
 
-from ..util.processing_utilities import extract_element_by_name
+from ..util.json_config_processing_utilities import extract_element_by_name
 from .Strategy import Strategy
 
 

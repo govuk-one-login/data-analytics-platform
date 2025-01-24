@@ -11,7 +11,7 @@ import pandas as pd
 
 from ..exceptions.NoDataFoundException import NoDataFoundException
 from ..logger import logger
-from ..util.processing_utilities import extract_element_by_name_and_validate
+from ..util.json_config_processing_utilities import extract_element_by_name_and_validate
 
 
 class Strategy(ABC):
