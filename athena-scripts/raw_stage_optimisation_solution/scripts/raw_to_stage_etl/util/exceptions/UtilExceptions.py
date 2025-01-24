@@ -7,3 +7,7 @@ class OperationFailedException(Exception):
 
 class TableQueryException(Exception):
     """Custom exception class for representing errors querying table in Database."""
+
+
+class JSONReadException(Exception):
+    """Custom exception class for representing JSON config read failures."""

@@ -5,10 +5,12 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
-from raw_to_stage_etl.util.exceptions.UtilExceptions import OperationFailedException
-from raw_to_stage_etl.util.processing_utilities import extract_element_by_name
 
 from ..logger import logger
+from .exceptions.UtilExceptions import OperationFailedException
+from .json_config_processing_utilities import extract_element_by_name
+from .pandas_dataframe_utilities import (remove_columns, remove_duplicate_rows, remove_rows_missing_mandatory_values,
+                                         rename_column_names)
 
 INVALID_FIELD_LIST_STRUCTURE = "Invalid field list structure provided, require list object"
 INVALID_JSON_ERROR = "Invalid JSON data provided"
@@ -35,84 +37,6 @@ def convert_value_to_float_or_int(value):
         except ValueError:
             pass  # Ignore if conversion fails
     return value
-
-
-def remove_duplicate_rows(df, fields):
-    """
-    Remove duplicate rows based on the specified fields.
-
-    Parameters:
-    df (DataFrame): The input DataFrame.
-    fields (list): A list of column names to consider when identifying duplicates.
-
-    Returns:
-    DataFrame: A DataFrame with duplicates removed.
-    """
-    try:
-        if not isinstance(fields, list):
-            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.drop_duplicates(subset=fields)
-    except Exception as e:
-        raise OperationFailedException("Error dropping row duplicates: %s", str(e))
-
-
-def remove_rows_missing_mandatory_values(df, fields):
-    """
-    Remove rows with missing mandatory field values.
-
-    Parameters:
-    df (DataFrame): The input DataFrame.
-    fields (list): A list of column names with mandatory values.
-
-    Returns:
-    DataFrame: A DataFrame with rows containing mandatory values.
-    """
-    try:
-        if not isinstance(fields, list):
-            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.dropna(subset=fields)
-    except Exception as e:
-        raise OperationFailedException("Error dropping rows missing mandatory field: %s", str(e))
-
-
-def rename_column_names(df, fields):
-    """
-    Rename column names based on the provided mapping.
-
-    Parameters:
-    df (DataFrame): The input DataFrame.
-    fields (dict): A dictionary where keys are old column names, and values are new column names.
-
-    Returns:
-    DataFrame: A DataFrame with renamed columns.
-    """
-    try:
-        if not isinstance(fields, (dict)):
-            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.rename(columns=fields)
-    except Exception as e:
-        raise OperationFailedException("Error renaming columns: %s", str(e))
-
-
-def remove_columns(df, columns, silent):
-    """
-    Remove columns from the data frame.
-
-    Parameters:
-    df (DataFrame): The input DataFrame.
-    columns (list): A list of columns
-    silent (bool): true if errors should be supressed
-
-    Returns:
-    DataFrame: A DataFrame with specified columns removed if found.
-    """
-    try:
-        errors = "ignore" if silent else "raise"
-        if not isinstance(columns, (list)):
-            raise ValueError("Invalid field of columns provided, require list")
-        return df.drop(columns, axis=1, errors=errors)
-    except Exception as e:
-        raise OperationFailedException("Error removing columns: %s", str(e))
 
 
 class DataPreprocessing:
