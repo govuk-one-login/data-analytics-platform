@@ -50,23 +50,6 @@ class Strategy(ABC):
         """For implementation by subclasses."""
         pass
 
-    def get_raw_data(self, sql_query):
-        """Query Raw Glue table using query string.
-
-        Parameters
-         sql_query(str): Query string
-
-        Returns
-         dfs(List of Pandas dataframes):
-        """
-        self.logger.info("running query %s", sql_query)
-
-        dfs = self.glue_client.query_glue_table(self.args["raw_database"], sql_query, self.athena_query_chunksize)
-        if dfs is None:
-            raise ValueError(f"Function: query_glue_table returned None.  Using query {str(sql_query)}")
-
-        return dfs
-
     def transform(self, df_raw):
         """Transform pandas dataframe if not empty. Perform various transformations on input df.
 

@@ -21,4 +21,4 @@ class ViewStrategy(Strategy):
 
         sql_query = f'select * from "{raw_database}"."{event_processing_view_criteria_view}"'
 
-        return self.get_raw_data(sql_query)
+        return self.glue_client.get_raw_data(sql_query)

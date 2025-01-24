@@ -10,6 +10,24 @@ log = logging.getLogger(__name__)
 logger.configure(log)
 
 
+def get_raw_data(self, sql_query):
+    """Query Raw Glue table using query string.
+
+    Parameters
+     sql_query(str): Query string
+
+    Returns
+     dfs(List of Pandas dataframes):
+    """
+    self.logger.info("running query %s", sql_query)
+
+    dfs = self.glue_client.query_glue_table(self.args["raw_database"], sql_query, self.athena_query_chunksize)
+    if dfs is None:
+        raise ValueError(f"Function: query_glue_table returned None.  Using query {str(sql_query)}")
+
+    return dfs
+
+
 def get_all_previous_processed_dts(glue_client, stage_database, stage_target_table, max_processed_dt, current_process_dt):
     """Get all previous processed dates(excluding max processed date and current processing date).
 
