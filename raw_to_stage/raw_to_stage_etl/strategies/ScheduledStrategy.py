@@ -35,7 +35,7 @@ class ScheduledStrategy(Strategy):
         self.logger.info("retrieved timestamp filter value: %s", self.max_timestamp)
 
         sql_query = self.get_raw_sql(self.max_processed_dt, self.max_timestamp, raw_database, raw_table)
-        return self.glue_client.get_raw_data(sql_query)
+        return self.glue_client.get_raw_data(sql_query, self.athena_query_chunksize)
 
     def get_raw_sql(self, max_processed_dt, max_timestamp, raw_database, raw_table):
         """Prepare sql query based on config data and filters passed.

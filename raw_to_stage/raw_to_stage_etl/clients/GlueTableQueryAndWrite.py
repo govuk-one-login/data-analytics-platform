@@ -19,6 +19,7 @@ class GlueTableQueryAndWrite:
         Parameters:
          args (dict): Glue job arguments
         """
+        self.args = args
         self.logger = logging.getLogger(__name__)
         logger.init(args)
         logger.configure(self.logger)
@@ -102,3 +103,21 @@ class GlueTableQueryAndWrite:
         except Exception as e:
             self.logger.error("Error writing to Athena table: %s", str(e))
             return None
+
+    def get_raw_data(self, sql_query, athena_query_chunksize):
+        """Query Raw Glue table using query string.
+
+        Parameters
+         sql_query(str): Query string
+         athena_query_chunksize(int): Athena query chunksize
+
+        Returns
+         dfs(List of Pandas dataframes):
+        """
+        self.logger.info("running query %s", sql_query)
+
+        dfs = self.query_glue_table(self.args["raw_database"], sql_query, athena_query_chunksize)
+        if dfs is None:
+            raise ValueError(f"Function: query_glue_table returned None.  Using query {str(sql_query)}")
+
+        return dfs
