@@ -6,6 +6,7 @@ import sys
 import traceback
 
 from aws_lambda_powertools import Logger
+from aws_lambda_powertools.logging.formatter import LambdaPowertoolsFormatter
 from awsglue.utils import getResolvedOptions
 from raw_to_stage_etl.clients.GlueTableQueryAndWrite import GlueTableQueryAndWrite
 from raw_to_stage_etl.clients.S3ReadWrite import S3ReadWrite
@@ -22,7 +23,9 @@ from raw_to_stage_etl.util.json_config_processing_utilities import extract_eleme
 
 def main():
     """Start of the glue job. It controls flow of the whole job."""
-    logger = Logger(level="INFO")
+    formatter = LambdaPowertoolsFormatter()
+    logger = Logger(level="INFO", logger_formatter=formatter)
+    logger.append_keys(**{"location": "%(filename)s:%(funcName)s:%(lineno)d"})
     try:
 
         # Glue Job Inputs
