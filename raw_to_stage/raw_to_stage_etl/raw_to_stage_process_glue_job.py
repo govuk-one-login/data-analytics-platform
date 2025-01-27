@@ -1,6 +1,7 @@
 """Glue job main script."""
 
 import json
+import os
 import sys
 import traceback
 
@@ -42,8 +43,9 @@ def main():
                 "stage_bucket",
             ],
         )
-        if args.__contains__("LOG_INFO"):
-            logger = Logger(level=args["LOG_INFO"])
+        if args.__contains__("LOG_LEVEL"):
+            logger = Logger(level=args["LOG_LEVEL"])
+            os.environ["LOG_LEVEL"] = args["LOG_LEVEL"]
         # init all helper classes
 
         # S3 config file reader class
