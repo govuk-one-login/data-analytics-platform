@@ -1,15 +1,14 @@
 """Module for JSON Config processing related utilities."""
 
 import json
-import logging
 
-from ..logger import logger
+from aws_lambda_powertools import Logger
+
 from .exceptions.UtilExceptions import JSONReadException
 
 INVALID_JSON_ERROR = "Invalid JSON data provided"
 
-log = logging.getLogger(__name__)
-logger.configure(log)
+logger = Logger(level="INFO")
 
 
 def generate_raw_select_filter(json_data, database, table, filter_processed_dt, filter_timestamp):
@@ -72,8 +71,7 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
         return sql
 
     except Exception as e:
-        log.info(f"Exception Error retrieving config rule value: {str(e)}")
-        return None
+        raise JSONReadException(f"Exception Error retrieving config rule value: {str(e)}")
 
 
 def extract_and_validate_filters(json_data):
@@ -88,27 +86,27 @@ def extract_and_validate_filters(json_data):
     event_processing_selection_criteria_filter = extract_element_by_name(json_data, "filter", "event_processing_selection_criteria")
     if event_processing_selection_criteria_filter is None:
         raise ValueError("filter value for event_processing_selection_criteria is not found within config rules")
-    log.info(f"config rule: event_processing_selection_criteria | filter: {event_processing_selection_criteria_filter}")
+    logger.info(f"config rule: event_processing_selection_criteria | filter: {event_processing_selection_criteria_filter}")
     event_processing_selection_criteria_limit = extract_element_by_name(json_data, "limit", "event_processing_selection_criteria")
     if event_processing_selection_criteria_limit is None:
         raise ValueError("limit value for event_processing_selection_criteria is not found within config rules")
-    log.info(f"config rule: event_processing_selection_criteria | limit: {event_processing_selection_criteria_limit}")
+    logger.info(f"config rule: event_processing_selection_criteria | limit: {event_processing_selection_criteria_limit}")
     event_processing_testing_criteria_enabled = extract_element_by_name(json_data, "enabled", "event_processing_testing_criteria")
     if event_processing_selection_criteria_limit is None:
         raise ValueError("enabled value for event_processing_testing_criteria is not found within config rules")
-    log.info(f"config rule: event_processing_testing_criteria | enabled: {event_processing_testing_criteria_enabled}")
+    logger.info(f"config rule: event_processing_testing_criteria | enabled: {event_processing_testing_criteria_enabled}")
     event_processing_testing_criteria_filter = extract_element_by_name(json_data, "filter", "event_processing_testing_criteria")
     if event_processing_selection_criteria_limit is None:
         raise ValueError("filter value for event_processing_testing_criteria is not found within config rules")
-    log.info(f"config rule: event_processing_testing_criteria | filter: {event_processing_testing_criteria_filter}")
+    logger.info(f"config rule: event_processing_testing_criteria | filter: {event_processing_testing_criteria_filter}")
     event_processing_view_criteria_enabled = extract_element_by_name(json_data, "enabled", "event_processing_view_criteria")
     if event_processing_view_criteria_enabled is None:
         raise ValueError("enabled value for event_processing_view_criteria is not found within config rules")
-    log.info(f"config rule: event_processing_view_criteria | enabled: {event_processing_view_criteria_enabled}")
+    logger.info(f"config rule: event_processing_view_criteria | enabled: {event_processing_view_criteria_enabled}")
     event_processing_view_criteria_view = extract_element_by_name(json_data, "view_name", "event_processing_view_criteria")
     if event_processing_view_criteria_view is None:
         raise ValueError("filter value for event_processing_view_criteria is not found within config rules")
-    log.info(f"config rule: event_processing_view_criteria | view: {event_processing_view_criteria_view}")
+    logger.info(f"config rule: event_processing_view_criteria | view: {event_processing_view_criteria_view}")
     return (
         event_processing_selection_criteria_filter,
         event_processing_selection_criteria_limit,
@@ -175,7 +173,7 @@ def extract_element_by_name_and_validate(json_data, element_name, parent_name):
     if extracted is None:
         raise ValueError(f"{element_name} value for {parent_name} is not found within config rules")
     if isinstance(extracted, list):
-        log.info("stage layer %s partition column: %s", parent_name, extracted)
+        logger.info("stage layer %s partition column: %s", parent_name, extracted)
     else:
-        log.info("stage layer %s:\n%s", parent_name, json.dumps(extracted, indent=4))
+        logger.info("stage layer %s:\n%s", parent_name, json.dumps(extracted, indent=4))
     return extracted

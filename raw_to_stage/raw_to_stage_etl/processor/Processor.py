@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import logging
 import time
 
+from aws_lambda_powertools import Logger
+
 from ..exceptions.NoDataFoundException import NoDataFoundException
-from ..logger import logger
 from ..strategies.Strategy import Strategy
 
 METADATA_ROOT_FOLDER = "txma_raw_stage_metadata"
@@ -19,9 +19,7 @@ class RawToStageProcessor:
         """Initialise, configure strategy & logger instance variables."""
         if strategy:
             self.strategy = strategy
-        self.logger = logging.getLogger(__name__)
-        logger.init(args)
-        logger.configure(self.logger)
+        self.logger = Logger(level=args["LOG_LEVEL"])
 
     def process(self) -> None:
         """Execute ETL on strategy passed to the class.

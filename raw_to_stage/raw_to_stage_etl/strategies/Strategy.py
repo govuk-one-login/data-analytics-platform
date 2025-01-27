@@ -2,15 +2,14 @@
 
 import gc
 import json
-import logging
 import sys
 from abc import ABC, abstractmethod
 from datetime import datetime
 
 import pandas as pd
+from aws_lambda_powertools import Logger
 
 from ..exceptions.NoDataFoundException import NoDataFoundException
-from ..logger import logger
 from ..util.json_config_processing_utilities import extract_element_by_name_and_validate
 
 
@@ -41,9 +40,7 @@ class Strategy(ABC):
         self.s3_client = s3_client
         self.preprocessing = preprocessing
         self.athena_query_chunksize = 1000000
-        self.logger = logging.getLogger(__name__)
-        logger.init(args)
-        logger.configure(self.logger)
+        self.logger = Logger(level=args["LOG_LEVEL"])
 
     @abstractmethod
     def extract(self):

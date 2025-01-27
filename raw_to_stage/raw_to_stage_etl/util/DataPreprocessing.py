@@ -1,13 +1,12 @@
 """Module to perform preprocessing transformation functions on Pandas dataframe."""
 
-import logging
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
+from aws_lambda_powertools import Logger
 
 from ..exceptions.NoDataFoundException import NoDataFoundException
-from ..logger import logger
 from .exceptions.UtilExceptions import OperationFailedException
 from .json_config_processing_utilities import extract_element_by_name
 
@@ -220,9 +219,7 @@ class DataPreprocessing:
         self.now = datetime.now()
         self.processed_dt = int(self.now.strftime("%Y%m%d"))
         self.processed_time = int(self.now.strftime("%H%M%S"))
-        self.logger = logging.getLogger(__name__)
-        logger.init(args)
-        logger.configure(self.logger)
+        self.logger = Logger(level=args["LOG_LEVEL"])
 
     def add_new_column(self, df, fields):
         """

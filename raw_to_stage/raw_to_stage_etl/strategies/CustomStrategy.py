@@ -20,7 +20,7 @@ class CustomStrategy(Strategy):
 
         sql_query = self.generate_sql_query(event_processing_custom_filter)
 
-        return self.glue_client.get_raw_data(sql_query)
+        return self.glue_client.get_raw_data(sql_query, self.athena_query_chunksize)
 
     def generate_sql_query(self, custom_filter):
         """Prepare sql query based on filters passed. Deduplicates and takes latest record for each event_id.

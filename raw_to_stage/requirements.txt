@@ -13,3 +13,4 @@ flake8-bugbear==24.12.12
 reindent==3.5.1
 mypy==1.14.1
 pydocstyle==6.3.0
+aws_lambda_powertools==3.4.1

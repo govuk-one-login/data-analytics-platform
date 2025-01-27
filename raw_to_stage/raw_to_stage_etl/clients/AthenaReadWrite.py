@@ -1,11 +1,9 @@
 """Module for accessing Athena service."""
 
-import logging
 import time
 
 import boto3
-
-from ..logger import logger
+from aws_lambda_powertools import Logger
 
 
 class AthenaReadWrite:
@@ -24,9 +22,7 @@ class AthenaReadWrite:
     def __init__(self, args):
         """Initialize a new AthenaReadWrite instance."""
         self.athena_client = boto3.client("athena", region_name="eu-west-2")
-        self.logger = logging.getLogger(__name__)
-        logger.init(args)
-        logger.configure(self.logger)
+        self.logger = Logger(level=args["LOG_LEVEL"])
 
     def run_query(self, database, sql, workgroup):
         """

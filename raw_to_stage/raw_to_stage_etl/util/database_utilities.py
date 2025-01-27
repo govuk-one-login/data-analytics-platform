@@ -1,13 +1,12 @@
 """Module for database querying related utilities utilizing glue client."""
 
-import logging
 from datetime import datetime, timedelta
 
-from ..logger import logger
+from aws_lambda_powertools import Logger
+
 from .exceptions.UtilExceptions import QueryException
 
-log = logging.getLogger(__name__)
-logger.configure(log)
+logger = Logger(level="INFO")
 
 
 def get_all_previous_processed_dts(glue_client, stage_database, stage_target_table, max_processed_dt, current_process_dt):
@@ -32,7 +31,7 @@ def get_all_previous_processed_dts(glue_client, stage_database, stage_target_tab
 
             sql += """ order by processed_dt desc"""
 
-            log.info(f"Running query: {sql}")
+            logger.info(f"Running query: {sql}")
             dfs = glue_client.query_glue_table(stage_database, sql, 10)
 
             if dfs is None:
@@ -45,14 +44,7 @@ def get_all_previous_processed_dts(glue_client, stage_database, stage_target_tab
         raise QueryException(f"Exception Error retrieving daily processes {str(e)}")
 
 
-def get_min_timestamp_from_previous_run(
-    daily_processes_df,
-    glue_client,
-    stage_database,
-    stage_target_table,
-    max_processed_dt,
-    penultimate_processed_dt,
-):
+def get_min_timestamp_from_previous_run(daily_processes_df, glue_client, stage_database, stage_target_table, max_processed_dt, penultimate_processed_dt):
     """Get the minimum timestamp to filter for any missing events.
 
     This value is taken from the maximum timestamp from the job previous to the last job
@@ -73,7 +65,7 @@ def get_min_timestamp_from_previous_run(
             # If there are <= 1 processes for a given day, then we need to get the latest timestamp processed from the previous processed day
             max_timestamp = get_max_timestamp(glue_client, stage_database, stage_target_table, penultimate_processed_dt)
 
-            log.info(f"""Retrieved timestamp:{max_timestamp} from date:{penultimate_processed_dt} to filter for missing events""")
+            logger.info(f"""Retrieved timestamp:{max_timestamp} from date:{penultimate_processed_dt} to filter for missing events""")
             return max_timestamp
 
         # if there are multiple processes on the day, then get the max timestamp from the process that ran before the last
@@ -85,15 +77,14 @@ def get_min_timestamp_from_previous_run(
             max_processed_dt,
             processed_time_filter,
         )
-        log.info(
+        logger.info(
             f"""Retrieved timestamp:{max_timestamp} from date:{max_processed_dt} process time:{processed_time_filter}
               to filter for missing events"""
         )
 
         return max_timestamp
     except Exception as e:
-        log.info(f"Exception Error retrieving max timestamp for reprocess missing events job {str(e)}")
-        return None
+        raise QueryException(f"Exception Error retrieving max timestamp for reprocess missing events job {str(e)}")
 
 
 def get_all_processed_times_per_day(glue_client, stage_database, stage_target_table, max_processed_dt, current_process_time=None):
@@ -122,7 +113,7 @@ def get_all_processed_times_per_day(glue_client, stage_database, stage_target_ta
 
             sql += """ order by processed_time desc"""
 
-            log.info(f"Running query: {sql}")
+            logger.info(f"Running query: {sql}")
             dfs = glue_client.query_glue_table(stage_database, sql, 10)
 
             if dfs is None:
@@ -132,8 +123,7 @@ def get_all_processed_times_per_day(glue_client, stage_database, stage_target_ta
                 if "processed_time" in df.columns:
                     return df
     except Exception as e:
-        log.info(f"Exception Error retrieving daily processes {str(e)}")
-        return None
+        raise QueryException(f"Exception Error retrieving daily processes {str(e)}")
 
 
 def get_max_timestamp(glue_client, stage_database, stage_target_table, processed_dt=None, processed_time=None):
@@ -164,7 +154,7 @@ def get_max_timestamp(glue_client, stage_database, stage_target_table, processed
                 sql += f""" where processed_dt={processed_dt}"""
             elif processed_time:
                 sql += f""" where processed_time={processed_time}"""
-            log.info(f"""Running query: {sql}""")
+            logger.info(f"""Running query: {sql}""")
 
             dfs = glue_client.query_glue_table(stage_database, sql)
 
@@ -183,8 +173,7 @@ def get_max_timestamp(glue_client, stage_database, stage_target_table, processed
         else:
             return 0
     except Exception as e:
-        log.info(f"Exception Error retrieving max timestamp: {str(e)}")
-        return None
+        raise QueryException(f"Exception Error retrieving max timestamp: {str(e)}")
 
 
 def get_max_processed_dt(glue_client, raw_database, raw_source_table, stage_database, stage_target_table):

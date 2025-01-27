@@ -1,11 +1,9 @@
 """Module for S3 read and write."""
 
 import json
-import logging
 
 import boto3
-
-from ..logger import logger
+from aws_lambda_powertools import Logger
 
 
 class S3ReadWrite:
@@ -31,9 +29,7 @@ class S3ReadWrite:
          args (dict): Glue job arguments
         """
         self.s3 = boto3.client("s3")
-        self.logger = logging.getLogger(__name__)
-        logger.init(args)
-        logger.configure(self.logger)
+        self.logger = Logger(args["LOG_LEVEL"])
 
     def read_json(self, bucket_name, key_path):
         """

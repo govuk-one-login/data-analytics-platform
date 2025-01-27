@@ -133,4 +133,4 @@ class BackfillStrategy(Strategy):
             penultimate_processed_dt,
         )
         # query raw layer
-        return self.glue_client.get_raw_data(backfill_raw_sql)
+        return self.glue_client.get_raw_data(backfill_raw_sql, self.athena_query_chunksize)

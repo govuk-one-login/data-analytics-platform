@@ -1,15 +1,14 @@
 """Glue job main script."""
 
 import json
-import logging
 import sys
 import traceback
 
+from aws_lambda_powertools import Logger
 from awsglue.utils import getResolvedOptions
 from raw_to_stage_etl.clients.GlueTableQueryAndWrite import GlueTableQueryAndWrite
 from raw_to_stage_etl.clients.S3ReadWrite import S3ReadWrite
 from raw_to_stage_etl.exceptions.NoDataFoundException import NoDataFoundException
-from raw_to_stage_etl.logger import logger
 from raw_to_stage_etl.processor.Processor import RawToStageProcessor
 from raw_to_stage_etl.strategies.BackfillStrategy import BackfillStrategy
 from raw_to_stage_etl.strategies.CustomStrategy import CustomStrategy
@@ -22,9 +21,7 @@ from raw_to_stage_etl.util.json_config_processing_utilities import extract_eleme
 
 def main():
     """Start of the glue job. It controls flow of the whole job."""
-    main_logger = logging.getLogger(__name__)
-    logger.init({"LOG_LEVEL": "INFO"})
-    logger.configure(main_logger)
+    logger = Logger(level="INFO")
     try:
 
         # Glue Job Inputs
@@ -45,6 +42,8 @@ def main():
                 "stage_bucket",
             ],
         )
+        if args.__contains__("LOG_INFO"):
+            logger = Logger(level=args["LOG_INFO"])
         # init all helper classes
 
         # S3 config file reader class
@@ -59,7 +58,7 @@ def main():
         json_data = s3_app.read_json(args["config_bucket"], args["config_key_path"])
         if json_data is None:
             raise ValueError("Class 's3_app' returned None, which is not allowed.")
-        main_logger.debug("configuration rules: %s", json.dumps(json_data))
+        logger.debug("configuration rules: %s", json.dumps(json_data))
 
         job_type = get_job_type(json_data)
         processor = None
@@ -89,16 +88,16 @@ def main():
             try:
                 processor.process()
             except (NoDataFoundException, OperationFailedException) as e:
-                main_logger.info("Exception Message: %s, Stacktrace: %s", str(e), traceback.format_exc())
+                logger.info("Exception Message: %s, Stacktrace: %s", str(e), traceback.format_exc())
                 # as no data could be found for backfill, supress the exception
-                main_logger.info("Exiting without raising error(As no data could be found for backfill)")
+                logger.info("Exiting without raising error(As no data could be found for backfill)")
 
     except ValueError as e:
-        main_logger.error("Value Error: %s, Stacktrace: %s", str(e), traceback.format_exc())
+        logger.error("Value Error: %s, Stacktrace: %s", str(e), traceback.format_exc())
         sys.exit("Exception encountered within main, exiting process")
 
     except Exception as e:
-        main_logger.error("Exception Error: %s, Stacktrace: %s", str(e), traceback.format_exc())
+        logger.error("Exception Error: %s, Stacktrace: %s", str(e), traceback.format_exc())
         sys.exit("Exception encountered within main, exiting process")
 
 
