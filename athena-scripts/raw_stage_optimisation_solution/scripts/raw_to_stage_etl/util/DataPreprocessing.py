@@ -6,14 +6,183 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
+from ..exceptions.NoDataFoundException import NoDataFoundException
 from ..logger import logger
 from .exceptions.UtilExceptions import OperationFailedException
 from .json_config_processing_utilities import extract_element_by_name
-from .pandas_dataframe_utilities import (remove_columns, remove_duplicate_rows, remove_rows_missing_mandatory_values,
-                                         rename_column_names)
 
 INVALID_FIELD_LIST_STRUCTURE = "Invalid field list structure provided, require list object"
 INVALID_JSON_ERROR = "Invalid JSON data provided"
+
+
+def add_new_column_from_struct(df, fields):
+    """
+    Create new columns from struct fields in the DataFrame.
+
+    Parameters:
+    df (DataFrame): The input DataFrame.
+    fields (dict): A dictionary where keys are the new column names,
+        and values are the corresponding struct fields to extract.
+
+    Returns:
+    DataFrame: A DataFrame with new columns added from struct fields.
+    """
+    try:
+        if not isinstance(fields, dict):
+            raise ValueError("Invalid field list structure provided, require dict object")
+
+        for key, value in fields.items():
+            for item in value:
+                col_name = f"{key}_{item}"
+                df[col_name] = df.apply(
+                    lambda x, k=key, i=item: None if x[k] is None or x[k].get(i) is None or (not x[k].get(i).strip()) else x[k].get(i),
+                    axis=1,
+                )
+
+        return df
+    except Exception as e:
+        raise OperationFailedException("Error adding new columns from struct: %s", str(e))
+
+
+def empty_string_to_null(df, fields):
+    """
+    Replace empty strings with None (null) in the specified columns.
+
+    Parameters:
+    df (DataFrame): The input DataFrame.
+    fields (list): A list of column names where empty strings should be replaced with None.
+
+    Returns:
+    DataFrame: A DataFrame with empty strings replaced by None.
+    """
+    try:
+        if not isinstance(fields, list):
+            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
+
+        for column_name in fields:
+            df[column_name] = df[column_name].apply(lambda x: None if isinstance(x, str) and (x.isspace() or not x) else x)
+
+        return df
+    except Exception as e:
+        raise OperationFailedException("Error replacing empty string with sql nulls: %s", str(e))
+
+
+def remove_duplicate_rows(df, fields):
+    """
+    Remove duplicate rows based on the specified fields.
+
+    Parameters:
+    df (DataFrame): The input DataFrame.
+    fields (list): A list of column names to consider when identifying duplicates.
+
+    Returns:
+    DataFrame: A DataFrame with duplicates removed.
+    """
+    try:
+        if not isinstance(fields, list):
+            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
+        return df.drop_duplicates(subset=fields)
+    except Exception as e:
+        raise OperationFailedException("Error dropping row duplicates: %s", str(e))
+
+
+def remove_rows_missing_mandatory_values(df, fields):
+    """
+    Remove rows with missing mandatory field values.
+
+    Parameters:
+    df (DataFrame): The input DataFrame.
+    fields (list): A list of column names with mandatory values.
+
+    Returns:
+    DataFrame: A DataFrame with rows containing mandatory values.
+    """
+    try:
+        if not isinstance(fields, list):
+            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
+        return df.dropna(subset=fields)
+    except Exception as e:
+        raise OperationFailedException("Error dropping rows missing mandatory field: %s", str(e))
+
+
+def rename_column_names(df, fields):
+    """
+    Rename column names based on the provided mapping.
+
+    Parameters:
+    df (DataFrame): The input DataFrame.
+    fields (dict): A dictionary where keys are old column names, and values are new column names.
+
+    Returns:
+    DataFrame: A DataFrame with renamed columns.
+    """
+    try:
+        if not isinstance(fields, dict):
+            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
+        return df.rename(columns=fields)
+    except Exception as e:
+        raise OperationFailedException("Error renaming columns: %s", str(e))
+
+
+def remove_columns(df, columns, silent):
+    """
+    Remove columns from the data frame.
+
+    Parameters:
+    df (DataFrame): The input DataFrame.
+    columns (list): A list of columns
+    silent (bool): true if errors should be suppressed
+
+    Returns:
+    DataFrame: A DataFrame with specified columns removed if found.
+    """
+    try:
+        errors = "ignore" if silent else "raise"
+        if not isinstance(columns, list):
+            raise ValueError("Invalid field of columns provided, require list")
+        return df.drop(columns, axis=1, errors=errors)
+    except Exception as e:
+        raise OperationFailedException("Error removing columns: %s", str(e))
+
+
+def get_last_processed_time(daily_processes_df):
+    """
+    Get the maximum processed time from the specified stage table.
+
+    Parameters:
+     daily_processes_df (df): dataframe of all processed times for the last processed date
+
+    Returns:
+     int: The maximum processed time value from the stage layer table
+    """
+    try:
+        if daily_processes_df.empty or daily_processes_df is None:
+            raise NoDataFoundException("No filter process time found, ending process")
+
+        return int(daily_processes_df["processed_time"].iloc[0])
+    except Exception as e:
+        raise OperationFailedException(f"Error Retrieving max timestamp: {str(e)}")
+
+
+def get_penultimate_processed_dt(all_processed_dts):
+    """
+    Get the penultimate processed dt from the specified stage table.
+
+    last processed dt that isn't current and isn't the last processed dt
+
+    Parameters:
+    all_processed_dts (df): dataframe of all processed dates excluding today and the max processed date
+
+    Returns:
+    int: The maximum processed time value from the stage layer table
+    """
+    try:
+        if all_processed_dts.empty or all_processed_dts is None:
+            raise NoDataFoundException("No penultimate processed dt, ending process")
+
+        return int(all_processed_dts["processed_dt"].iloc[0])
+    except Exception as e:
+        raise OperationFailedException(f"Exception Error retrieving max timestamp: {str(e)}")
 
 
 def convert_value_to_float_or_int(value):
@@ -77,56 +246,6 @@ class DataPreprocessing:
             return df
         except Exception as e:
             raise OperationFailedException("Error adding new columns: %s", str(e))
-
-    def add_new_column_from_struct(self, df, fields):
-        """
-        Create new columns from struct fields in the DataFrame.
-
-        Parameters:
-        df (DataFrame): The input DataFrame.
-        fields (dict): A dictionary where keys are the new column names,
-            and values are the corresponding struct fields to extract.
-
-        Returns:
-        DataFrame: A DataFrame with new columns added from struct fields.
-        """
-        try:
-            if not isinstance(fields, dict):
-                raise ValueError("Invalid field list structure provided, require dict object")
-
-            for key, value in fields.items():
-                for item in value:
-                    col_name = f"{key}_{item}"
-                    df[col_name] = df.apply(
-                        lambda x, k=key, i=item: None if x[k] is None or x[k].get(i) is None or (not x[k].get(i).strip()) else x[k].get(i),
-                        axis=1,
-                    )
-
-            return df
-        except Exception as e:
-            raise OperationFailedException("Error adding new columns from struct: %s", str(e))
-
-    def empty_string_to_null(self, df, fields):
-        """
-        Replace empty strings with None (null) in the specified columns.
-
-        Parameters:
-        df (DataFrame): The input DataFrame.
-        fields (list): A list of column names where empty strings should be replaced with None.
-
-        Returns:
-        DataFrame: A DataFrame with empty strings replaced by None.
-        """
-        try:
-            if not isinstance(fields, list):
-                raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-
-            for column_name in fields:
-                df[column_name] = df[column_name].apply(lambda x: None if isinstance(x, str) and (x.isspace() or not x) else x)
-
-            return df
-        except Exception as e:
-            raise OperationFailedException("Error replacing empty string with sql nulls: %s", str(e))
 
     def extract_key_values(self, obj, parent_key="", sep=".", field_name=""):
         """
@@ -457,7 +576,7 @@ class DataPreprocessing:
                 raise ValueError("new_column_struct_extract value for data_transformations is not found within config rules")
             self.logger.info("config rule: data_transformations | new_column_struct_extract: %s", data_transformations_new_column_struct_extract)
 
-            df_raw = self.add_new_column_from_struct(df_raw, data_transformations_new_column_struct_extract)
+            df_raw = add_new_column_from_struct(df_raw, data_transformations_new_column_struct_extract)
 
             if df_raw is None:
                 raise ValueError("Function: add_new_column_from_struct returned None object.")
@@ -489,7 +608,7 @@ class DataPreprocessing:
                 raise ValueError("empty_string_replacement value for data_cleaning is not found within config rules")
             self.logger.info("config rule: data_cleaning | empty_string_replacement: %s", data_cleaning_empty_string_replacement)
 
-            df_raw = self.empty_string_to_null(df_raw, data_cleaning_empty_string_replacement)
+            df_raw = empty_string_to_null(df_raw, data_cleaning_empty_string_replacement)
 
             if df_raw is None:
                 raise ValueError("Function: empty_string_to_null returned None object.")
