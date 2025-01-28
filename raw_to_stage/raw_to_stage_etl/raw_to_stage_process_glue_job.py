@@ -19,12 +19,12 @@ from raw_to_stage_etl.util.DataPreprocessing import DataPreprocessing
 from raw_to_stage_etl.util.exceptions.UtilExceptions import OperationFailedException
 from raw_to_stage_etl.util.json_config_processing_utilities import extract_element_by_name
 
+logger = get_logger(__name__)
+
 
 def main():
     """Start of the glue job. It controls flow of the whole job."""
-    logger = None
     try:
-
         # Glue Job Inputs
         args = getResolvedOptions(
             sys.argv,
@@ -45,6 +45,7 @@ def main():
         )
         # Fetch LOG_LEVEL or set default logging level at INFO
         os.environ["LOG_LEVEL"] = args.get("LOG_LEVEL", "INFO")
+        global logger
         logger = get_logger(__name__)
 
         # init all helper classes
@@ -116,14 +117,14 @@ def get_job_type(json_data):
     event_processing_testing_criteria_enabled = extract_element_by_name(json_data, "enabled", "event_processing_testing_criteria")
     if event_processing_testing_criteria_enabled is None:
         raise ValueError("enabled value for event_processing_testing_criteria is not found within config rules")
-    print(f"config rule: event_processing_testing_criteria | enabled: {event_processing_testing_criteria_enabled}")
+    logger.info("config rule: event_processing_testing_criteria | enabled: %s", event_processing_testing_criteria_enabled)
 
     if event_processing_testing_criteria_enabled:
         return "TESTING"
     event_processing_view_criteria_enabled = extract_element_by_name(json_data, "enabled", "event_processing_view_criteria")
     if event_processing_view_criteria_enabled is None:
         raise ValueError("enabled value for event_processing_view_criteria is not found within config rules")
-    print(f"config rule: event_processing_view_criteria | enabled: {event_processing_view_criteria_enabled}")
+    logger.info("config rule: event_processing_view_criteria | enabled: %s", event_processing_view_criteria_enabled)
 
     if event_processing_view_criteria_enabled:
         return "VIEW"
