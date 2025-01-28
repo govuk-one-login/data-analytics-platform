@@ -5,12 +5,11 @@ import os
 import sys
 import traceback
 
-from aws_lambda_powertools import Logger
-from aws_lambda_powertools.logging.formatter import LambdaPowertoolsFormatter
 from awsglue.utils import getResolvedOptions
 from raw_to_stage_etl.clients.GlueTableQueryAndWrite import GlueTableQueryAndWrite
 from raw_to_stage_etl.clients.S3ReadWrite import S3ReadWrite
 from raw_to_stage_etl.exceptions.NoDataFoundException import NoDataFoundException
+from raw_to_stage_etl.logging.logger import get_logger
 from raw_to_stage_etl.processor.Processor import RawToStageProcessor
 from raw_to_stage_etl.strategies.BackfillStrategy import BackfillStrategy
 from raw_to_stage_etl.strategies.CustomStrategy import CustomStrategy
@@ -23,9 +22,7 @@ from raw_to_stage_etl.util.json_config_processing_utilities import extract_eleme
 
 def main():
     """Start of the glue job. It controls flow of the whole job."""
-    formatter = LambdaPowertoolsFormatter()
-    logger = Logger(level="INFO", logger_formatter=formatter)
-    logger.append_keys(**{"location": "%(filename)s:%(funcName)s:%(lineno)d"})
+    logger = None
     try:
 
         # Glue Job Inputs
@@ -46,9 +43,10 @@ def main():
                 "stage_bucket",
             ],
         )
-        if args.__contains__("LOG_LEVEL"):
-            logger = Logger(level=args["LOG_LEVEL"])
-            os.environ["LOG_LEVEL"] = args["LOG_LEVEL"]
+        # Fetch LOG_LEVEL or set default logging level at INFO
+        os.environ["LOG_LEVEL"] = args.get("LOG_LEVEL", "INFO")
+        logger = get_logger(__name__)
+
         # init all helper classes
 
         # S3 config file reader class

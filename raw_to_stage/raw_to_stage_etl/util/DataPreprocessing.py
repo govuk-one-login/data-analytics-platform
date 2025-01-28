@@ -4,9 +4,9 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
-from aws_lambda_powertools import Logger
 
 from ..exceptions.NoDataFoundException import NoDataFoundException
+from ..logging.logger import get_logger
 from .exceptions.UtilExceptions import OperationFailedException
 from .json_config_processing_utilities import extract_element_by_name
 
@@ -219,7 +219,7 @@ class DataPreprocessing:
         self.now = datetime.now()
         self.processed_dt = int(self.now.strftime("%Y%m%d"))
         self.processed_time = int(self.now.strftime("%H%M%S"))
-        self.logger = Logger(level=args["LOG_LEVEL"])
+        self.logger = get_logger(__name__)
 
     def add_new_column(self, df, fields):
         """

@@ -1,15 +1,13 @@
 """Module for JSON Config processing related utilities."""
 
 import json
-import os
 
-from aws_lambda_powertools import Logger
-
+from ..logging.logger import get_logger
 from .exceptions.UtilExceptions import JSONReadException
 
 INVALID_JSON_ERROR = "Invalid JSON data provided"
 
-logger = Logger(level=os.getenv("LOG_LEVEL", "INFO"))
+logger = get_logger(__name__)
 
 
 def generate_raw_select_filter(json_data, database, table, filter_processed_dt, filter_timestamp):

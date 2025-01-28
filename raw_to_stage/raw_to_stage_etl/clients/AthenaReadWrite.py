@@ -3,7 +3,8 @@
 import time
 
 import boto3
-from aws_lambda_powertools import Logger
+
+from ..logging.logger import get_logger
 
 
 class AthenaReadWrite:
@@ -22,7 +23,7 @@ class AthenaReadWrite:
     def __init__(self, args):
         """Initialize a new AthenaReadWrite instance."""
         self.athena_client = boto3.client("athena", region_name="eu-west-2")
-        self.logger = Logger(level=args["LOG_LEVEL"])
+        self.logger = get_logger(__name__)
 
     def run_query(self, database, sql, workgroup):
         """

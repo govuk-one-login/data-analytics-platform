@@ -1,13 +1,11 @@
 """Module for database querying related utilities utilizing glue client."""
 
-import os
 from datetime import datetime, timedelta
 
-from aws_lambda_powertools import Logger
-
+from ..logging.logger import get_logger
 from .exceptions.UtilExceptions import QueryException
 
-logger = Logger(level=os.getenv("LOG_LEVEL", "INFO"))
+logger = get_logger(__name__)
 
 
 def get_all_previous_processed_dts(glue_client, stage_database, stage_target_table, max_processed_dt, current_process_dt):

@@ -1,7 +1,8 @@
 """Module for querying glue tables."""
 
 import awswrangler as wr
-from aws_lambda_powertools import Logger
+
+from ..logging.logger import get_logger
 
 
 class GlueTableQueryAndWrite:
@@ -17,7 +18,7 @@ class GlueTableQueryAndWrite:
          args (dict): Glue job arguments
         """
         self.args = args
-        self.logger = Logger(level=args["LOG_LEVEL"])
+        self.logger = get_logger(__name__)
 
     def does_glue_table_exist(self, database, table):
         """

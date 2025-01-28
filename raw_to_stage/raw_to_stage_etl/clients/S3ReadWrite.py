@@ -3,7 +3,8 @@
 import json
 
 import boto3
-from aws_lambda_powertools import Logger
+
+from ..logging.logger import get_logger
 
 
 class S3ReadWrite:
@@ -29,7 +30,7 @@ class S3ReadWrite:
          args (dict): Glue job arguments
         """
         self.s3 = boto3.client("s3")
-        self.logger = Logger(args["LOG_LEVEL"])
+        self.logger = get_logger(__name__)
 
     def read_json(self, bucket_name, key_path):
         """
