@@ -120,7 +120,7 @@ def get_job_type(json_data):
     logger.info("config rule: event_processing_testing_criteria | enabled: %s", event_processing_testing_criteria_enabled)
 
     if event_processing_testing_criteria_enabled:
-        return "TESTING"
+        return "CUSTOM"
     event_processing_view_criteria_enabled = extract_element_by_name(json_data, "enabled", "event_processing_view_criteria")
     if event_processing_view_criteria_enabled is None:
         raise ValueError("enabled value for event_processing_view_criteria is not found within config rules")
