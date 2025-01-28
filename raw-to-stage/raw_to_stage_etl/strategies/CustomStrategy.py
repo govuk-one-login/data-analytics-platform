@@ -18,11 +18,11 @@ class CustomStrategy(Strategy):
             raise ValueError("filter value for event_processing_custom_filter is not found within config rules")
         self.logger.info("config rule: event_processing_view_criteria | view: %s", event_processing_custom_filter)
 
-        sql_query = self.generate_sql_query(event_processing_custom_filter)
+        sql_query = self.get_raw_sql(event_processing_custom_filter)
 
         return self.glue_client.get_raw_data(sql_query, self.athena_query_chunksize)
 
-    def generate_sql_query(self, custom_filter):
+    def get_raw_sql(self, custom_filter):
         """Prepare sql query based on filters passed. Deduplicates and takes latest record for each event_id.
 
         Parameters:
