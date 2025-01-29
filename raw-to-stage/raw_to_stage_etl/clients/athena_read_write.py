@@ -1,11 +1,15 @@
+"""Module for accessing Athena service."""
+
 import time
 
 import boto3
 
+from ..logging.logger import get_logger
+
 
 class AthenaReadWrite:
     """
-    A class for interacting with Athena data objects, which is not possible using AWSDataWrangler
+    A class for interacting with Athena data objects, which is not possible using AWSDataWrangler.
 
     Methods:
         __init__(self)
@@ -16,15 +20,14 @@ class AthenaReadWrite:
 
     """
 
-    def __init__(self):
-        """
-        Initialize a new AthenaReadWrite instance.
-        """
+    def __init__(self, args):
+        """Initialize a new AthenaReadWrite instance."""
         self.athena_client = boto3.client("athena", region_name="eu-west-2")
+        self.logger = get_logger(__name__)
 
     def run_query(self, database, sql, workgroup):
         """
-        Runs input sql statement on Athena.
+        Run input sql statement on Athena.
 
         Args:
             database (str): The name of the database to set context for sql statement.
@@ -55,11 +58,11 @@ class AthenaReadWrite:
                 time.sleep(5)  # Wait for 5 seconds before checking again
 
             if status == "SUCCEEDED":
-                print("Athena query successfully completed")
+                self.logger.info("Athena query successfully completed")
                 return True
             else:
-                print(f"Error running Athena query. Status: {status}")
+                self.logger.info("Error running Athena query. Status: %s", status)
                 return False
         except Exception as e:
-            print(f"Exception when running Athena query: {str(e)}")
+            self.logger.error("Exception when running Athena query: %s", str(e))
             return False

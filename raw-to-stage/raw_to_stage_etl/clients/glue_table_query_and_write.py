@@ -1,22 +1,24 @@
+"""Module for querying glue tables."""
+
 import awswrangler as wr
+
+from ..logging.logger import get_logger
 
 
 class GlueTableQueryAndWrite:
-    """
+    """A class for querying the Glue Data Catalog tables."""
 
-    A class for querying the Glue Data Catalog tables.
-
-    """
-
-    def __init__(self):
+    def __init__(self, args):
         """
-        Initializes an instance of the GlueTableQueryAndWrite class.
+        Initialize an instance of the GlueTableQueryAndWrite class.
+
         This class provides methods for querying and writing to AWS Glue tables.
 
         Parameters:
-            None
+         args (dict): Glue job arguments
         """
-        pass
+        self.args = args
+        self.logger = get_logger(__name__)
 
     def does_glue_table_exist(self, database, table):
         """
@@ -32,7 +34,7 @@ class GlueTableQueryAndWrite:
         try:
             return wr.catalog.does_table_exist(database=database, table=table)
         except Exception as e:
-            print(f"Error querying glue data catalog: {str(e)}")
+            self.logger.error("Error querying glue data catalog: %s", str(e))
             return None
 
     def query_glue_table(self, database, query, chunksize=1):
@@ -52,7 +54,7 @@ class GlueTableQueryAndWrite:
             df = wr.athena.read_sql_query(query, database=database, chunksize=chunksize)
             return df
         except Exception as e:
-            print(f"Error reading Athena table: {str(e)}")
+            self.logger.error("Error reading Athena table: %s", str(e))
             return None
 
     def write_to_glue_table(
@@ -69,7 +71,7 @@ class GlueTableQueryAndWrite:
         """
         Write a Pandas DataFrame to a Glue table in the AWS Glue Data Catalog.
 
-        Args:
+        Parameters:
             dataframe (pd.DataFrame): The Pandas DataFrame to write to the table.
             s3_path (str): The S3 path where the data will be stored.
             dataset (str): If True store a parquet dataset instead of a ordinary file.
@@ -95,5 +97,23 @@ class GlueTableQueryAndWrite:
             )
             return s3_write_data_return_value
         except Exception as e:
-            print(f"Error writing to Athena table: {str(e)}")
+            self.logger.error("Error writing to Athena table: %s", str(e))
             return None
+
+    def get_raw_data(self, sql_query, athena_query_chunksize):
+        """Query Raw Glue table using query string.
+
+        Parameters
+         sql_query(str): Query string
+         athena_query_chunksize(int): Athena query chunksize
+
+        Returns
+         dfs(List of Pandas dataframes):
+        """
+        self.logger.info("running query %s", sql_query)
+
+        dfs = self.query_glue_table(self.args["raw_database"], sql_query, athena_query_chunksize)
+        if dfs is None:
+            raise ValueError(f"Function: query_glue_table returned None.  Using query {str(sql_query)}")
+
+        return dfs

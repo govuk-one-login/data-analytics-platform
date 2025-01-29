@@ -15,3 +15,5 @@ Dockerfile
 *.tar.gz
 flyway.conf
 *.py
+*.txt
+*.cfg

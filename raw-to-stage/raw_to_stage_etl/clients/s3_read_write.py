@@ -1,6 +1,10 @@
+"""Module for S3 read and write."""
+
 import json
 
 import boto3
+
+from ..logging.logger import get_logger
 
 
 class S3ReadWrite:
@@ -19,19 +23,18 @@ class S3ReadWrite:
             Reads file data from the specified S3 bucket and key path, and returns the file data as a text object.
     """
 
-    def __init__(self):
-        """
-        Initialize a new S3ReadWrite instance.
+    def __init__(self, args):
+        """Initialize a new S3ReadWrite instance.
 
-        Args:
-            bucket_name (str): The name of the S3 bucket where the JSON file is stored.
-            key_path (str): The key path of the JSON file within the S3 bucket.
+        Parameters:
+         args (dict): Glue job arguments
         """
         self.s3 = boto3.client("s3")
+        self.logger = get_logger(__name__)
 
     def read_json(self, bucket_name, key_path):
         """
-        Reads JSON data from the specified S3 bucket and key path, and returns the parsed JSON data as a Python object.
+        Read JSON data from the specified S3 bucket and key path, and returns the parsed JSON data as a Python object.
 
         Returns:
             dict or list: The parsed JSON data as a Python dictionary or list.
@@ -46,12 +49,12 @@ class S3ReadWrite:
                 raise ValueError("return value is None")
             return json_data
         except Exception as e:
-            print(f"Error reading JSON from S3: {str(e)}")
+            self.logger.error("Error reading JSON from S3: %s", str(e))
             return None
 
     def write_json(self, bucket_name, key_path, body):
         """
-        Writes JSON data to a specified S3 bucket and key path.
+        Write JSON data to a specified S3 bucket and key path.
 
         Returns:
             HTTP response object
@@ -65,12 +68,12 @@ class S3ReadWrite:
                 raise ValueError("Put object for S3 metadata return value is None")
             return response
         except Exception as e:
-            print(f"Error writing JSON to S3: {str(e)}")
+            self.logger.error("Error writing JSON to S3: %s", str(e))
             return None
 
     def read_file(self, bucket_name, key_path):
         """
-        Reads file data from the specified S3 bucket and key path, and returns a string object.
+        Read file data from the specified S3 bucket and key path, and returns a string object.
 
         Returns:
             str: The file data as a string object.
@@ -85,5 +88,5 @@ class S3ReadWrite:
                 raise ValueError("return value is None")
             return data
         except Exception as e:
-            print(f"Error reading file from S3: {str(e)}")
+            self.logger.error("Error reading file from S3: %s", str(e))
             return None

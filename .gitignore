@@ -11,3 +11,5 @@ reports
 iac-dist/
 .vscode
 layer-dist/
+*.egg-info
+build/
