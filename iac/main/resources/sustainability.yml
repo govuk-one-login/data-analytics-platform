@@ -107,7 +107,7 @@ SREAccountId:
   Type: AWS::SecretsManager::Secret
   DeletionPolicy: Retain
   UpdateReplacePolicy: Retain
-  Condition: IsProduction
+  Condition: IsADMEnvironment
   Properties:
     Description: 'a secret to store account id for SRE account'
     Name: !Sub ${Environment}-SREAccountId
