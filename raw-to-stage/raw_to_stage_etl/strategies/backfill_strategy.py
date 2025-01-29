@@ -1,10 +1,10 @@
 """BackfillStrategy is run after ScheduledStrategy to pick up records not picked up by ScheduledStrategy."""
 
+from ..util.data_preprocessing import get_last_processed_time, get_penultimate_processed_dt
 from ..util.database_utilities import (get_all_previous_processed_dts, get_all_processed_times_per_day,
                                        get_min_timestamp_from_previous_run)
-from ..util.DataPreprocessing import get_last_processed_time, get_penultimate_processed_dt
-from ..util.exceptions.UtilExceptions import OperationFailedException
-from .Strategy import Strategy
+from ..util.exceptions.util_exceptions import OperationFailedException
+from .strategy import Strategy
 
 
 class BackfillStrategy(Strategy):

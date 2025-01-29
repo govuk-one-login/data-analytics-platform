@@ -5,9 +5,9 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
-from ..exceptions.NoDataFoundException import NoDataFoundException
+from ..exceptions.no_data_found_exception import NoDataFoundException
 from ..logging.logger import get_logger
-from .exceptions.UtilExceptions import OperationFailedException
+from .exceptions.util_exceptions import OperationFailedException
 from .json_config_processing_utilities import extract_element_by_name
 
 INVALID_FIELD_LIST_STRUCTURE = "Invalid field list structure provided, require list object"

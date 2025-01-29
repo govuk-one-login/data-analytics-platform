@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 
 from ..logging.logger import get_logger
-from .exceptions.UtilExceptions import QueryException
+from .exceptions.util_exceptions import QueryException
 
 logger = get_logger(__name__)
 

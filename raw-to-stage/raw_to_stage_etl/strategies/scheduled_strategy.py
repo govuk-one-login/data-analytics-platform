@@ -2,7 +2,7 @@
 
 from ..util.database_utilities import get_max_processed_dt, get_max_timestamp
 from ..util.json_config_processing_utilities import extract_element_by_name
-from .Strategy import Strategy
+from .strategy import Strategy
 
 
 class ScheduledStrategy(Strategy):

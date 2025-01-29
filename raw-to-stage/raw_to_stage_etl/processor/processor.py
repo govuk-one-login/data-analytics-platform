@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import time
 
-from ..exceptions.NoDataFoundException import NoDataFoundException
+from ..exceptions.no_data_found_exception import NoDataFoundException
 from ..logging.logger import get_logger
-from ..strategies.Strategy import Strategy
+from ..strategies.strategy import Strategy
 
 METADATA_ROOT_FOLDER = "txma_raw_stage_metadata"
 

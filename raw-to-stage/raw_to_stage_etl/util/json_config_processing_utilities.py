@@ -3,7 +3,7 @@
 import json
 
 from ..logging.logger import get_logger
-from .exceptions.UtilExceptions import JSONReadException
+from .exceptions.util_exceptions import JSONReadException
 
 INVALID_JSON_ERROR = "Invalid JSON data provided"
 

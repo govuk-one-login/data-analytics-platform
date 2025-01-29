@@ -8,7 +8,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from ..exceptions.NoDataFoundException import NoDataFoundException
+from ..exceptions.no_data_found_exception import NoDataFoundException
 from ..logging.logger import get_logger
 from ..util.json_config_processing_utilities import extract_element_by_name_and_validate
 

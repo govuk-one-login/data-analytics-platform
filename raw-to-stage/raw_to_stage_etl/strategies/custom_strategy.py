@@ -1,7 +1,7 @@
 """CustomStrategy is for ETL which can be run when required."""
 
 from ..util.json_config_processing_utilities import extract_element_by_name
-from .Strategy import Strategy
+from .strategy import Strategy
 
 
 class CustomStrategy(Strategy):
