@@ -727,7 +727,7 @@ RawStageTransformProcessPythonGlueJob:
     Command:
       Name: pythonshell
       PythonVersion: '3.9'
-      ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_etl/raw_to_stage_process_glue_job.py
+      ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_process_glue_job.py
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
       '--LOG_LEVEL': 'INFO'
