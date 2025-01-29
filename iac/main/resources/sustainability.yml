@@ -110,5 +110,5 @@ SREAccountId:
   Condition: IsADMEnvironment
   Properties:
     Description: 'a secret to store account id for SRE account'
-    Name: !Sub ${Environment}-SREAccountId
+    Name: SRE-account-id-secret
     SecretString: '{"accountId":"xxx"}'
