@@ -19,7 +19,8 @@ aws --region="$REGION" s3 cp "$FILES_ROOT"/process_scripts "$S3_BUCKET"/txma/pro
 aws --region="$REGION" s3 cp "$FILES_ROOT"/data_quality_scripts "$S3_BUCKET"/txma/data_quality_metrics_script/ --recursive --include "*.py"
 aws --region="$REGION" s3 cp "$FILES_ROOT"/redshift_scripts "$S3_BUCKET"/txma/redshift_scripts/ --recursive --include "*.sql" --include "*.json"
 aws --region="$REGION" s3 cp "$FILES_ROOT"/raw_stage_optimisation_solution/configuration_rules "$S3_BUCKET"/txma/raw_stage_optimisation_solution/configuration_rules --recursive --include "*.json"
-aws --region="$REGION" s3 cp "$FILES_ROOT"/raw_stage_optimisation_solution/scripts "$S3_BUCKET"/txma/raw_stage_optimisation_solution/scripts --recursive --include "*.py"
 aws --region="$REGION" s3 cp "$FILES_ROOT"/raw_stage_optimisation_solution/athena_db_object "$S3_BUCKET"/txma/raw_stage_optimisation_solution/athena_db_object --recursive --include "*.sql"
 aws --region="$REGION" s3 cp "$FILES_ROOT"/reference_data_ingestion/scripts "$S3_BUCKET"/reference_data/manual_curated_dataset_ingestion/scripts --recursive --include "*.py"
 aws --region="$REGION" s3 cp "$FILES_ROOT"/reference_data_ingestion/configuration_files "$S3_BUCKET"/reference_data/configuration_files --recursive --include "*.json"
+
+aws --region="$REGION" s3 cp raw_to_stage/raw_to_stage_etl/raw_to_stage_process_glue_job.py "$S3_BUCKET"/txma/raw_to_stage/ --recursive --include "*.py"

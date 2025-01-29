@@ -727,10 +727,11 @@ RawStageTransformProcessPythonGlueJob:
     Command:
       Name: pythonshell
       PythonVersion: '3.9'
-      ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/raw_to_stage_process_glue_job.py
+      ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_etl/raw_to_stage_process_glue_job.py
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
-      '--additional-python-modules': 'awswrangler'
+      '--LOG_LEVEL': 'INFO'
+      '--additional-python-modules': 'awswrangler,aws_lambda_powertools'
       '--config_bucket': !Sub ${ELTMetadataBucket}
       '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/raw_to_stage_config_rules.json'
       '--raw_database': !Sub ${Environment}-txma-raw
@@ -746,14 +747,7 @@ RawStageTransformProcessPythonGlueJob:
       '--extra-py-files':
         !Join [
           ',',
-          [
-            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/AthenaReadWrite.py',
-            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/core_preprocessing_functions.py',
-            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/DataPreprocessing.py',
-            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/GlueTableQueryAndWrite.py',
-            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/S3ReadWrite.py',
-            !Sub 's3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/processor.py',
-          ],
+          [!Sub 's3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl'],
         ]
     ExecutionProperty:
       MaxConcurrentRuns: 1
