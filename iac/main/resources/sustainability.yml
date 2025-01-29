@@ -101,3 +101,14 @@ SustainabilityBucketRole:
           Principal:
             Service:
               - s3.amazonaws.com
+
+SREAccountId:
+  #checkov:skip=CKV_AWS_149:We will use aws managed kms key
+  Type: AWS::SecretsManager::Secret
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
+  Condition: IsADMEnvironment
+  Properties:
+    Description: 'a secret to store account id for SRE account'
+    Name: SRE-account-id-secret
+    SecretString: '{"accountId":"xxx"}'
