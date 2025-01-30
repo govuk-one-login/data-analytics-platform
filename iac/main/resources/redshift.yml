@@ -36,7 +36,7 @@ IAMRoleRedshiftServerless:
                   - - !Sub 'arn:aws:s3:::cid-{{resolve:secretsmanager:SRE-account-id-secret:SecretString:accountId}}-shared'
                     - !Sub 'arn:aws:s3:::cid-{{resolve:secretsmanager:SRE-account-id-secret:SecretString:accountId}}-shared/*'
                   - !Ref AWS::NoValue
-                  
+
             - Effect: Allow
               Resource: !Sub arn:aws:glue:eu-west-2:${AWS::AccountId}:*
               Action:
