@@ -3,6 +3,24 @@
 import awswrangler as wr
 
 from ..logging.logger import get_logger
+from ..util.exceptions.util_exceptions import QueryException
+
+
+def does_glue_table_exist(database, table):
+    """
+    Check if a table exists in the Glue Data Catalog.
+
+    Args:
+        database (str): The name of the database to check.
+        table (str): The name of the table to check.
+
+    Returns:
+        bool: True if the table exists, False otherwise.
+    """
+    try:
+        return wr.catalog.does_table_exist(database=database, table=table)
+    except Exception as e:
+        raise QueryException("Error querying glue data catalog: %s", str(e))
 
 
 class GlueTableQueryAndWrite:
@@ -20,23 +38,6 @@ class GlueTableQueryAndWrite:
         self.args = args
         self.logger = get_logger(__name__)
 
-    def does_glue_table_exist(self, database, table):
-        """
-        Check if a table exists in the Glue Data Catalog.
-
-        Args:
-            database (str): The name of the database to check.
-            table (str): The name of the table to check.
-
-        Returns:
-            bool: True if the table exists, False otherwise.
-        """
-        try:
-            return wr.catalog.does_table_exist(database=database, table=table)
-        except Exception as e:
-            self.logger.error("Error querying glue data catalog: %s", str(e))
-            return None
-
     def query_glue_table(self, database, query, chunksize=1):
         """
         Execute a query on a Glue table using Athena.
@@ -51,11 +52,9 @@ class GlueTableQueryAndWrite:
             pd.DataFrame: The query result as a Pandas DataFrame, or None if an error occurs.
         """
         try:
-            df = wr.athena.read_sql_query(query, database=database, chunksize=chunksize)
-            return df
+            return wr.athena.read_sql_query(query, database=database, chunksize=chunksize)
         except Exception as e:
-            self.logger.error("Error reading Athena table: %s", str(e))
-            return None
+            raise QueryException("Error reading Athena table: %s", str(e))
 
     def write_to_glue_table(
         self,
@@ -97,8 +96,7 @@ class GlueTableQueryAndWrite:
             )
             return s3_write_data_return_value
         except Exception as e:
-            self.logger.error("Error writing to Athena table: %s", str(e))
-            return None
+            raise QueryException("Error writing to Athena table: %s", str(e))
 
     def get_raw_data(self, sql_query, athena_query_chunksize):
         """Query Raw Glue table using query string.

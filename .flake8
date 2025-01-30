@@ -1,5 +1,5 @@
 [flake8]
 ignore = S608
 max-line-length = 160
-exclude = tests/*
+exclude = */unittests/*
 max-complexity = 15

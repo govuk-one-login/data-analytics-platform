@@ -38,7 +38,7 @@ To install the hooks run
 
 `source venvlocal/bin/activate` (Adds the venv directory to your PATH so running `python` will use the venv python and the packages it installed)
 
-`pip install -r raw-to-stage/requirements.txt` (Installs packages from [requirements.txt](raw-to-stage/requirements.txt) - only needs to be run first time)
+`pip install -r raw_to_stage/requirements.txt` (Installs packages from [requirements.txt](raw_to_stage/requirements.txt) - only needs to be run first time)
 
 After this, the hooks defined under the [.husky](.husky) directory will automatically run when you commit or push.&ast;
 The [lint-staged](https://github.com/okonet/lint-staged) library is used to only run certain tasks if certain files are modified.
@@ -326,7 +326,7 @@ For a list of TODOs for the project, please see the [TODOs document](docs/todos.
 
 ## Packaging:
 cd to project root directory
-cd raw-to-stage
+cd raw_to_stage
 # Once you make changes to modules, build and install them to your local venv to be accessible from raw_to_stage_process_glue_job.py
 # The wheel file which is built in below step is used by glue job on AWS too
 pip3 install --upgrade build
@@ -335,3 +335,10 @@ python3 -m build
 pip install ./dist/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl  --force-reinstall
 
 Now you can fix imports ,pointing to any new modules you created, in the raw_to_stage_process_glue_job.py
+
+pip install -r raw_to_stage/unittests/test-requirements.txt
+# pip install --trusted-host pypi.python.org --trusted-host pypi.org --trusted-host files.pythonhosted.org pytest-xdist -r raw_to_stage/unittests/test-requirements.txt
+
+coverage run --source=. -m pytest unittests/test.py
+
+coverage report -m

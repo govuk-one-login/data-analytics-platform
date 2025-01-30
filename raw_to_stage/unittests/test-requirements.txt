@@ -1,0 +1,4 @@
+pytest==7.4.3
+coverage==7.6.10
+moto[glue,s3]
+boto3==1.36.9
