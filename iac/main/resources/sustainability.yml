@@ -112,7 +112,7 @@ SREAccountId:
     Description: 'a secret to store account id for SRE account'
     Name: SRE-account-id-secret
     SecretString: '{"accountId":"xxx"}'
-    
+
 SustainabilityCrawlerRole:
   Type: AWS::IAM::Role
   Condition: IsADMEnvironment
