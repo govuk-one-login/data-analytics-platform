@@ -112,3 +112,44 @@ SREAccountId:
     Description: 'a secret to store account id for SRE account'
     Name: SRE-account-id-secret
     SecretString: '{"accountId":"xxx"}'
+
+SustainabilityCrawlerRole:
+  Type: AWS::IAM::Role
+  Condition: IsADMEnvironment
+  Properties:
+    RoleName: !Sub ${Environment}-sustainability-glue-crawler-role
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: [glue.amazonaws.com]
+          Action: ['sts:AssumeRole']
+    ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+    Path: /
+    Policies:
+      - PolicyName: !Sub ${Environment}-sustainability-glue-crawler-policy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'glue:GetConnection'
+                - 'glue:GetCrawler'
+                - 'glue:CreateTable'
+                - 'glue:UpdateCrawler'
+                - 'glue:CreatePartition'
+                - 'glue:BatchCreatePartition'
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - 's3:GetObject'
+                - 's3:ListObject'
+              Resource:
+                # Cost Usage Report buckets in SRE account
+                - !Sub arn:aws:s3:::cid-{{resolve:secretsmanager:SRE-account-id-secret:SecretString:accountId}}-shared
+                - !Sub arn:aws:s3:::cid-{{resolve:secretsmanager:SRE-account-id-secret:SecretString:accountId}}-shared/*
+            - Effect: Allow
+              Action: 'logs:AssociateKmsKey'
+              Resource: 'arn:aws:logs:*:*:/aws-glue/*'
