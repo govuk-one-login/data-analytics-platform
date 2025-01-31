@@ -5,6 +5,7 @@ import json
 import boto3
 
 from ..logging.logger import get_logger
+from ..util.exceptions.util_exceptions import OperationFailedException
 
 
 class S3ReadWrite:
@@ -49,8 +50,7 @@ class S3ReadWrite:
                 raise ValueError("return value is None")
             return json_data
         except Exception as e:
-            self.logger.error("Error reading JSON from S3: %s", str(e))
-            return None
+            raise OperationFailedException("Error reading JSON from S3: %s", str(e))
 
     def write_json(self, bucket_name, key_path, body):
         """
@@ -68,8 +68,7 @@ class S3ReadWrite:
                 raise ValueError("Put object for S3 metadata return value is None")
             return response
         except Exception as e:
-            self.logger.error("Error writing JSON to S3: %s", str(e))
-            return None
+            raise OperationFailedException("Error writing JSON to S3: %s", str(e))
 
     def read_file(self, bucket_name, key_path):
         """
@@ -88,5 +87,4 @@ class S3ReadWrite:
                 raise ValueError("return value is None")
             return data
         except Exception as e:
-            self.logger.error("Error reading file from S3: %s", str(e))
-            return None
+            raise OperationFailedException("Error reading file from S3: %s", str(e))

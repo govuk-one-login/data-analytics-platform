@@ -12,6 +12,7 @@ DATABASE = "RAW_DB"
 TABLE = "RAW_TABLE"
 CHUNKSIZE = 2
 SAMPLE_DATA = {"col1": [1, 2, 3, 4], "col2": ["a", "b", "c", "d"]}
+QUERY = f"select * from {TABLE}"
 
 
 class TestGlueTableQueryAndWrite:
@@ -51,8 +52,7 @@ class TestGlueTableQueryAndWrite:
 
     def test_should_raise_exception_when_unable_to_query_athena(self):
         with pytest.raises(SQLException):
-            query = f"select * from {TABLE}"
-            self.glue_wrapper.query_glue_table(DATABASE, query, CHUNKSIZE)
+            self.glue_wrapper.query_glue_table(DATABASE, QUERY, CHUNKSIZE)
 
     @mock_aws
     def test_should_write_to_table_successfully(self):
@@ -85,3 +85,13 @@ class TestGlueTableQueryAndWrite:
                 dtype={"col1": "INT", "col2": "CHAR"},
                 partition_cols=["col1"],
             )
+
+    def test_should_get_raw_data_successfully(self, mock_db_query_result):
+        query = f"select * from {TABLE}"
+        dfs = self.glue_wrapper.get_raw_data(query, CHUNKSIZE)
+        for df in dfs:
+            assert df.shape[0] == CHUNKSIZE
+
+    def test_should_raise_exception_when_unable_to_get_raw_data(self):
+        with pytest.raises(SQLException):
+            self.glue_wrapper.get_raw_data(QUERY, CHUNKSIZE)

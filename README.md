@@ -339,6 +339,6 @@ Now you can fix imports ,pointing to any new modules you created, in the raw_to_
 pip install -r raw_to_stage/unittests/test-requirements.txt
 # pip install --trusted-host pypi.python.org --trusted-host pypi.org --trusted-host files.pythonhosted.org pytest-xdist -r raw_to_stage/unittests/test-requirements.txt
 
-coverage run --source=. -m pytest unittests/test.py
+coverage run --source=. -m pytest unittests/clients/test
 
 coverage report -m

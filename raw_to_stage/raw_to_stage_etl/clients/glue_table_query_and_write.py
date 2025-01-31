@@ -63,7 +63,7 @@ class GlueTableQueryAndWrite:
         Parameters:
             dataframe (pd.DataFrame): The Pandas DataFrame to write to the table.
             s3_path (str): The S3 path where the data will be stored.
-            dataset (str): If True store a parquet dataset instead of a ordinary file.
+            dataset (bool): If True store a parquet dataset instead of a ordinary file.
             database (str): The name of the Glue database where the table is located.
             insert_mode (str): The insertion mode (e.g., 'overwrite', 'append') for writing data to the table.
             table (str): The name of the table to write data into.
