@@ -3,7 +3,7 @@
 import awswrangler as wr
 
 from ..logging.logger import get_logger
-from ..util.exceptions.util_exceptions import QueryException
+from ..util.exceptions.util_exceptions import SQLException
 
 
 def does_glue_table_exist(database, table):
@@ -20,7 +20,7 @@ def does_glue_table_exist(database, table):
     try:
         return wr.catalog.does_table_exist(database=database, table=table)
     except Exception as e:
-        raise QueryException("Error querying glue data catalog: %s", str(e))
+        raise SQLException("Error querying glue data catalog: %s", str(e))
 
 
 class GlueTableQueryAndWrite:
@@ -54,19 +54,9 @@ class GlueTableQueryAndWrite:
         try:
             return wr.athena.read_sql_query(query, database=database, chunksize=chunksize)
         except Exception as e:
-            raise QueryException("Error reading Athena table: %s", str(e))
+            raise SQLException("Error reading Athena table: %s", str(e))
 
-    def write_to_glue_table(
-        self,
-        dataframe,
-        s3_path,
-        dataset,
-        database,
-        insert_mode,
-        table,
-        dtype,
-        partition_cols,
-    ):
+    def write_to_glue_table(self, dataframe, s3_path, dataset, database, insert_mode, table, dtype, partition_cols):
         """
         Write a Pandas DataFrame to a Glue table in the AWS Glue Data Catalog.
 
@@ -96,7 +86,7 @@ class GlueTableQueryAndWrite:
             )
             return s3_write_data_return_value
         except Exception as e:
-            raise QueryException("Error writing to Athena table: %s", str(e))
+            raise SQLException("Error writing to Athena table: %s", str(e))
 
     def get_raw_data(self, sql_query, athena_query_chunksize):
         """Query Raw Glue table using query string.

@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 
 from ..logging.logger import get_logger
-from .exceptions.util_exceptions import QueryException
+from .exceptions.util_exceptions import SQLException
 
 logger = get_logger(__name__)
 
@@ -40,7 +40,7 @@ def get_all_previous_processed_dts(glue_client, stage_database, stage_target_tab
                 if "processed_dt" in df.columns:
                     return df
     except Exception as e:
-        raise QueryException(f"Exception Error retrieving daily processes {str(e)}")
+        raise SQLException(f"Exception Error retrieving daily processes {str(e)}")
 
 
 def get_min_timestamp_from_previous_run(daily_processes_df, glue_client, stage_database, stage_target_table, max_processed_dt, penultimate_processed_dt):
@@ -83,7 +83,7 @@ def get_min_timestamp_from_previous_run(daily_processes_df, glue_client, stage_d
 
         return max_timestamp
     except Exception as e:
-        raise QueryException(f"Exception Error retrieving max timestamp for reprocess missing events job {str(e)}")
+        raise SQLException(f"Exception Error retrieving max timestamp for reprocess missing events job {str(e)}")
 
 
 def get_all_processed_times_per_day(glue_client, stage_database, stage_target_table, max_processed_dt, current_process_time=None):
@@ -122,7 +122,7 @@ def get_all_processed_times_per_day(glue_client, stage_database, stage_target_ta
                 if "processed_time" in df.columns:
                     return df
     except Exception as e:
-        raise QueryException(f"Exception Error retrieving daily processes {str(e)}")
+        raise SQLException(f"Exception Error retrieving daily processes {str(e)}")
 
 
 def get_max_timestamp(glue_client, stage_database, stage_target_table, processed_dt=None, processed_time=None):
@@ -167,12 +167,12 @@ def get_max_timestamp(glue_client, stage_database, stage_target_table, processed
                             timestamp = int(df["timestamp"].iloc[0])
                             return timestamp
                         else:
-                            raise QueryException("Stage table does not contain the timestamp column.")
+                            raise SQLException("Stage table does not contain the timestamp column.")
 
         else:
             return 0
     except Exception as e:
-        raise QueryException(f"Exception Error retrieving max timestamp: {str(e)}")
+        raise SQLException(f"Exception Error retrieving max timestamp: {str(e)}")
 
 
 def get_max_processed_dt(glue_client, raw_database, raw_source_table, stage_database, stage_target_table):
@@ -197,7 +197,7 @@ def get_max_processed_dt(glue_client, raw_database, raw_source_table, stage_data
         else:
             return get_max_processed_dt_when_table_doesnt_exist(glue_client, raw_database, raw_source_table)
     except Exception as e:
-        raise QueryException(f"Exception Error retrieving max processed_dt: {str(e)}")
+        raise SQLException(f"Exception Error retrieving max processed_dt: {str(e)}")
 
 
 def get_max_processed_dt_when_table_doesnt_exist(glue_client, raw_database, raw_source_table):
@@ -237,7 +237,7 @@ def get_max_processed_dt_when_table_doesnt_exist(glue_client, raw_database, raw_
                     new_filter_processed_dt = new_date_obj.strftime("%Y%m%d")
                     return new_filter_processed_dt
             else:
-                raise QueryException("Error returned querying the raw table for the min(year,month,day) value.")
+                raise SQLException("Error returned querying the raw table for the min(year,month,day) value.")
 
 
 def get_max_processed_dt_when_table_exists(glue_client, stage_database, stage_target_table):
@@ -274,4 +274,4 @@ def get_max_processed_dt_when_table_exists(glue_client, stage_database, stage_ta
                     filter_processed_dt = int(df["processed_dt"].iloc[0])
                     return filter_processed_dt
                 else:
-                    raise QueryException("Stage table does not contain the processed_dt column.")
+                    raise SQLException("Stage table does not contain the processed_dt column.")
