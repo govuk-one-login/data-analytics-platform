@@ -342,19 +342,6 @@ KmsKey:
             - kms:GenerateDataKey*
             - kms:Describe*
           Resource: '*'
-        - !If
-          - IsCrossAccountDataSyncEnvironment
-          - Effect: Allow
-            Principal:
-              AWS: '{{resolve:ssm:CrossAccountDataSyncRoleARN}}'
-            Action:
-              - kms:Encrypt*
-              - kms:Decrypt*
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-              - kms:Describe*
-            Resource: '*'
-          - !Ref AWS::NoValue
 
 KmsKeyAlias:
   Type: AWS::KMS::Alias

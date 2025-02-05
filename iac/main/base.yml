@@ -62,12 +62,6 @@ Parameters:
     Type: String
     Description: String of characters to exclude from the redshift password stored in secretsmanager
     Default: '"''@/\'
-  CrossAccountDataSyncRoleName:
-    Type: String
-    Description: Name of the role allowing cross account data sync
-    Default: dap-cross-account-data-sync-role
-    AllowedValues:
-      - dap-cross-account-data-sync-role
 
 Conditions:
   UseCodeSigning: !Not
@@ -91,9 +85,6 @@ Conditions:
   IsQuicksightEnvironment: !Or
     - !Condition IsDev
     - !Condition IsProduction
-    - !Condition IsProductionPreview
-  IsCrossAccountDataSyncEnvironment: !Or
-    - !Condition IsStaging
     - !Condition IsProductionPreview
   UsePlaceholderTxMAQueue:
     !Or # todo replace line below with `- !Condition IsDev` when txma queue has been moved from dev to staging
