@@ -22,7 +22,7 @@ RUN /aws-cli-bin/aws --version
 RUN rm -rf /usr/local/aws-cli/v2/current/dist/aws_completer /usr/local/aws-cli/v2/current/dist/awscli/data/ac.index /usr/local/aws-cli/v2/current/dist/awscli/examples
 RUN find /usr/local/aws-cli/v2/current/dist/awscli/botocore/data -name examples-1.json -delete
 
-FROM node:18.18-alpine3.18@sha256:28630a8b97ae8336d77b6dae5705bea816bdc1d6383901bb4495c521929a4091 AS run-tests
+FROM node:20.17-alpine3.20@sha256:1a526b97cace6b4006256570efa1a29cd1fe4b96a5301f8d48e87c5139438a45 AS run-tests
 
 COPY --from=builder /usr/local/bin/python /usr/local/bin/python
 COPY --from=builder /usr/local/lib/ /usr/local/lib/
