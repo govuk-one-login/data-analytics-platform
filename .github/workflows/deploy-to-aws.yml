@@ -71,7 +71,7 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_{0}', inputs.environment)] }}
       - name: Trigger secure pipeline deployment
-        uses: govuk-one-login/devplatform-upload-action@v3.9.1
+        uses: govuk-one-login/devplatform-upload-action@v3.9.2
         with:
           artifact-bucket-name: ${{ secrets[format('ARTIFACT_BUCKET_NAME_{0}', inputs.environment)] }}
           signing-profile-name: ${{ secrets[format('SIGNING_PROFILE_NAME_{0}', inputs.environment)] }}
@@ -111,7 +111,7 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_QUICKSIGHT_ACCESS_{0}', inputs.environment)] }}
       - name: Trigger secure pipeline deployment
-        uses: govuk-one-login/devplatform-upload-action@v3.9.1
+        uses: govuk-one-login/devplatform-upload-action@v3.9.2
         with:
           artifact-bucket-name: ${{ secrets[format('ARTIFACT_BUCKET_NAME_QUICKSIGHT_ACCESS_{0}', inputs.environment)] }}
           signing-profile-name: ${{ secrets[format('SIGNING_PROFILE_NAME_{0}', inputs.environment)] }}
