@@ -308,15 +308,6 @@ It is not in the IaC because it causes one of the following issues:
 
 _Production preview_ has a real TxMA queue in addition to its placeholder queue and so requires the SSM parameters mentioned above in the _Higher environment config_ section.
 
-#### Config for cross account data sync
-
-Because _production preview_ and _staging_ are used for cross account data sync, they have a single SSM parameter holding the name of the cross account data sync role.
-They use this to allow access to their SQS queues and usage of their KMS keys to enable the cross account data sync process.
-
-| Name                        | Description                                      |
-|-----------------------------|--------------------------------------------------|
-| CrossAccountDataSyncRoleARN | ARN of the role allowing cross account data sync |
-
 ## Additional Documents
 
 For a guide to how and why certain development decisions, coding practices, etc. were made, please refer to the [Development Decisions document](docs/development-decisions.md).
