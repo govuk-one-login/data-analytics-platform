@@ -1,4 +1,4 @@
-update "dap_txma_reporting_db_refactored"."conformed_refactored"."ref_relying_parties_refactored"
+update "conformed_refactored"."ref_relying_parties_refactored"
 set client_id='glcH6E9VxtnCAPPwBt550zDh22Q'
 , client_name='Air pollution assessment archive'
 ,display_name='DEFRA - Air pollution assessment archive'
@@ -7,7 +7,7 @@ set client_id='glcH6E9VxtnCAPPwBt550zDh22Q'
 where client_id='WH3OOFBYzTis2qf6lF0pcTzgx2M' ;
 
 
-update "dap_txma_reporting_db_refactored"."conformed_refactored"."dim_relying_party_refactored"
+update "conformed_refactored"."dim_relying_party_refactored"
 set client_id='glcH6E9VxtnCAPPwBt550zDh22Q'
 , relying_party_name='Air pollution assessment archive'
 ,display_name='DEFRA - Air pollution assessment archive'
