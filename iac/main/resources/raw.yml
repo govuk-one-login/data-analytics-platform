@@ -168,3 +168,86 @@ SplunkPerformanceIndexSecret:
     Description: 'a secret to store username and password for access the performance index'
     Name: !Sub ${Environment}-SplunkPerformanceIndexSecret
     SecretString: '{"username":"xxx","password":"xxx"}'
+
+RawEventTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref RawGlueDatabase
+      TableInput:
+        Description: TxmaRawEventTable
+        Name: 'txma-2'
+        PartitionKeys:
+          - { Name: year, Type: string }
+          - { Name: month, Type: string }
+          - { Name: day, Type: string }
+          - { Name: partition_0, Type: string }
+        Parameters:
+          projection.enabled: true
+          projection.partition_0.type: injected
+          projection.year.type: integer
+		      projection.year.range: 2022,2030
+		      projection.year.digits: 4
+		      projection.month.type: integer
+		      projection.month.range: 01,12
+		      projection.month.digits: 2
+		      projection.day.type: integer
+		      projection.day.range: 01,31
+		      projection.day.digits: 2
+		      storage.location.template: !Join [
+              '',
+              ['s3://', !Ref RawLayerBucket, '/txma/${partition_0}/year=${year}/month=${month}/day=${day}/']
+            ]
+        StorageDescriptor:
+          Columns:
+            - Name: event_id
+              Type: string
+            - Name: event_name
+              Type: string
+            - Name: component_id
+              Type: string
+            - Name: timestamp
+              Type: string
+            - Name: timestamp_formatted
+              Type: string
+            - Name: user
+              Type: string
+            - Name: event_timestamp_ms
+              Type: string
+            - Name: event_timestamp_ms_formatted
+              Type: string
+            - Name: txma
+              Type: string
+            - Name: client_id
+              Type: string
+            - Name: extensions
+              Type: string
+            - Name: restricted
+              Type: string
+            - Name: user_supplied_email
+              Type: string
+            - Name: user_id_for_user_supplied_email
+              Type: string
+            - Name: reingestcount
+              Type: string
+            - Name: year
+              Type: string
+            - Name: month
+              Type: string
+            - Name: day
+              Type: string
+          Compressed: true
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          Location: !Sub s3://${RawLayerBucket}/txma/
+          OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+          SerdeInfo:
+            Parameters:
+              {
+                'ignore.malformed.json': true,
+                'serialization.format': 1,
+                'field.delim': '',
+                'case.insensitive': false
+              }
+            SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+          StoredAsSubDirectories: false
+        TableType: EXTERNAL_TABLE
