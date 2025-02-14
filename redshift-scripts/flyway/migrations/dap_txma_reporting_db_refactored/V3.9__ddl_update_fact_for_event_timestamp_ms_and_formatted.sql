@@ -15,7 +15,7 @@ from
 from
 (select ROW_NUMBER() OVER (PARTITION BY event_id ORDER BY event_timestamp_ms_formatted) rn,
 event_id,event_timestamp_ms,event_timestamp_ms_formatted
-from  "dap_txma_reporting_db_refactored"."dap_txma_stage"."txma_stage_layer"
+from  "dap_txma_stage"."txma_stage_layer"
 --where event_id in ('0c681b99-ebbc-41b7-bd26-080cc9fcbdc8','62c445a6-23a0-47e5-a5c9-8d5d2f98f2ad')
 )
 where rn=1) st
