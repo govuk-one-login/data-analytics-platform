@@ -637,7 +637,15 @@ CurTable:
             Type: string
         Compressed: false
         StoredAsSubDirectories: false
-        Location: !Sub s3://cid-{{resolve:secretsmanager:sustainability-account-ids:SecretString:ct-shared-services}}-shared/cur/
+        Location: !Join [
+            '',
+            [
+              's3://',
+              !Sub 's3://cid-{{resolve:secretsmanager:sustainability-account-ids:SecretString:ct-shared-services}}-shared/cur/',
+              !Sub '{{resolve:secretsmanager:sustainability-account-ids:SecretString:source-bill-payer}}/',
+              'cid/cid/',
+            ],
+          ]        
         InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
         OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
         SerdeInfo:
@@ -646,12 +654,6 @@ CurTable:
             serialization.format: 1
             classification: parquet
       PartitionKeys:
-        - Name: source_account_id
-          Type: string
-        - Name: cur_name_1
-          Type: string
-        - Name: cur_name_2
-          Type: string
         - Name: year
           Type: int
         - Name: month
@@ -661,23 +663,8 @@ CurTable:
         EXTERNAL: 'TRUE'
         'parquet.compression': 'snappy'
         'projection.enabled': 'true'
-        'projection.source_account_id.type': 'enum'
-        'projection.source_account_id.values': !Sub '{{resolve:secretsmanager:sustainability-account-ids:SecretString:source-bill-payer}}'
         'projection.year.type': 'integer'
         'projection.year.range': '2022,2035'
         'projection.month.type': 'integer'
         'projection.month.range': '1,12'
-        'projection.cur_name_1.type': 'enum'
-        'projection.cur_name_1.values': 'cid'
-        'projection.cur_name_2.type': 'enum'
-        'projection.cur_name_2.values': 'cid'
-        'storage.location.template':
-          !Join [
-            '',
-            [
-              's3://',
-              !Sub 's3://cid-{{resolve:secretsmanager:sustainability-account-ids:SecretString:ct-shared-services}}-shared/cur/',
-              !Sub '{{resolve:secretsmanager:sustainability-account-ids:SecretString:source-bill-payer}}/',
-              '${cur_name_1}/${cur_name_2}/year=${year}/${month}/',
-            ],
-          ]
+
