@@ -454,16 +454,20 @@ RedshiftCreateSnapshotLambda:
       - AWSLambdaBasicExecutionRole
       - Statement:
           - Effect: Allow
-            Action: redshift-serverless:createsnapshot
-            Resource: !Sub arn:aws:redshift-serverless:eu-west-2:${AWS::AccountId}:snapshot/*
+            Action: redshift-serverless:CreateSnapshot
+            Resource:
+              - !GetAtt RedshiftServerlessNamespace.Namespace.NamespaceArn
+              - !Sub arn:aws:redshift-serverless:eu-west-2:${AWS::AccountId}:snapshot/*
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
+        ENVIRONMENT: !Ref Environment
         NAMESPACE_NAME: !Ref RedshiftServerlessNamespace
         RETENTION_PERIOD_DAYS: !If [IsProduction, '7', '1']
     Tags:
       Environment: !Ref Environment
+    MemorySize: 256
     VpcConfig:
       SecurityGroupIds:
         - !Ref LambdaSecurityGroup
