@@ -637,15 +637,7 @@ CurTable:
             Type: string
         Compressed: false
         StoredAsSubDirectories: false
-        Location:
-          !Join [
-            '',
-            [
-              !Sub 's3://cid-{{resolve:secretsmanager:sustainability-account-ids:SecretString:ct-shared-services}}-shared/cur/',
-              !Sub '{{resolve:secretsmanager:sustainability-account-ids:SecretString:source-bill-payer}}/',
-              'cid/cid/',
-            ],
-          ]
+        Location: !Sub 's3://cid-{{resolve:secretsmanager:sustainability-account-ids:SecretString:ct-shared-services}}-shared/cur/{{resolve:secretsmanager:sustainability-account-ids:SecretString:source-bill-payer}}/cid/cid/'
         InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
         OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
         SerdeInfo:
