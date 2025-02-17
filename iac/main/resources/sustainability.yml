@@ -659,3 +659,4 @@ CurTable:
         'projection.year.range': '2022,2035'
         'projection.month.type': 'integer'
         'projection.month.range': '1,12'
+        'storage.location.template': "s3://cid-921370741319-shared/cur/892537467220/cid/cid/year=${year}/month=${month}"
