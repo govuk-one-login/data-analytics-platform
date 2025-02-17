@@ -648,7 +648,7 @@ CurTable:
             Type: string
         Compressed: false
         StoredAsSubDirectories: false
-        Location: !Sub s3://cid-{{resolve:secretsmanager:SRE-account-id-secret:SecretString:ct-shared-services}}-shared/cur/
+        Location: !Sub s3://cid-{{resolve:secretsmanager:sustainability-account-ids:SecretString:ct-shared-services}}-shared/cur/
         InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
         OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
         SerdeInfo:
@@ -673,7 +673,7 @@ CurTable:
         'parquet.compression': 'snappy'
         'projection.enabled': 'true'
         'projection.source_account_id.type': 'enum'
-        'projection.source_account_id.values': !Sub '{{resolve:secretsmanager:SRE-account-id-secret:SecretString:source-bill-payer}}'
+        'projection.source_account_id.values': !Sub '{{resolve:secretsmanager:sustainability-account-ids:SecretString:source-bill-payer}}'
         'projection.year.type': 'integer'
         'projection.year.range': '2022,2035'
         'projection.month.type': 'integer'
@@ -683,8 +683,8 @@ CurTable:
             '',
             [
               's3://',
-              !Sub 's3://cid-{{resolve:secretsmanager:SRE-account-id-secret:SecretString:ct-shared-services}}-shared/cur/',
-              !Sub '{{resolve:secretsmanager:SRE-account-id-secret:SecretString:source-bill-payer}}/',
+              !Sub 's3://cid-{{resolve:secretsmanager:sustainability-account-ids:SecretString:ct-shared-services}}-shared/cur/',
+              !Sub '{{resolve:secretsmanager:sustainability-account-ids:SecretString:source-bill-payer}}/',
               'cid/cid/year=${year}/${month}/',
             ],
           ]
