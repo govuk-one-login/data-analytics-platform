@@ -1,14 +1,3 @@
-SustainabilityAccountIds:
-  #checkov:skip=CKV_AWS_149:We will use aws managed kms key
-  Type: AWS::SecretsManager::Secret
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
-  Condition: IsADMEnvironment
-  Properties:
-    Description: 'a secret to store account ids for sustainability bucket'
-    Name: sustainability-account-ids
-    SecretString: '{"ct-shared-services":"xxx", "source-bill-payer": "xxx"}'
-
 SustainabilityDatabase:
   Type: AWS::Glue::Database
   Condition: IsADMEnvironment
