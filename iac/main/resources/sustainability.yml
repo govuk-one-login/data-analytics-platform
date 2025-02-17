@@ -648,7 +648,7 @@ CurTable:
             Type: string
         Compressed: false
         StoredAsSubDirectories: false
-        Location: !Sub s3://cid-{{resolve:secretsmanager:SRE-account-id-secret:SecretString:ct-shared-service}}-shared/cur/
+        Location: !Sub s3://cid-{{resolve:secretsmanager:SRE-account-id-secret:SecretString:ct-shared-services}}-shared/cur/
         InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
         OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
         SerdeInfo:
