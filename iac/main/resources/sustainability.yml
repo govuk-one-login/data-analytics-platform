@@ -641,7 +641,6 @@ CurTable:
           !Join [
             '',
             [
-              's3://',
               !Sub 's3://cid-{{resolve:secretsmanager:sustainability-account-ids:SecretString:ct-shared-services}}-shared/cur/',
               !Sub '{{resolve:secretsmanager:sustainability-account-ids:SecretString:source-bill-payer}}/',
               'cid/cid/',
