@@ -683,7 +683,7 @@ CurTable:
             '',
             [
               's3://',
-              !Sub 's3://cid-{{resolve:secretsmanager:SRE-account-id-secret:SecretString:ct-shared-service}}-shared/cur/',
+              !Sub 's3://cid-{{resolve:secretsmanager:SRE-account-id-secret:SecretString:ct-shared-services}}-shared/cur/',
               !Sub '{{resolve:secretsmanager:SRE-account-id-secret:SecretString:source-bill-payer}}/',
               'cid/cid/year=${year}/${month}/',
             ],
