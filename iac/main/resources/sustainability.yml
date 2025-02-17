@@ -637,7 +637,8 @@ CurTable:
             Type: string
         Compressed: false
         StoredAsSubDirectories: false
-        Location: !Join [
+        Location:
+          !Join [
             '',
             [
               's3://',
@@ -645,7 +646,7 @@ CurTable:
               !Sub '{{resolve:secretsmanager:sustainability-account-ids:SecretString:source-bill-payer}}/',
               'cid/cid/',
             ],
-          ]        
+          ]
         InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
         OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
         SerdeInfo:
@@ -667,4 +668,3 @@ CurTable:
         'projection.year.range': '2022,2035'
         'projection.month.type': 'integer'
         'projection.month.range': '1,12'
-
