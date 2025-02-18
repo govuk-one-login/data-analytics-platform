@@ -24,7 +24,7 @@ IAMRoleRedshiftServerless:
                 - 's3:ListBucket'
                 - 's3:ListBucketMultipartUploads'
                 - 's3:PutObject'
-              Resource: 
+              Resource:
                 - !Sub 'arn:aws:s3:::${RawLayerBucket}'
                 - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}'
