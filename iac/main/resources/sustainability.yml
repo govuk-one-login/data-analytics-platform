@@ -1,4 +1,3 @@
-
 SustainabilityAccountIds:
   #checkov:skip=CKV_AWS_149:We will use aws managed kms key
   Type: AWS::SecretsManager::Secret
