@@ -24,15 +24,13 @@ IAMRoleRedshiftServerless:
                 - 's3:ListBucket'
                 - 's3:ListBucketMultipartUploads'
                 - 's3:PutObject'
-              Resource: !If
-                - IsADMEnvironment
-                - - !Sub 'arn:aws:s3:::${RawLayerBucket}'
-                  - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
-                  - !Sub 'arn:aws:s3:::${StageLayerBucket}'
-                  - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'
-                  - !Sub 'arn:aws:s3:::${ELTMetadataBucket}'
-                  - !Sub 'arn:aws:s3:::${ELTMetadataBucket}/*'
-
+              Resource: 
+                - !Sub 'arn:aws:s3:::${RawLayerBucket}'
+                - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
+                - !Sub 'arn:aws:s3:::${StageLayerBucket}'
+                - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'
+                - !Sub 'arn:aws:s3:::${ELTMetadataBucket}'
+                - !Sub 'arn:aws:s3:::${ELTMetadataBucket}/*'
             - Effect: Allow
               Resource: !Sub arn:aws:glue:eu-west-2:${AWS::AccountId}:*
               Action:
