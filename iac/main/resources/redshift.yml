@@ -31,6 +31,8 @@ IAMRoleRedshiftServerless:
                 - !Sub 'arn:aws:s3:::${StageLayerBucket}/*'
                 - !Sub 'arn:aws:s3:::${ELTMetadataBucket}'
                 - !Sub 'arn:aws:s3:::${ELTMetadataBucket}/*'
+                - !Sub 's3://cid-{{resolve:secretsmanager:cur-account-ids:SecretString:ct-shared-services}}-shared'
+                - !Sub 's3://cid-{{resolve:secretsmanager:cur-account-ids:SecretString:ct-shared-services}}-shared/*'
             - Effect: Allow
               Resource: !Sub arn:aws:glue:eu-west-2:${AWS::AccountId}:*
               Action:
