@@ -3,7 +3,7 @@ import type { TestSupportEvent } from './handler';
 import { GetQueryExecutionCommand, GetQueryResultsCommand, StartQueryExecutionCommand } from '@aws-sdk/client-athena';
 import type { GetQueryResultsOutput } from '@aws-sdk/client-athena';
 import { getEnvironmentVariable, getRequiredParams, sleep } from '../../shared/utils/utils';
-import { athenaClient, redshiftClient } from '../../shared/clients';
+import { athenaClient, redshiftDataClient } from '../../shared/clients';
 import {
   DescribeStatementCommand,
   ExecuteStatementCommand,
@@ -49,7 +49,7 @@ export class QueryRunner {
         WorkgroupName: `${event.environment}-redshift-serverless-workgroup`,
         SecretArn: getEnvironmentVariable('REDSHIFT_SECRET_ARN'),
       });
-      return await redshiftClient.send(request).then(response => response.Id);
+      return await redshiftDataClient.send(request).then(response => response.Id);
     }
   }
 
@@ -84,7 +84,7 @@ export class QueryRunner {
         return { status: status.State, extraInfo: { reason: status.StateChangeReason, error: status.AthenaError } };
       });
     } else {
-      return await redshiftClient
+      return await redshiftDataClient
         .send(new DescribeStatementCommand({ Id: queryId }))
         .then(response => ({ status: response.Status, extraInfo: response.Error }));
     }
@@ -96,7 +96,7 @@ export class QueryRunner {
     if (this.databaseType === 'athena') {
       return await athenaClient.send(new GetQueryResultsCommand({ QueryExecutionId: queryId }));
     } else {
-      return await redshiftClient.send(new GetStatementResultCommand({ Id: queryId }));
+      return await redshiftDataClient.send(new GetStatementResultCommand({ Id: queryId }));
     }
   }
 }

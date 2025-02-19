@@ -12,6 +12,7 @@ import { QuickSightClient } from '@aws-sdk/client-quicksight';
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import { EventBridgeClient } from '@aws-sdk/client-eventbridge';
+import { RedshiftServerlessClient } from '@aws-sdk/client-redshift-serverless';
 
 export const athenaClient = new AthenaClient(AWS_CLIENT_BASE_CONFIG);
 
@@ -30,7 +31,9 @@ export const lambdaClient = new LambdaClient(AWS_CLIENT_BASE_CONFIG);
 
 export const quicksightClient = new QuickSightClient(AWS_CLIENT_BASE_CONFIG);
 
-export const redshiftClient = new RedshiftDataClient(AWS_CLIENT_BASE_CONFIG);
+export const redshiftDataClient = new RedshiftDataClient(AWS_CLIENT_BASE_CONFIG);
+
+export const redshiftServerlessClient = new RedshiftServerlessClient(AWS_CLIENT_BASE_CONFIG);
 
 export const s3Client = new S3Client(AWS_CLIENT_BASE_CONFIG);
 
