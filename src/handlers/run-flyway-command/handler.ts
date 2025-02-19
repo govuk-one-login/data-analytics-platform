@@ -13,7 +13,7 @@ import * as path from 'node:path';
 
 const logger = getLogger('lambda/run-flyway-command');
 
-const FLYWAY_COMMANDS = ['clean', 'info', 'migrate', 'validate'];
+const FLYWAY_COMMANDS = ['clean', 'info', 'migrate', 'repair', 'validate'];
 
 const LAMBDA_FILES_ROOT = '/tmp/flyway';
 
@@ -25,7 +25,7 @@ const LIBRARY_FILES_PATH = `${LAMBDA_FILES_ROOT}/lib`;
 
 type FlywayCommand = (typeof FLYWAY_COMMANDS)[number];
 
-interface RunFlywayEvent {
+export interface RunFlywayEvent {
   command: FlywayCommand;
   database: string;
 }
@@ -146,7 +146,6 @@ const getFlywayEnvironment = async (
   FLYWAY_LOCATIONS: `filesystem:${MIGRATIONS_DIRECTORY_PATH}/${event.database}`,
   FLYWAY_CONFIG_FILES: CONFIG_FILE_PATH,
   FLYWAY_CLEAN_DISABLED: getAWSEnvironment() === 'production' ? 'true' : 'false',
-  FLYWAY_DEFAULT_SCHEMA: 'flyway',
 });
 
 const runFlywayCommand = (event: RunFlywayEvent, environment: Record<string, string>): RunFlywayResult => {

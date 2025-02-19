@@ -37,6 +37,19 @@ Library files for Flyway (library itself and the Redshift JAR). These can be lef
 
 Migration files for Flyway. For more on the concept, refer to the documentation [here](https://documentation.red-gate.com/flyway/flyway-cli-and-api/concepts/migrations).
 
+### `flyway.conf`
+
+Config file for flyway. We set some properties in the lambda as environment variables, but set the following static properties in the `flyway.conf` file.
+For more on the config file see the documentation [here](https://www.red-gate.com/hub/product-learning/flyway/the-flyway-configuration-files)
+
+- `flyway.defaultSchema` - the schema where flyway will put its history table. we give it its own
+  schema to do this
+- `flyway.schemas` - list of schemas flyway manages. it will try and create them if they don't exist in an empty database, and it will clean them all when the `clean` command is run.
+  The `migrate` command will operate from the default schema so all schema references must be explicit.
+  If we didn't set a default schema, flyway would use the first schema in this list as the default one
+
+See the documentation [here](https://www.red-gate.com/hub/product-learning/flyway/the-flyway-configuration-files#schemas) for more on these schema options
+
 #### Database subdirectories
 
 Note that all migration files are under subdirectories of the `migrations/` directory. These subdirectories are the names of databases in Redshift.
