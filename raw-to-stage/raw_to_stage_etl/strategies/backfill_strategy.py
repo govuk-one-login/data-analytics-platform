@@ -111,10 +111,6 @@ class BackfillStrategy(Strategy):
             self.max_processed_dt,
             penultimate_processed_dt,
         )
-
-        if min_timestamp_filter_for_missing_events is None:
-            raise OperationFailedException("Could not calculate a minimum timestamp to filter for missing events, ending process")
-
         self.logger.info("retrieved timestamp filter value: %s", self.max_timestamp)
 
         backfill_raw_sql = self.get_raw_sql(

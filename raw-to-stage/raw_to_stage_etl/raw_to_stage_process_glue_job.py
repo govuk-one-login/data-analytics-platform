@@ -17,6 +17,8 @@ from raw_to_stage_etl.strategies.scheduled_strategy import ScheduledStrategy
 from raw_to_stage_etl.strategies.view_strategy import ViewStrategy
 from raw_to_stage_etl.util.data_preprocessing import DataPreprocessing
 from raw_to_stage_etl.util.exceptions.util_exceptions import OperationFailedException
+from raw_to_stage_etl.util.exceptions.util_exceptions import QueryException
+
 from raw_to_stage_etl.util.json_config_processing_utilities import extract_element_by_name
 
 logger = get_logger(__name__)
@@ -91,7 +93,7 @@ def main():
             processor = RawToStageProcessor(args, backfill_strategy)
             try:
                 processor.process()
-            except (NoDataFoundException, OperationFailedException) as e:
+            except (NoDataFoundException, OperationFailedException, QueryException) as e:
                 logger.info("Exception Message: %s, Stacktrace: %s", str(e), traceback.format_exc())
                 # as no data could be found for backfill, supress the exception
                 logger.info("Exiting without raising error(As no data could be found for backfill)")
