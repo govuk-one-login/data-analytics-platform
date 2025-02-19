@@ -6,15 +6,16 @@ Data and Analytics platform which will enable the implementation of the [OneLogi
 
 #### Install development tools
 
-The project uses the current (as of 03/05/2023) LTS of Node, version 18.
-The GDS recommendation is to use `nvm` to manage Node versions - installation instructions can be found [here](https://github.com/nvm-sh/nvm#installing-and-updating).
-
 ###### Core
 
-* [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) - for running SAM commands
-* [Node](https://nodejs.org/en) - for lambda development and running `npm` commands
+* [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)&ast - for running SAM commands
+* [Node](https://nodejs.org/en)&ast&ast - for lambda development and running `npm` commands
 * [Docker](https://docs.docker.com/desktop/install/mac-install) - for running `sam local`
 * [Checkov](https://www.checkov.io) - for validating IaC code. Install on GDS Macs in the terminal by running `pip3 install checkov`
+
+&ast Ensure your SAM CLI version matches the version used in GitHub workflow files (currently 1.116.0) otherwise you may get errors locally that do not appear in GitHub Actions
+
+&ast&ast The project currently uses Node 18. The GDS recommendation is to use `nvm` to manage Node versions - installation instructions can be found [here](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ###### Optional
 
@@ -223,7 +224,7 @@ From a Secure Pipelines point-of-view, environments can be split into two types:
 The lower environments are _dev_ and _build_&ast;&ast;. The higher environments are _staging_, _integration_ and _production_.
 More information can be found using the Secure Pipelines link above, but the key differences are that the lower environments are the only ones
 that can be deployed to directly from GitHub. Deployment to the higher environments relies on 'promotion' from a lower environment, specifically
-the _build_ environment. In addition, the higher environment lambdas are triggered by real TxMA event queues&ast;&ast;&ast;, whereas lower environments use a
+the _build_ environment. In addition, the higher environment lambdas are triggered by real TxMA event queues, whereas lower environments use a
 placeholder one that we create and must put our own test events onto.
 
 &ast; With the exception of the production preview environment - see section below
@@ -231,10 +232,6 @@ placeholder one that we create and must put our own test events onto.
 &ast;&ast; Strictly speaking, `dev` does not form part of the Secure Pipelines build system which takes an application
 that is deployed to `build` all the way to `production` via the other higher environments. Our `dev` environment is a
 disconnected sandbox; however it still uses Secure Pipelines to deploy directly from GitHub
-
-&ast;&ast;&ast; An important exception is that _dev_ is connected to the real TxMA staging queue. This is intended to be temporary
-since at time of writing we do not have the higher environments set up. Once our own _staging_ account is ready, it will receive
-the real TxMA staging queue and _dev_ will get a placeholder queue
 
 #### Lower Environments
 
@@ -261,8 +258,7 @@ The action cannot be invoked manually like the one for dev, only by merging into
 Because they use real TxMA event queues (from external AWS accounts and not in our IaC code),
 deployment to higher environments&ast; relies on the following AWS System Manager Parameters being available in the target account:
 
-&ast; These parameters are also required in the _dev_ account for the reasons mentioned above (_dev_ currently having the real TxMA staging queue).
-They are additionally required in the _production preview_ account as it also has a real TxMA queue.
+&ast; These parameters are also required in the _production preview_ account as it also has a real TxMA queue.
 
 | Name              | Description                                                                 |
 |-------------------|-----------------------------------------------------------------------------|
@@ -275,14 +271,7 @@ You can see these values being referenced in the template files in the following
 '{{resolve:ssm:TxMAEventQueueARN}}'
 ```
 
-See the following links for how to create the parameters via:
-
-- [AWS Console](https://docs.aws.amazon.com/systems-manager/latest/userguide/parameter-create-console.html)
-- [AWS CLI](https://docs.aws.amazon.com/systems-manager/latest/userguide/param-create-cli.html)
-- [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-parameter.html)
-
-Parameter values can be found [on this page](https://govukverify.atlassian.net/wiki/spaces/DAP/pages/3591471337/DAP+-+TxMA+Events+Subscription#TxMA-Integration-Queue-&-KMS-Details) -
-recall that our `dev` environment currently takes the values assigned to `staging` on that page.
+Parameter values can be found [on this page](https://govukverify.atlassian.net/wiki/spaces/DAP/pages/3591471337/DAP+-+TxMA+Events+Subscription#TxMA-SQS-Queue-Details).
 
 ###### Staging
 

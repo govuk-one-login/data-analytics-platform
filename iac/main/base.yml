@@ -86,9 +86,8 @@ Conditions:
     - !Condition IsDev
     - !Condition IsProduction
     - !Condition IsProductionPreview
-  UsePlaceholderTxMAQueue:
-    !Or # todo replace line below with `- !Condition IsDev` when txma queue has been moved from dev to staging
-    - !Condition IsStaging
+  UsePlaceholderTxMAQueue: !Or
+    - !Condition IsDev
     - !Condition IsBuild
     - !Condition IsProductionPreview
   # is this an environment that uses secure pipelines for deployments (production-preview does a direct sam deploy)
