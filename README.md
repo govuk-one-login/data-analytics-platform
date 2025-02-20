@@ -312,6 +312,6 @@ cd raw-to-stage
 pip3 install --upgrade build
 python3 -m build
 
-pip install ./dist/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl  --force-reinstall
+pip3 install ./dist/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl  --force-reinstall
 
 Now you can fix imports ,pointing to any new modules you created, in the raw_to_stage_process_glue_job.py
