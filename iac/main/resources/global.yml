@@ -480,8 +480,6 @@ LambdaSecurityGroup:
 
     SecurityGroupEgress:
       - IpProtocol: -1
-        FromPort: -1
-        ToPort: -1
         CidrIp: 0.0.0.0/0
         Description: Allow egress to anywhere
 
