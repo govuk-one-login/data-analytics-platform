@@ -211,8 +211,6 @@ RedshiftAccessEC2SecurityGroup:
     VpcId: !Ref VPCForDAP
     SecurityGroupEgress:
       - IpProtocol: -1
-        FromPort: -1
-        ToPort: -1
         CidrIp: 0.0.0.0/0
         Description: Allow egress to anywhere
 
@@ -231,8 +229,6 @@ VPCDefaultSecurityGroupEgressAll:
   Properties:
     GroupId: !GetAtt VPCForDAP.DefaultSecurityGroup
     IpProtocol: -1
-    FromPort: -1
-    ToPort: -1
     CidrIp: 0.0.0.0/0
     Description: Allow all outbound traffic to any destination
 
@@ -241,8 +237,6 @@ VPCDefaultSecurityGroupAllIngress:
   Properties:
     GroupId: !GetAtt VPCForDAP.DefaultSecurityGroup
     IpProtocol: -1
-    FromPort: -1
-    ToPort: -1
     SourceSecurityGroupId: !GetAtt VPCForDAP.DefaultSecurityGroup
     Description: Allow all ingress traffic within the same security group
 
