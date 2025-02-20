@@ -64,7 +64,7 @@ Globals:
       - UsePermissionsBoundary
       - !Ref PermissionsBoundary
       - !Ref 'AWS::NoValue'
-    Runtime: nodejs18.x
+    Runtime: nodejs22.x
     Timeout: 30
     CodeUri: dist/
     Environment:

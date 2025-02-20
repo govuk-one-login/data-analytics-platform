@@ -15,7 +15,7 @@ Data and Analytics platform which will enable the implementation of the [OneLogi
 
 &ast Ensure your SAM CLI version matches the version used in GitHub workflow files (currently 1.134.0) otherwise you may get errors locally that do not appear in GitHub Actions
 
-&ast&ast The project currently uses Node 18. The GDS recommendation is to use `nvm` to manage Node versions - installation instructions can be found [here](https://github.com/nvm-sh/nvm#installing-and-updating).
+&ast&ast The project currently uses Node 22. The GDS recommendation is to use `nvm` to manage Node versions - installation instructions can be found [here](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ###### Optional
 
