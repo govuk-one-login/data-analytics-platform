@@ -480,8 +480,6 @@ LambdaSecurityGroup:
 
     SecurityGroupEgress:
       - IpProtocol: -1
-        FromPort: -1
-        ToPort: -1
         CidrIp: 0.0.0.0/0
         Description: Allow egress to anywhere
 
@@ -663,6 +661,20 @@ VPCEndpointEC2Messages:
       - !Ref SubnetForDAP3
     SecurityGroupIds:
       - !Ref VpcEndpointSecurityGroup
+
+VPCEndpointRedshiftServerless:
+  Type: AWS::EC2::VPCEndpoint
+  Properties:
+    VpcEndpointType: Interface
+    ServiceName: com.amazonaws.eu-west-2.redshift-serverless
+    VpcId: !Ref VPCForDAP
+    PrivateDnsEnabled: true
+    SecurityGroupIds:
+      - !Ref LambdaSecurityGroup
+    SubnetIds:
+      - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3
 
 AWSSupportReadOnlyRole:
   Type: 'AWS::IAM::Role'

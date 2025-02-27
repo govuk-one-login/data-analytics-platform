@@ -1,108 +1,4 @@
-SustainabilityBucket:
-  Type: 'AWS::S3::Bucket'
-  Properties:
-    AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-sustainability
-    LoggingConfiguration:
-      DestinationBucketName: !Ref GlobalLogBucket
-      LogFilePrefix: dap-sustainability/log
-    PublicAccessBlockConfiguration:
-      BlockPublicAcls: true
-      BlockPublicPolicy: true
-      IgnorePublicAcls: true
-      RestrictPublicBuckets: true
-    VersioningConfiguration:
-      Status: Enabled
-    # NotificationConfiguration:
-    #   TopicConfigurations:
-    #     - Event: s3:Replication:OperationFailedReplication
-    #       Topic: !Ref SNSAlertTopic
-    LifecycleConfiguration:
-      # Permanently removing files after 40 days
-      Rules:
-        - Id: CleanupRule
-          Status: Enabled
-          ExpirationInDays: 30
-          NoncurrentVersionExpiration:
-            NoncurrentDays: 10
-    ReplicationConfiguration:
-      Role: !GetAtt SustainabilityBucketRole.Arn
-      Rules:
-        - Id: SustainabilityBucketRule
-          Status: Enabled
-          Priority: 1
-          DeleteMarkerReplication:
-            Status: Enabled
-          Destination:
-            Bucket: !Sub 'arn:aws:s3:::production-dap-sustainability-921370741319-shared'
-            Metrics:
-              Status: Enabled
-          Filter:
-            Prefix: ''
-
-SustainabilityBucketPolicy:
-  Type: AWS::S3::BucketPolicy
-  Properties:
-    Bucket: !Ref SustainabilityBucket
-    PolicyDocument:
-      Version: 2012-10-17
-      Statement:
-        - Effect: Deny
-          Action: 's3:*'
-          Resource: !Sub ${SustainabilityBucket.Arn}/*
-          Principal: '*'
-          Condition:
-            Bool:
-              aws:SecureTransport: false
-        - Effect: Allow
-          Action:
-            - 's3:PutObject'
-            - 's3:GetBucketLocation'
-            - 's3:ListBucket'
-          Resource:
-            - !Sub ${SustainabilityBucket.Arn}
-            - !Sub ${SustainabilityBucket.Arn}/*
-          Principal:
-            AWS: !GetAtt IAMRoleRedshiftServerless.Arn
-
-SustainabilityBucketIamPolicy:
-  Type: 'AWS::IAM::Policy'
-  Properties:
-    PolicyDocument:
-      Statement:
-        - Action:
-            - 's3:GetReplicationConfiguration'
-            - 's3:ListBucket'
-            - 's3:GetObjectVersionForReplication'
-            - 's3:GetObjectVersionAcl'
-          Effect: Allow
-          Resource:
-            - !Sub ${SustainabilityBucket.Arn}
-            - !Sub ${SustainabilityBucket.Arn}/*
-        - Action:
-            - 's3:ReplicateObject'
-            - 's3:ReplicateDelete'
-          Effect: Allow
-          Resource:
-            - !Sub 'arn:aws:s3:::production-dap-sustainability-921370741319-shared'
-            - !Sub 'arn:aws:s3:::production-dap-sustainability-921370741319-shared/*'
-    PolicyName: !Sub ${Environment}-dap-sustainabilityBucketIamPolicy
-    Roles:
-      - !Ref SustainabilityBucketRole
-
-SustainabilityBucketRole:
-  Type: 'AWS::IAM::Role'
-  Properties:
-    AssumeRolePolicyDocument:
-      Statement:
-        - Action:
-            - 'sts:AssumeRole'
-          Effect: Allow
-          Principal:
-            Service:
-              - s3.amazonaws.com
-
-SREAccountId:
+SustainabilityAccountIds:
   #checkov:skip=CKV_AWS_149:We will use aws managed kms key
   Type: AWS::SecretsManager::Secret
   DeletionPolicy: Retain
@@ -110,46 +6,667 @@ SREAccountId:
   Condition: IsADMEnvironment
   Properties:
     Description: 'a secret to store account id for SRE account'
-    Name: SRE-account-id-secret
-    SecretString: '{"accountId":"xxx"}'
+    Name: cur-account-ids
+    SecretString: '{"ct-shared-services":"xxx", "source-bill-payer": "xxx"}'
 
-SustainabilityCrawlerRole:
-  Type: AWS::IAM::Role
+SustainabilityDatabase:
+  Type: AWS::Glue::Database
   Condition: IsADMEnvironment
   Properties:
-    RoleName: !Sub ${Environment}-sustainability-glue-crawler-role
-    AssumeRolePolicyDocument:
-      Version: '2012-10-17'
-      Statement:
-        - Effect: Allow
-          Principal:
-            Service: [glue.amazonaws.com]
-          Action: ['sts:AssumeRole']
-    ManagedPolicyArns:
-      - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
-    Path: /
-    Policies:
-      - PolicyName: !Sub ${Environment}-sustainability-glue-crawler-policy
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Action:
-                - 'glue:GetConnection'
-                - 'glue:GetCrawler'
-                - 'glue:CreateTable'
-                - 'glue:UpdateCrawler'
-                - 'glue:CreatePartition'
-                - 'glue:BatchCreatePartition'
-              Resource: '*'
-            - Effect: Allow
-              Action:
-                - 's3:GetObject'
-                - 's3:ListObject'
-              Resource:
-                # Cost Usage Report buckets in SRE account
-                - !Sub arn:aws:s3:::cid-{{resolve:secretsmanager:SRE-account-id-secret:SecretString:accountId}}-shared
-                - !Sub arn:aws:s3:::cid-{{resolve:secretsmanager:SRE-account-id-secret:SecretString:accountId}}-shared/*
-            - Effect: Allow
-              Action: 'logs:AssociateKmsKey'
-              Resource: 'arn:aws:logs:*:*:/aws-glue/*'
+    CatalogId: !Sub ${AWS::AccountId}
+    DatabaseInput:
+      Name: !Sub ${Environment}-sustainability
+
+CurTable:
+  Type: AWS::Glue::Table
+  Condition: IsADMEnvironment
+  Properties:
+    CatalogId: !Ref AWS::AccountId
+    DatabaseName: !Ref SustainabilityDatabase
+    TableInput:
+      Name: cur
+      Description: Cost and usage reports delivered as parquet data
+      StorageDescriptor:
+        Columns:
+          - Name: bill_bill_type
+            Type: string
+          - Name: bill_billing_entity
+            Type: string
+          - Name: bill_billing_period_end_date
+            Type: timestamp
+          - Name: bill_billing_period_start_date
+            Type: timestamp
+          - Name: bill_invoice_id
+            Type: string
+          - Name: bill_payer_account_id
+            Type: string
+          - Name: identity_line_item_id
+            Type: string
+          - Name: identity_time_interval
+            Type: string
+          - Name: line_item_availability_zone
+            Type: string
+          - Name: line_item_legal_entity
+            Type: string
+          - Name: line_item_line_item_description
+            Type: string
+          - Name: line_item_line_item_type
+            Type: string
+          - Name: line_item_operation
+            Type: string
+          - Name: line_item_product_code
+            Type: string
+          - Name: line_item_resource_id
+            Type: string
+          - Name: line_item_unblended_cost
+            Type: double
+          - Name: line_item_usage_account_id
+            Type: string
+          - Name: line_item_usage_amount
+            Type: double
+          - Name: line_item_usage_end_date
+            Type: timestamp
+          - Name: line_item_usage_start_date
+            Type: timestamp
+          - Name: line_item_usage_type
+            Type: string
+          - Name: pricing_lease_contract_length
+            Type: string
+          - Name: pricing_offering_class
+            Type: string
+          - Name: pricing_public_on_demand_cost
+            Type: double
+          - Name: pricing_purchase_option
+            Type: string
+          - Name: pricing_term
+            Type: string
+          - Name: pricing_unit
+            Type: string
+          - Name: product_cache_engine
+            Type: string
+          - Name: product_current_generation
+            Type: string
+          - Name: product_database_engine
+            Type: string
+          - Name: product_deployment_option
+            Type: string
+          - Name: product_from_location
+            Type: string
+          - Name: product_group
+            Type: string
+          - Name: product_instance_type
+            Type: string
+          - Name: product_instance_type_family
+            Type: string
+          - Name: product_license_model
+            Type: string
+          - Name: product_operating_system
+            Type: string
+          - Name: product_physical_processor
+            Type: string
+          - Name: product_processor_features
+            Type: string
+          - Name: product_product_family
+            Type: string
+          - Name: product_product_name
+            Type: string
+          - Name: product_region
+            Type: string
+          - Name: product_servicecode
+            Type: string
+          - Name: product_storage
+            Type: string
+          - Name: product_tenancy
+            Type: string
+          - Name: product_to_location
+            Type: string
+          - Name: product_volume_api_name
+            Type: string
+          - Name: product_volume_type
+            Type: string
+          - Name: reservation_amortized_upfront_fee_for_billing_period
+            Type: double
+          - Name: reservation_effective_cost
+            Type: double
+          - Name: reservation_end_time
+            Type: string
+          - Name: reservation_reservation_a_r_n
+            Type: string
+          - Name: reservation_start_time
+            Type: string
+          - Name: reservation_unused_amortized_upfront_fee_for_billing_period
+            Type: double
+          - Name: reservation_unused_recurring_fee
+            Type: double
+          - Name: savings_plan_amortized_upfront_commitment_for_billing_period
+            Type: double
+          - Name: savings_plan_end_time
+            Type: string
+          - Name: savings_plan_offering_type
+            Type: string
+          - Name: savings_plan_payment_option
+            Type: string
+          - Name: savings_plan_purchase_term
+            Type: string
+          - Name: savings_plan_savings_plan_a_r_n
+            Type: string
+          - Name: savings_plan_savings_plan_effective_cost
+            Type: double
+          - Name: savings_plan_start_time
+            Type: string
+          - Name: savings_plan_total_commitment_to_date
+            Type: double
+          - Name: savings_plan_used_commitment
+            Type: double
+          - Name: bill_invoicing_entity
+            Type: string
+          - Name: line_item_normalization_factor
+            Type: double
+          - Name: line_item_normalized_usage_amount
+            Type: double
+          - Name: line_item_currency_code
+            Type: string
+          - Name: line_item_unblended_rate
+            Type: string
+          - Name: line_item_blended_rate
+            Type: string
+          - Name: line_item_blended_cost
+            Type: double
+          - Name: line_item_tax_type
+            Type: string
+          - Name: product_abd_instance_class
+            Type: string
+          - Name: product_alarm_type
+            Type: string
+          - Name: product_availability
+            Type: string
+          - Name: product_availability_zone
+            Type: string
+          - Name: product_awsresource
+            Type: string
+          - Name: product_capacitystatus
+            Type: string
+          - Name: product_category
+            Type: string
+          - Name: product_ci_type
+            Type: string
+          - Name: product_classicnetworkingsupport
+            Type: string
+          - Name: product_clock_speed
+            Type: string
+          - Name: product_compute_family
+            Type: string
+          - Name: product_compute_type
+            Type: string
+          - Name: product_describes
+            Type: string
+          - Name: product_description
+            Type: string
+          - Name: product_durability
+            Type: string
+          - Name: product_ecu
+            Type: string
+          - Name: product_endpoint_type
+            Type: string
+          - Name: product_enhanced_networking_supported
+            Type: string
+          - Name: product_event_type
+            Type: string
+          - Name: product_from_location_type
+            Type: string
+          - Name: product_from_region_code
+            Type: string
+          - Name: product_gets
+            Type: string
+          - Name: product_gpu_memory
+            Type: string
+          - Name: product_group_description
+            Type: string
+          - Name: product_instance_family
+            Type: string
+          - Name: product_intel_avx2_available
+            Type: string
+          - Name: product_intel_avx_available
+            Type: string
+          - Name: product_intel_turbo_available
+            Type: string
+          - Name: product_location
+            Type: string
+          - Name: product_location_type
+            Type: string
+          - Name: product_logs_destination
+            Type: string
+          - Name: product_marketoption
+            Type: string
+          - Name: product_max_iops_burst_performance
+            Type: string
+          - Name: product_max_iopsvolume
+            Type: string
+          - Name: product_max_throughputvolume
+            Type: string
+          - Name: product_max_volume_size
+            Type: string
+          - Name: product_memory
+            Type: string
+          - Name: product_message_delivery_frequency
+            Type: string
+          - Name: product_message_delivery_order
+            Type: string
+          - Name: product_network_performance
+            Type: string
+          - Name: product_normalization_size_factor
+            Type: string
+          - Name: product_operation
+            Type: string
+          - Name: product_ops_items
+            Type: string
+          - Name: product_platopricingtype
+            Type: string
+          - Name: product_platoprotectionpolicytype
+            Type: string
+          - Name: product_pre_installed_sw
+            Type: string
+          - Name: product_pricing_unit
+            Type: string
+          - Name: product_processor_architecture
+            Type: string
+          - Name: product_queue_type
+            Type: string
+          - Name: product_region_code
+            Type: string
+          - Name: product_servicename
+            Type: string
+          - Name: product_sku
+            Type: string
+          - Name: product_storage_class
+            Type: string
+          - Name: product_storage_media
+            Type: string
+          - Name: product_to_location_type
+            Type: string
+          - Name: product_to_region_code
+            Type: string
+          - Name: product_transfer_type
+            Type: string
+          - Name: product_updates
+            Type: string
+          - Name: product_usagetype
+            Type: string
+          - Name: product_vcpu
+            Type: string
+          - Name: product_version
+            Type: string
+          - Name: product_vpcnetworkingsupport
+            Type: string
+          - Name: product_with_active_users
+            Type: string
+          - Name: pricing_rate_code
+            Type: string
+          - Name: pricing_rate_id
+            Type: string
+          - Name: pricing_currency
+            Type: string
+          - Name: pricing_public_on_demand_rate
+            Type: string
+          - Name: reservation_amortized_upfront_cost_for_usage
+            Type: double
+          - Name: reservation_modification_status
+            Type: string
+          - Name: reservation_normalized_units_per_reservation
+            Type: string
+          - Name: reservation_number_of_reservations
+            Type: string
+          - Name: reservation_recurring_fee_for_usage
+            Type: double
+          - Name: reservation_subscription_id
+            Type: string
+          - Name: reservation_total_reserved_normalized_units
+            Type: string
+          - Name: reservation_total_reserved_units
+            Type: string
+          - Name: reservation_units_per_reservation
+            Type: string
+          - Name: reservation_unused_normalized_unit_quantity
+            Type: double
+          - Name: reservation_unused_quantity
+            Type: double
+          - Name: reservation_upfront_value
+            Type: double
+          - Name: savings_plan_savings_plan_rate
+            Type: double
+          - Name: savings_plan_recurring_commitment_for_billing_period
+            Type: double
+          - Name: product_finding_group
+            Type: string
+          - Name: product_finding_source
+            Type: string
+          - Name: product_finding_storage
+            Type: string
+          - Name: product_platousagetype
+            Type: string
+          - Name: product_standard_group
+            Type: string
+          - Name: product_standard_storage
+            Type: string
+          - Name: product_type
+            Type: string
+          - Name: product_fee_code
+            Type: string
+          - Name: product_fee_description
+            Type: string
+          - Name: product_cache_memory_size_gb
+            Type: string
+          - Name: product_cloudformationresource_provider
+            Type: string
+          - Name: product_platoresourceactionmetrics
+            Type: string
+          - Name: line_item_net_unblended_rate
+            Type: string
+          - Name: line_item_net_unblended_cost
+            Type: double
+          - Name: product_size_flex
+            Type: string
+          - Name: product_api_type
+            Type: string
+          - Name: product_architecture
+            Type: string
+          - Name: product_backupservice
+            Type: string
+          - Name: product_bundle
+            Type: string
+          - Name: product_bundle_description
+            Type: string
+          - Name: product_bundle_group
+            Type: string
+          - Name: product_content_type
+            Type: string
+          - Name: product_cpu_architecture
+            Type: string
+          - Name: product_cputupe
+            Type: string
+          - Name: product_cputype
+            Type: string
+          - Name: product_data_type
+            Type: string
+          - Name: product_datatransferout
+            Type: string
+          - Name: product_dedicated_ebs_throughput
+            Type: string
+          - Name: product_directory_size
+            Type: string
+          - Name: product_directory_type
+            Type: string
+          - Name: product_directory_type_description
+            Type: string
+          - Name: product_edition
+            Type: string
+          - Name: product_engine_code
+            Type: string
+          - Name: product_entity_type
+            Type: string
+          - Name: product_free_query_types
+            Type: string
+          - Name: product_free_usage_included
+            Type: string
+          - Name: product_gb
+            Type: string
+          - Name: product_granularity
+            Type: string
+          - Name: product_graphqloperation
+            Type: string
+          - Name: product_insightstype
+            Type: string
+          - Name: product_invocation
+            Type: string
+          - Name: product_license
+            Type: string
+          - Name: product_maximum_extended_storage
+            Type: string
+          - Name: product_memorytype
+            Type: string
+          - Name: product_min_volume_size
+            Type: string
+          - Name: product_origin
+            Type: string
+          - Name: product_overhead
+            Type: string
+          - Name: product_pack_size
+            Type: string
+          - Name: product_parameter_type
+            Type: string
+          - Name: product_physical_cores
+            Type: string
+          - Name: product_platodataanalyzedtype
+            Type: string
+          - Name: product_platopagedatatype
+            Type: string
+          - Name: product_platostoragetype
+            Type: string
+          - Name: product_platovolumetype
+            Type: string
+          - Name: product_protocol
+            Type: string
+          - Name: product_q_present
+            Type: string
+          - Name: product_realtimeoperation
+            Type: string
+          - Name: product_recipient
+            Type: string
+          - Name: product_request_description
+            Type: string
+          - Name: product_request_type
+            Type: string
+          - Name: product_resource
+            Type: string
+          - Name: product_resource_endpoint
+            Type: string
+          - Name: product_resource_type
+            Type: string
+          - Name: product_rootvolume
+            Type: string
+          - Name: product_routing_target
+            Type: string
+          - Name: product_routing_type
+            Type: string
+          - Name: product_running_mode
+            Type: string
+          - Name: product_scan_type
+            Type: string
+          - Name: product_software_included
+            Type: string
+          - Name: product_standard_storage_retention_included
+            Type: string
+          - Name: product_steps
+            Type: string
+          - Name: product_storage_type
+            Type: string
+          - Name: product_subcategory
+            Type: string
+          - Name: product_subscription_type
+            Type: string
+          - Name: product_throughput
+            Type: string
+          - Name: product_tickettype
+            Type: string
+          - Name: product_time_window
+            Type: string
+          - Name: product_type_description
+            Type: string
+          - Name: product_usage_group
+            Type: string
+          - Name: product_usage_volume
+            Type: string
+          - Name: product_uservolume
+            Type: string
+          - Name: reservation_net_amortized_upfront_cost_for_usage
+            Type: double
+          - Name: reservation_net_amortized_upfront_fee_for_billing_period
+            Type: double
+          - Name: reservation_net_effective_cost
+            Type: double
+          - Name: reservation_net_recurring_fee_for_usage
+            Type: double
+          - Name: reservation_net_unused_amortized_upfront_fee_for_billing_period
+            Type: double
+          - Name: reservation_net_unused_recurring_fee
+            Type: double
+          - Name: reservation_net_upfront_value
+            Type: double
+          - Name: discount_bundled_discount
+            Type: double
+          - Name: savings_plan_net_savings_plan_effective_cost
+            Type: double
+          - Name: savings_plan_net_amortized_upfront_commitment_for_billing_period
+            Type: double
+          - Name: savings_plan_net_recurring_commitment_for_billing_period
+            Type: double
+          - Name: product_apirequestsfree
+            Type: string
+          - Name: product_apirequestspaid
+            Type: string
+          - Name: product_changerequestsfree
+            Type: string
+          - Name: product_changerequestspaid
+            Type: string
+          - Name: product_component
+            Type: string
+          - Name: product_gpu
+            Type: string
+          - Name: product_instance_name
+            Type: string
+          - Name: product_physical_cpu
+            Type: string
+          - Name: product_physical_gpu
+            Type: string
+          - Name: product_platoclassificationtype
+            Type: string
+          - Name: product_platoinstancename
+            Type: string
+          - Name: product_platoinstancetype
+            Type: string
+          - Name: product_product_schema_description
+            Type: string
+          - Name: product_product_type
+            Type: string
+          - Name: product_finding_type
+            Type: string
+          - Name: product_request
+            Type: string
+          - Name: product_counts_against_quota
+            Type: string
+          - Name: product_data_transfer_quota
+            Type: string
+          - Name: product_free_overage
+            Type: string
+          - Name: product_overage_type
+            Type: string
+          - Name: product_destination_country_iso_code
+            Type: string
+          - Name: product_memory_gib
+            Type: string
+          - Name: product_message_countfee
+            Type: string
+          - Name: product_message_type
+            Type: string
+          - Name: product_origination_id_type
+            Type: string
+          - Name: product_route_type
+            Type: string
+          - Name: product_tier
+            Type: string
+          - Name: product_action
+            Type: string
+          - Name: product_pipeline
+            Type: string
+          - Name: product_attachment_type
+            Type: string
+          - Name: product_platofeaturetype
+            Type: string
+          - Name: product_flow
+            Type: string
+          - Name: product_pricingplan
+            Type: string
+          - Name: product_provider
+            Type: string
+          - Name: product_subservice
+            Type: string
+          - Name: discount_private_rate_discount
+            Type: double
+          - Name: product_vaulttype
+            Type: string
+          - Name: cost_category_cost_by_account
+            Type: string
+          - Name: resource_tags_user_environment
+            Type: string
+          - Name: resource_tags_user_owner
+            Type: string
+          - Name: resource_tags_user_product
+            Type: string
+          - Name: resource_tags_user_service
+            Type: string
+          - Name: cost_category_untagged_service
+            Type: string
+          - Name: resource_tags_user_system
+            Type: string
+          - Name: cost_category_pods
+            Type: string
+          - Name: cost_category_naming_convention
+            Type: string
+          - Name: cost_category_pod_test
+            Type: string
+          - Name: cost_category_workloads_ou
+            Type: string
+          - Name: product_instance_capacity_metal
+            Type: string
+          - Name: product_provisioned
+            Type: string
+          - Name: product_duration
+            Type: string
+          - Name: product_m2m_category
+            Type: string
+          - Name: product_equivalentondemandsku
+            Type: string
+          - Name: product_instance
+            Type: string
+          - Name: product_ratetype
+            Type: string
+          - Name: cost_category_s_r_e_and_platform_teams
+            Type: string
+          - Name: cost_category_cloudwatch_logging
+            Type: string
+          - Name: cost_category_logging_and_auditing
+            Type: string
+          - Name: product_io_request_type
+            Type: string
+          - Name: product_check_type
+            Type: string
+          - Name: product_iso
+            Type: string
+          - Name: product_origination_id
+            Type: string
+          - Name: product_size
+            Type: string
+        Compressed: false
+        StoredAsSubDirectories: false
+        Location: !Sub 's3://cid-{{resolve:secretsmanager:cur-account-ids:SecretString:ct-shared-services}}-shared/cur/{{resolve:secretsmanager:cur-account-ids:SecretString:source-bill-payer}}/cid/cid/'
+        InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+        OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+        SerdeInfo:
+          SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+          Parameters:
+            serialization.format: 1
+            classification: parquet
+      PartitionKeys:
+        - Name: year
+          Type: int
+        - Name: month
+          Type: int
+      TableType: EXTERNAL_TABLE
+      Parameters:
+        EXTERNAL: 'TRUE'
+        'parquet.compression': 'snappy'
+        'projection.enabled': 'true'
+        'projection.year.type': 'integer'
+        'projection.year.range': '2022,2122'
+        'projection.month.type': 'integer'
+        'projection.month.range': '1,12'

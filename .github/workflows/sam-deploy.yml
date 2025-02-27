@@ -63,7 +63,7 @@ jobs:
       - name: Node setup
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: npm
       - name: Install node packages
         run: npm ci
@@ -75,7 +75,7 @@ jobs:
         uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
-          version: 1.116.0
+          version: 1.134.0
       - name: SAM build
         run: sam build
       - name: Assume AWS role
@@ -103,7 +103,7 @@ jobs:
       - name: Node setup
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: npm
       - name: Install node packages
         run: npm ci
@@ -115,7 +115,7 @@ jobs:
         uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
-          version: 1.116.0
+          version: 1.134.0
       - name: SAM build
         run: sam build
       - name: Assume AWS role
