@@ -33,6 +33,25 @@ class S3ReadWrite:
         self.s3 = boto3.client("s3")
         self.logger = get_logger(__name__)
 
+    def read_file(self, bucket_name, key_path):
+        """
+        Read file data from the specified S3 bucket and key path, and returns a string object.
+
+        Returns:
+            str: The file data as a string object.
+
+        Raises:
+            ValueError: If the file data is None or empty.
+        """
+        try:
+            response = self.s3.get_object(Bucket=bucket_name, Key=key_path)
+            data = response["Body"].read().decode("utf-8")
+            if data is None:
+                raise ValueError("return value is None")
+            return data
+        except Exception as e:
+            raise OperationFailedException("Error reading file from S3: %s", str(e))
+
     def read_json(self, bucket_name, key_path):
         """
         Read JSON data from the specified S3 bucket and key path, and returns the parsed JSON data as a Python object.
@@ -44,8 +63,7 @@ class S3ReadWrite:
             ValueError: If the JSON data is None or empty.
         """
         try:
-            response = self.s3.get_object(Bucket=bucket_name, Key=key_path)
-            json_data = json.loads(response["Body"].read().decode("utf-8"))
+            json_data = json.loads(self.read_file(bucket_name, key_path))
             if json_data is None:
                 raise ValueError("return value is None")
             return json_data
@@ -69,22 +87,3 @@ class S3ReadWrite:
             return response
         except Exception as e:
             raise OperationFailedException("Error writing JSON to S3: %s", str(e))
-
-    def read_file(self, bucket_name, key_path):
-        """
-        Read file data from the specified S3 bucket and key path, and returns a string object.
-
-        Returns:
-            str: The file data as a string object.
-
-        Raises:
-            ValueError: If the file data is None or empty.
-        """
-        try:
-            response = self.s3.get_object(Bucket=bucket_name, Key=key_path)
-            data = response["Body"].read().decode("utf-8")
-            if data is None:
-                raise ValueError("return value is None")
-            return data
-        except Exception as e:
-            raise OperationFailedException("Error reading file from S3: %s", str(e))

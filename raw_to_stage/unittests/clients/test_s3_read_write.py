@@ -38,3 +38,15 @@ class TestGlueTableQueryAndWrite:
     def test_should_raise_exception_when_unable_to_write_json(self):
         with pytest.raises(OperationFailedException):
             self.s3_wrapper.write_json(BUCKET, JSON_S3_KEY, bytes(json.dumps(JSON_DATA), "utf-8"))
+
+    @mock_aws
+    def test_should_read_file_successfully(self):
+        s3_client = boto3.client("s3")
+        s3_client.create_bucket(Bucket=BUCKET, CreateBucketConfiguration={"LocationConstraint": "eu-west-2"})
+        s3_client.put_object(Bucket=BUCKET, Key=JSON_S3_KEY, Body=bytes(json.dumps(JSON_DATA), "utf-8"))
+        file_content = self.s3_wrapper.read_file(BUCKET, JSON_S3_KEY)
+        assert json.dumps(JSON_DATA) == file_content
+
+    def test_should_raise_exception_when_unable_to_read_file(self):
+        with pytest.raises(OperationFailedException):
+            self.s3_wrapper.read_file(BUCKET, JSON_S3_KEY)
