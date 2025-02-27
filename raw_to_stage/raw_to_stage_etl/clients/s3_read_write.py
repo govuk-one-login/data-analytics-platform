@@ -42,6 +42,7 @@ class S3ReadWrite:
 
         Raises:
             ValueError: If the file data is None or empty.
+            OperationFailedException: When unable to read file content from S3
         """
         try:
             response = self.s3.get_object(Bucket=bucket_name, Key=key_path)
@@ -61,12 +62,10 @@ class S3ReadWrite:
 
         Raises:
             ValueError: If the JSON data is None or empty.
+            OperationFailedException: When unable to read JSON from S3
         """
         try:
-            json_data = json.loads(self.read_file(bucket_name, key_path))
-            if json_data is None:
-                raise ValueError("return value is None")
-            return json_data
+            return json.loads(self.read_file(bucket_name, key_path))
         except Exception as e:
             raise OperationFailedException("Error reading JSON from S3: %s", str(e))
 

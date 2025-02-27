@@ -72,12 +72,12 @@ def main():
             raise ValueError("No job type specified to run")
 
         if job_type == "CUSTOM":
-            processor = RawToStageProcessor(args, CustomStrategy(args, json_data, glue_app, s3_app, preprocessing))
+            processor = RawToStageProcessor(CustomStrategy(args, json_data, glue_app, s3_app, preprocessing))
         elif job_type == "VIEW":
-            processor = RawToStageProcessor(args, ViewStrategy(args, json_data, glue_app, s3_app, preprocessing))
+            processor = RawToStageProcessor(ViewStrategy(args, json_data, glue_app, s3_app, preprocessing))
         elif job_type == "SCHEDULED":
             strategy = ScheduledStrategy(args, json_data, glue_app, s3_app, preprocessing)
-            processor = RawToStageProcessor(args, strategy)
+            processor = RawToStageProcessor(strategy)
 
         processor.process()
 
@@ -88,7 +88,7 @@ def main():
         """
         if job_type == "SCHEDULED":
             backfill_strategy = BackfillStrategy(args, json_data, glue_app, s3_app, preprocessing, strategy.max_timestamp, strategy.max_processed_dt)
-            processor = RawToStageProcessor(args, backfill_strategy)
+            processor = RawToStageProcessor(backfill_strategy)
             try:
                 processor.process()
             except (NoDataFoundException, OperationFailedException) as e:

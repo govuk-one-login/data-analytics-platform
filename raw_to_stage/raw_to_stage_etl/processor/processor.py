@@ -14,7 +14,7 @@ METADATA_ROOT_FOLDER = "txma_raw_stage_metadata"
 class RawToStageProcessor:
     """Class for ETL flow control."""
 
-    def __init__(self, args: dict, strategy: Strategy) -> None:
+    def __init__(self, strategy: Strategy) -> None:
         """Initialise, configure strategy & logger instance variables."""
         if strategy:
             self.strategy = strategy
