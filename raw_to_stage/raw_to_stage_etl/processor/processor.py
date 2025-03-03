@@ -20,7 +20,7 @@ class RawToStageProcessor:
             self.strategy = strategy
         self.logger = get_logger(__name__)
 
-    def process(self) -> None:
+    def process(self) -> tuple[int, int, int, int]:
         """Execute ETL on strategy passed to the class.
 
         Extract method returns list of pandas dataframes.
@@ -67,6 +67,11 @@ class RawToStageProcessor:
             # Print the result
             self.logger.info("Time taken to process dataframe %s: %2f minutes", df_process_counter, elapsed_minutes)
             self.logger.info("stage layer successfully updated")
-            self.logger.info("total stage table records inserted: %s", cumulative_stage_table_rows_inserted)
-            self.logger.info("total stage key table records inserted: %s", cumulative_stage_key_rows_inserted)
-            self.logger.info("total duplicate rows removed: %s", cumulative_duplicate_rows_removed)
+            self.logger.info("stage table records inserted: %s", stage_table_rows_inserted)
+            self.logger.info("stage key table records inserted: %s", stage_key_rows_inserted)
+            self.logger.info("duplicate rows removed: %s", duplicate_rows_removed)
+
+        self.logger.info("Total stage table records inserted: %s", cumulative_stage_table_rows_inserted)
+        self.logger.info("Total stage key table records inserted: %s", cumulative_stage_key_rows_inserted)
+        self.logger.info("Total duplicate rows removed: %s", cumulative_duplicate_rows_removed)
+        return (df_process_counter, cumulative_stage_table_rows_inserted, cumulative_stage_key_rows_inserted, cumulative_duplicate_rows_removed)
