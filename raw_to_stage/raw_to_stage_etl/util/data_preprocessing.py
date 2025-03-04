@@ -54,10 +54,9 @@ def empty_string_to_null(df, fields):
     Returns:
     DataFrame: A DataFrame with empty strings replaced by None.
     """
+    if not isinstance(fields, list):
+        raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
     try:
-        if not isinstance(fields, list):
-            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-
         for column_name in fields:
             df[column_name] = df[column_name].apply(lambda x: None if isinstance(x, str) and (x.isspace() or not x) else x)
 
@@ -77,9 +76,9 @@ def remove_duplicate_rows(df, fields):
     Returns:
     DataFrame: A DataFrame with duplicates removed.
     """
+    if not isinstance(fields, list):
+        raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
     try:
-        if not isinstance(fields, list):
-            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
         return df.drop_duplicates(subset=fields)
     except Exception as e:
         raise OperationFailedException("Error dropping row duplicates: %s", str(e))
@@ -96,9 +95,9 @@ def remove_rows_missing_mandatory_values(df, fields):
     Returns:
     DataFrame: A DataFrame with rows containing mandatory values.
     """
+    if not isinstance(fields, list):
+        raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
     try:
-        if not isinstance(fields, list):
-            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
         return df.dropna(subset=fields)
     except Exception as e:
         raise OperationFailedException("Error dropping rows missing mandatory field: %s", str(e))
@@ -115,9 +114,9 @@ def rename_column_names(df, fields):
     Returns:
     DataFrame: A DataFrame with renamed columns.
     """
+    if not isinstance(fields, dict):
+        raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
     try:
-        if not isinstance(fields, dict):
-            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
         return df.rename(columns=fields)
     except Exception as e:
         raise OperationFailedException("Error renaming columns: %s", str(e))
@@ -135,10 +134,10 @@ def remove_columns(df, columns, silent):
     Returns:
     DataFrame: A DataFrame with specified columns removed if found.
     """
+    if not isinstance(columns, list):
+        raise ValueError("Invalid field of columns provided, require list")
     try:
         errors = "ignore" if silent else "raise"
-        if not isinstance(columns, list):
-            raise ValueError("Invalid field of columns provided, require list")
         return df.drop(columns, axis=1, errors=errors)
     except Exception as e:
         raise OperationFailedException("Error removing columns: %s", str(e))
@@ -232,9 +231,9 @@ class DataPreprocessing:
         Returns:
         DataFrame: A DataFrame with new columns added.
         """
+        if not isinstance(fields, dict):
+            raise ValueError("Invalid field list structure provided, require dict object")
         try:
-            if not isinstance(fields, dict):
-                raise ValueError("Invalid field list structure provided, require dict object")
             for column_name, _value in fields.items():
                 if column_name == "processed_dt":
                     df[column_name] = self.processed_dt
@@ -309,10 +308,9 @@ class DataPreprocessing:
         Returns:
         DataFrame: A DataFrame with extracted Key/Value records from nested struct fields.
         """
+        if not isinstance(fields, list):
+            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
         try:
-            if not isinstance(fields, list):
-                raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-
             # Initialize an empty list to store DataFrames
             dfs = []
 
@@ -367,10 +365,9 @@ class DataPreprocessing:
         Returns:
         DataFrame: The DataFrame with key/value pairs extracted from the raw DataFrame.
         """
+        if not isinstance(json_data, (dict, list)):
+            raise ValueError(INVALID_JSON_ERROR)
         try:
-            if not isinstance(json_data, (dict, list)):
-                raise ValueError(INVALID_JSON_ERROR)
-
             data_transformations_key_value_cols_exclusion_list = extract_element_by_name(
                 json_data,
                 "key_value_record_generation_column_exclusion_list",
@@ -411,10 +408,9 @@ class DataPreprocessing:
         Returns:
         DataFrame: The data frame with columns removed
         """
+        if not isinstance(json_data, (dict, list)):
+            raise ValueError(INVALID_JSON_ERROR)
         try:
-            if not isinstance(json_data, (dict, list)):
-                raise ValueError(INVALID_JSON_ERROR)
-
             data_cleaning_columns_removal_list = extract_element_by_name(json_data, "remove_columns", "data_cleaning")
             if data_cleaning_columns_removal_list is None:
                 raise ValueError("remove_columns value for data_cleaning is not found within config rules")
@@ -439,10 +435,9 @@ class DataPreprocessing:
         Returns:
         DataFrame: The DataFrame with duplicate rows removed.
         """
+        if not isinstance(json_data, (dict, list)):
+            raise ValueError(INVALID_JSON_ERROR)
         try:
-            if not isinstance(json_data, (dict, list)):
-                raise ValueError(INVALID_JSON_ERROR)
-
             data_cleaning_duplicate_row_removal_criteria_fields = extract_element_by_name(json_data, "duplicate_row_removal_criteria_fields", "data_cleaning")
             if data_cleaning_duplicate_row_removal_criteria_fields is None:
                 raise ValueError("duplicate_row_removal_criteria_fields value for data_cleaning is not found within config rules")
@@ -469,10 +464,10 @@ class DataPreprocessing:
         Returns:
         DataFrame: The DataFrame with rows containing mandatory values.
         """
-        try:
-            if not isinstance(json_data, (dict, list)):
-                raise ValueError(INVALID_JSON_ERROR)
+        if not isinstance(json_data, (dict, list)):
+            raise ValueError(INVALID_JSON_ERROR)
 
+        try:
             data_cleaning_mandatory_row_removal_criteria_fields = extract_element_by_name(json_data, "mandatory_row_removal_criteria_fields", "data_cleaning")
             if data_cleaning_mandatory_row_removal_criteria_fields is None:
                 raise ValueError("mandatory_row_removal_criteria_fields value for data_cleaning is not found within config rules")
@@ -500,10 +495,9 @@ class DataPreprocessing:
         Returns:
         DataFrame: The DataFrame with renamed columns.
         """
+        if not isinstance(json_data, (dict, list)):
+            raise ValueError(INVALID_JSON_ERROR)
         try:
-            if not isinstance(json_data, (dict, list)):
-                raise ValueError(INVALID_JSON_ERROR)
-
             data_transformations_rename_column = extract_element_by_name(json_data, "rename_column", "data_transformations")
             if data_transformations_rename_column is None:
                 raise ValueError("rename_column value for data_transformations is not found within config rules")
@@ -532,10 +526,10 @@ class DataPreprocessing:
         Returns:
         DataFrame: The DataFrame with new columns added.
         """
-        try:
-            if not isinstance(json_data, (dict, list)):
-                raise ValueError(INVALID_JSON_ERROR)
+        if not isinstance(json_data, (dict, list)):
+            raise ValueError(INVALID_JSON_ERROR)
 
+        try:
             data_transformations_new_column = extract_element_by_name(json_data, "new_column", "data_transformations")
             if data_transformations_new_column is None:
                 raise ValueError("new_column value for data_transformations is not found within config rules")
@@ -564,10 +558,9 @@ class DataPreprocessing:
         Returns:
         DataFrame: The DataFrame with new columns added from struct fields.
         """
+        if not isinstance(json_data, (dict, list)):
+            raise ValueError(INVALID_JSON_ERROR)
         try:
-            if not isinstance(json_data, (dict, list)):
-                raise ValueError(INVALID_JSON_ERROR)
-
             data_transformations_new_column_struct_extract = extract_element_by_name(json_data, "new_column_struct_extract", "data_transformations")
             if data_transformations_new_column_struct_extract is None:
                 raise ValueError("new_column_struct_extract value for data_transformations is not found within config rules")
@@ -596,10 +589,9 @@ class DataPreprocessing:
         Returns:
         DataFrame: The DataFrame with empty strings replaced by None.
         """
+        if not isinstance(json_data, (dict, list)):
+            raise ValueError(INVALID_JSON_ERROR)
         try:
-            if not isinstance(json_data, (dict, list)):
-                raise ValueError(INVALID_JSON_ERROR)
-
             data_cleaning_empty_string_replacement = extract_element_by_name(json_data, "empty_string_replacement", "data_cleaning")
             if data_cleaning_empty_string_replacement is None:
                 raise ValueError("empty_string_replacement value for data_cleaning is not found within config rules")
