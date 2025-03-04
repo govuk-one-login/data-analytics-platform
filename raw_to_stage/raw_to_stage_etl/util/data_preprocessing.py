@@ -153,10 +153,9 @@ def get_last_processed_time(daily_processes_df):
     Returns:
      int: The maximum processed time value from the stage layer table
     """
+    if daily_processes_df is None or daily_processes_df.empty:
+        raise NoDataFoundException("No filter process time found, ending process")
     try:
-        if daily_processes_df.empty or daily_processes_df is None:
-            raise NoDataFoundException("No filter process time found, ending process")
-
         return int(daily_processes_df["processed_time"].iloc[0])
     except Exception as e:
         raise OperationFailedException(f"Error Retrieving max timestamp: {str(e)}")

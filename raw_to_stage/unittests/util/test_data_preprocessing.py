@@ -2,8 +2,10 @@ import unittest
 
 import pandas as pd
 import pytest
+from raw_to_stage_etl.exceptions.no_data_found_exception import NoDataFoundException
 from raw_to_stage_etl.util.data_preprocessing import (add_new_column_from_struct, empty_string_to_null,
-                                                      remove_duplicate_rows)
+                                                      get_last_processed_time, remove_columns, remove_duplicate_rows,
+                                                      remove_rows_missing_mandatory_values, rename_column_names)
 from raw_to_stage_etl.util.exceptions.util_exceptions import OperationFailedException
 
 data = [
@@ -24,7 +26,7 @@ data = [
     },
     {
         "client_id": "dhIopwmIYTFnma-suUy",
-        "component_id": "id",
+        "component_id": None,
         "event_name": "AUTH_AUTHORISATION_REQUEST_PARSED",
         "event_timestamp_ms": 1723024771218,
         "extensions": {
@@ -73,3 +75,57 @@ class TestDataProcessing(unittest.TestCase):
         df = pd.DataFrame(data)
         with pytest.raises(ValueError):
             remove_duplicate_rows(df, "component_id")
+
+    def test_remove_rows_missing_mandatory_values_successfully(self):
+        df = pd.DataFrame(data)
+        result_df = remove_rows_missing_mandatory_values(df, ["component_id"])
+        assert len(result_df.index) == 1
+
+    def test_remove_rows_missing_mandatory_values_must_raise_exception_when_wrong_type_passed(self):
+        df = pd.DataFrame(data)
+        with pytest.raises(ValueError):
+            remove_rows_missing_mandatory_values(df, "component_id")
+
+    def test_rename_column_names(self):
+        df = pd.DataFrame(data)
+        result_df = rename_column_names(df, {"client_id": "id_of_client"})
+        assert result_df.columns.__contains__("id_of_client")
+
+    def test_rename_column_names_must_raise_exception_when_wrong_type_passed(self):
+        df = pd.DataFrame(data)
+        with pytest.raises(ValueError):
+            rename_column_names(df, ["component_id"])
+
+    def test_remove_columns(self):
+        df = pd.DataFrame(data)
+        result_df = remove_columns(df, ["client_id"], True)
+        assert not result_df.columns.__contains__("client_id")
+
+    def test_remove_columns_supress_exception_when_silent_true(self):
+        df = pd.DataFrame(data)
+        remove_columns(df, ["blah_blah"], True)
+
+    def test_remove_columns_when_silent_false(self):
+        df = pd.DataFrame(data)
+        with pytest.raises(OperationFailedException):
+            remove_columns(df, ["blah_blah"], False)
+
+    def test_remove_columns_must_raise_exception_when_wrong_type_passed(self):
+        df = pd.DataFrame(data)
+        with pytest.raises(ValueError):
+            remove_columns(df, "component_id", False)
+
+    def test_get_last_processed_time(self):
+        df = pd.DataFrame({"processed_time": ["1741081219", "1741081216", "1741081213"]})
+        assert get_last_processed_time(df) == 1741081219
+
+    def test_get_last_processed_time_must_raise_exception_when_none_or_empty_df(self):
+        with pytest.raises(NoDataFoundException):
+            get_last_processed_time(None)
+
+        with pytest.raises(NoDataFoundException):
+            get_last_processed_time(pd.DataFrame({}))
+
+    def test_get_last_processed_time_must_raise_exception_when_missing_col_in_df(self):
+        with pytest.raises(OperationFailedException):
+            get_last_processed_time(pd.DataFrame({"blah": ["1234"]}))
