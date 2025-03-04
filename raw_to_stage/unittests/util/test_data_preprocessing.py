@@ -3,7 +3,8 @@ import unittest
 import pandas as pd
 import pytest
 from raw_to_stage_etl.exceptions.no_data_found_exception import NoDataFoundException
-from raw_to_stage_etl.util.data_preprocessing import (add_new_column_from_struct, empty_string_to_null,
+from raw_to_stage_etl.util.data_preprocessing import (DataPreprocessing, add_new_column_from_struct,
+                                                      convert_value_to_float_or_int, empty_string_to_null,
                                                       get_last_processed_time, remove_columns, remove_duplicate_rows,
                                                       remove_rows_missing_mandatory_values, rename_column_names)
 from raw_to_stage_etl.util.exceptions.util_exceptions import OperationFailedException
@@ -129,3 +130,27 @@ class TestDataProcessing(unittest.TestCase):
     def test_get_last_processed_time_must_raise_exception_when_missing_col_in_df(self):
         with pytest.raises(OperationFailedException):
             get_last_processed_time(pd.DataFrame({"blah": ["1234"]}))
+
+    def test_convert_value_to_float_or_int(self):
+        assert convert_value_to_float_or_int("12.3").__eq__(12.3)
+        assert convert_value_to_float_or_int(12.3).__eq__(12.3)
+        assert convert_value_to_float_or_int(12.0) == 12
+        assert convert_value_to_float_or_int("abc") == "abc"
+
+    @classmethod
+    def setUp(cls):
+        cls.dp_obj = DataPreprocessing()
+
+    def test_add_new_column(self):
+        df = pd.DataFrame(data)
+        result_df = TestDataProcessing.dp_obj.add_new_column(df, {"processed_dt": "processed_dt", "processed_time": "processed_time"})
+        assert result_df["processed_dt"].iloc[0] == TestDataProcessing.dp_obj.processed_dt
+        assert result_df["processed_time"].iloc[0] == TestDataProcessing.dp_obj.processed_time
+
+    def test_add_new_column_must_raise_exception_with_wrong_fields(self):
+        df = pd.DataFrame(data)
+        with pytest.raises(ValueError):
+            TestDataProcessing.dp_obj.add_new_column(df, ["processed_dt"])
+
+    def test_extract_key_values_from_list_or_dict(self):
+        pass

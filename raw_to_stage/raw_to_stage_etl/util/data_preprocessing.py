@@ -161,27 +161,6 @@ def get_last_processed_time(daily_processes_df):
         raise OperationFailedException(f"Error Retrieving max timestamp: {str(e)}")
 
 
-def get_penultimate_processed_dt(all_processed_dts):
-    """
-    Get the penultimate processed dt from the specified stage table.
-
-    last processed dt that isn't current and isn't the last processed dt
-
-    Parameters:
-    all_processed_dts (df): dataframe of all processed dates excluding today and the max processed date
-
-    Returns:
-    int: The maximum processed time value from the stage layer table
-    """
-    try:
-        if all_processed_dts.empty or all_processed_dts is None:
-            raise NoDataFoundException("No penultimate processed dt, ending process")
-
-        return int(all_processed_dts["processed_dt"].iloc[0])
-    except Exception as e:
-        raise OperationFailedException(f"Exception Error retrieving max timestamp: {str(e)}")
-
-
 def convert_value_to_float_or_int(value):
     """Typecast object into float or int.
 
@@ -196,9 +175,9 @@ def convert_value_to_float_or_int(value):
             value = float(value)  # Attempt to convert the string to a float
         except ValueError:
             pass  # Ignore if conversion fails
-    if isinstance(value, (int, float)):
+    if isinstance(value, float):
         try:
-            if isinstance(value, float) and value.is_integer():
+            if value.is_integer():
                 value = int(value)
         except ValueError:
             pass  # Ignore if conversion fails
@@ -208,12 +187,8 @@ def convert_value_to_float_or_int(value):
 class DataPreprocessing:
     """A class for performing preprocessing tasks against a supplied dataframe."""
 
-    def __init__(self, args):
-        """Initialise variables.
-
-        Parameters:
-         args (dict): Glue job args
-        """
+    def __init__(self):
+        """Initialise variables."""
         self.now = datetime.now()
         self.processed_dt = int(self.now.strftime("%Y%m%d"))
         self.processed_time = int(self.now.strftime("%H%M%S"))

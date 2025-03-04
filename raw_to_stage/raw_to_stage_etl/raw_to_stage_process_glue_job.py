@@ -57,7 +57,7 @@ def main():
         glue_app = GlueTableQueryAndWrite(args)
 
         # Data transformation class
-        preprocessing = DataPreprocessing(args)
+        preprocessing = DataPreprocessing()
 
         json_data = s3_app.read_json(args["config_bucket"], args["config_key_path"])
         if json_data is None:
