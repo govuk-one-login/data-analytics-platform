@@ -211,8 +211,6 @@ RedshiftAccessEC2SecurityGroup:
     VpcId: !Ref VPCForDAP
     SecurityGroupEgress:
       - IpProtocol: -1
-        FromPort: -1
-        ToPort: -1
         CidrIp: 0.0.0.0/0
         Description: Allow egress to anywhere
 
@@ -231,8 +229,6 @@ VPCDefaultSecurityGroupEgressAll:
   Properties:
     GroupId: !GetAtt VPCForDAP.DefaultSecurityGroup
     IpProtocol: -1
-    FromPort: -1
-    ToPort: -1
     CidrIp: 0.0.0.0/0
     Description: Allow all outbound traffic to any destination
 
@@ -241,8 +237,6 @@ VPCDefaultSecurityGroupAllIngress:
   Properties:
     GroupId: !GetAtt VPCForDAP.DefaultSecurityGroup
     IpProtocol: -1
-    FromPort: -1
-    ToPort: -1
     SourceSecurityGroupId: !GetAtt VPCForDAP.DefaultSecurityGroup
     Description: Allow all ingress traffic within the same security group
 
@@ -443,3 +437,54 @@ DataAnalyticsADMRedshiftRole:
                 - redshift-data:DescribeStatement
                 - redshift-data:GetStatementResult
               Resource: '*'
+
+RedshiftCreateSnapshotLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: redshift-create-snapshot
+    Handler: redshift-create-snapshot.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action: redshift-serverless:CreateSnapshot
+            Resource:
+              - !GetAtt RedshiftServerlessNamespace.Namespace.NamespaceArn
+              - !Sub arn:aws:redshift-serverless:eu-west-2:${AWS::AccountId}:snapshot/*
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        NAMESPACE_NAME: !Ref RedshiftServerlessNamespace
+        RETENTION_PERIOD_DAYS: !If [IsProduction, '7', '1']
+    Tags:
+      Environment: !Ref Environment
+    MemorySize: 256
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
+
+RedshiftCreateSnapshotScheduledRule:
+  Type: AWS::Events::Rule
+  Properties:
+    Name: !Sub ${Environment}-dap-redshift-create-snapshot-rule
+    Description: Schedule to create redshift snapshots using the redshift-create-snapshot lambda
+    ScheduleExpression: cron(0 22 * * ? *) # daily at 10pm
+    State: ENABLED
+    Targets:
+      - Arn: !GetAtt RedshiftCreateSnapshotLambda.Arn
+        Id: redshift-create-snapshot
+
+RedshiftCreateSnapshotLambdaPermission:
+  Type: AWS::Lambda::Permission
+  Properties:
+    FunctionName: !Ref RedshiftCreateSnapshotLambda
+    Action: lambda:InvokeFunction
+    Principal: events.amazonaws.com
+    SourceArn: !GetAtt RedshiftCreateSnapshotScheduledRule.Arn
