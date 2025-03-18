@@ -74,6 +74,40 @@
         ],
         "Default": "wait_on_dap_datamart_update"
       },
+      "check_adm_environment": {
+        "Type": "Choice",
+        "Choices": [
+          {
+            "Variable": "$.IsADMEnvironment",
+            "BooleanEquals": true,
+            "Next": "${ADMProcessingStepFunction}"
+          }
+        ],
+        "Default": "StopProcessing"
+      },
+      "ADMProcessingStepFunction": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::states:startExecution.sync:2",
+        "Parameters": {
+          "StateMachineArn": "${ADMProcessingStepFunctionArn}",
+          "Input": {
+            "StatePayload": "Triggered from raw to stage consolidated step function",
+            "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+          }
+        },
+        "Next": "StopProcessing",
+        "Retry": [
+          {
+            "ErrorEquals": [
+              "States.TaskFailed",
+              "States.Timeout"
+            ],
+            "BackoffRate": 2,
+            "MaxAttempts": 3,
+            "IntervalSeconds": 30
+          }
+        ]
+      },
       "dap_datamart_update_failure": {
         "Type": "Fail",
         "Cause": "Failure within DAP Datamart update_step",

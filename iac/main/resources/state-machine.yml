@@ -858,6 +858,13 @@ RedshiftConsolidatedModelProcessingLogGroup:
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
+ADMConsolidatedModelProcessingLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: /aws/stepfunction/dap-consolidated-conformed-layer-to-adm
+    KmsKeyId: !GetAtt KmsKey.Arn
+    RetentionInDays: 30
+
 RedshiftConsolidatedModelProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
   Properties:
@@ -868,6 +875,25 @@ RedshiftConsolidatedModelProcessingStateMachine:
       Destinations:
         - CloudWatchLogsLogGroup:
             LogGroupArn: !GetAtt RedshiftConsolidatedModelProcessingLogGroup.Arn
+      IncludeExecutionData: true
+      Level: ALL
+    DefinitionSubstitutions:
+      S3MetaDataBucketName: !Ref ELTMetadataBucket
+      RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
+      RedshiftDatabaseName: dap_txma_reporting_db_refactored
+      StateMachineResultsBucket: !Ref StateMachineResultsBucket
+      ADMProcessingStepFunctionArn: !Ref ADMConsolidatedModelProcessingStateMachine
+
+ADMConsolidatedModelProcessingStateMachine:
+  Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+  Properties:
+    DefinitionUri: statemachine/txma_adm_consolidated_schema_processing.asl.json
+    Name: !Sub ${Environment}-dap-consolidated-conformed_layer-to-adm-processing
+    Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
+    Logging:
+      Destinations:
+        - CloudWatchLogsLogGroup:
+            LogGroupArn: !GetAtt ADMConsolidatedModelProcessingLogGroup.Arn
       IncludeExecutionData: true
       Level: ALL
     DefinitionSubstitutions:
