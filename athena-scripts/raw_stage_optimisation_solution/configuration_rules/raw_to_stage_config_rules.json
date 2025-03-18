@@ -6,7 +6,7 @@
     },
     "event_processing_testing_criteria": {
       "enabled": false,
-      "filter": "xxx"
+      "filter": "event_id in ('xxxx','xxxx')"
     },
     "event_processing_view_criteria": {
       "enabled": false,
