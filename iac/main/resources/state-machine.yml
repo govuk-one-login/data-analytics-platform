@@ -677,7 +677,7 @@ StepFunctionRedshiftProcessRole:
               Resource:
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-processing'
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-stage-layer-to-redshift-processing'
-
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-conformed-layer-to-adm-processing'
               Action:
                 - states:ListExecutions
                 - states:StartExecution
@@ -697,6 +697,13 @@ StepFunctionRedshiftProcessRole:
                 - redshift-data:GetStatementResult
                 - redshift-data:DescribeStatement
                 - redshift-data:ListStatements
+            - Effect: Allow
+              Resource: !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule'
+              Action:
+                - events:PutTargets
+                - events:PutRule
+                - events:DescribeRule
+
 
 TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
@@ -888,7 +895,7 @@ ADMConsolidatedModelProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
   Properties:
     DefinitionUri: statemachine/txma_adm_consolidated_schema_processing.asl.json
-    Name: !Sub ${Environment}-dap-consolidated-conformed_layer-to-adm-processing
+    Name: !Sub ${Environment}-dap-consolidated-conformed-layer-to-adm-processing
     Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
     Logging:
       Destinations:
