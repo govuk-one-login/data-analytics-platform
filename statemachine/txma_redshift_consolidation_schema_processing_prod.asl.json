@@ -69,21 +69,10 @@
         {
           "Variable": "$.sql_output.Status",
           "StringEquals": "FINISHED",
-          "Next": "check_adm_environment"
-        }
-      ],
-      "Default": "wait_on_dap_datamart_update"
-    },
-    "check_adm_environment": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "${IsADMEnvironment}",
-          "StringEquals": "true",
           "Next": "ADMProcessingStepFunction"
         }
       ],
-      "Default": "StopProcessing"
+      "Default": "wait_on_dap_datamart_update"
     },
     "ADMProcessingStepFunction": {
       "Type": "Task",
