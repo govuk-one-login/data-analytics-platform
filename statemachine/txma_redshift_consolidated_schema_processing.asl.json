@@ -1,122 +1,122 @@
 {
-    "Comment": "Redshit ELT processing workflow for loading dimension and fact tables",
-    "StartAt": "ListExecutions",
-    "States": {
-      "ListExecutions": {
-        "Type": "Task",
-        "Next": "ValidateRunningInstances",
-        "Parameters": {
-          "StateMachineArn.$": "$$.StateMachine.Id",
-          "StatusFilter": "RUNNING"
+  "Comment": "Redshit ELT processing workflow for loading dimension and fact tables",
+  "StartAt": "ListExecutions",
+  "States": {
+    "ListExecutions": {
+      "Type": "Task",
+      "Next": "ValidateRunningInstances",
+      "Parameters": {
+        "StateMachineArn.$": "$$.StateMachine.Id",
+        "StatusFilter": "RUNNING"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:sfn:listExecutions",
+      "ResultSelector": {
+        "runningExecutionsCount.$": "States.ArrayLength($.Executions)"
+      }
+    },
+    "ValidateRunningInstances": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.runningExecutionsCount",
+          "NumericGreaterThan": 1,
+          "Next": "RunningInstanceDetected"
+        }
+      ],
+      "Default": "dap_datamart_update"
+    },
+    "RunningInstanceDetected": {
+      "Type": "Fail",
+      "Error": "RunningInstanceDetected"
+    },
+    "dap_datamart_update": {
+      "Comment": "Invoke Redshift Dap DataMart update script",
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
+      "ResultPath": "$.sql_output",
+      "Parameters": {
+        "WorkgroupName": "${RedshiftWorkgroup}",
+        "Database": "${RedshiftDatabaseName}",
+        "Sql": "call conformed_refactored.update_dap_data_mart()"
+      },
+      "Next": "wait_on_dap_datamart_update"
+    },
+    "wait_on_dap_datamart_update": {
+      "Comment": "Wait before status check",
+      "Type": "Wait",
+      "Seconds": 5,
+      "Next": "dap_datamart_update_status_check"
+    },
+    "dap_datamart_update_status_check": {
+      "Comment": "Check Task Status",
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
+      "ResultPath": "$.sql_output",
+      "Parameters": {
+        "Id.$": "$.sql_output.Id"
+      },
+      "Next": "is_dap_datamart_update_complete"
+    },
+    "is_dap_datamart_update_complete": {
+      "Comment": "check if DAP Datamart update step is complete",
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.sql_output.Status",
+          "StringEquals": "FAILED",
+          "Next": "dap_datamart_update_failure"
         },
-        "Resource": "arn:aws:states:::aws-sdk:sfn:listExecutions",
-        "ResultSelector": {
-          "runningExecutionsCount.$": "States.ArrayLength($.Executions)"
+        {
+          "Variable": "$.sql_output.Status",
+          "StringEquals": "FINISHED",
+          "Next": "check_adm_environment"
+        }
+      ],
+      "Default": "wait_on_dap_datamart_update"
+    },
+    "check_adm_environment": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.IsADMEnvironment",
+          "BooleanEquals": true,
+          "Next": "ADMProcessingStepFunction"
+        }
+      ],
+      "Default": "StopProcessing"
+    },
+    "ADMProcessingStepFunction": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Parameters": {
+        "StateMachineArn": "${ADMProcessingStepFunctionArn}",
+        "Input": {
+          "StatePayload": "Triggered from stage to redshift consolidated step function",
+          "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
         }
       },
-      "ValidateRunningInstances": {
-        "Type": "Choice",
-        "Choices": [
-          {
-            "Variable": "$.runningExecutionsCount",
-            "NumericGreaterThan": 1,
-            "Next": "RunningInstanceDetected"
-          }
-        ],
-        "Default": "dap_datamart_update"
-      },
-      "RunningInstanceDetected": {
-        "Type": "Fail",
-        "Error": "RunningInstanceDetected"
-      },
-      "dap_datamart_update": {
-        "Comment": "Invoke Redshift Dap DataMart update script",
-        "Type": "Task",
-        "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
-        "ResultPath": "$.sql_output",
-        "Parameters": {
-          "WorkgroupName": "${RedshiftWorkgroup}",
-          "Database": "${RedshiftDatabaseName}",
-          "Sql": "call conformed_refactored.update_dap_data_mart()"
-        },
-        "Next": "wait_on_dap_datamart_update"
-      },
-      "wait_on_dap_datamart_update": {
-        "Comment": "Wait before status check",
-        "Type": "Wait",
-        "Seconds": 5,
-        "Next": "dap_datamart_update_status_check"
-      },
-      "dap_datamart_update_status_check": {
-        "Comment": "Check Task Status",
-        "Type": "Task",
-        "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
-        "ResultPath": "$.sql_output",
-        "Parameters": {
-          "Id.$": "$.sql_output.Id"
-        },
-        "Next": "is_dap_datamart_update_complete"
-      },
-      "is_dap_datamart_update_complete": {
-        "Comment": "check if DAP Datamart update step is complete",
-        "Type": "Choice",
-        "Choices": [
-          {
-            "Variable": "$.sql_output.Status",
-            "StringEquals": "FAILED",
-            "Next": "dap_datamart_update_failure"
-          },
-          {
-            "Variable": "$.sql_output.Status",
-            "StringEquals": "FINISHED",
-            "Next": "StopProcessing"
-          }
-        ],
-        "Default": "wait_on_dap_datamart_update"
-      },
-      "check_adm_environment": {
-        "Type": "Choice",
-        "Choices": [
-          {
-            "Variable": "$.IsADMEnvironment",
-            "BooleanEquals": true,
-            "Next": "${ADMProcessingStepFunction}"
-          }
-        ],
-        "Default": "StopProcessing"
-      },
-      "ADMProcessingStepFunction": {
-        "Type": "Task",
-        "Resource": "arn:aws:states:::states:startExecution.sync:2",
-        "Parameters": {
-          "StateMachineArn": "${ADMProcessingStepFunctionArn}",
-          "Input": {
-            "StatePayload": "Triggered from raw to stage consolidated step function",
-            "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
-          }
-        },
-        "Next": "StopProcessing",
-        "Retry": [
-          {
-            "ErrorEquals": [
-              "States.TaskFailed",
-              "States.Timeout"
-            ],
-            "BackoffRate": 2,
-            "MaxAttempts": 3,
-            "IntervalSeconds": 30
-          }
-        ]
-      },
-      "dap_datamart_update_failure": {
-        "Type": "Fail",
-        "Cause": "Failure within DAP Datamart update_step",
-        "Error": "Error"
-      },
-      "StopProcessing": {
-        "Type": "Pass",
-        "Result": "pass",
-        "End": true
-      }
+      "Next": "StopProcessing",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed",
+            "States.Timeout"
+          ],
+          "BackoffRate": 2,
+          "MaxAttempts": 3,
+          "IntervalSeconds": 30
+        }
+      ]
+    },
+    "dap_datamart_update_failure": {
+      "Type": "Fail",
+      "Cause": "Failure within DAP Datamart update_step",
+      "Error": "Error"
+    },
+    "StopProcessing": {
+      "Type": "Pass",
+      "Result": "pass",
+      "End": true
     }
   }
+}
