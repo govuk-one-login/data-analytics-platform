@@ -74,6 +74,18 @@
       ],
       "Default": "wait_on_dap_datamart_update"
     },
+    "is_adm_environment": {
+      "Comment": "check if in adm environment",
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "${IsADMEnvironment}",
+          "BooleanEquals": true,
+          "Next": "ADMProcessingStepFunction"
+        }
+      ],
+      "Default": "StopProcessings"
+    },
     "ADMProcessingStepFunction": {
       "Type": "Task",
       "Resource": "arn:aws:states:::states:startExecution.sync:2",

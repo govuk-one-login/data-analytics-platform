@@ -874,12 +874,7 @@ ADMConsolidatedModelProcessingLogGroup:
 RedshiftConsolidatedModelProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
   Properties:
-    DefinitionUri:
-      !If [
-        IsADMEnvironment,
-        statemachine/txma_redshift_consolidated_schema_processing_prod.asl.json,
-        statemachine/txma_redshift_consolidated_schema_processing_non_prod.asl.json,
-      ]
+    DefinitionUri: statemachine/txma_redshift_consolidation_schema_processing.asl.json
     Name: !Sub ${Environment}-dap-consolidated-stage-layer-to-redshift-processing
     Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
     Logging:
@@ -895,6 +890,7 @@ RedshiftConsolidatedModelProcessingStateMachine:
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
       ADMProcessingStepFunctionArn:
         !If [IsADMEnvironment, !Ref ADMConsolidatedModelProcessingStateMachine, !Ref 'AWS::NoValue']
+      IsADMEnvironment: !If [IsADMEnvironment, true, false]
 
 ADMConsolidatedModelProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
