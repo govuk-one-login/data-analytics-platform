@@ -78,7 +78,7 @@
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.IsADMEnvironment",
+          "Variable": "${IsADMEnvironment}",
           "StringEquals": "true",
           "Next": "ADMProcessingStepFunction"
         }
