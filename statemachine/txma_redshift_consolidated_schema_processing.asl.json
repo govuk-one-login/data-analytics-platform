@@ -69,7 +69,7 @@
         {
           "Variable": "$.sql_output.Status",
           "StringEquals": "FINISHED",
-          "Next": "ADMProcessingStepFunction"
+          "Next": "is_adm_environment"
         }
       ],
       "Default": "wait_on_dap_datamart_update"
@@ -84,7 +84,7 @@
           "Next": "ADMProcessingStepFunction"
         }
       ],
-      "Default": "StopProcessings"
+      "Default": "StopProcessing"
     },
     "ADMProcessingStepFunction": {
       "Type": "Task",
