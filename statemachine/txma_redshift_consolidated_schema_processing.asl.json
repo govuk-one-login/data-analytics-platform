@@ -79,7 +79,7 @@
       "Choices": [
         {
           "Variable": "$.IsADMEnvironment",
-          "BooleanEquals": true,
+          "StringEquals": "true",
           "Next": "ADMProcessingStepFunction"
         }
       ],

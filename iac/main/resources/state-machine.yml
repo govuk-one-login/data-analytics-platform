@@ -889,6 +889,7 @@ RedshiftConsolidatedModelProcessingStateMachine:
       RedshiftDatabaseName: dap_txma_reporting_db_refactored
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
       ADMProcessingStepFunctionArn: !Ref ADMConsolidatedModelProcessingStateMachine
+      IsADMEnvironment: !Ref IsADMEnvironment
 
 ADMConsolidatedModelProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
