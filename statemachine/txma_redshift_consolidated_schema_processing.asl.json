@@ -35,8 +35,8 @@
       "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
       "ResultPath": "$.sql_output",
       "Parameters": {
-        "WorkgroupName": "${RedshiftWorkgroup}",
-        "Database": "${RedshiftDatabaseName}",
+        "WorkgroupName": "dev-redshift-serverless-workgroup",
+        "Database": "dap_txma_reporting_db_refactored",
         "Sql": "call conformed_refactored.update_dap_data_mart()"
       },
       "Next": "wait_on_dap_datamart_update"
@@ -69,17 +69,22 @@
         {
           "Variable": "$.sql_output.Status",
           "StringEquals": "FINISHED",
-          "Next": "is_adm_environment"
+          "Next": "set_adm_environment"
         }
       ],
       "Default": "wait_on_dap_datamart_update"
     },
-    "is_adm_environment": {
-      "Comment": "check if in adm environment",
+    "set_adm_environment": {
+      "Type": "Pass",
+      "Result": {"IsADMEnvironment": "${IsADMEnvironment}"},
+      "ResultPath":"$",
+      "Next": "check_adm_environment"
+    },
+    "check_adm_environment": {
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$IsADMEnvironment",
+          "Variable": "$.IsADMEnvironment",
           "BooleanEquals": true,
           "Next": "ADMProcessingStepFunction"
         }
@@ -90,7 +95,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::states:startExecution.sync:2",
       "Parameters": {
-        "StateMachineArn": "${ADMProcessingStepFunctionArn}",
+        "StateMachineArn": "arn:aws:states:eu-west-2:563887642259:stateMachine:dev-dap-consolidated-conformed-layer-to-adm-processing",
         "Input": {
           "StatePayload": "Triggered from stage to redshift consolidated step function",
           "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
