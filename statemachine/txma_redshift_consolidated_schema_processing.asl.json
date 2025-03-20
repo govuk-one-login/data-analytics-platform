@@ -35,8 +35,8 @@
       "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
       "ResultPath": "$.sql_output",
       "Parameters": {
-        "WorkgroupName": "dev-redshift-serverless-workgroup",
-        "Database": "dap_txma_reporting_db_refactored",
+        "WorkgroupName": "${RedshiftWorkgroup}",
+        "Database": "${RedshiftDatabaseName}",
         "Sql": "call conformed_refactored.update_dap_data_mart()"
       },
       "Next": "wait_on_dap_datamart_update"
@@ -95,7 +95,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::states:startExecution.sync:2",
       "Parameters": {
-        "StateMachineArn": "arn:aws:states:eu-west-2:563887642259:stateMachine:dev-dap-consolidated-conformed-layer-to-adm-processing",
+        "StateMachineArn": "${ADMProcessingStepFunctionArn}",
         "Input": {
           "StatePayload": "Triggered from stage to redshift consolidated step function",
           "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
