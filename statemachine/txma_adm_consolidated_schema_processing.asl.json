@@ -37,7 +37,7 @@
       "Parameters": {
         "WorkgroupName": "${RedshiftWorkgroup}",
         "Database": "${RedshiftDatabaseName}",
-        "Sql": "call presentation_refactr.refresh_adm_views()"
+        "Sql": "call presentation_refactor.refresh_adm_views()"
       },
       "Next": "wait_on_adm_refresh_update"
     },
