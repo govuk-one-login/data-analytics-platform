@@ -1,9 +1,4 @@
---As these scripts takes too long to run you need to run them manually. This will also run a dummy
---sql insert so flayway keeps a track of this change.
-
-select * from "conformed_refactored"."batch_events_refactored";
-
-/*--Take backup first
+--Take backup first
 create table "conformed_refactored"."fact_user_journey_event_refactored_bkp_ipv_duplicate_issue"
 AS
 select * from "conformed_refactored"."fact_user_journey_event_refactored";
@@ -61,4 +56,3 @@ WHERE (event_name, insert_timestamp) IN (
     FROM ranked_events
     WHERE row_num = 1
 );
-*/
