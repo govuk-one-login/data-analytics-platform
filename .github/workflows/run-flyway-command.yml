@@ -72,5 +72,5 @@ jobs:
           PAYLOAD=$(echo "{\"command\": \"${{ inputs.command }}\", \"database\": \"${{ inputs.database }}\"}")
           echo "$PAYLOAD" | jq
           ENCODED=$(echo "$PAYLOAD" | openssl base64)
-          aws --region eu-west-2 lambda invoke --function-name run-flyway-command --payload "$ENCODED" out.json
+          aws --region eu-west-2 --cli-read-timeout 600 lambda invoke --function-name run-flyway-command --payload "$ENCODED" out.json
           cat out.json | jq
