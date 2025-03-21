@@ -45,6 +45,7 @@ export const handler = async (event: RunFlywayEvent): Promise<RunFlywayResult> =
     await setupFlywayLibrary();
     const redshiftSecret = await getRedshiftSecret();
     const flywayEnvironment = await getFlywayEnvironment(validated, redshiftSecret);
+    logger.info('Running flyway', { environment: { ...flywayEnvironment, FLYWAY_PASSWORD: undefined } });
     return runFlywayCommand(validated, flywayEnvironment);
   } catch (error) {
     logger.error('Error running flyway command', { error });
