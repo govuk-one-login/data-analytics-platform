@@ -86,12 +86,12 @@
         {
           "Variable": "$.IsADMEnvironment",
           "StringEquals": "true",
-          "Next": "ADMProcessingStepFunction"
+          "Next": "trigger_adm_processing_step_function"
         }
       ],
       "Default": "StopProcessing"
     },
-    "ADMProcessingStepFunction": {
+    "trigger_adm_processing_step_function": {
       "Type": "Task",
       "Resource": "arn:aws:states:::states:startExecution.sync:2",
       "Parameters": {
