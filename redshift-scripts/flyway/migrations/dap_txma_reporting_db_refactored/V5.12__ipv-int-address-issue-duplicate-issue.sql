@@ -25,25 +25,11 @@ where event_name='IPV_INTERNATIONAL_ADDRESS_START')
 
 
 -- delete duplicate entery 
-WITH ranked_events AS (
-    SELECT event_name, 
-           insert_timestamp,
-           ROW_NUMBER() OVER (
-               PARTITION BY event_name 
-               ORDER BY insert_timestamp DESC
-           ) AS row_num
-    FROM "conformed_refactored"."batch_events_refactored"
-    WHERE event_name = 'IPV_INTERNATIONAL_ADDRESS_START'
-)
 DELETE FROM "conformed_refactored"."batch_events_refactored"
-WHERE (event_name, insert_timestamp) IN (
-    SELECT event_name, insert_timestamp
-    FROM ranked_events
-    WHERE row_num = 1
-);
-
-
---reset the batch start date to ingest clean data.
-update "conformed_refactored"."batch_events_refactored"
-set max_run_date='1999-01-01'
 where event_name='IPV_INTERNATIONAL_ADDRESS_START';
+
+--reset the event
+
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('IPV_INTERNATIONAL_ADDRESS_START',sysdate,'1999-01-01');
+
+
