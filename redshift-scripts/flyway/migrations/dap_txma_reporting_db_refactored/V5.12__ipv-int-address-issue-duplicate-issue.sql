@@ -9,7 +9,7 @@ join conformed_refactored.event_extensions_refactored ext
 on fct.event_id=ext.event_id
 join conformed_refactored.dim_event_refactored de
 on fct.event_key=de.event_key
-where event_name='IPV_INTERNATIONAL_ADDRESS_START')
+where event_name='IPV_INTERNATIONAL_ADDRESS_START');
 
 
 --delete from fact
@@ -30,6 +30,7 @@ where event_name='IPV_INTERNATIONAL_ADDRESS_START';
 
 --reset the event
 
-insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('IPV_INTERNATIONAL_ADDRESS_START',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) 
+values ('IPV_INTERNATIONAL_ADDRESS_START',sysdate,'1999-01-01');
 
 
