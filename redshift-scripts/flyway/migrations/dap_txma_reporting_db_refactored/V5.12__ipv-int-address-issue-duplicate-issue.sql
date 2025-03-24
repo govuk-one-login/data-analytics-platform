@@ -1,16 +1,3 @@
---Take backup first
-create table "conformed_refactored"."fact_user_journey_event_refactored_bkp_ipv_duplicate_issue_new"
-AS
-select * from "conformed_refactored"."fact_user_journey_event_refactored";
-
-create table "conformed_refactored"."event_extensions_refactored_bkp_ipv_duplicate_issue_new"
-AS
-select * from "conformed_refactored"."event_extensions_refactored";
-
-create table "conformed_refactored"."batch_events_refactored_bkp_ipv_duplicate_issue_new"
-AS
-select * from "conformed_refactored"."batch_events_refactored";
-
 
 --delete from fact
 
