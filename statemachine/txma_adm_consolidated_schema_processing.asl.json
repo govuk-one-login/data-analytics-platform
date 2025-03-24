@@ -1,0 +1,88 @@
+{
+  "Comment": "Redshit ELT processing workflow for refreshing presentation ADM views",
+  "StartAt": "ListExecutions",
+  "States": {
+    "ListExecutions": {
+      "Type": "Task",
+      "Next": "ValidateRunningInstances",
+      "Parameters": {
+        "StateMachineArn.$": "$$.StateMachine.Id",
+        "StatusFilter": "RUNNING"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:sfn:listExecutions",
+      "ResultSelector": {
+        "runningExecutionsCount.$": "States.ArrayLength($.Executions)"
+      }
+    },
+    "ValidateRunningInstances": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.runningExecutionsCount",
+          "NumericGreaterThan": 1,
+          "Next": "RunningInstanceDetected"
+        }
+      ],
+      "Default": "adm_refresh_update"
+    },
+    "RunningInstanceDetected": {
+      "Type": "Fail",
+      "Error": "RunningInstanceDetected"
+    },
+    "adm_refresh_update": {
+      "Comment": "Invoke Redshift ADM Refresh update script",
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
+      "ResultPath": "$.sql_output",
+      "Parameters": {
+        "WorkgroupName": "${RedshiftWorkgroup}",
+        "Database": "${RedshiftDatabaseName}",
+        "Sql": "call presentation_refactored.refresh_adm_views()"
+      },
+      "Next": "wait_on_adm_refresh_update"
+    },
+    "wait_on_adm_refresh_update": {
+      "Comment": "Wait before status check",
+      "Type": "Wait",
+      "Seconds": 5,
+      "Next": "refresh_adm_update_status_check"
+    },
+    "refresh_adm_update_status_check": {
+      "Comment": "Check Task Status",
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
+      "ResultPath": "$.sql_output",
+      "Parameters": {
+        "Id.$": "$.sql_output.Id"
+      },
+      "Next": "is_adm_refresh_update_complete"
+    },
+    "is_adm_refresh_update_complete": {
+      "Comment": "check if ADM Refresh update step is complete",
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.sql_output.Status",
+          "StringEquals": "FAILED",
+          "Next": "adm_refresh_update_failure"
+        },
+        {
+          "Variable": "$.sql_output.Status",
+          "StringEquals": "FINISHED",
+          "Next": "StopProcessing"
+        }
+      ],
+      "Default": "wait_on_adm_refresh_update"
+    },
+    "adm_refresh_update_failure": {
+      "Type": "Fail",
+      "Cause": "Failure within ADM Refresh Update step",
+      "Error": "Error"
+    },
+    "StopProcessing": {
+      "Type": "Pass",
+      "Result": "pass",
+      "End": true
+    }
+  }
+}
