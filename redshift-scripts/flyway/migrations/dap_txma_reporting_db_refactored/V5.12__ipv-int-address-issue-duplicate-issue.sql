@@ -1,45 +1,43 @@
 --Take backup first
-create table "conformed_refactored"."fact_user_journey_event_refactored_bkp_ipv_duplicate_issue"
+create table "conformed_refactored"."fact_user_journey_event_refactored_bkp_ipv_duplicate_issue_new"
 AS
 select * from "conformed_refactored"."fact_user_journey_event_refactored";
 
-create table "conformed_refactored"."event_extensions_refactored_bkp_ipv_duplicate_issue"
+create table "conformed_refactored"."event_extensions_refactored_bkp_ipv_duplicate_issue_new"
 AS
 select * from "conformed_refactored"."event_extensions_refactored";
 
-create table "conformed_refactored"."batch_events_refactored_bkp_ipv_duplicate_issue"
+create table "conformed_refactored"."batch_events_refactored_bkp_ipv_duplicate_issue_new"
 AS
 select * from "conformed_refactored"."batch_events_refactored";
 
 
 --delete from fact
 
-WITH duplicates AS (
-    SELECT fct.user_journey_event_key
+DELETE FROM "conformed_refactored"."fact_user_journey_event_refactored"
+WHERE event_id IN (
+    SELECT fct.event_id
     FROM "conformed_refactored"."fact_user_journey_event_refactored" fct
     JOIN "conformed_refactored"."dim_event_refactored" de
-        ON fct.event_key = de.event_key
+    ON fct.event_key = de.event_key
     WHERE de.event_name = 'IPV_INTERNATIONAL_ADDRESS_START'
-    --AND fct.event_id = 'e77e2b91-530d-416b-a93f-ac02b2610548'
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY fct.event_id ORDER BY fct.created_date DESC) = 2
-)
-DELETE FROM "conformed_refactored"."fact_user_journey_event_refactored"
-WHERE user_journey_event_key IN (SELECT user_journey_event_key FROM duplicates);
+);
 
---delete from extensions 
+--delete from extensions table
 
-WITH fact_filtered AS (
-    -- Select relevant fact records by joining with dim_event_refactored on event_name
-    SELECT f.user_journey_event_key, f.event_id
-    FROM "conformed_refactored"."fact_user_journey_event_refactored" f
-    JOIN "conformed_refactored"."dim_event_refactored" d
-        ON f.event_key = d.event_key
-    WHERE d.event_name = 'IPV_INTERNATIONAL_ADDRESS_START'
-)
 DELETE FROM "conformed_refactored"."event_extensions_refactored"
-WHERE event_id IN (SELECT event_id FROM fact_filtered)  -- Match event_id
-AND user_journey_event_key NOT IN (SELECT user_journey_event_key FROM fact_filtered);
+WHERE event_id IN (SELECT
+   distinct ext.event_id
+FROM
+"conformed_refactored"."fact_user_journey_event_refactored" fct
+join conformed_refactored.event_extensions_refactored ext
+on fct.event_id=ext.event_id
+join conformed_refactored.dim_event_refactored de
+on fct.event_key=de.event_key
+where event_name='IPV_INTERNATIONAL_ADDRESS_START')
 
+
+-- delete duplicate entery 
 WITH ranked_events AS (
     SELECT event_name, 
            insert_timestamp,
@@ -56,3 +54,9 @@ WHERE (event_name, insert_timestamp) IN (
     FROM ranked_events
     WHERE row_num = 1
 );
+
+
+--reset the batch start date to ingest clean data.
+update "conformed_refactored"."batch_events_refactored"
+set max_run_date='1999-01-01'
+where event_name='IPV_INTERNATIONAL_ADDRESS_START';
