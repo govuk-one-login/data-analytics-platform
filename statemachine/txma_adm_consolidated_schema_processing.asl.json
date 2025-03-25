@@ -37,6 +37,7 @@
       "Parameters": {
         "WorkgroupName": "${RedshiftWorkgroup}",
         "Database": "${RedshiftDatabaseName}",
+        "SecretArn": "${RedshiftSecretArn}",
         "Sql": "call presentation_refactored.refresh_adm_views()"
       },
       "Next": "wait_on_adm_refresh_update"
