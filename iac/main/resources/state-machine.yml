@@ -704,7 +704,7 @@ StepFunctionRedshiftProcessRole:
                 - events:PutRule
                 - events:DescribeRule
             - Effect: Allow
-              Resource: '*'
+              Resource: !Sub 'arn:aws:secretsmanager:eu-west-2:${AWS::AccountId}:secret:*'
               Action:
                 - secretsmanager:GetSecretValue
 
