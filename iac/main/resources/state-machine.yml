@@ -704,7 +704,7 @@ StepFunctionRedshiftProcessRole:
                 - events:PutRule
                 - events:DescribeRule
             - Effect: Allow
-              Resource: !Ref RedshiftSecret
+              Resource: '*'
               Action:
                 - secretsmanager:GetSecretValue
 
