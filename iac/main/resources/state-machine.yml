@@ -703,6 +703,10 @@ StepFunctionRedshiftProcessRole:
                 - events:PutTargets
                 - events:PutRule
                 - events:DescribeRule
+            - Effect: Allow
+              Resource: !Ref RedshiftSecret
+              Action:
+                - secretsmanager:GetSecretValue
 
 TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
@@ -910,6 +914,7 @@ ADMConsolidatedModelProcessingStateMachine:
       RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
       RedshiftDatabaseName: dap_txma_reporting_db_refactored
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
+      RedshiftSecretArn: !Ref RedshiftSecret
 
 SplunkMigratedRawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job
