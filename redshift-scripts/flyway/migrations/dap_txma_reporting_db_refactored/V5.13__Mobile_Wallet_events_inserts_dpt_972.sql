@@ -1,0 +1,2 @@
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('WALLET_CREDENTIAL_ADD_ATTEMPT',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('WALLET_CREDENTIAL_ADDED',sysdate,'1999-01-01');
