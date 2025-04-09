@@ -27,6 +27,27 @@ IAM_ROLE 'arn:aws:iam::{aws-account-id}:role/{env}-redshift-serverless-role';
 
 
 /*
+External Schema
+
+create external schema with name 'sustainability'
+replacing the following values, based upon which
+environment the script is being run against
+
+i. DATABASE
+ii. IAM_ROLE
+*/
+
+--**ENSURE DATBASE CREATED IN STEP(1) IS SELECTED**
+--**REPLACE {env}**
+--**REPLACE {aws-account-id}**
+CREATE EXTERNAL SCHEMA IF NOT EXISTS sustainability
+FROM DATA CATALOG
+DATABASE '{env}-sustainability'
+REGION 'eu-west-2'
+IAM_ROLE 'arn:aws:iam::{aws-account-id}:role/{env}-redshift-serverless-role';
+
+
+/*
 Create Schema
 */
 
