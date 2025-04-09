@@ -33,6 +33,8 @@ create external schema with name 'sustainability'
 replacing the following values, based upon which
 environment the script is being run against
 
+see https://govukverify.atlassian.net/wiki/spaces/DAP/pages/5288919223/Sustainability for more details
+
 i. DATABASE
 ii. IAM_ROLE
 */
