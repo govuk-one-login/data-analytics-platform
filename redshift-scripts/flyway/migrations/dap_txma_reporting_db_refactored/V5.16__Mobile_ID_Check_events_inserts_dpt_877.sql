@@ -1,0 +1,4 @@
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('DCMAW_ASYNC_BIOMETRIC_TOKEN_ISSUED',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('DCMAW_ASYNC_CRI_4XXERROR',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('DCMAW_ASYNC_CRI_5XXERROR',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('DCMAW_ASYNC_APP_END',sysdate,'1999-01-01');
