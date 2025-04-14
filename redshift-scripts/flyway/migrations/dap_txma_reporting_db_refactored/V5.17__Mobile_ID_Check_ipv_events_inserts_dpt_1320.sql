@@ -1,0 +1,3 @@
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('IPV_APP_MISSING_CONTEXT',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('IPV_APP_SESSION_RECOVERED',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('IPV_APP_HANDOFF_START',sysdate,'1999-01-01'); 
