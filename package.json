@@ -14,7 +14,7 @@
     "@aws-sdk/client-cloudwatch-logs": "^3.772.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.772.0",
     "@aws-sdk/client-eventbridge": "^3.772.0",
-    "@aws-sdk/client-firehose": "^3.772.0",
+    "@aws-sdk/client-firehose": "^3.799.0",
     "@aws-sdk/client-lambda": "^3.772.0",
     "@aws-sdk/client-quicksight": "^3.772.0",
     "@aws-sdk/client-redshift-data": "^3.772.0",
