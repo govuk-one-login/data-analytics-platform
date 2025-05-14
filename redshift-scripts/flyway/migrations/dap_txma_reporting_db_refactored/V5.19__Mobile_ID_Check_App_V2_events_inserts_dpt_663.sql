@@ -1,0 +1,4 @@
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('DCMAW_ASYNC_CLIENT_CREDENTIALS_TOKEN_ISSUED',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('STS_ACCESS_TOKEN_ISSUED',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('STS_AUTH_CODE_ISSUED',sysdate,'1999-01-01'); 
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('STS_SESSION_CREATED',sysdate,'1999-01-01'); 
