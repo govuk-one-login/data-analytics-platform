@@ -1,0 +1,3 @@
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('AUTH_MFA_METHOD_ADD_COMPLETED',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('AUTH_MFA_METHOD_SWITCH_COMPLETED',sysdate,'1999-01-01');
+insert into conformed_refactored.batch_events_refactored (event_name,insert_timestamp,max_run_date) values ('AUTH_MFA_METHOD_DELETE_COMPLETED',sysdate,'1999-01-01'); 
