@@ -302,7 +302,7 @@ RunFlywayCommandLambda:
         ENVIRONMENT: !Ref Environment
     Tags:
       Environment: !Ref Environment
-    MemorySize: 2048
+    MemorySize: 4096
     Timeout: 600
     EphemeralStorage:
       Size: 1024
