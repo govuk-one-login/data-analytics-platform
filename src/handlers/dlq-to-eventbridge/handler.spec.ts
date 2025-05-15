@@ -90,7 +90,7 @@ test.each([
   {
     name: 'unparseable',
     event: sqsEvent('hello world'),
-    expectedError: 'Unexpected token \'h\', "hello world" is not valid JSON',
+    expectedError: 'Unexpected token h in JSON at position 0',
   },
 ])('$name input event', async ({ event, expectedError }) => {
   const batchResponse = await handler(event);
@@ -101,7 +101,7 @@ test.each([
 
   expect(loggerSpy).toHaveBeenCalledTimes(1);
   expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: new Error(expectedError),
+    error: new SyntaxError(expectedError),
   });
 });
 
@@ -134,6 +134,6 @@ test('multiple events', async () => {
     error: new Error('Could not parse input event as any of the expected event types'),
   });
   expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: new Error('Unexpected token \'h\', "hello world" is not valid JSON'),
+    error: new SyntaxError('Unexpected token h in JSON at position 0'),
   });
 });
