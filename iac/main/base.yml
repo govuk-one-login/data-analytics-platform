@@ -34,13 +34,13 @@ Parameters:
   DeliveryStreamName:
     Description: Kinesis Firehose delivery stream name
     Type: String
-    Default: dap-txma-delivery-stream
+    Default: dap-txma-delivery-stream-refactored
   RawGlueDatabaseName:
-    Default: txma-raw
+    Default: txma-raw-refactored
     Type: String
     Description: Name for the TxMA Raw Glue database
   StageGlueDatabaseName:
-    Default: txma-stage
+    Default: txma-stage-refactored
     Type: String
     Description: Name for the TxMA Stage Glue database
   BuildAccountId:
