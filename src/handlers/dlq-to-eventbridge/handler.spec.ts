@@ -90,7 +90,7 @@ test.each([
   {
     name: 'unparseable',
     event: sqsEvent('hello world'),
-    expectedError: 'Unexpected token h in JSON at position 0',
+    expectedError: 'Unexpected token \'h\', "hello world" is not valid JSON',
   },
 ])('$name input event', async ({ event, expectedError }) => {
   const batchResponse = await handler(event);
