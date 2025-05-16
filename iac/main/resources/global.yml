@@ -3,7 +3,7 @@ GlobalLogBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-s3-logs'
+    BucketName: !Sub '${Environment}-dap-s3-logs-refactored'
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true

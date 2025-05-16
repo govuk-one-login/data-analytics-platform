@@ -6,7 +6,7 @@ QuicksightExportBucket:
     BucketName: !Sub ${Environment}-dap-quicksight-exports
     # can't use !Ref GlobalLogBucket here as GlobalLogBucket is in the main stack
     LoggingConfiguration:
-      DestinationBucketName: !Sub ${Environment}-dap-s3-logs
+      DestinationBucketName: !Sub ${Environment}-dap-s3-logs-refactored
       LogFilePrefix: dap-quicksight-exports/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
