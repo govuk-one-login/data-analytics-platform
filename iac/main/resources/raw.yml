@@ -2,7 +2,7 @@ RawLayerBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-raw-layer-refactored
+    BucketName: !Sub ${Environment}-dap-raw-layer
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-raw-layer/log
