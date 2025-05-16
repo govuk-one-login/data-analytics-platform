@@ -100,7 +100,7 @@ VPCFlowLogsBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-vpc-flow-logs'
+    BucketName: !Sub '${Environment}-dap-vpc-flow-logs-refactored'
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: dap-s3-flow-log/log
