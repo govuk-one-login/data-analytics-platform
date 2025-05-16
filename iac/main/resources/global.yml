@@ -716,7 +716,7 @@ TrailBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-cloud-trail'
+    BucketName: !Sub '${Environment}-dap-cloud-trail-refactored'
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: cloudtrail/trail
