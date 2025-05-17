@@ -385,6 +385,7 @@ FlowLogRole:
 
 FlowLogs:
   Type: 'AWS::EC2::FlowLog'
+  DependsOn: VPCFlowLogsBucketPolicy
   Properties:
     LogDestination: !GetAtt VPCFlowLogsBucket.Arn
     LogDestinationType: s3
