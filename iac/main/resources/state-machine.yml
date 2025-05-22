@@ -365,7 +365,7 @@ DataQualityGlueDatabase:
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseInput:
-      Name: !Sub ${Environment}-txma-data-quality-metrics-2
+      Name: !Sub ${Environment}-txma-data-quality-metrics
 
 DataQualityMetricsGlueTable:
   Type: AWS::Glue::Table
@@ -373,7 +373,7 @@ DataQualityMetricsGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref DataQualityGlueDatabase
     TableInput:
-      Name: data_quality_metrics
+      Name: data_quality_metrics_2
       TableType: EXTERNAL_TABLE
       StorageDescriptor:
         Columns:
