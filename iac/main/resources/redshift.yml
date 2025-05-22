@@ -1,7 +1,7 @@
 IAMRoleRedshiftServerless:
   Type: 'AWS::IAM::Role'
   Properties:
-    RoleName: !Sub ${Environment}-redshift-serverless-role
+    RoleName: !Sub ${Environment}-redshift-serverless-role-2
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -12,7 +12,7 @@ IAMRoleRedshiftServerless:
           Action: 'sts:AssumeRole'
     MaxSessionDuration: 3600
     Policies:
-      - PolicyName: !Sub ${Environment}-redshift-serverless-policy
+      - PolicyName: !Sub ${Environment}-redshift-serverless-policy-2
         PolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -62,7 +62,7 @@ QuickSightEnvironmentPolicy:
   Type: 'AWS::IAM::Policy'
   Condition: IsQuicksightEnvironment
   Properties:
-    PolicyName: !Sub ${Environment}-analysts-bucket-policy
+    PolicyName: !Sub ${Environment}-analysts-bucket-policy-2
     Roles:
       - !Ref IAMRoleRedshiftServerless
     PolicyDocument:
@@ -89,9 +89,9 @@ RedshiftSecret:
       SecretStringTemplate: !Sub |
         {
           "engine": "redshift",
-          "host": "${Environment}-redshift-serverless-workgroup.${AWS::AccountId}.${AWS::Region}.redshift-serverless.amazonaws.com",
+          "host": "${Environment}-redshift-serverless-workgroup-2.${AWS::AccountId}.${AWS::Region}.redshift-serverless.amazonaws.com",
           "username": "admin",
-          "dbname": "${Environment}-redshift",
+          "dbname": "${Environment}-redshift-2",
           "port": "5439"
         }
       GenerateStringKey: password
@@ -117,7 +117,7 @@ RedshiftSecretRotationLambda:
   Properties:
     # todo remove this once secretsmanager permissions have been added to secure pipelines permissions boundary
     PermissionsBoundary: !Ref AWS::NoValue
-    FunctionName: redshift-rotate-secret
+    FunctionName: redshift-rotate-secret-2
     Handler: redshift-rotate-secret.handler
     Policies:
       - AWSLambdaBasicExecutionRole
@@ -178,11 +178,11 @@ RedshiftServerlessNamespace:
     IamRoles:
       - !GetAtt IAMRoleRedshiftServerless.Arn
     KmsKeyId: !Ref KmsKey
-    FinalSnapshotName: !Sub '${Environment}-redshift-snapshot'
+    FinalSnapshotName: !Sub '${Environment}-redshift-snapshot-2'
     FinalSnapshotRetentionPeriod: 30
     LogExports:
       - useractivitylog
-    NamespaceName: !Sub '${Environment}-redshift-serverless-ns'
+    NamespaceName: !Sub '${Environment}-redshift-serverless-ns-2'
 
 RedshiftServerlessWorkgroup:
   Type: 'AWS::RedshiftServerless::Workgroup'
@@ -197,7 +197,7 @@ RedshiftServerlessWorkgroup:
       - !Ref SubnetForDAP1
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
-    WorkgroupName: !Sub '${Environment}-redshift-serverless-workgroup'
+    WorkgroupName: !Sub '${Environment}-redshift-serverless-workgroup-2'
   Metadata:
     cfn-lint:
       config:
@@ -243,7 +243,7 @@ VPCDefaultSecurityGroupAllIngress:
 RedshiftMigrationRole:
   Type: AWS::IAM::Role
   Properties:
-    RoleName: !Sub ${Environment}-dap-redshift-migrate-role
+    RoleName: !Sub ${Environment}-dap-redshift-migrate-role-2
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -257,7 +257,7 @@ RedshiftMigrationRole:
                 - repo:govuk-one-login/data-analytics-platform:ref:refs/heads/*
                 - repo:govuk-one-login/data-analytics-platform:environment:*
     Policies:
-      - PolicyName: !Sub ${Environment}-dap-redshift-migrate-policy
+      - PolicyName: !Sub ${Environment}-dap-redshift-migrate-policy-2
         PolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -269,7 +269,7 @@ RunFlywayCommandLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed
   Type: AWS::Serverless::Function
   Properties:
-    FunctionName: run-flyway-command
+    FunctionName: run-flyway-command-2
     Handler: run-flyway-command.handler
     Policies:
       - AWSLambdaBasicExecutionRole
@@ -319,10 +319,10 @@ FlywayFilesBucket:
   Type: AWS::S3::Bucket
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-flyway-files
+    BucketName: !Sub ${Environment}-dap-flyway-files-2
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
-      LogFilePrefix: dap-flyway-files/log
+      LogFilePrefix: dap-flyway-files-2/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
@@ -365,13 +365,13 @@ FlywayFilesBucketPolicy:
             - !Sub ${FlywayFilesBucket.Arn}
             - !Sub ${FlywayFilesBucket.Arn}/*
           Principal:
-            AWS: !Sub arn:aws:iam::${BuildAccountId}:role/dap-flyway-files-upload-role
+            AWS: !Sub arn:aws:iam::${BuildAccountId}:role/dap-flyway-files-upload-role-2
 
 FlywayFilesBucketUploadRole:
   Condition: IsBuild
   Type: AWS::IAM::Role
   Properties:
-    RoleName: dap-flyway-files-upload-role
+    RoleName: dap-flyway-files-upload-role-2
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -385,7 +385,7 @@ FlywayFilesBucketUploadRole:
                 - repo:govuk-one-login/data-analytics-platform:ref:refs/heads/*
                 - repo:govuk-one-login/data-analytics-platform:environment:*
     Policies:
-      - PolicyName: dap-flyway-files-upload-policy
+      - PolicyName: dap-flyway-files-upload-policy-2
         PolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -399,15 +399,15 @@ FlywayFilesBucketUploadRole:
                 - s3:ListBucketVersions
                 - s3:PutObject
               Resource:
-                - arn:aws:s3:::*-dap-flyway-files
-                - arn:aws:s3:::*-dap-flyway-files/*
+                - arn:aws:s3:::*-dap-flyway-files-2
+                - arn:aws:s3:::*-dap-flyway-files-2/*
 
 # Role to allow the data-analytics-adm repository the access to Redshift and related resources it needs
 DataAnalyticsADMRedshiftRole:
   Type: AWS::IAM::Role
   Condition: IsADMEnvironment
   Properties:
-    RoleName: !Sub data-analytics-adm-redshift-role
+    RoleName: !Sub data-analytics-adm-redshift-role-2
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -419,7 +419,7 @@ DataAnalyticsADMRedshiftRole:
             StringLike:
               'token.actions.githubusercontent.com:sub': repo:govuk-one-login/data-analytics-adm:*
     Policies:
-      - PolicyName: !Sub data-analytics-adm-redshift-policy
+      - PolicyName: !Sub data-analytics-adm-redshift-policy-2
         PolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -442,7 +442,7 @@ RedshiftCreateSnapshotLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed
   Type: AWS::Serverless::Function
   Properties:
-    FunctionName: redshift-create-snapshot
+    FunctionName: redshift-create-snapshot-2
     Handler: redshift-create-snapshot.handler
     Policies:
       - AWSLambdaBasicExecutionRole
@@ -473,13 +473,13 @@ RedshiftCreateSnapshotLambda:
 RedshiftCreateSnapshotScheduledRule:
   Type: AWS::Events::Rule
   Properties:
-    Name: !Sub ${Environment}-dap-redshift-create-snapshot-rule
-    Description: Schedule to create redshift snapshots using the redshift-create-snapshot lambda
+    Name: !Sub ${Environment}-dap-redshift-create-snapshot-rule-2
+    Description: Schedule to create redshift snapshots using the redshift-create-snapshot-2 lambda
     ScheduleExpression: cron(0 22 * * ? *) # daily at 10pm
     State: ENABLED
     Targets:
       - Arn: !GetAtt RedshiftCreateSnapshotLambda.Arn
-        Id: redshift-create-snapshot
+        Id: redshift-create-snapshot-2
 
 RedshiftCreateSnapshotLambdaPermission:
   Type: AWS::Lambda::Permission
