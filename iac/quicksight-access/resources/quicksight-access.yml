@@ -135,6 +135,13 @@ QuicksightAccessUserPool:
       DefaultEmailOption: CONFIRM_WITH_CODE
       EmailMessage: <verification-email> # replaced with a template from ../templates during iac:build and iac:buildall
       EmailSubject: Verification Code for One Login Data & Analytics Dashboards
+    LambdaConfig:
+      PostAuthentication: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-post-authentication
+    Schema:
+      - AttributeDataType: String
+        Name: last_login
+        Mutable: true
+        Required: false
 
 QuicksightAccessUserPoolClient:
   Type: AWS::Cognito::UserPoolClient
@@ -483,3 +490,44 @@ GoogleCredentialsSecret:
   Properties:
     Description: Credentials JSON for a service account that can access the Google Sheets API
     KmsKeyId: !Ref QuicksightAccessKmsKey
+
+CognitoPostAuthenticationLambdaFunction:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as credentials would be out of date when retried
+  Type: AWS::Serverless::Function
+  Condition: IsQuicksightEnvironment
+  Properties:
+    FunctionName: cognito-post-authentication
+    Handler: cognito-post-authentication.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action: cognito-idp:AdminUpdateUserAttributes
+            Resource: !GetAtt QuicksightAccessUserPool.Arn
+    ReservedConcurrentExecutions: 10
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+    Tags:
+      Environment: !Ref Environment
+    MemorySize: 512
+    # this lambda lives in the protected subnets of a different VPC than the main application lambdas
+    # because it needs (limited) internet access to call cognito APIs and this service does not have a VPC endpoint
+    # see https://govukverify.atlassian.net/wiki/spaces/PLAT/pages/3531735041/VPC
+    VpcConfig:
+      SecurityGroupIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-AWSServicesEndpointSecurityGroupId
+      SubnetIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdA
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdB
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdC
+
+CognitoPostAuthenticationLambdaPermission:
+  Type: AWS::Lambda::Permission
+  Condition: IsQuicksightEnvironment
+  Properties:
+    FunctionName: !Ref CognitoPostAuthenticationLambdaFunction
+    Action: lambda:InvokeFunction
+    Principal: cognito-idp.amazonaws.com
+    SourceArn: !GetAtt QuicksightAccessUserPool.Arn
