@@ -2,10 +2,10 @@ ELTMetadataBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-elt-metadata
+    BucketName: !Sub ${Environment}-dap-elt-metadata-2
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
-      LogFilePrefix: dap-elt-metadata/log
+      LogFilePrefix: dap-elt-metadata-2/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
@@ -21,7 +21,7 @@ ELTMetadataUploadRole:
   Condition: IsBuild
   Type: AWS::IAM::Role
   Properties:
-    RoleName: dap-elt-metadata-upload-role
+    RoleName: dap-elt-metadata-upload-role-2
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -47,8 +47,8 @@ ELTMetadataUploadRole:
                 - 's3:ListBucketVersions'
                 - 's3:PutObject'
               Resource:
-                - arn:aws:s3:::*-dap-elt-metadata
-                - arn:aws:s3:::*-dap-elt-metadata/*
+                - arn:aws:s3:::*-dap-elt-metadata-2
+                - arn:aws:s3:::*-dap-elt-metadata-2/*
 
 ELTMetadataBucketPolicy:
   Type: AWS::S3::BucketPolicy
@@ -61,14 +61,14 @@ ELTMetadataBucketPolicy:
           Action: 's3:*'
           Principal: '*'
           Resource:
-            - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata
-            - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
+            - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata-2
+            - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata-2/*
           Condition:
             Bool:
               aws:SecureTransport: false
         - Effect: Allow
           Principal:
-            AWS: !Sub arn:aws:iam::${BuildAccountId}:role/dap-elt-metadata-upload-role
+            AWS: !Sub arn:aws:iam::${BuildAccountId}:role/dap-elt-metadata-upload-role-2
           Action:
             - 's3:GetObject'
             - 's3:GetObjectVersion'
@@ -76,17 +76,17 @@ ELTMetadataBucketPolicy:
             - 's3:ListBucketVersions'
             - 's3:PutObject'
           Resource:
-            - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata
-            - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
+            - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata-2
+            - !Sub arn:aws:s3:::${Environment}-dap-elt-metadata-2/*
 
 StateMachineResultsBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-step-function-process-results
+    BucketName: !Sub ${Environment}-dap-step-function-process-results-2
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
-      LogFilePrefix: dap-step-function-process-results/log
+      LogFilePrefix: dap-step-function-process-results-2/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
@@ -135,14 +135,14 @@ StateMachineResultsBucketPolicy:
 AthenaRawLayerProcessingLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: !Sub /aws/stepfunction/dap-process-raw-layer
+    LogGroupName: !Sub /aws/stepfunction/dap-process-raw-layer-2
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
 StepFunctionRole:
   Type: AWS::IAM::Role
   Properties:
-    RoleName: !Sub ${Environment}-dap-statemachine-processing-role
+    RoleName: !Sub ${Environment}-dap-statemachine-processing-role-2
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -154,7 +154,7 @@ StepFunctionRole:
             - sts:AssumeRole
     Path: /
     Policies:
-      - PolicyName: !Sub ${Environment}-dap-statemachine-processing-policy
+      - PolicyName: !Sub ${Environment}-dap-statemachine-processing-policy-2
         PolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -203,16 +203,16 @@ StepFunctionRole:
                 - !Join [':', [!GetAtt AthenaGetConfigLambda.Arn, '$LATEST']]
                 - !Join [':', [!GetAtt AthenaGetStatementLambda.Arn, '$LATEST']]
                 # manually construct ARN below to avoid a circular dependency
-                - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:redshift-get-metadata-${Environment}:$LATEST
-                - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:stepfunction-validate-execution-${Environment}:$LATEST
+                - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:redshift-get-metadata-${Environment}-2:$LATEST
+                - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:stepfunction-validate-execution-${Environment}-2:$LATEST
               Action: lambda:InvokeFunction
 
             - Effect: Allow
               Resource:
-                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-raw-to-stage-process'
-                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-processing'
-                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-txma-raw-consolidated-schema-to-stage-process'
-                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-stage-layer-to-redshift-processing'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-raw-to-stage-process-2'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-processing-2'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-txma-raw-consolidated-schema-to-stage-process-2'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-stage-layer-to-redshift-processing-2'
               Action:
                 - states:ListExecutions
                 - states:StartExecution
@@ -230,7 +230,7 @@ StepFunctionRole:
 
             - Effect: Allow
               Resource:
-                - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${Environment}-dap-txma-processing'
+                - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${Environment}-dap-txma-processing-2'
                 - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:datacatalog/*'
               Action:
                 - athena:CreatePreparedStatement
@@ -323,10 +323,10 @@ DataQualityMetricsBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-data-quality-metrics
+    BucketName: !Sub ${Environment}-dap-data-quality-metrics-2
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
-      LogFilePrefix: dap-data-quality-metrics/log
+      LogFilePrefix: dap-data-quality-metrics-2/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
@@ -365,7 +365,7 @@ DataQualityGlueDatabase:
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseInput:
-      Name: !Sub ${Environment}-txma-data-quality-metrics
+      Name: !Sub ${Environment}-txma-data-quality-metrics-2
 
 DataQualityMetricsGlueTable:
   Type: AWS::Glue::Table
@@ -404,11 +404,11 @@ DataQualityPythonGlueJob:
       PythonVersion: '3.9'
       ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/data_quality_metrics_script/data_quality_metrics_generation.py
     DefaultArguments:
-      '--JOB_NAME': !Sub ${Environment}-dap-data-quality-metrics-generation
+      '--JOB_NAME': !Sub ${Environment}-dap-data-quality-metrics-generation-2
       '--additional-python-modules': 'awswrangler'
       '--env': !Sub ${Environment}
-      '--raw_db': !Sub ${Environment}-txma-raw
-      '--stage_db': !Sub ${Environment}-txma-stage
+      '--raw_db': !Sub ${Environment}-txma-raw-2
+      '--stage_db': !Sub ${Environment}-txma-stage-2
       '--reconcilation_db': !Ref DataQualityGlueDatabase
       '--reconcilation_tbl': !Ref DataQualityMetricsGlueTable
       '--s3_path': !Sub s3://${DataQualityMetricsBucket}/data_quality_metrics/
@@ -418,13 +418,13 @@ DataQualityPythonGlueJob:
       MaxConcurrentRuns: 1
     MaxRetries: 0
     SecurityConfiguration: !Ref GlueSecurityConfig
-    Name: !Sub ${Environment}-dap-data-quality-metrics-generation
+    Name: !Sub ${Environment}-dap-data-quality-metrics-generation-2
     Role: !Ref GlueScriptsExecutionRole
 
 GlueScriptsExecutionRole:
   Type: AWS::IAM::Role
   Properties:
-    RoleName: !Sub ${Environment}-dap-glue-scripts-execution-role
+    RoleName: !Sub ${Environment}-dap-glue-scripts-execution-role-2
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -436,7 +436,7 @@ GlueScriptsExecutionRole:
             - sts:AssumeRole
     Path: /
     Policies:
-      - PolicyName: !Sub ${Environment}-dap-glue-scripts-execution-policy
+      - PolicyName: !Sub ${Environment}-dap-glue-scripts-execution-policy-2
         PolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -482,7 +482,7 @@ GlueScriptsExecutionRole:
 
             - Effect: Allow
               Resource:
-                - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${Environment}-dap-txma-processing'
+                - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/${Environment}-dap-txma-processing-2'
                 - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:workgroup/primary'
                 - !Sub 'arn:aws:athena:${AWS::Region}:${AWS::AccountId}:datacatalog/*'
               Action:
@@ -586,7 +586,7 @@ GlueScriptsExecutionRole:
 RedshiftProcessingLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: /aws/stepfunction/dap-redshift-processing
+    LogGroupName: /aws/stepfunction/dap-redshift-processing-2
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
@@ -594,7 +594,7 @@ RedshiftProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
   Properties:
     DefinitionUri: statemachine/redshift_elt_processing.asl.json
-    Name: !Sub ${Environment}-dap-redshift-processing
+    Name: !Sub ${Environment}-dap-redshift-processing-2
     Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
     Logging:
       Destinations:
@@ -605,7 +605,7 @@ RedshiftProcessingStateMachine:
     DefinitionSubstitutions:
       S3MetaDataBucketName: !Ref ELTMetadataBucket
       RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
-      RedshiftDatabaseName: dap_txma_reporting_db
+      RedshiftDatabaseName: dap_txma_reporting_db_2
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
 
 StepFunctionRedshiftProcessRole:
@@ -614,7 +614,7 @@ StepFunctionRedshiftProcessRole:
   # https://repost.aws/questions/QURc2glxBETSe3Q6Y0UwcpQg/bug-with-loggingconfiguration
   # checkov:skip=CKV_AWS_111:Ensure IAM policies does not allow write access without constraints
   Properties:
-    RoleName: !Sub ${Environment}-dap-redshift-processing-role
+    RoleName: !Sub ${Environment}-dap-redshift-processing-role-2
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -626,7 +626,7 @@ StepFunctionRedshiftProcessRole:
             - sts:AssumeRole
     Path: /
     Policies:
-      - PolicyName: dap-statemachine-redshift-processing-policy
+      - PolicyName: dap-statemachine-redshift-processing-policy-2
         PolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -712,7 +712,7 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
   Properties:
     DefinitionUri: statemachine/txma_raw_layer_consolidated_schema_processing.asl.json
-    Name: !Sub ${Environment}-dap-txma-raw-consolidated-schema-to-stage-process
+    Name: !Sub ${Environment}-dap-txma-raw-consolidated-schema-to-stage-process-2
     Role: !GetAtt StepFunctionRole.Arn
     Logging:
       Destinations:
@@ -739,19 +739,19 @@ RawStageTransformProcessPythonGlueJob:
       PythonVersion: '3.9'
       ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_process_glue_job.py
     DefaultArguments:
-      '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
+      '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process-2
       '--LOG_LEVEL': 'INFO'
       '--additional-python-modules': 'awswrangler,aws_lambda_powertools'
       '--config_bucket': !Sub ${ELTMetadataBucket}
       '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/raw_to_stage_config_rules.json'
-      '--raw_database': !Sub ${Environment}-txma-raw
+      '--raw_database': !Sub ${Environment}-txma-raw-2
       '--raw_source_table': 'txma'
       '--stage_bucket': !Sub ${StageLayerBucket}
-      '--stage_database': !Sub ${Environment}-txma-stage
+      '--stage_database': !Sub ${Environment}-txma-stage-2
       '--stage_target_table': 'txma_stage_layer'
       '--stage_target_key_value_table': 'txma_stage_layer_key_values'
       '--txma_raw_dedup_view_key_path': 'txma/raw_stage_optimisation_solution/athena_db_object/txma_raw_dedup_view.sql'
-      '--workgroup': !Sub ${Environment}-dap-txma-processing
+      '--workgroup': !Sub ${Environment}-dap-txma-processing-2
       '--TempDir': !Sub s3://${StageLayerBucket}/raw_stage_optimisation_processing/temporary/
       'library-set': 'analytics'
       '--extra-py-files':
@@ -764,7 +764,7 @@ RawStageTransformProcessPythonGlueJob:
     MaxRetries: 0
     MaxCapacity: 1
     SecurityConfiguration: !Ref GlueSecurityConfig
-    Name: !Sub ${Environment}-dap-raw-stage-transform-process
+    Name: !Sub ${Environment}-dap-raw-stage-transform-process-2
     Role: !Ref GlueScriptsExecutionRole
 
 StatemachineFailuerEventRule:
@@ -784,7 +784,7 @@ StatemachineFailuerEventRule:
     State: 'ENABLED'
     Targets:
       - Arn: !Ref SNSAlertTopic
-        Id: 'SendToSnsTopic'
+        Id: 'SendToSnsTopic2'
         InputTransformer:
           InputPathsMap:
             executionArn: $.detail.executionArn
@@ -834,7 +834,7 @@ TopicRoutingPolicy:
 SNSAlertTopic:
   Type: AWS::SNS::Topic
   Properties:
-    TopicName: !Sub ${Environment}-dap-elt-support-management-topic
+    TopicName: !Sub ${Environment}-dap-elt-support-management-topic-2
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 DataQualityStageLayerOptimisedPythonGlueJob:
@@ -845,10 +845,10 @@ DataQualityStageLayerOptimisedPythonGlueJob:
       PythonVersion: '3.9'
       ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/data_quality_metrics_script/data_quality_new_stage_metrics_generation.py
     DefaultArguments:
-      '--JOB_NAME': !Sub ${Environment}-dap-data-quality-new-stage-metrics-generation
+      '--JOB_NAME': !Sub ${Environment}-dap-data-quality-new-stage-metrics-generation-2
       '--additional-python-modules': 'awswrangler'
       '--env': !Sub ${Environment}
-      '--stage_db': !Sub ${Environment}-txma-stage
+      '--stage_db': !Sub ${Environment}-txma-stage-2
       '--stage_parent_tbl': 'txma_stage_layer'
       '--reconcilation_db': !Ref DataQualityGlueDatabase
       '--reconcilation_tbl': !Ref DataQualityMetricsGlueTable
@@ -858,20 +858,20 @@ DataQualityStageLayerOptimisedPythonGlueJob:
       MaxConcurrentRuns: 1
     MaxRetries: 0
     SecurityConfiguration: !Ref GlueSecurityConfig
-    Name: !Sub ${Environment}-dap-data-quality-new-stage-metrics-generation
+    Name: !Sub ${Environment}-dap-data-quality-new-stage-metrics-generation-2
     Role: !Ref GlueScriptsExecutionRole
 
 RedshiftConsolidatedModelProcessingLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: /aws/stepfunction/dap-consolidated-stage-layer-to-redshift
+    LogGroupName: /aws/stepfunction/dap-consolidated-stage-layer-to-redshift-2
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
 ADMConsolidatedModelProcessingLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: /aws/stepfunction/dap-consolidated-conformed-layer-to-adm
+    LogGroupName: /aws/stepfunction/dap-consolidated-conformed-layer-to-adm-2
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
@@ -879,7 +879,7 @@ RedshiftConsolidatedModelProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
   Properties:
     DefinitionUri: statemachine/txma_redshift_consolidated_schema_processing.asl.json
-    Name: !Sub ${Environment}-dap-consolidated-stage-layer-to-redshift-processing
+    Name: !Sub ${Environment}-dap-consolidated-stage-layer-to-redshift-processing-2
     Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
     Logging:
       Destinations:
@@ -890,7 +890,7 @@ RedshiftConsolidatedModelProcessingStateMachine:
     DefinitionSubstitutions:
       S3MetaDataBucketName: !Ref ELTMetadataBucket
       RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
-      RedshiftDatabaseName: dap_txma_reporting_db_refactored
+      RedshiftDatabaseName: dap_txma_reporting_db_refactored_2
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
       ADMProcessingStepFunctionArn:
         !If [IsADMEnvironment, !Ref ADMConsolidatedModelProcessingStateMachine, !Ref 'AWS::NoValue']
@@ -901,7 +901,7 @@ ADMConsolidatedModelProcessingStateMachine:
   Condition: IsADMEnvironment
   Properties:
     DefinitionUri: statemachine/txma_adm_consolidated_schema_processing.asl.json
-    Name: !Sub ${Environment}-dap-consolidated-conformed-layer-to-adm-processing
+    Name: !Sub ${Environment}-dap-consolidated-conformed-layer-to-adm-processing-2
     Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
     Logging:
       Destinations:
@@ -924,18 +924,18 @@ SplunkMigratedRawStageTransformProcessPythonGlueJob:
       PythonVersion: '3.9'
       ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/raw_to_stage_process_glue_job.py
     DefaultArguments:
-      '--JOB_NAME': !Sub ${Environment}-dap-splunk-migration-raw-stage-transform-process
+      '--JOB_NAME': !Sub ${Environment}-dap-splunk-migration-raw-stage-transform-process-2
       '--additional-python-modules': 'awswrangler'
       '--config_bucket': !Sub ${ELTMetadataBucket}
       '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/splunk_to_stage_config_rules.json'
-      '--raw_database': !Sub ${Environment}-txma-raw
+      '--raw_database': !Sub ${Environment}-txma-raw-2
       '--raw_source_table': 'splunk_migration'
       '--stage_bucket': !Sub ${StageLayerBucket}
-      '--stage_database': !Sub ${Environment}-txma-stage
+      '--stage_database': !Sub ${Environment}-txma-stage-2
       '--stage_target_table': 'txma_stage_layer'
       '--stage_target_key_value_table': 'txma_stage_layer_key_values'
       '--txma_raw_dedup_view_key_path': 'txma/raw_stage_optimisation_solution/athena_db_object/txma_raw_dedup_view.sql'
-      '--workgroup': !Sub ${Environment}-dap-txma-processing
+      '--workgroup': !Sub ${Environment}-dap-txma-processing-2
       '--TempDir': !Sub s3://${StageLayerBucket}/raw_stage_optimisation_processing/temporary/
       'library-set': 'analytics'
       '--extra-py-files':
@@ -954,7 +954,7 @@ SplunkMigratedRawStageTransformProcessPythonGlueJob:
     MaxRetries: 0
     MaxCapacity: 1
     SecurityConfiguration: !Ref GlueSecurityConfig
-    Name: !Sub ${Environment}-dap-splunk-migration-raw-stage-transform-process
+    Name: !Sub ${Environment}-dap-splunk-migration-raw-stage-transform-process-2
     Role: !Ref GlueScriptsExecutionRole
 
 HypercareAdjustedScheduleEventBridgeRule:
@@ -962,17 +962,17 @@ HypercareAdjustedScheduleEventBridgeRule:
   Properties:
     Description: Rule to be enabled when rps require hypercare during onboarding
     ScheduleExpression: 'cron(30 9,13 * * ? *)'
-    Name: !Sub ${Environment}-dap-hypercare-eventbridge-rule
+    Name: !Sub ${Environment}-dap-hypercare-eventbridge-rule-2
     State: DISABLED
     Targets:
-      - Id: hypercare-adjusted-schedule-txma-statemachine
+      - Id: hypercare-adjusted-schedule-txma-statemachine-2
         Arn: !Ref TxmaRawLayerConsolidatedSchemaProcessingStateMachine
         RoleArn: !GetAtt HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole.Arn
 
 HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole:
   Type: AWS::IAM::Role
   Properties:
-    RoleName: !Sub ${Environment}-dap-hypercare-eventbridge-role
+    RoleName: !Sub ${Environment}-dap-hypercare-eventbridge-role-2
     AssumeRolePolicyDocument:
       Version: '2012-10-17'
       Statement:
@@ -981,7 +981,7 @@ HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole:
             Service: 'events.amazonaws.com'
           Action: 'sts:AssumeRole'
     Policies:
-      - PolicyName: !Sub ${Environment}-dap-hypercare-eventbridge-policy
+      - PolicyName: !Sub ${Environment}-dap-hypercare-eventbridge-policy-2
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
