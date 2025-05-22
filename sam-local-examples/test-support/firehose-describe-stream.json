@@ -2,6 +2,6 @@
   "environment": "dev",
   "command": "FIREHOSE_DESCRIBE_STREAM",
   "input": {
-    "DeliveryStreamName": "dev-dap-txma-delivery-stream"
+    "DeliveryStreamName": "dev-dap-txma-delivery-stream-optimised"
   }
 }

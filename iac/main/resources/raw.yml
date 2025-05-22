@@ -2,10 +2,10 @@ RawLayerBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-raw-layer
+    BucketName: !Sub ${Environment}-dap-raw-layer-2
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
-      LogFilePrefix: dap-raw-layer/log
+      LogFilePrefix: dap-raw-layer-2/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
@@ -55,7 +55,7 @@ RawLayerBucketPolicy:
 RawGlueCrawlerRole:
   Type: AWS::IAM::Role
   Properties:
-    RoleName: !Sub ${Environment}-raw-glue-crawler-role
+    RoleName: !Sub ${Environment}-raw-glue-crawler-role-2
     AssumeRolePolicyDocument:
       Version: '2012-10-17'
       Statement:
@@ -67,7 +67,7 @@ RawGlueCrawlerRole:
       - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
     Path: /
     Policies:
-      - PolicyName: !Sub ${Environment}-raw-glue-crawler-policy
+      - PolicyName: !Sub ${Environment}-raw-glue-crawler-policy-2
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -86,8 +86,8 @@ RawGlueCrawlerRole:
                 - 's3:PutObject'
                 - 's3:ListObject'
               Resource:
-                - !Sub 'arn:aws:s3:::${Environment}-dap-raw-layer'
-                - !Sub 'arn:aws:s3:::${Environment}-dap-raw-layer/*'
+                - !Sub 'arn:aws:s3:::${Environment}-dap-raw-layer-2'
+                - !Sub 'arn:aws:s3:::${Environment}-dap-raw-layer-2/*'
             - Effect: Allow
               Action: 'logs:AssociateKmsKey'
               Resource: 'arn:aws:logs:*:*:/aws-glue/*'
@@ -102,7 +102,7 @@ RawGlueDatabase:
 RawLayerSingleTableCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: txma_raw_layer_events_schema_combined
+    Name: txma_raw_layer_events_schema_combined_2
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
@@ -166,5 +166,5 @@ SplunkPerformanceIndexSecret:
   Condition: IsProduction
   Properties:
     Description: 'a secret to store username and password for access the performance index'
-    Name: !Sub ${Environment}-SplunkPerformanceIndexSecret
+    Name: !Sub ${Environment}-SplunkPerformanceIndexSecret-2
     SecretString: '{"username":"xxx","password":"xxx"}'
