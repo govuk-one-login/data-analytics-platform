@@ -9,7 +9,7 @@ ENVIRONMENT=$1
 "$SCRIPT_DIR/validate-environment.sh" "$ENVIRONMENT"
 
 FILES_ROOT="athena-scripts"
-S3_BUCKET="s3://$(echo "$ENVIRONMENT" | tr '[:upper:]' '[:lower:]')-dap-elt-metadata"
+S3_BUCKET="s3://$(echo "$ENVIRONMENT" | tr '[:upper:]' '[:lower:]')-dap-elt-metadata-2"
 
 echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"
 
