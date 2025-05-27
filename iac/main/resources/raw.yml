@@ -119,7 +119,7 @@ RawLayerSingleTableCrawler:
 SplunkRawLayerSingleTableCrawler:
   Type: AWS::Glue::Crawler
   Properties:
-    Name: splunk_migrated_data_fixed_schema
+    Name: splunk_migrated_data_fixed_schema_2
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       CatalogTargets:
@@ -141,7 +141,7 @@ SplunkMigrationGlueTable:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref RawGlueDatabase
     TableInput:
-      Name: splunk_migration
+      Name: splunk_migration_2
       TableType: EXTERNAL_TABLE
       PartitionKeys:
         - { Name: year, Type: string }

@@ -677,42 +677,6 @@ VPCEndpointRedshiftServerless:
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
 
-AWSSupportReadOnlyRole:
-  Type: 'AWS::IAM::Role'
-  Properties:
-    RoleName: 'AWS-Support-ReadOnly'
-    AssumeRolePolicyDocument:
-      Version: '2012-10-17'
-      Statement:
-        - Effect: 'Allow'
-          Principal:
-            Service:
-              - 'support.amazonaws.com'
-          Action:
-            - 'sts:AssumeRole'
-    Path: '/'
-    Policies:
-      - PolicyName: 'ReadOnlyAccess'
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-            - Effect: 'Allow'
-              Action:
-                - 'athena:List*'
-                - 'athena:Describe*'
-                - 'states:List*'
-                - 'states:Describe*'
-                - 'redshift:Describe*'
-                - 'ec2:Describe*'
-                - 'vpc:Describe*'
-                - 'iam:List*'
-                - 'iam:Get*'
-                - 'events:Describe*'
-                - 'events:List*'
-                - 'lambda:List*'
-                - 'lambda:Get*'
-              Resource: '*'
-
 TrailBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
@@ -770,21 +734,6 @@ TrailBucketPolicy:
             Bool:
               'aws:SecureTransport': 'false'
 
-CloudTrailForUnauthorizedAPIChanges:
-  Type: 'AWS::CloudTrail::Trail'
-  Properties:
-    S3BucketName: !Ref TrailBucket
-    IncludeGlobalServiceEvents: true
-    IsLogging: true
-    IsMultiRegionTrail: true
-    KMSKeyId: !Sub alias/${Environment}-dap-key-2
-    TrailName: UnauthorizedAPICallTrail
-    EventSelectors:
-      - ReadWriteType: 'All'
-    CloudWatchLogsLogGroupArn: !GetAtt UnauthorizedApiCallLogGroup.Arn
-    CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
-    EnableLogFileValidation: true
-
 UnauthorizedApiCallLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
@@ -800,13 +749,13 @@ UnauthorizedApiCallMetricFilter:
     MetricTransformations:
       - MetricValue: '1'
         MetricNamespace: 'CloudTrailMetrics'
-        MetricName: 'UnauthorizedAPICallCount'
+        MetricName: 'UnauthorizedAPICallCount-2'
 
 UnauthorizedApiCallAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
-    AlarmName: UnauthorizedAPICallAlarm
-    MetricName: UnauthorizedAPICallCount
+    AlarmName: UnauthorizedAPICallAlarm-2
+    MetricName: UnauthorizedAPICallCount-2
     Namespace: CloudTrailMetrics
     Statistic: Sum
     Period: 300
@@ -854,7 +803,7 @@ CloudTrailForIAMChanges:
     IsLogging: true
     IsMultiRegionTrail: true
     KMSKeyId: !Sub alias/${Environment}-dap-key-2
-    TrailName: IAMPolicyChangeTrail
+    TrailName: IAMPolicyChangeTrail-2
     CloudWatchLogsLogGroupArn: !GetAtt IAMChangeLogGroup.Arn
     CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
     EnableLogFileValidation: true
@@ -867,13 +816,13 @@ IAMChangeMetricFilter:
     MetricTransformations:
       - MetricValue: '1'
         MetricNamespace: 'IAMPolicyMetrics'
-        MetricName: 'IAMPolicyChangeCount'
+        MetricName: 'IAMPolicyChangeCount-2'
 
 IAMChangeAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
-    AlarmName: IAMPolicyChangeAlarm
-    MetricName: IAMPolicyChangeCount
+    AlarmName: IAMPolicyChangeAlarm-2
+    MetricName: IAMPolicyChangeCount-2
     Namespace: IAMPolicyMetrics
     Statistic: Sum
     Period: 300
@@ -887,7 +836,7 @@ IAMChangeAlertSNSTopic:
   Type: 'AWS::SNS::Topic'
   Properties:
     DisplayName: 'IAM Policy Change Alert'
-    TopicName: 'IAMPolicyChangeAlert'
+    TopicName: 'IAMPolicyChangeAlert-2'
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 IAMChangeAlertSNSTopicSubscription:
@@ -902,7 +851,7 @@ UnauthorizedApiCallSNSTopic:
   Type: 'AWS::SNS::Topic'
   Properties:
     DisplayName: 'Unauthorized API Call Alert'
-    TopicName: 'UnauthorizedApiCallAlert'
+    TopicName: 'UnauthorizedApiCallAlert-2'
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 UnauthorizedApiCallSNSTopicSubscription:
