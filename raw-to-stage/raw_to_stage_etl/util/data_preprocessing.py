@@ -506,7 +506,8 @@ class DataPreprocessing:
 
             data_transformations_rename_column = extract_element_by_name(json_data, "rename_column", "data_transformations")
             if data_transformations_rename_column is None:
-                raise ValueError("rename_column value for data_transformations is not found within config rules")
+                self.logger.info("rename_column value for data_transformations is not found within config rules")
+                return df_raw
             self.logger.info("config rule: data_transformations | rename_column: %s", data_transformations_rename_column)
 
             df_raw = rename_column_names(df_raw, data_transformations_rename_column)
