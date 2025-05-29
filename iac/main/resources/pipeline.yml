@@ -179,6 +179,7 @@ RedShiftEC2Policy:
             - 'cloudfront:CreateDistribution'
             - 'cloudfront:CreateCloudFrontOriginAccessIdentity'
             - 'shield:CreateProtection'
+            - 'shield:TagResource'
           Resource: '*'
     Roles:
       - Fn::If:
@@ -321,6 +322,7 @@ CDNPolicy:
             - 'shield:CreateProtection'
             - 'shield:DeleteProtection'
             - 'shield:DescribeProtection'
+            - 'shield:TagResource'
             - 'cloudfront:CreateOriginAccessControl'
           Resource: '*'
     Roles:

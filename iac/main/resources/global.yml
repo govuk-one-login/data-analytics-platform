@@ -3,7 +3,7 @@ GlobalLogBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-s3-logs'
+    BucketName: !Sub '${Environment}-dap-s3-logs-2'
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
@@ -55,10 +55,10 @@ GlobalNonEventBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-s3-non-event'
+    BucketName: !Sub '${Environment}-dap-s3-non-event-2'
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
-      LogFilePrefix: dap-s3-non-event/log
+      LogFilePrefix: dap-s3-non-event-2/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
@@ -100,10 +100,10 @@ VPCFlowLogsBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-vpc-flow-logs'
+    BucketName: !Sub '${Environment}-dap-vpc-flow-logs-2'
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
-      LogFilePrefix: dap-s3-flow-log/log
+      LogFilePrefix: dap-s3-flow-log-2/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
@@ -145,7 +145,7 @@ S3NotificationsLoggerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda just does logging
   Type: AWS::Serverless::Function
   Properties:
-    FunctionName: !Sub s3-notifications-logger-${Environment}
+    FunctionName: !Sub s3-notifications-logger-${Environment}-2
     Handler: s3-notifications-logger.handler
     Policies:
       - AWSLambdaBasicExecutionRole
@@ -174,10 +174,10 @@ S3NotificationsLoggerEventBridgeRule:
       detail-type:
         - Object Created
         - Object Deleted
-    Name: !Sub ${Environment}-dap-s3-notifications-logger-eventbridge-rule
+    Name: !Sub ${Environment}-dap-s3-notifications-logger-eventbridge-rule-2
     State: ENABLED
     Targets:
-      - Id: s3-notifications-logger-lambda
+      - Id: s3-notifications-logger-lambda-2
         Arn: !GetAtt S3NotificationsLoggerLambda.Arn
 
 S3BucketNotificationLambdaPermission:
@@ -192,7 +192,7 @@ S3BucketNotificationLambdaPermission:
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration
   Properties:
-    Name: !Sub ${Environment}-dap-glue-security-configuration
+    Name: !Sub ${Environment}-dap-glue-security-configuration-2
     EncryptionConfiguration:
       CloudWatchEncryption:
         CloudWatchEncryptionMode: SSE-KMS
@@ -208,7 +208,7 @@ TestSupportLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda is just for testing
   Type: AWS::Serverless::Function
   Properties:
-    FunctionName: !Sub test-support-${Environment}
+    FunctionName: !Sub test-support-${Environment}-2
     Handler: test-support.handler
     Policies:
       - AWSLambdaBasicExecutionRole
@@ -346,7 +346,7 @@ KmsKey:
 KmsKeyAlias:
   Type: AWS::KMS::Alias
   Properties:
-    AliasName: !Sub alias/${Environment}-dap-key
+    AliasName: !Sub alias/${Environment}-dap-key-2
     TargetKeyId: !Ref KmsKey
 
 VPCForDAP:
@@ -359,7 +359,7 @@ VPCForDAP:
       - Key: Environment
         Value: !Ref Environment
       - Key: Name
-        Value: dap-private-vpc
+        Value: dap-private-vpc-2
 
 FlowLogRole:
   Type: 'AWS::IAM::Role'
@@ -385,6 +385,7 @@ FlowLogRole:
 
 FlowLogs:
   Type: 'AWS::EC2::FlowLog'
+  DependsOn: VPCFlowLogsBucketPolicy
   Properties:
     LogDestination: !GetAtt VPCFlowLogsBucket.Arn
     LogDestinationType: s3
@@ -405,7 +406,7 @@ SubnetForDAP1:
       - Key: Environment
         Value: !Ref Environment
       - Key: Name
-        Value: dap-private-sn1
+        Value: dap-private-sn1-2
 
 SubnetForDAP2:
   Type: AWS::EC2::Subnet
@@ -420,7 +421,7 @@ SubnetForDAP2:
       - Key: Environment
         Value: !Ref Environment
       - Key: Name
-        Value: dap-private-sn2
+        Value: dap-private-sn2-2
 
 SubnetForDAP3:
   Type: AWS::EC2::Subnet
@@ -435,7 +436,7 @@ SubnetForDAP3:
       - Key: Environment
         Value: !Ref Environment
       - Key: Name
-        Value: dap-private-sn3
+        Value: dap-private-sn3-2
 
 RouteTableForDAP:
   Type: AWS::EC2::RouteTable
@@ -444,7 +445,7 @@ RouteTableForDAP:
       - Key: Environment
         Value: !Ref Environment
       - Key: Name
-        Value: dap-private-rt
+        Value: dap-private-rt-2
     VpcId: !Ref VPCForDAP
 
 SubnetRouteTableAssocDAP1:
@@ -468,8 +469,8 @@ SubnetRouteTableAssocDAP3:
 LambdaSecurityGroup:
   Type: AWS::EC2::SecurityGroup
   Properties:
-    GroupName: !Sub ${Environment}-dap-lambda-security-group
-    GroupDescription: Security group for DAP lambdas
+    GroupName: !Sub ${Environment}-dap-lambda-security-group-2
+    GroupDescription: Security group for DAP lambdas 2
     VpcId: !Ref VPCForDAP
     SecurityGroupIngress:
       - IpProtocol: tcp
@@ -676,47 +677,11 @@ VPCEndpointRedshiftServerless:
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
 
-AWSSupportReadOnlyRole:
-  Type: 'AWS::IAM::Role'
-  Properties:
-    RoleName: 'AWS-Support-ReadOnly'
-    AssumeRolePolicyDocument:
-      Version: '2012-10-17'
-      Statement:
-        - Effect: 'Allow'
-          Principal:
-            Service:
-              - 'support.amazonaws.com'
-          Action:
-            - 'sts:AssumeRole'
-    Path: '/'
-    Policies:
-      - PolicyName: 'ReadOnlyAccess'
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-            - Effect: 'Allow'
-              Action:
-                - 'athena:List*'
-                - 'athena:Describe*'
-                - 'states:List*'
-                - 'states:Describe*'
-                - 'redshift:Describe*'
-                - 'ec2:Describe*'
-                - 'vpc:Describe*'
-                - 'iam:List*'
-                - 'iam:Get*'
-                - 'events:Describe*'
-                - 'events:List*'
-                - 'lambda:List*'
-                - 'lambda:Get*'
-              Resource: '*'
-
 TrailBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-cloud-trail'
+    BucketName: !Sub '${Environment}-dap-cloud-trail-2'
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
       LogFilePrefix: cloudtrail/trail
@@ -769,25 +734,10 @@ TrailBucketPolicy:
             Bool:
               'aws:SecureTransport': 'false'
 
-CloudTrailForUnauthorizedAPIChanges:
-  Type: 'AWS::CloudTrail::Trail'
-  Properties:
-    S3BucketName: !Ref TrailBucket
-    IncludeGlobalServiceEvents: true
-    IsLogging: true
-    IsMultiRegionTrail: true
-    KMSKeyId: !Sub alias/${Environment}-dap-key
-    TrailName: UnauthorizedAPICallTrail
-    EventSelectors:
-      - ReadWriteType: 'All'
-    CloudWatchLogsLogGroupArn: !GetAtt UnauthorizedApiCallLogGroup.Arn
-    CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
-    EnableLogFileValidation: true
-
 UnauthorizedApiCallLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: !Sub /aws/dap-cloud-trail-log-group
+    LogGroupName: !Sub /aws/dap-cloud-trail-log-group-2
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
@@ -799,13 +749,13 @@ UnauthorizedApiCallMetricFilter:
     MetricTransformations:
       - MetricValue: '1'
         MetricNamespace: 'CloudTrailMetrics'
-        MetricName: 'UnauthorizedAPICallCount'
+        MetricName: 'UnauthorizedAPICallCount-2'
 
 UnauthorizedApiCallAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
-    AlarmName: UnauthorizedAPICallAlarm
-    MetricName: UnauthorizedAPICallCount
+    AlarmName: UnauthorizedAPICallAlarm-2
+    MetricName: UnauthorizedAPICallCount-2
     Namespace: CloudTrailMetrics
     Statistic: Sum
     Period: 300
@@ -841,7 +791,7 @@ CloudTrailCloudWatchLogsRole:
 IAMChangeLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: !Sub /aws/dap-IAM-changes-log-group
+    LogGroupName: !Sub /aws/dap-IAM-changes-log-group-2
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
@@ -852,8 +802,8 @@ CloudTrailForIAMChanges:
     IncludeGlobalServiceEvents: true
     IsLogging: true
     IsMultiRegionTrail: true
-    KMSKeyId: !Sub alias/${Environment}-dap-key
-    TrailName: IAMPolicyChangeTrail
+    KMSKeyId: !Sub alias/${Environment}-dap-key-2
+    TrailName: IAMPolicyChangeTrail-2
     CloudWatchLogsLogGroupArn: !GetAtt IAMChangeLogGroup.Arn
     CloudWatchLogsRoleArn: !GetAtt CloudTrailCloudWatchLogsRole.Arn
     EnableLogFileValidation: true
@@ -866,13 +816,13 @@ IAMChangeMetricFilter:
     MetricTransformations:
       - MetricValue: '1'
         MetricNamespace: 'IAMPolicyMetrics'
-        MetricName: 'IAMPolicyChangeCount'
+        MetricName: 'IAMPolicyChangeCount-2'
 
 IAMChangeAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
-    AlarmName: IAMPolicyChangeAlarm
-    MetricName: IAMPolicyChangeCount
+    AlarmName: IAMPolicyChangeAlarm-2
+    MetricName: IAMPolicyChangeCount-2
     Namespace: IAMPolicyMetrics
     Statistic: Sum
     Period: 300
@@ -886,7 +836,7 @@ IAMChangeAlertSNSTopic:
   Type: 'AWS::SNS::Topic'
   Properties:
     DisplayName: 'IAM Policy Change Alert'
-    TopicName: 'IAMPolicyChangeAlert'
+    TopicName: 'IAMPolicyChangeAlert-2'
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 IAMChangeAlertSNSTopicSubscription:
@@ -901,7 +851,7 @@ UnauthorizedApiCallSNSTopic:
   Type: 'AWS::SNS::Topic'
   Properties:
     DisplayName: 'Unauthorized API Call Alert'
-    TopicName: 'UnauthorizedApiCallAlert'
+    TopicName: 'UnauthorizedApiCallAlert-2'
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 UnauthorizedApiCallSNSTopicSubscription:

@@ -15,7 +15,7 @@ SustainabilityDatabase:
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseInput:
-      Name: !Sub ${Environment}-sustainability
+      Name: !Sub ${Environment}-sustainability-2
 
 CurTable:
   Type: AWS::Glue::Table
