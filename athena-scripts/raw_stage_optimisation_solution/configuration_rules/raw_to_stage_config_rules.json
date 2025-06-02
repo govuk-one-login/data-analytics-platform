@@ -52,6 +52,7 @@
       "year",
       "month",
       "day",
+      "hour",
       "processed_dt",
       "event_timestamp_ms",
       "event_timestamp_ms_formatted"
