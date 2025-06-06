@@ -84,7 +84,7 @@ KinesisFirehose:
         IntervalInSeconds: !If [UsePlaceholderTxMAQueue, 60, 900]
         SizeInMBs: 128
       RoleARN: !GetAtt IAMRoleKinesisFirehose.Arn
-      Prefix: '!{partitionKeyFromQuery:datasource}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/hour=!{partitionKeyFromQuery:hour}/'
+      Prefix: '!{partitionKeyFromQuery:datasource}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/hour=!{partitionKeyFromQuery:hour}/minute=!{partitionKeyFromQuery:minute}/'
       CompressionFormat: GZIP
       ErrorOutputPrefix: kinesis-processing-errors-
       DynamicPartitioningConfiguration:
@@ -96,7 +96,7 @@ KinesisFirehose:
           - Type: MetadataExtraction
             Parameters:
               - ParameterName: MetadataExtractionQuery
-                ParameterValue: '{datasource: "txma",event_name: .event_name,year:now | strftime("%Y"),month:now | strftime("%m"),day:now | strftime("%d"),hour:now | strftime("%H")}'
+                ParameterValue: '{datasource: "txma",event_name: .event_name,year:now | strftime("%Y"),month:now | strftime("%m"),day:now | strftime("%d"),hour:now | strftime("%H"),minute:now | strftime("%M")}'
               - ParameterName: JsonParsingEngine
                 ParameterValue: 'JQ-1.6'
       DataFormatConversionConfiguration:

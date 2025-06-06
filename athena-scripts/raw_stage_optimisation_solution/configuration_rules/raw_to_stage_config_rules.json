@@ -31,6 +31,9 @@
     ]
   },
   "data_transformations": {
+    "duplicate_column": {
+      "partition_event_name": "event_name"
+    },
     "new_column": {
       "processed_dt": "%Y%m%d",
       "processed_time": "%H%M%S"
@@ -53,6 +56,7 @@
       "month",
       "day",
       "hour",
+      "minute",
       "processed_dt",
       "event_timestamp_ms",
       "event_timestamp_ms_formatted"
@@ -68,6 +72,7 @@
       "timestamp_formatted": "string",
       "user_govuk_signin_journey_id": "string",
       "user_user_id": "string",
+      "partition_event_name": "string",
       "event_timestamp_ms": "bigint",
       "event_timestamp_ms_formatted": "string",
       "year": "int",
