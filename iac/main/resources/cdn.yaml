@@ -3,10 +3,10 @@ DAPAnalystsFilesBucket:
   Condition: IsQuicksightEnvironment
   Properties:
     AccessControl: Private
-    BucketName: !Sub '${Environment}-dap-analysts-files'
+    BucketName: !Sub '${Environment}-dap-analysts-files-2'
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
-      LogFilePrefix: dap-analysts-assets/log
+      LogFilePrefix: dap-analysts-assets-2/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
@@ -46,7 +46,7 @@ OriginAccessControl:
   Condition: IsQuicksightEnvironment
   Properties:
     OriginAccessControlConfig:
-      Name: dapanalystsoac
+      Name: dapanalystsoac-2
       OriginAccessControlOriginType: s3
       SigningBehavior: always
       SigningProtocol: sigv4

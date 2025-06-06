@@ -2,10 +2,10 @@ AthenaWorkgroupBucket:
   Type: 'AWS::S3::Bucket'
   Properties:
     AccessControl: Private
-    BucketName: !Sub ${Environment}-dap-athena-workgroup
+    BucketName: !Sub ${Environment}-dap-athena-workgroup-2
     LoggingConfiguration:
       DestinationBucketName: !Ref GlobalLogBucket
-      LogFilePrefix: dap-athena-workgroup/log
+      LogFilePrefix: dap-athena-workgroup-2/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
       BlockPublicPolicy: true
@@ -54,7 +54,7 @@ AthenaWorkgroupBucketPolicy:
 AthenaWorkGroup:
   Type: AWS::Athena::WorkGroup
   Properties:
-    Name: !Sub ${Environment}-dap-txma-processing
+    Name: !Sub ${Environment}-dap-txma-processing-2
     Description: DAP project
     State: ENABLED
     WorkGroupConfiguration:
@@ -70,7 +70,7 @@ AthenaGetConfigLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
   Type: AWS::Serverless::Function
   Properties:
-    FunctionName: !Sub athena-get-config-${Environment}
+    FunctionName: !Sub athena-get-config-${Environment}-2
     Handler: athena-get-config.handler
     Policies:
       - AWSLambdaBasicExecutionRole
@@ -79,7 +79,7 @@ AthenaGetConfigLambda:
             Action:
               - s3:GetObject
               - s3:ListBucket
-            Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
+            Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata-2/*
     ReservedConcurrentExecutions: 10
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
@@ -99,7 +99,7 @@ AthenaGetStatementLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause state machine to fail
   Type: AWS::Serverless::Function
   Properties:
-    FunctionName: !Sub athena-get-statement-${Environment}
+    FunctionName: !Sub athena-get-statement-${Environment}-2
     Handler: athena-get-statement.handler
     Policies:
       - AWSLambdaBasicExecutionRole
@@ -108,7 +108,7 @@ AthenaGetStatementLambda:
             Action:
               - s3:GetObject
               - s3:ListBucket
-            Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/*
+            Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata-2/*
     ReservedConcurrentExecutions: 30
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption

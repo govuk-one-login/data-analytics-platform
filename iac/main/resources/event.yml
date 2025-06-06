@@ -5,14 +5,14 @@ EventConsumerQueue:
   Type: AWS::SQS::Queue
   Condition: UsePlaceholderTxMAQueue
   Properties:
-    QueueName: !Sub ${Environment}-placeholder-txma-event-queue
+    QueueName: !Sub ${Environment}-placeholder-txma-event-queue-2
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 EventConsumerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
   Type: AWS::Serverless::Function
   Properties:
-    FunctionName: txma-event-consumer
+    FunctionName: txma-event-consumer-2
     Events:
       CleanEvent:
         Type: SQS
@@ -84,7 +84,7 @@ KinesisFirehose:
         IntervalInSeconds: !If [UsePlaceholderTxMAQueue, 60, 900]
         SizeInMBs: 128
       RoleARN: !GetAtt IAMRoleKinesisFirehose.Arn
-      Prefix: '!{partitionKeyFromQuery:datasource}/!{partitionKeyFromQuery:event_name}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
+      Prefix: '!{partitionKeyFromQuery:datasource}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/hour=!{partitionKeyFromQuery:hour}/minute=!{partitionKeyFromQuery:minute}/'
       CompressionFormat: GZIP
       ErrorOutputPrefix: kinesis-processing-errors-
       DynamicPartitioningConfiguration:
@@ -96,7 +96,7 @@ KinesisFirehose:
           - Type: MetadataExtraction
             Parameters:
               - ParameterName: MetadataExtractionQuery
-                ParameterValue: '{datasource: "txma",event_name: .event_name,year:now | strftime("%Y"),month:now | strftime("%m"),day:now | strftime("%d")}'
+                ParameterValue: '{datasource: "txma",event_name: .event_name,year:now | strftime("%Y"),month:now | strftime("%m"),day:now | strftime("%d"),hour:now | strftime("%H"),minute:now | strftime("%M")}'
               - ParameterName: JsonParsingEngine
                 ParameterValue: 'JQ-1.6'
       DataFormatConversionConfiguration:
@@ -105,7 +105,7 @@ KinesisFirehose:
 IAMRoleKinesisFirehose:
   Type: 'AWS::IAM::Role'
   Properties:
-    RoleName: !Sub ${Environment}-kinesis-txma-firehose-role
+    RoleName: !Sub ${Environment}-kinesis-txma-firehose-role-2
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -115,7 +115,7 @@ IAMRoleKinesisFirehose:
           Action: 'sts:AssumeRole'
     MaxSessionDuration: 3600
     Policies:
-      - PolicyName: !Sub ${Environment}-kinesis-txma-firehose-policy
+      - PolicyName: !Sub ${Environment}-kinesis-txma-firehose-policy-2
         PolicyDocument:
           Version: 2012-10-17
           Statement:
