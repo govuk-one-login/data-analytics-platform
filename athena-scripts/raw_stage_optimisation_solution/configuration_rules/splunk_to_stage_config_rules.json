@@ -31,9 +31,6 @@
     ]
   },
   "data_transformations": {
-    "rename_column": {
-      "partition_0": "partition_event_name"
-    },
     "new_column": {
       "processed_dt": "%Y%m%d"
     },

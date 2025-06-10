@@ -31,12 +31,10 @@
     ]
   },
   "data_transformations": {
-    "rename_column": {
-      "partition_0": "partition_event_name"
-    },
     "new_column": {
       "processed_dt": "%Y%m%d",
-      "processed_time": "%H%M%S"
+      "processed_time": "%H%M%S",
+      "partition_event_name": "string"
     },
     "new_column_struct_extract": {
       "user": [
@@ -59,6 +57,11 @@
       "partition_0",
       "event_timestamp_ms",
       "event_timestamp_ms_formatted"
+    ],
+    "parse_json_list": [
+      "extensions",
+      "user",
+      "txma"
     ]
   },
   "stage_schema": {

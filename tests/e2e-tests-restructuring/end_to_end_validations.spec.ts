@@ -89,6 +89,7 @@ describe('Verify End to End Process from SQS → Raw Layer → Stage Layer → C
           "' and processed_date = " +
           String(TodayDate()),
       );
+
       expect(redShiftQueryResults.TotalNumRows).not.toEqual(0);
     }
   }, 3600000);
