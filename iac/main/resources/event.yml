@@ -75,7 +75,7 @@ KinesisFirehose:
     DeliveryStreamName: !Sub ${Environment}-${DeliveryStreamName}
     DeliveryStreamType: DirectPut
     ExtendedS3DestinationConfiguration:
-      BucketARN: !GetAtt RawLayerBucket.Arn
+      BucketARN: !GetAtt RawLayerRefactoredBucket.Arn
       CloudWatchLoggingOptions:
         Enabled: true
         LogGroupName: !Sub ${Environment}-${DeliveryStreamName}
@@ -84,7 +84,7 @@ KinesisFirehose:
         IntervalInSeconds: !If [UsePlaceholderTxMAQueue, 60, 900]
         SizeInMBs: 128
       RoleARN: !GetAtt IAMRoleKinesisFirehose.Arn
-      Prefix: '!{partitionKeyFromQuery:datasource}/!{partitionKeyFromQuery:event_name}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
+      Prefix: '!{partitionKeyFromQuery:datasource}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
       CompressionFormat: GZIP
       ErrorOutputPrefix: kinesis-processing-errors-
       DynamicPartitioningConfiguration:
@@ -128,8 +128,8 @@ IAMRoleKinesisFirehose:
                 - 's3:ListBucketMultipartUploads'
                 - 's3:PutObject'
               Resource:
-                - !Sub 'arn:aws:s3:::${RawLayerBucket}'
-                - !Sub 'arn:aws:s3:::${RawLayerBucket}/*'
+                - !Sub 'arn:aws:s3:::${RawLayerRefactoredBucket}'
+                - !Sub 'arn:aws:s3:::${RawLayerRefactoredBucket}/*'
             - Effect: Allow
               Resource: arn:aws:logs:*:*:*
               Action:

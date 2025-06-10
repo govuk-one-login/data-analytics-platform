@@ -27,6 +27,35 @@ RawLayerBucket:
                 - Name: suffix
                   Value: .csv
 
+RawLayerRefactoredBucket:
+  Type: 'AWS::S3::Bucket'
+  Properties:
+    AccessControl: Private
+    BucketName: !Sub ${Environment}-dap-raw-layer-refactored
+    LoggingConfiguration:
+      DestinationBucketName: !Ref GlobalLogBucket
+      LogFilePrefix: dap-raw-layer-refactored/log
+    PublicAccessBlockConfiguration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: true
+      RestrictPublicBuckets: true
+    VersioningConfiguration:
+      Status: Enabled
+    NotificationConfiguration:
+      EventBridgeConfiguration:
+        EventBridgeEnabled: true
+      LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Function: !GetAtt S3RawToStagingLambda.Arn
+          Filter:
+            S3Key:
+              Rules:
+                - Name: prefix
+                  Value: reference-data/
+                - Name: suffix
+                  Value: .csv
+
 RawLayerBucketPolicy:
   Type: AWS::S3::BucketPolicy
   Properties:
@@ -49,6 +78,31 @@ RawLayerBucketPolicy:
           Resource:
             - !Sub ${RawLayerBucket.Arn}
             - !Sub ${RawLayerBucket.Arn}/*
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+
+RawLayerRefactoredBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket: !Ref RawLayerRefactoredBucket
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Deny
+          Action: 's3:*'
+          Resource: !Sub ${RawLayerRefactoredBucket.Arn}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+            - 's3:ListBucket'
+          Resource:
+            - !Sub ${RawLayerRefactoredBucket.Arn}
+            - !Sub ${RawLayerRefactoredBucket.Arn}/*
           Principal:
             AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
 
@@ -86,8 +140,8 @@ RawGlueCrawlerRole:
                 - 's3:PutObject'
                 - 's3:ListObject'
               Resource:
-                - !Sub 'arn:aws:s3:::${Environment}-dap-raw-layer'
-                - !Sub 'arn:aws:s3:::${Environment}-dap-raw-layer/*'
+                - !Sub 'arn:aws:s3:::${Environment}-dap-raw-layer-refactored'
+                - !Sub 'arn:aws:s3:::${Environment}-dap-raw-layer-refactored/*'
             - Effect: Allow
               Action: 'logs:AssociateKmsKey'
               Resource: 'arn:aws:logs:*:*:/aws-glue/*'
@@ -106,7 +160,7 @@ RawLayerSingleTableCrawler:
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
-        - Path: !Sub 's3://${RawLayerBucket}/txma/'
+        - Path: !Sub 's3://${RawLayerRefactoredBucket}/txma/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
@@ -151,7 +205,7 @@ SplunkMigrationGlueTable:
         Columns:
           - { Name: event_id, Type: string }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
-        Location: !Sub s3://${RawLayerBucket}/splunk/
+        Location: !Sub s3://${RawLayerRefactoredBucket}/splunk/
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
         SerdeInfo:
           Parameters:
