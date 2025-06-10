@@ -205,7 +205,7 @@ SplunkMigrationGlueTable:
         Columns:
           - { Name: event_id, Type: string }
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
-        Location: !Sub s3://${RawLayerRefactoredBucket}/splunk/
+        Location: !Sub s3://${RawLayerBucket}/splunk/
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
         SerdeInfo:
           Parameters:
