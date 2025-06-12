@@ -84,7 +84,7 @@ KinesisFirehose:
         IntervalInSeconds: !If [UsePlaceholderTxMAQueue, 60, 900]
         SizeInMBs: 128
       RoleARN: !GetAtt IAMRoleKinesisFirehose.Arn
-      Prefix: '!{partitionKeyFromQuery:datasource}/!{partitionKeyFromQuery:event_name}/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
+      Prefix: '!{partitionKeyFromQuery:datasource}-refactored/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
       CompressionFormat: GZIP
       ErrorOutputPrefix: kinesis-processing-errors-
       DynamicPartitioningConfiguration:

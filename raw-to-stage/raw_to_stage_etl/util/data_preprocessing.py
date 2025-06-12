@@ -221,6 +221,27 @@ class DataPreprocessing:
         self.processed_time = int(self.now.strftime("%H%M%S"))
         self.logger = get_logger(__name__)
 
+    def add_duplicate_column(self, df, fields):
+        """
+        Add new duplicate columns to the DataFrame.
+
+        Parameters:
+        df (DataFrame): The input DataFrame.
+        fields (dict): A dictionary where keys are new column names, and values are the columns to duplicate.
+
+        Returns:
+        DataFrame: A DataFrame with new duplicated columns added.
+        """
+        try:
+            if not isinstance(fields, dict):
+                raise ValueError("Invalid field list structure provided, require dict object")
+            for column_name, _value in fields.items():
+                df[column_name] = df[_value]
+
+            return df
+        except Exception as e:
+            raise OperationFailedException("Error adding duplicate column(s): %s", str(e))
+
     def add_new_column(self, df, fields):
         """
         Add new columns to the DataFrame.
@@ -506,7 +527,8 @@ class DataPreprocessing:
 
             data_transformations_rename_column = extract_element_by_name(json_data, "rename_column", "data_transformations")
             if data_transformations_rename_column is None:
-                raise ValueError("rename_column value for data_transformations is not found within config rules")
+                self.logger.info("rename_column value for data_transformations is not found within config rules")
+                return df_raw
             self.logger.info("config rule: data_transformations | rename_column: %s", data_transformations_rename_column)
 
             df_raw = rename_column_names(df_raw, data_transformations_rename_column)
@@ -520,6 +542,38 @@ class DataPreprocessing:
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function rename_column_names: {str(e)}")
+
+    def duplicate_column_by_json_config(self, json_data, df_raw):
+        """
+        Duplicate column based on existing column to a DataFrame based on JSON configuration.
+
+        Parameters:
+        json_data (dict or list): The JSON configuration data.
+        df_raw (DataFrame): The raw DataFrame.
+
+        Returns:
+        DataFrame: The DataFrame with new columns added.
+        """
+        try:
+            if not isinstance(json_data, (dict, list)):
+                raise ValueError(INVALID_JSON_ERROR)
+
+            data_transformations_dup_column = extract_element_by_name(json_data, "duplicate_column", "data_transformations")
+            if data_transformations_dup_column is None:
+                raise ValueError("duplicate_column value for data_transformations is not found within config rules")
+            self.logger.info("config rule: data_transformations | duplicate_column: %s", data_transformations_dup_column)
+
+            df_raw = self.add_duplicate_column(df_raw, data_transformations_dup_column)
+
+            if df_raw is None:
+                raise ValueError("Function: add_duplicate_column returned None object.")
+            elif df_raw.empty:
+                raise ValueError("No raw records returned for processing following adding of new duplicate columns. Program is stopping.")
+
+            return df_raw
+
+        except Exception as e:
+            raise OperationFailedException(f"Exception Error within function duplicate_column_by_json_config: {str(e)}")
 
     def add_new_column_by_json_config(self, json_data, df_raw):
         """
