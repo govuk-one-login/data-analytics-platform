@@ -25,7 +25,7 @@ def get_all_previous_processed_dts(glue_client, stage_database, stage_target_tab
         if glue_client.does_glue_table_exist(stage_database, stage_target_table):
             sql = f"""select distinct processed_dt as processed_dt
                     from \"{stage_database}\".\"{stage_target_table}$partitions\"
-                    where processed_dt not in {max_processed_dt, current_process_dt}
+                    where processed_dt not in {int(max_processed_dt), current_process_dt}
                  """
 
             sql += """ order by processed_dt desc"""
