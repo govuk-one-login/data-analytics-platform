@@ -7,6 +7,7 @@ from .exceptions.util_exceptions import QueryException
 
 logger = get_logger(__name__)
 
+DATE_FORMAT="%Y%m%d"
 
 def get_all_previous_processed_dts(glue_client, stage_database, stage_target_table, max_processed_dt, current_process_dt):
     """Get all previous processed dates(excluding max processed date and current processing date).
@@ -277,3 +278,9 @@ def get_max_processed_dt_when_table_exists(glue_client, stage_database, stage_ta
                 else:
                     raise QueryException("Stage table does not contain the processed_dt column.")
         return None
+
+def date_minus_days(max_processed_dt_str, days):
+    """Subtract no of given days from date and return new date string."""
+    max_processed_dt=datetime.strptime(max_processed_dt_str, DATE_FORMAT)
+    max_processed_dt_minus_days = max_processed_dt - timedelta(days=days)
+    return max_processed_dt_minus_days.strftime(DATE_FORMAT)

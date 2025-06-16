@@ -721,7 +721,6 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
       IncludeExecutionData: true
       Level: ALL
     DefinitionSubstitutions:
-      GlueCrawlerRawName: !Ref RawLayerSingleTableCrawler
       RawToStageProcessingGlueJobname: !Ref RawStageTransformProcessPythonGlueJob
       DataQualityGlueJobname: !Ref DataQualityStageLayerOptimisedPythonGlueJob
       RedshiftProcessingStepFunctionArn: !Ref RedshiftConsolidatedModelProcessingStateMachine
@@ -745,7 +744,7 @@ RawStageTransformProcessPythonGlueJob:
       '--config_bucket': !Sub ${ELTMetadataBucket}
       '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/raw_to_stage_config_rules.json'
       '--raw_database': !Sub ${Environment}-txma-raw
-      '--raw_source_table': 'txma_refactored'
+      '--raw_source_table': 'txma-refactored'
       '--stage_bucket': !Sub ${StageLayerBucket}
       '--stage_database': !Sub ${Environment}-txma-stage
       '--stage_target_table': 'txma_stage_layer'
