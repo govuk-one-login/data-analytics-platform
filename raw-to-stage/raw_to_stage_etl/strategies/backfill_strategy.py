@@ -60,11 +60,11 @@ class BackfillStrategy(Strategy):
                     AND sl.processed_dt = {self.max_processed_dt}
                     AND sl.processed_time = {filter_processed_time}
                             WHERE sl.event_id is null
-                                AND CAST(concat(raw.year, raw.month, raw.day) AS INT) >= {penultimate_processed_dt} - 1
+                                AND cast(concat (substr(datecreated, 6,4), substr(datecreated, 17, 2), substr(datecreated, 24, 2)) as int) >= {penultimate_processed_dt} - 1
                                 AND CAST(raw.timestamp as int) > {filter_min_timestamp}
                                 AND CAST(raw.timestamp as int) <= {self.max_timestamp}
                 )
-                AND CAST(concat(year, month, day) AS INT) >= {penultimate_processed_dt} - 1"""
+                AND cast(concat (substr(datecreated, 6,4), substr(datecreated, 17, 2), substr(datecreated, 24, 2)) as int) >= {penultimate_processed_dt} - 1"""
 
     def extract(self):
         """Extract data after first run completion time for current day and before last processed time for current day.

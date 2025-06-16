@@ -36,7 +36,7 @@ class ScheduledStrategy(Strategy):
         if self.max_processed_dt is None:
             raise ValueError("Function 'get_max_processed_dt' returned None, which is not allowed.")
         self.logger.info("retrieved processed_dt filter value: %s", self.max_processed_dt)
-
+        
         self.max_timestamp = get_max_timestamp(self.glue_client, stage_database, stage_target_table)
 
         if self.max_timestamp is None:
@@ -66,7 +66,12 @@ class ScheduledStrategy(Strategy):
         if event_processing_selection_criteria_limit is None:
             raise ValueError("limit value for event_processing_selection_criteria is not found within config rules")
         self.logger.info("config rule: event_processing_selection_criteria | limit: %s", event_processing_selection_criteria_limit)
+<<<<<<< HEAD
         update_filter = event_processing_selection_criteria_filter.replace("processed_dt", date_minus_days(max_processed_dt,1)).replace(
+=======
+        
+        update_filter = event_processing_selection_criteria_filter.replace("processed_dt", str(max_processed_dt - 1)).replace(
+>>>>>>> 56c2bb3 (implement dap raw layer optimisation)
             "replace_timestamp", str(max_timestamp)
         )
         sql_query = f"""select * from \"{raw_database}\".\"{raw_table}\" where {update_filter}"""

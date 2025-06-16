@@ -80,11 +80,13 @@ class Strategy(ABC):
             df_raw_col_names_original.remove(self.ROW_NUM)
         self.logger.info("df_raw cols: %s", df_raw_col_names_original)
 
+        df_stage = self.preprocessing.parse_json(self.config_data, df_raw)
         df_stage = self.preprocessing.rename_column_names_by_json_config(self.config_data, df_stage)
 
         df_stage = self.preprocessing.add_new_column_by_json_config(self.config_data, df_stage)
 
         df_stage = self.preprocessing.add_new_column_from_struct_by_json_config(self.config_data, df_stage)
+        df_stage = self.preprocessing.add_new_column_from_formatted_string_by_json_config(self.config_data, df_stage)
 
         # Empty string replacement with sql null
         df_stage = self.preprocessing.empty_string_to_null_by_json_config(self.config_data, df_stage)

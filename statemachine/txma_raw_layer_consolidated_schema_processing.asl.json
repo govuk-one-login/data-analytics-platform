@@ -23,83 +23,17 @@
           "Next": "RunningInstanceDetected"
         }
       ],
-      "Default": "StartRawCrawler"
+      "Default": "RawToStageGlueStartJobRun"
     },
     "RunningInstanceDetected": {
       "Type": "Fail",
       "Error": "RunningInstanceDetected"
     },
-    "StartRawCrawler": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
-      "Parameters": {
-        "Name": "${GlueCrawlerRawName}"
-      },
-      "Next": "MonitorRawCrawlerStatus",
-      "ResultPath": "$.rawCrawlerResult",
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Glue.AWSGlueException",
-            "Glue.GlueException"
-          ],
-          "BackoffRate": 2,
-          "IntervalSeconds": 10,
-          "MaxAttempts": 3
-        }
-      ]
-    },
-    "MonitorRawCrawlerStatus": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::aws-sdk:glue:getCrawler",
-      "Parameters": {
-        "Name": "${GlueCrawlerRawName}"
-      },
-      "ResultPath": "$.crawlerRawStatus",
-      "Next": "CheckRawCrawlerStatus"
-    },
-    "CheckRawCrawlerStatus": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.crawlerRawStatus.Crawler.State",
-          "StringEquals": "READY",
-          "Next": "RawCrawlerFinished"
-        },
-        {
-          "Or": [
-            {
-              "Variable": "$.crawlerRawStatus.Crawler.State",
-              "StringEquals": "RUNNING"
-            },
-            {
-              "Variable": "$.crawlerRawStatus.Crawler.State",
-              "StringEquals": "STOPPING"
-            },
-            {
-              "Variable": "$.crawlerRawStatus.Crawler.State",
-              "StringEquals": "STARTED"
-            }
-          ],
-          "Next": "WaitForRawCrawler"
-        }
-      ],
-      "Default": "CrawlerFailed"
-    },
-    "WaitForRawCrawler": {
-      "Type": "Wait",
-      "Seconds": 30,
-      "Next": "MonitorRawCrawlerStatus"
-    },
-    "RawCrawlerFinished": {
-      "Type": "Pass",
-      "Next": "RawToStageGlueStartJobRun"
-    },
     "RawToStageGlueStartJobRun": {
       "Type": "Task",
       "Resource": "arn:aws:states:::glue:startJobRun.sync",
       "Parameters": {
-        "JobName": "${RawToStageProcessingGlueJobname}"
+        "JobName": "dev-dap-raw-stage-transform-process-2"
       },
       "Next": "DataQualityGlueStartJobRun"
     },
@@ -107,7 +41,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::glue:startJobRun",
       "Parameters": {
-        "JobName": "${DataQualityGlueJobname}"
+        "JobName": "dev-dap-data-quality-new-stage-metrics-generation-2"
       },
       "Next": "RedshiftProcessingStepFunction"
     },
@@ -115,7 +49,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::states:startExecution.sync:2",
       "Parameters": {
-        "StateMachineArn": "${RedshiftProcessingStepFunctionArn}",
+        "StateMachineArn": "arn:aws:states:eu-west-2:563887642259:stateMachine:dev-dap-consolidated-stage-layer-to-redshift-processing-2",
         "Input": {
           "StatePayload": "Triggered from raw to stage consolidated step function",
           "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
@@ -137,11 +71,6 @@
     "StopProcessing": {
       "Type": "Pass",
       "End": true
-    },
-    "CrawlerFailed": {
-      "Type": "Fail",
-      "Error": "CrawlerFailed",
-      "Cause": "The Glue crawler execution failed."
     }
   }
 }
