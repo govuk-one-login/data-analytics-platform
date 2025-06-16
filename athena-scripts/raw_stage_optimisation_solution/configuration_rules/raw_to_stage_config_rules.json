@@ -1,7 +1,7 @@
 {
   "event_record_selection": {
     "event_processing_selection_criteria": {
-      "filter": "CAST(concat(year, month, day) AS INT) >= processed_dt AND CAST(timestamp as INT) > replace_timestamp",
+      "filter": "cast(concat(substr(datecreated, 6,4),substr(datecreated, 17, 2),substr(datecreated, 24, 2)) as int) >= processed_dt AND cast(timestamp as int) > replace_timestamp",
       "limit": 0
     },
     "event_processing_testing_criteria": {
@@ -44,6 +44,13 @@
         "govuk_signin_journey_id"
       ]
     },
+    "new_column_string_extract": {
+      "datecreated": {
+        "year": "year=(\\d+)",
+        "month": "month=(\\d+)",
+        "day": "day=(\\d+)"
+      }
+    },
     "key_value_record_generation_column_exclusion_list": [
       "event_id",
       "event_name",
@@ -58,6 +65,11 @@
       "processed_dt",
       "event_timestamp_ms",
       "event_timestamp_ms_formatted"
+    ],
+    "parse_json_list": [
+      "extensions",
+      "user",
+      "txma"
     ]
   },
   "stage_schema": {

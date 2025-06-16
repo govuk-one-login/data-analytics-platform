@@ -1,7 +1,7 @@
 """BackfillStrategy is run after ScheduledStrategy to pick up records not picked up by ScheduledStrategy."""
 
 from ..util.data_preprocessing import get_last_processed_time, get_penultimate_processed_dt
-from ..util.database_utilities import (get_all_previous_processed_dts, get_all_processed_times_per_day,
+from ..util.database_utilities import (date_minus_days, get_all_previous_processed_dts, get_all_processed_times_per_day,
                                        get_min_timestamp_from_previous_run)
 from ..util.exceptions.util_exceptions import OperationFailedException
 from .strategy import Strategy
@@ -60,11 +60,11 @@ class BackfillStrategy(Strategy):
                     AND sl.processed_dt = {self.max_processed_dt}
                     AND sl.processed_time = {filter_processed_time}
                             WHERE sl.event_id is null
-                                AND CAST(concat(raw.year, raw.month, raw.day) AS INT) >= {penultimate_processed_dt} - 1
+                                AND cast(concat (substr(datecreated, 6,4), substr(datecreated, 17, 2), substr(datecreated, 24, 2)) as int) >= {date_minus_days(str(penultimate_processed_dt), 1)}
                                 AND CAST(raw.timestamp as int) > {filter_min_timestamp}
                                 AND CAST(raw.timestamp as int) <= {self.max_timestamp}
                 )
-                AND CAST(concat(year, month, day) AS INT) >= {penultimate_processed_dt} - 1"""
+                AND cast(concat (substr(datecreated, 6,4), substr(datecreated, 17, 2), substr(datecreated, 24, 2)) as int) >= {date_minus_days(str(penultimate_processed_dt), 1)} """
 
     def extract(self):
         """Extract data after first run completion time for current day and before last processed time for current day.
