@@ -4,6 +4,7 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
+import json
 
 from ..exceptions.no_data_found_exception import NoDataFoundException
 from ..logging.logger import get_logger
@@ -240,6 +241,8 @@ class DataPreprocessing:
                     df[column_name] = self.processed_dt
                 if column_name == "processed_time":
                     df[column_name] = self.processed_time
+                if column_name == "partition_event_name":
+                    df[column_name] = df['event_name']
             return df
         except Exception as e:
             raise OperationFailedException("Error adding new columns: %s", str(e))
@@ -616,3 +619,36 @@ class DataPreprocessing:
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function add_new_column_from_struct: {str(e)}")
+    
+    def parse_json(self, json_data, df_raw):
+        """
+        Parse columns that are defined as strings into json
+
+        Parameters:
+        json_data (dict or list): The JSON configuration data.
+        df_raw (DataFrame): The raw DataFrame.
+
+        Returns:
+        DataFrame: The DataFrame with empty strings replaced by None.
+        """
+        try:
+            if not isinstance(json_data, (dict, list)):
+                raise ValueError(INVALID_JSON_ERROR)
+
+            parse_json_column_list = extract_element_by_name(json_data, "parse_json_list", "data_transformations")
+            if parse_json_column_list is None:
+                raise ValueError("parse_json_list value for data_cleaning is not found within config rules")
+            self.logger.info("config rule: data_transformations | parse_json_strings: %s", parse_json_column_list)
+
+            for col in parse_json_column_list:
+                df_raw[col] = df_raw[col].apply(lambda x: json.loads(x) if isinstance(x, str) and x.strip().startswith('{') else None)
+
+            if df_raw is None:
+                raise ValueError("Function: parse_json returned None object.")
+            elif df_raw.empty:
+                raise ValueError("No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
+
+            return df_raw
+
+        except Exception as e:
+            raise OperationFailedException(f"Exception Error within function parse_json: {str(e)}")

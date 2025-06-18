@@ -60,10 +60,13 @@ class Strategy(ABC):
          stage_table_rows_to_be_inserted (int): No of rows to be inserted into stage table
          stage_key_rows_inserted (int): No of rows to be inserted into key value table
         """
+        
         if not isinstance(df_raw, pd.DataFrame) or df_raw.empty:
             raise NoDataFoundException("No raw records returned for processing. Program is stopping.")
 
-        df_stage = self.preprocessing.remove_columns_by_json_config(self.config_data, df_raw)
+        df_stage = self.preprocessing.parse_json(self.config_data, df_raw)
+
+        df_stage = self.preprocessing.remove_columns_by_json_config(self.config_data, df_stage)
 
         df_stage = self.preprocessing.remove_row_duplicates(self.config_data, df_stage)
 
@@ -79,8 +82,6 @@ class Strategy(ABC):
         if self.ROW_NUM in df_raw_col_names_original:
             df_raw_col_names_original.remove(self.ROW_NUM)
         self.logger.info("df_raw cols: %s", df_raw_col_names_original)
-
-        df_stage = self.preprocessing.rename_column_names_by_json_config(self.config_data, df_stage)
 
         df_stage = self.preprocessing.add_new_column_by_json_config(self.config_data, df_stage)
 
