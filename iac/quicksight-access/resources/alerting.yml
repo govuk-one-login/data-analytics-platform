@@ -1,0 +1,81 @@
+DAPAlertsSNSTopic:
+  Type: AWS::SNS::Topic
+  Condition: IsProduction
+  Properties:
+    DisplayName: Slack di_dap_alerts channel topic
+    TopicName: !Sub ${AWS::StackName}-slack-di-dap-alerts-topic
+    KmsMasterKeyId: !GetAtt QuicksightAccessKmsKey.Arn
+
+DAPAlertsChatbotRole:
+  Type: AWS::IAM::Role
+  Condition: IsProduction
+  Properties:
+    RoleName: !Sub ${AWS::StackName}-slack-di-dap-alerts-chatbot-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - chatbot.amazonaws.com
+          Action:
+            - sts:AssumeRole
+    ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AWSResourceExplorerReadOnlyAccess
+
+DAPAlertsChatbotConfiguration:
+  Type: AWS::Chatbot::SlackChannelConfiguration
+  Condition: IsProduction
+  Properties:
+    ConfigurationName: !Sub ${AWS::StackName}-slack-di-dap-alerts-chatbot-config
+    GuardrailPolicies:
+      - arn:aws:iam::aws:policy/ReadOnlyAccess
+    IamRoleArn: !GetAtt DAPAlertsChatbotRole.Arn
+    LoggingLevel: NONE
+    SlackChannelId: !Ref DAPAlertsChannelId
+    SlackWorkspaceId: !Ref SlackWorkspaceId
+    SnsTopicArns:
+      - !Ref DAPAlertsSNSTopic
+
+QuicksightSPICEUsageAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Condition: IsProduction
+  Properties:
+    ActionsEnabled: true
+    AlarmActions:
+      - !Ref DAPAlertsSNSTopic
+    AlarmDescription: >-
+      # QuickSight SPICE Usage Alarm
+
+      This alarm will fire when the QuickSight SPICE usage is greater than or
+      equal to 90%. At this point, additional capacity can be purchased and/or
+      unused datasets can be deleted to free up space. See
+      [here](https://docs.aws.amazon.com/quicksight/latest/user/managing-spice-capacity.html)
+      for more information about SPICE Capacity.
+    AlarmName: !Sub ${AWS::StackName}-quicksight-spice-usage
+    Threshold: 90
+    EvaluationPeriods: 1
+    DatapointsToAlarm: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    TreatMissingData: ignore
+    Metrics:
+      - Id: capacityConsumedMB
+        ReturnData: false
+        MetricStat:
+          Metric:
+            Namespace: AWS/QuickSight
+            MetricName: SPICECapacityConsumedInMB
+          Period: 86400 # 1 day in seconds
+          Stat: Maximum
+      - Id: capacityLimitMB
+        ReturnData: false
+        MetricStat:
+          Metric:
+            Namespace: AWS/QuickSight
+            MetricName: SPICECapacityLimitInMB
+          Period: 86400 # 1 day in seconds
+          Stat: Maximum
+      - Id: capacityConsumedPercentage
+        Label: Percentage SPICE Capacity Used
+        ReturnData: true
+        Expression: 100*(capacityConsumedMB/capacityLimitMB)
