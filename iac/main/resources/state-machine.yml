@@ -721,7 +721,6 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
       IncludeExecutionData: true
       Level: ALL
     DefinitionSubstitutions:
-      GlueCrawlerRawName: !Ref RawLayerSingleTableCrawler
       RawToStageProcessingGlueJobname: !Ref RawStageTransformProcessPythonGlueJob
       DataQualityGlueJobname: !Ref DataQualityStageLayerOptimisedPythonGlueJob
       RedshiftProcessingStepFunctionArn: !Ref RedshiftConsolidatedModelProcessingStateMachine
