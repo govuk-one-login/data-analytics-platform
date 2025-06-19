@@ -93,7 +93,7 @@ def main():
             processor = RawToStageProcessor(args, backfill_strategy)
             try:
                 processor.process()
-            except (NoDataFoundException, OperationFailedException, QueryException) as e:
+            except NoDataFoundException as e:
                 logger.info("Exception Message: %s, Stacktrace: %s", str(e), traceback.format_exc())
                 # as no data could be found for backfill, supress the exception
                 logger.info("Exiting without raising error(As no data could be found for backfill)")

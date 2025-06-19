@@ -31,8 +31,8 @@
     ]
   },
   "data_transformations": {
-    "rename_column": {
-      "partition_0": "partition_event_name"
+    "duplicate_column": {
+      "partition_event_name": "event_name"
     },
     "new_column": {
       "processed_dt": "%Y%m%d",
@@ -56,7 +56,6 @@
       "month",
       "day",
       "processed_dt",
-      "partition_0",
       "event_timestamp_ms",
       "event_timestamp_ms_formatted"
     ]

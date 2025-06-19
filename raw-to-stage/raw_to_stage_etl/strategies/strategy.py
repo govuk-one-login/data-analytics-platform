@@ -89,6 +89,8 @@ class Strategy(ABC):
         # Empty string replacement with sql null
         df_stage = self.preprocessing.empty_string_to_null_by_json_config(self.config_data, df_stage)
 
+        df_stage = self.preprocessing.duplicate_column_by_json_config(self.config_data, df_stage)
+
         self.logger.info("rows to be ingested into the Stage layer from dataframe df_raw: %s", len(df_stage))
         stage_table_rows_to_be_inserted = int(len(df_stage))
 
