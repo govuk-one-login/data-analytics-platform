@@ -33,7 +33,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::glue:startJobRun.sync",
       "Parameters": {
-        "JobName": "dev-dap-raw-stage-transform-process-2"
+        "JobName": "${RawToStageProcessingGlueJobname}"
       },
       "Next": "DataQualityGlueStartJobRun"
     },
@@ -41,7 +41,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::glue:startJobRun",
       "Parameters": {
-        "JobName": "dev-dap-data-quality-new-stage-metrics-generation-2"
+        "JobName": "${DataQualityGlueJobname}"
       },
       "Next": "RedshiftProcessingStepFunction"
     },
@@ -49,7 +49,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::states:startExecution.sync:2",
       "Parameters": {
-        "StateMachineArn": "arn:aws:states:eu-west-2:563887642259:stateMachine:dev-dap-consolidated-stage-layer-to-redshift-processing-2",
+        "StateMachineArn": "${RedshiftProcessingStepFunctionArn}",
         "Input": {
           "StatePayload": "Triggered from raw to stage consolidated step function",
           "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
