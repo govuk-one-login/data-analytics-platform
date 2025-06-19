@@ -99,23 +99,6 @@ RawGlueDatabase:
     DatabaseInput:
       Name: !Sub ${Environment}-${RawGlueDatabaseName}
 
-RawLayerSingleTableCrawler:
-  Type: AWS::Glue::Crawler
-  Properties:
-    Name: txma_raw_layer_events_schema_combined
-    Role: !GetAtt RawGlueCrawlerRole.Arn
-    Targets:
-      S3Targets:
-        - Path: !Sub 's3://${RawLayerBucket}/txma-refactored/'
-    DatabaseName: !Ref RawGlueDatabase
-    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
-    RecrawlPolicy:
-      RecrawlBehavior: CRAWL_EVERYTHING
-    SchemaChangePolicy:
-      UpdateBehavior: UPDATE_IN_DATABASE
-      DeleteBehavior: DELETE_FROM_DATABASE
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
-
 SplunkRawLayerSingleTableCrawler:
   Type: AWS::Glue::Crawler
   Properties:
@@ -175,7 +158,7 @@ TxmaRefactoredTable:
     CatalogId: !Ref AWS::AccountId
     DatabaseName: !Ref RawGlueDatabase
     TableInput:
-      Name: txma-without-crawler
+      Name: txma-refactored
       Description: TxMA Raw Layer events as json
       StorageDescriptor:
         Columns:
@@ -220,4 +203,4 @@ TxmaRefactoredTable:
         'projection.datecreated.range': 'year=2025/month=01/day=01,NOW'
         'projection.datecreated.interval': 1
         'projection.datecreated.interval.unit': 'DAYS'
-        'storage.location.template': !Join ['', ['s3://', !Ref RawLayerBucket, '-2/txma/${datecreated}/']]
+        'storage.location.template': !Join ['', ['s3://', !Ref RawLayerBucket, '/txma-refactored/${datecreated}/']]
