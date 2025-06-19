@@ -48,7 +48,7 @@
       "datecreated": {
         "year": "year=(\\d+)",
         "month": "month=(\\d+)",
-        "day": "month=(\\d+)"
+        "day": "day=(\\d+)"
       }
     },
     "key_value_record_generation_column_exclusion_list": [

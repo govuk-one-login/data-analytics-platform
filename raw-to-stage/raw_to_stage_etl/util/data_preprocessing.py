@@ -697,7 +697,7 @@ class DataPreprocessing:
             raise OperationFailedException(f"Exception Error within function add_new_column_from_struct: {str(e)}")
 
 
-    def parse_json(self, json_data, df_raw):
+    def parse_string_columns_as_json_by_config(self, json_data, df_raw):
         """
         Parse columns that are defined as strings into json
         Parameters:
