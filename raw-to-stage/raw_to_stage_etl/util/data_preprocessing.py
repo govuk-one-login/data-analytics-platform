@@ -285,9 +285,7 @@ class DataPreprocessing:
                 if column_name == "processed_dt":
                     df[column_name] = self.processed_dt
                 if column_name == "processed_time":
-                    df[column_name] = self.processed_time
-                if column_name == "partition_event_name":
-                    df[column_name] = df['event_name']                    
+                    df[column_name] = self.processed_time            
             return df
         except Exception as e:
             raise OperationFailedException("Error adding new columns: %s", str(e))
