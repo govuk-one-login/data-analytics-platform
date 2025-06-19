@@ -186,7 +186,7 @@ TxmaRefactoredTable:
             Type: string
         Compressed: true
         StoredAsSubDirectories: false
-        Location: !Sub s3://${RawLayerBucket}-2/txma/
+        Location: !Sub s3://${RawLayerBucket}/txma-refactored/
         InputFormat: org.apache.hadoop.mapred.TextInputFormat
         OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
         SerdeInfo:
