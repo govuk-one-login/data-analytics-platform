@@ -62,6 +62,15 @@ jest.mock('node:fs', () => {
   return {
     __esModule: true,
     ...jest.requireActual('node:fs'),
+    // if this default property is missing, we get the error `TypeError: Cannot read properties of undefined (reading 'writev')` with Jest 30
+    // i am not sure why it did not happen before jest 30 but i think it is something to do with ESM/CJS changes
+    // in any case the ultimate root cause was in node_modules/@isaacs/fs-minipass/dist/commonjs/index.js
+    // which seems to check if the module (node:fs in this case) it is importing is ESM, and if not put its properties under a `default` object
+    // it then tries to access `writev` via this `default` object (`const writev = fs_1.default.writev;`) and i am speculating it fails
+    // as node:fs was ESM so the `default` object was never created (but for some reason we are executing the CJS version of fs-minipass)
+    default: {
+      ...jest.requireActual('node:fs'),
+    },
   };
 });
 
