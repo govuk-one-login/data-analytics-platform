@@ -3,6 +3,15 @@
 from ..util.database_utilities import get_max_processed_dt, get_max_timestamp
 from ..util.json_config_processing_utilities import extract_element_by_name
 from .strategy import Strategy
+from datetime import datetime, timedelta
+
+DATE_FORMAT="%Y%m%d"
+
+def date_minus_days(max_processed_dt_str, days):
+    """Subtract no of given days from date and return new date string."""
+    max_processed_dt=datetime.strptime(max_processed_dt_str, DATE_FORMAT)
+    max_processed_dt_minus_days = max_processed_dt - timedelta(days=days)
+    return max_processed_dt_minus_days.strftime(DATE_FORMAT)
 
 
 class ScheduledStrategy(Strategy):
@@ -57,7 +66,7 @@ class ScheduledStrategy(Strategy):
         if event_processing_selection_criteria_limit is None:
             raise ValueError("limit value for event_processing_selection_criteria is not found within config rules")
         self.logger.info("config rule: event_processing_selection_criteria | limit: %s", event_processing_selection_criteria_limit)
-        update_filter = event_processing_selection_criteria_filter.replace("processed_dt", str(max_processed_dt - 1)).replace(
+        update_filter = event_processing_selection_criteria_filter.replace("processed_dt", date_minus_days(max_processed_dt,1)).replace(
             "replace_timestamp", str(max_timestamp)
         )
         sql_query = f"""select * from \"{raw_database}\".\"{raw_table}\" where {update_filter}"""

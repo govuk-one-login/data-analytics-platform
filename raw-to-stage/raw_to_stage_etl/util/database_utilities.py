@@ -25,7 +25,7 @@ def get_all_previous_processed_dts(glue_client, stage_database, stage_target_tab
         if glue_client.does_glue_table_exist(stage_database, stage_target_table):
             sql = f"""select distinct processed_dt as processed_dt
                     from \"{stage_database}\".\"{stage_target_table}$partitions\"
-                    where processed_dt not in {max_processed_dt, current_process_dt}
+                    where processed_dt not in {int(max_processed_dt), current_process_dt}
                  """
 
             sql += """ order by processed_dt desc"""
@@ -238,6 +238,7 @@ def get_max_processed_dt_when_table_doesnt_exist(glue_client, raw_database, raw_
                     return new_filter_processed_dt
             else:
                 raise QueryException("Error returned querying the raw table for the min(year,month,day) value.")
+        return None
 
 
 def get_max_processed_dt_when_table_exists(glue_client, stage_database, stage_target_table):
@@ -271,7 +272,8 @@ def get_max_processed_dt_when_table_exists(glue_client, stage_database, stage_ta
             if len(df.index) == 1:
                 if "processed_dt" in df.columns:
                     # The column exists, so you can work with it
-                    filter_processed_dt = int(df["processed_dt"].iloc[0])
+                    filter_processed_dt = str(df["processed_dt"].iloc[0])
                     return filter_processed_dt
                 else:
                     raise QueryException("Stage table does not contain the processed_dt column.")
+        return None

@@ -106,7 +106,7 @@ RawLayerSingleTableCrawler:
     Role: !GetAtt RawGlueCrawlerRole.Arn
     Targets:
       S3Targets:
-        - Path: !Sub 's3://${RawLayerBucket}/txma/'
+        - Path: !Sub 's3://${RawLayerBucket}/txma-refactored/'
     DatabaseName: !Ref RawGlueDatabase
     CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
