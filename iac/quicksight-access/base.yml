@@ -22,6 +22,14 @@ Parameters:
     Description: ARN of permissions boundary for new roles
     Type: String
     Default: none
+  SlackWorkspaceId:
+    Description: Workspace ID for GDS Slack
+    Type: String
+    Default: T8GT9416G
+  DAPAlertsChannelId:
+    Description: Channel ID for di_dap_alerts where we will send alerts that concern both DAP devs and analysts
+    Type: String
+    Default: C069TS28PGE
 
 Conditions:
   UseCodeSigning: !Not
