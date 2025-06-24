@@ -114,7 +114,7 @@ RawLayerSingleTableCrawler:
     SchemaChangePolicy:
       UpdateBehavior: UPDATE_IN_DATABASE
       DeleteBehavior: LOG
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"},"Tables":{"AddOrUpdateBehavior":"MergeNewColumns"}}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
 
 SplunkRawLayerSingleTableCrawler:
   Type: AWS::Glue::Crawler
