@@ -45,7 +45,7 @@
     "wait_on_adm_refresh_update": {
       "Comment": "Wait before status check",
       "Type": "Wait",
-      "Seconds": 5,
+      "Seconds": 120,
       "Next": "refresh_adm_update_status_check"
     },
     "refresh_adm_update_status_check": {
