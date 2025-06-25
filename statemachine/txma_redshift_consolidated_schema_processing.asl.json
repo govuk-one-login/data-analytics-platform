@@ -44,7 +44,7 @@
     "wait_on_dap_datamart_update": {
       "Comment": "Wait before status check",
       "Type": "Wait",
-      "Seconds": 5,
+      "Seconds": 120,
       "Next": "dap_datamart_update_status_check"
     },
     "dap_datamart_update_status_check": {
