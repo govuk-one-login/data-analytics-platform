@@ -1,17 +1,10 @@
 """ScheduledStrategy is for ETL which runs everyday on schedule."""
 
-from ..util.database_utilities import get_max_processed_dt, get_max_timestamp
+from ..util.database_utilities import date_minus_days, get_max_processed_dt, get_max_timestamp
 from ..util.json_config_processing_utilities import extract_element_by_name
 from .strategy import Strategy
 from datetime import datetime, timedelta
 
-DATE_FORMAT="%Y%m%d"
-
-def date_minus_days(max_processed_dt_str, days):
-    """Subtract no of given days from date and return new date string."""
-    max_processed_dt=datetime.strptime(max_processed_dt_str, DATE_FORMAT)
-    max_processed_dt_minus_days = max_processed_dt - timedelta(days=days)
-    return max_processed_dt_minus_days.strftime(DATE_FORMAT)
 
 
 class ScheduledStrategy(Strategy):
@@ -36,7 +29,7 @@ class ScheduledStrategy(Strategy):
         if self.max_processed_dt is None:
             raise ValueError("Function 'get_max_processed_dt' returned None, which is not allowed.")
         self.logger.info("retrieved processed_dt filter value: %s", self.max_processed_dt)
-
+        
         self.max_timestamp = get_max_timestamp(self.glue_client, stage_database, stage_target_table)
 
         if self.max_timestamp is None:
