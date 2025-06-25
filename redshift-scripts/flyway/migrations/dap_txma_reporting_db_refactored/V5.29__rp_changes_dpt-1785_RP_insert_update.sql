@@ -41,3 +41,8 @@ UPDATE conformed_refactored.dim_relying_party_refactored
 SET relying_party_name='Submit a General Aviation Report'
     ,display_name='HO - Submit a General Aviation Report'
 WHERE  client_id='pr5XqmAxS1sVj5e7hVhL-P-hJ9Q';
+
+UPDATE conformed_refactored.ref_relying_parties_refactored
+SET client_name='Submit a General Aviation Report'
+    ,display_name='HO - Submit a General Aviation Report'
+WHERE  client_id='pr5XqmAxS1sVj5e7hVhL-P-hJ9Q';
