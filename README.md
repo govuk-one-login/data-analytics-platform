@@ -1,6 +1,6 @@
 # DI Data Analytics Platform
 
-Data and Analytics platform which will enable the implementation of the [OneLogin reporting strategy](https://govukverify.atlassian.net/l/cp/ZBmDjKz0).
+Data and Analytics platform which will enable the implementation of the [GOV.UK One Login](https://govukverify.atlassian.net/l/cp/ZBmDjKz0).
 
 ## Prerequisites
 
@@ -8,14 +8,14 @@ Data and Analytics platform which will enable the implementation of the [OneLogi
 
 ###### Core
 
-* [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)&ast - for running SAM commands
-* [Node](https://nodejs.org/en)&ast&ast - for lambda development and running `npm` commands
+* [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) - for running SAM commands
+* [Node](https://nodejs.org/en) - for lambda development and running `npm` commands
 * [Docker](https://docs.docker.com/desktop/install/mac-install) - for running `sam local`
 * [Checkov](https://www.checkov.io) - for validating IaC code. Install on GDS Macs in the terminal by running `pip3 install checkov`
 
-&ast Ensure your SAM CLI version matches the version used in GitHub workflow files (currently 1.134.0) otherwise you may get errors locally that do not appear in GitHub Actions
+Ensure your SAM CLI version matches the version used in GitHub workflow files (currently 1.134.0) otherwise you may get errors locally that do not appear in GitHub Actions
 
-&ast&ast The project currently uses Node 22. The GDS recommendation is to use `nvm` to manage Node versions - installation instructions can be found [here](https://github.com/nvm-sh/nvm#installing-and-updating).
+The project currently uses Node 22. The GDS recommendation is to use `nvm` to manage Node versions - installation instructions can be found [here](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ###### Optional
 
