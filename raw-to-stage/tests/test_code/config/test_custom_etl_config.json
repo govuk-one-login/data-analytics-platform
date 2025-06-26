@@ -1,0 +1,112 @@
+{
+  "event_record_selection": {
+    "event_processing_selection_criteria": {
+      "filter": "cast(concat(substr(datecreated, 6,4),substr(datecreated, 17, 2),substr(datecreated, 24, 2)) as int) >= processed_dt AND cast(timestamp as int) > replace_timestamp",
+      "limit": 0
+    },
+    "event_processing_testing_criteria": {
+      "enabled": true,
+      "filter": "event_id in ('xxxx','xxxx')"
+    },
+    "event_processing_view_criteria": {
+      "enabled": false,
+      "view_name": "xxx"
+    }
+  },
+  "data_cleaning": {
+    "duplicate_row_removal_criteria_fields": [
+      "event_id",
+      "timestamp"
+    ],
+    "mandatory_row_removal_criteria_fields": [
+      "event_id",
+      "event_name",
+      "timestamp"
+    ],
+    "empty_string_replacement": [
+      "client_id"
+    ],
+    "remove_columns": [
+      "row_num"
+    ]
+  },
+  "data_transformations": {
+    "duplicate_column": {
+      "partition_event_name": "event_name"
+    },
+    "new_column": {
+      "processed_dt": "%Y%m%d",
+      "processed_time": "%H%M%S"
+    },
+    "new_column_struct_extract": {
+      "user": [
+        "user_id",
+        "govuk_signin_journey_id"
+      ]
+    },
+    "new_column_string_extract": {
+      "datecreated": {
+        "year": "year=(\\d+)",
+        "month": "month=(\\d+)",
+        "day": "day=(\\d+)"
+      }
+    },
+    "key_value_record_generation_column_exclusion_list": [
+      "event_id",
+      "event_name",
+      "client_id",
+      "component_id",
+      "timestamp",
+      "timestamp_formatted",
+      "user",
+      "year",
+      "month",
+      "day",
+      "processed_dt",
+      "event_timestamp_ms",
+      "event_timestamp_ms_formatted"
+    ],
+    "parse_json_list": [
+      "extensions",
+      "user",
+      "txma"
+    ]
+  },
+  "stage_schema": {
+    "columns": {
+      "event_id": "string",
+      "event_name": "string",
+      "client_id": "string",
+      "component_id": "string",
+      "timestamp": "int",
+      "timestamp_formatted": "string",
+      "user_govuk_signin_journey_id": "string",
+      "user_user_id": "string",
+      "partition_event_name": "string",
+      "event_timestamp_ms": "bigint",
+      "event_timestamp_ms_formatted": "string",
+      "year": "int",
+      "month": "int",
+      "day": "int",
+      "processed_dt": "int",
+      "processed_time": "int"
+    },
+    "partition_columns": [
+      "processed_dt",
+      "event_name"
+    ]
+  },
+  "key_value_schema": {
+    "columns": {
+      "event_id": "string",
+      "parent_column_name": "string",
+      "key": "string",
+      "value": "string",
+      "processed_dt": "int",
+      "processed_time": "int"
+    },
+    "partition_columns": [
+      "processed_dt"
+    ]
+  }
+}
