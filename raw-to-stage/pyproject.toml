@@ -1,9 +1,14 @@
+[project]
+name = "dap-etl-modules"
+requires-python = ">=3.10, <4.0"
+
+
 [build-system]
 requires = [
-    "setuptools>=42",
+    "poetry-core",
     "wheel"
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 160
@@ -15,3 +20,41 @@ follow_untyped_imports = true
 [tool.mypy]
 disable_error_code = ["import-untyped"]
 ignore_missing_imports = true
+
+[tool.poetry]
+name = "Data Analytics Platform ETL modules"
+version = "0.1.0"
+description = ""
+authors = ["Adnan Hassan <adnan.hassan@digital.cabinet-office.gov.uk>"]
+readme = ""
+packages = [
+    {include = "raw_to_stage_etl"}
+]
+
+[tool.poetry.dependencies]
+pre-commit = "4.0.1"
+boto3 = "1.35.83"
+pandas = "2.3.0"
+pandas-stubs = "2.2.3.241126"
+awswrangler = "3.12.1"
+awsglue-dev = "2021.12.30"
+black = "24.10.0"
+pyupgrade = "3.19.1"
+isort = "5.13.2"
+flake8 = "7.1.1"
+flake8-bandit = "4.1.1"
+flake8-bugbear = "24.12.12"
+reindent = "3.5.1"
+mypy = "1.14.1"
+pydocstyle = "6.3.0"
+aws_lambda_powertools = "3.4.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "7.4.0"
+pytest-mock = "3.14.1"
+pydocstyle = "^6.3.0"
+pandas = "2.3.0"
+
+[tool.pydocstyle]
+inherit = false
+match-dir = "^(?!tests).*"
