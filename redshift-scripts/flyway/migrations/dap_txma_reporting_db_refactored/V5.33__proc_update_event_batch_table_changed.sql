@@ -56,5 +56,10 @@ BEGIN
         procedure_end_date = GETDATE()
     WHERE procedure_name = 'update_event_batch_table';
 
+    RAISE INFO 'update_event_batch_table: Procedure completed successfully.';
+
+EXCEPTION WHEN OTHERS THEN
+    RAISE EXCEPTION '[update_event_batch_table] Error: %', SQLERRM;    
+
 END;
 $$
