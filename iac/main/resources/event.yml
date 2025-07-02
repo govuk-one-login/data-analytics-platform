@@ -14,6 +14,8 @@ EventConsumerLambda:
   Properties:
     FunctionName: txma-event-consumer
     Events:
+      # this event is called CleanEvent for historic reasons (originally some data cleaning/validation was planned at this stage)
+      # as it exists now, this lambda just receives txma events and passes them directly to firehose
       CleanEvent:
         Type: SQS
         Properties:

@@ -18,7 +18,7 @@ The AWS environment to run the workflow on.
 
 #### Flyway command to run
 
-Flyway command to run. For more on the different commands, refer to the documentation [here](https://documentation.red-gate.com/flyway/flyway-cli-and-api/commands).
+Flyway command to run. For more on the different commands, refer to the documentation [here](https://documentation.red-gate.com/flyway/reference/commands).
 
 #### Database on which to perform migrations
 
@@ -35,7 +35,7 @@ Library files for Flyway (library itself and the Redshift JAR). These can be lef
 
 ### `migrations/`
 
-Migration files for Flyway. For more on the concept, refer to the documentation [here](https://documentation.red-gate.com/flyway/flyway-cli-and-api/concepts/migrations).
+Migration files for Flyway. For more on the concept, refer to the documentation [here](https://documentation.red-gate.com/flyway/flyway-concepts/migrations).
 
 ### `flyway.conf`
 
@@ -78,4 +78,4 @@ redshift-scripts/
 
 #### Migration types
 
-Flyway allows you to use versioned or repeatable migrations. For descriptions of both types, refer to the documentation [here](https://documentation.red-gate.com/flyway/flyway-cli-and-api/concepts/migrations).
+Flyway allows you to use versioned or repeatable migrations. For descriptions of both types, refer to the documentation [here](https://documentation.red-gate.com/flyway/flyway-concepts/migrations).
