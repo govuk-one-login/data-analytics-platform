@@ -82,10 +82,6 @@ IaC code can be found in the [iac](iac) directory. There are currently two appli
 In each there is a base file, `base.yml`, which contains everything except the `Resources` section.
 In the `resources/` subdirectory, there are YAML files containing all the stack resources, grouped by functional area.
 
-A `package.json` script, `iac:build`, concatenates all these files for a particular application into a single top-level `template.yaml` file that is expected by SAM and Secure Pipelines.
-The script requires an argument for which application you wish to build, e.g. `npm run iac:build -- main`.
-To build all applications at once (useful for linting and scanning), an additional npm script, `iac:buildall`, exists which puts the template files it builds into the (git ignored) [iac-dist](iac-dist) directory.
-
 The [AWS SAM](https://aws.amazon.com/serverless/sam) config is at [samconfig.toml](samconfig.toml).
 
 #### Workflows
@@ -200,14 +196,11 @@ You can run `sam local generate` with no args for a list of supported services.
 
 #### IaC
 
-AWS SAM can [build the YAML template](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/using-sam-cli-build.html).
-Artifacts will be placed into `.aws-sam/`. If you wish the lambda code to be included, it must first have been built into a `.js` file (`npm run build`).
-An example invocation might be
-```shell
-sam build
-```
-which will build `template.yaml` and use the lambda code in `dist/`.
-A different template file path can be specified with the `--template-file` flag and a different lambda code directory by changing the `CodeUri` global property in `template.yaml`.
+A `package.json` script, `iac:build`, concatenates all the files for a particular application into a single top-level `template.yaml` file that is expected by SAM and Secure Pipelines.
+The script requires an argument for which application you wish to build, e.g. `npm run iac:build -- main`. (See **Repository Structure** -> **IaC** above for more detail on the two applications).
+
+To build all applications at once (useful for linting and scanning), an additional npm script, `iac:buildall`, exists. This builds a template for each application,
+`template-main.yml` and `template-quicksight-access.yml`, and puts them into the (git ignored) [iac-dist](iac-dist) directory.
 
 ## Deploying and environments
 
@@ -300,9 +293,6 @@ _Production preview_ has a real TxMA queue in addition to its placeholder queue 
 ## Additional Documents
 
 For a guide to how and why certain development decisions, coding practices, etc. were made, please refer to the [Development Decisions document](docs/development-decisions.md).
-
-For a list of TODOs for the project, please see the [TODOs document](docs/todos.md).
-
 
 ## Packaging:
 cd to project root directory

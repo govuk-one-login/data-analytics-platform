@@ -94,7 +94,6 @@ QuicksightAccessApiGatewayLambdaPermission:
     Principal: apigateway.amazonaws.com
     SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/$default
 
-# todo maybe add DeletionProtection
 QuicksightAccessUserPool:
   Type: AWS::Cognito::UserPool
   Condition: IsQuicksightEnvironment
@@ -142,6 +141,7 @@ QuicksightAccessUserPool:
         Name: last_login
         Mutable: true
         Required: false
+    DeletionProtection: ACTIVE
 
 QuicksightAccessUserPoolClient:
   Type: AWS::Cognito::UserPoolClient

@@ -458,7 +458,7 @@ RedshiftCreateSnapshotLambda:
       Variables:
         ENVIRONMENT: !Ref Environment
         NAMESPACE_NAME: !Ref RedshiftServerlessNamespace
-        RETENTION_PERIOD_DAYS: !If [IsProduction, '7', '1']
+        RETENTION_PERIOD_DAYS: !If [IsProduction, '14', '7']
     Tags:
       Environment: !Ref Environment
     MemorySize: 256
