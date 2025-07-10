@@ -16,9 +16,7 @@ from raw_to_stage_etl.strategies.custom_strategy import CustomStrategy
 from raw_to_stage_etl.strategies.scheduled_strategy import ScheduledStrategy
 from raw_to_stage_etl.strategies.view_strategy import ViewStrategy
 from raw_to_stage_etl.util.data_preprocessing import DataPreprocessing
-from raw_to_stage_etl.util.exceptions.util_exceptions import OperationFailedException
-from raw_to_stage_etl.util.exceptions.util_exceptions import QueryException
-
+from raw_to_stage_etl.util.error_handler import ErrorHandler
 from raw_to_stage_etl.util.json_config_processing_utilities import extract_element_by_name
 
 logger = get_logger(__name__)
@@ -61,6 +59,9 @@ def main():
         # Data transformation class
         preprocessing = DataPreprocessing(args)
 
+        # Error handler for failed transformations
+        error_handler = ErrorHandler(s3_app, args["stage_bucket"])
+
         json_data = s3_app.read_json(args["config_bucket"], args["config_key_path"])
         if json_data is None:
             raise ValueError("Class 's3_app' returned None, which is not allowed.")
@@ -74,12 +75,12 @@ def main():
             raise ValueError("No job type specified to run")
 
         if job_type == "CUSTOM":
-            processor = RawToStageProcessor(args, CustomStrategy(args, json_data, glue_app, s3_app, preprocessing))
+            processor = RawToStageProcessor(args, CustomStrategy(args, json_data, glue_app, s3_app, preprocessing), error_handler)
         elif job_type == "VIEW":
-            processor = RawToStageProcessor(args, ViewStrategy(args, json_data, glue_app, s3_app, preprocessing))
+            processor = RawToStageProcessor(args, ViewStrategy(args, json_data, glue_app, s3_app, preprocessing), error_handler)
         elif job_type == "SCHEDULED":
             strategy = ScheduledStrategy(args, json_data, glue_app, s3_app, preprocessing)
-            processor = RawToStageProcessor(args, strategy)
+            processor = RawToStageProcessor(args, strategy, error_handler)
 
         processor.process()
 
@@ -90,7 +91,7 @@ def main():
         """
         if job_type == "SCHEDULED":
             backfill_strategy = BackfillStrategy(args, json_data, glue_app, s3_app, preprocessing, strategy.max_timestamp, strategy.max_processed_dt)
-            processor = RawToStageProcessor(args, backfill_strategy)
+            processor = RawToStageProcessor(args, backfill_strategy, error_handler)
             try:
                 processor.process()
             except NoDataFoundException as e:
@@ -98,12 +99,20 @@ def main():
                 # as no data could be found for backfill, supress the exception
                 logger.info("Exiting without raising error(As no data could be found for backfill)")
 
+        # Write all failed records to S3
+        error_handler.write_failed_records_to_s3()
+        logger.info(f"Total failed records processed: {error_handler.get_failed_record_count()}")
+
     except ValueError as e:
         logger.error("Value Error: %s, Stacktrace: %s", str(e), traceback.format_exc())
+        # Try to write any collected error records before exiting
+        error_handler.write_failed_records_to_s3()
         sys.exit("Exception encountered within main, exiting process")
 
     except Exception as e:
         logger.error("Exception Error: %s, Stacktrace: %s", str(e), traceback.format_exc())
+        # Try to write any collected error records before exiting
+        error_handler.write_failed_records_to_s3()
         sys.exit("Exception encountered within main, exiting process")
 
 

@@ -24,21 +24,34 @@ def add_new_column_from_struct(df, fields):
         and values are the corresponding struct fields to extract.
 
     Returns:
-    DataFrame: A DataFrame with new columns added from struct fields.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
     try:
         if not isinstance(fields, dict):
             raise ValueError("Invalid field list structure provided, require dict object")
 
-        for key, value in fields.items():
-            for item in value:
-                col_name = f"{key}_{item}"
-                df[col_name] = df.apply(
-                    lambda x, k=key, i=item: None if x[k] is None or x[k].get(i) is None or (not x[k].get(i).strip()) else x[k].get(i),
-                    axis=1,
-                )
+        df_copy = df.copy()
+        df_copy["_transformation_error"] = None
+        df_copy["_transformation_success"] = True
 
-        return df
+        def safe_extract(row):
+            try:
+                for key, value in fields.items():
+                    for item in value:
+                        col_name = f"{key}_{item}"
+                        row[col_name] = None if row[key] is None or row[key].get(item) is None or (not row[key].get(item).strip()) else row[key].get(item)
+                return row
+            except Exception as e:
+                row["_transformation_error"] = str(e)
+                row["_transformation_success"] = False
+                return row
+
+        result_df = df_copy.apply(safe_extract, axis=1)
+        success_mask = result_df["_transformation_success"] is True
+        success_df = result_df[success_mask].drop(["_transformation_error", "_transformation_success"], axis=1)
+        error_df = result_df[~success_mask].drop(["_transformation_success"], axis=1)
+
+        return success_df, error_df
     except Exception as e:
         raise OperationFailedException("Error adding new columns from struct: %s", str(e))
 
@@ -52,16 +65,32 @@ def empty_string_to_null(df, fields):
     fields (list): A list of column names where empty strings should be replaced with None.
 
     Returns:
-    DataFrame: A DataFrame with empty strings replaced by None.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
     try:
         if not isinstance(fields, list):
             raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
 
-        for column_name in fields:
-            df[column_name] = df[column_name].apply(lambda x: None if isinstance(x, str) and (x.isspace() or not x) else x)
+        df_copy = df.copy()
+        df_copy["_transformation_error"] = None
+        df_copy["_transformation_success"] = True
 
-        return df
+        def safe_null_transform(row):
+            try:
+                for column_name in fields:
+                    row[column_name] = None if isinstance(row[column_name], str) and (row[column_name].isspace() or not row[column_name]) else row[column_name]
+                return row
+            except Exception as e:
+                row["_transformation_error"] = str(e)
+                row["_transformation_success"] = False
+                return row
+
+        result_df = df_copy.apply(safe_null_transform, axis=1)
+        success_mask = result_df["_transformation_success"] is True
+        success_df = result_df[success_mask].drop(["_transformation_error", "_transformation_success"], axis=1)
+        error_df = result_df[~success_mask].drop(["_transformation_success"], axis=1)
+
+        return success_df, error_df
     except Exception as e:
         raise OperationFailedException("Error replacing empty string with sql nulls: %s", str(e))
 
@@ -75,14 +104,21 @@ def remove_duplicate_rows(df, fields):
     fields (list): A list of column names to consider when identifying duplicates.
 
     Returns:
-    DataFrame: A DataFrame with duplicates removed.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
     try:
         if not isinstance(fields, list):
             raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.drop_duplicates(subset=fields)
+
+        success_df = df.drop_duplicates(subset=fields)
+        error_df = pd.DataFrame()  # No errors expected for this operation
+
+        return success_df, error_df
     except Exception as e:
-        raise OperationFailedException("Error dropping row duplicates: %s", str(e))
+        # If operation fails completely, all records are errors
+        error_df = df.copy()
+        error_df["_transformation_error"] = str(e)
+        return pd.DataFrame(), error_df
 
 
 def remove_rows_missing_mandatory_values(df, fields):
@@ -94,14 +130,23 @@ def remove_rows_missing_mandatory_values(df, fields):
     fields (list): A list of column names with mandatory values.
 
     Returns:
-    DataFrame: A DataFrame with rows containing mandatory values.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
     try:
         if not isinstance(fields, list):
             raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.dropna(subset=fields)
+
+        success_df = df.dropna(subset=fields)
+        error_mask = df[fields].isna().any(axis=1)
+        error_df = df[error_mask].copy()
+        error_df["_transformation_error"] = "Missing mandatory values"
+
+        return success_df, error_df
     except Exception as e:
-        raise OperationFailedException("Error dropping rows missing mandatory field: %s", str(e))
+        # If operation fails completely, all records are errors
+        error_df = df.copy()
+        error_df["_transformation_error"] = str(e)
+        return pd.DataFrame(), error_df
 
 
 def rename_column_names(df, fields):
@@ -113,14 +158,21 @@ def rename_column_names(df, fields):
     fields (dict): A dictionary where keys are old column names, and values are new column names.
 
     Returns:
-    DataFrame: A DataFrame with renamed columns.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
     try:
         if not isinstance(fields, dict):
             raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.rename(columns=fields)
+
+        success_df = df.rename(columns=fields)
+        error_df = pd.DataFrame()  # No errors expected for this operation
+
+        return success_df, error_df
     except Exception as e:
-        raise OperationFailedException("Error renaming columns: %s", str(e))
+        # If operation fails completely, all records are errors
+        error_df = df.copy()
+        error_df["_transformation_error"] = str(e)
+        return pd.DataFrame(), error_df
 
 
 def remove_columns(df, columns, silent):
@@ -230,17 +282,21 @@ class DataPreprocessing:
         fields (dict): A dictionary where keys are new column names, and values are the columns to duplicate.
 
         Returns:
-        DataFrame: A DataFrame with new duplicated columns added.
+        tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
         """
         try:
             if not isinstance(fields, dict):
                 raise ValueError("Invalid field list structure provided, require dict object")
-            for column_name, _value in fields.items():
-                df[column_name] = df[_value]
 
-            return df
+            df_copy = df.copy()
+            for column_name, _value in fields.items():
+                df_copy[column_name] = df_copy[_value]
+
+            return df_copy, pd.DataFrame()
         except Exception as e:
-            raise OperationFailedException("Error adding duplicate column(s): %s", str(e))
+            error_df = df.copy()
+            error_df["_transformation_error"] = str(e)
+            return pd.DataFrame(), error_df
 
     def add_new_column(self, df, fields):
         """
@@ -251,19 +307,24 @@ class DataPreprocessing:
         fields (dict): A dictionary where keys are new column names, and values are their corresponding values.
 
         Returns:
-        DataFrame: A DataFrame with new columns added.
+        tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
         """
         try:
             if not isinstance(fields, dict):
                 raise ValueError("Invalid field list structure provided, require dict object")
+
+            df_copy = df.copy()
             for column_name, _value in fields.items():
                 if column_name == "processed_dt":
-                    df[column_name] = self.processed_dt
+                    df_copy[column_name] = self.processed_dt
                 if column_name == "processed_time":
-                    df[column_name] = self.processed_time
-            return df
+                    df_copy[column_name] = self.processed_time
+
+            return df_copy, pd.DataFrame()
         except Exception as e:
-            raise OperationFailedException("Error adding new columns: %s", str(e))
+            error_df = df.copy()
+            error_df["_transformation_error"] = str(e)
+            return pd.DataFrame(), error_df
 
     def extract_key_values(self, obj, parent_key="", sep=".", field_name=""):
         """

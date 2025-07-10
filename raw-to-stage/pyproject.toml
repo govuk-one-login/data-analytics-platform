@@ -1,3 +1,9 @@
+[project]
+name = "raw-to-stage-etl"
+version = "0.1.0"
+description = "Raw to Stage ETL modules for data analytics platform"
+requires-python = ">=3.10"
+
 [build-system]
 requires = [
     "setuptools>=42",
@@ -10,7 +16,7 @@ line-length = 160
 
 [[tool.mypy.overrides]]
 module = ["untyped_package.*"]
-follow_untyped_imports = true
+ignore_missing_imports = true
 
 [tool.mypy]
 disable_error_code = ["import-untyped"]
