@@ -1,10 +1,10 @@
 """Module to perform preprocessing transformation functions on Pandas dataframe."""
 
+import json
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
-import json
 
 from ..exceptions.no_data_found_exception import NoDataFoundException
 from ..logging.logger import get_logger
@@ -25,23 +25,42 @@ def add_new_column_from_struct(df, fields):
         and values are the corresponding struct fields to extract.
 
     Returns:
-    DataFrame: A DataFrame with new columns added from struct fields.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
     try:
         if not isinstance(fields, dict):
             raise ValueError("Invalid field list structure provided, require dict object")
 
+        error_indices = []
+        error_messages = []
+
+        # Add new columns directly to original df
         for key, value in fields.items():
             for item in value:
                 col_name = f"{key}_{item}"
-                df[col_name] = df.apply(
-                    lambda x, k=key, i=item: None if x[k] is None or x[k].get(i) is None or (not x[k].get(i).strip()) else x[k].get(i),
-                    axis=1,
-                )
+                try:
+                    df[col_name] = df.apply(
+                        lambda x: None if x[key] is None or x[key].get(item) is None or (not x[key].get(item).strip()) else x[key].get(item), axis=1
+                    )
+                except Exception as e:
+                    # Track rows that failed
+                    failed_mask = df[key].isna() | df[key].apply(lambda x: not isinstance(x, dict))
+                    error_indices.extend(df[failed_mask].index.tolist())
+                    error_messages.extend([str(e)] * failed_mask.sum())
 
-        return df
+        # Split into success and error DataFrames
+        if error_indices:
+            error_df = df.loc[error_indices].copy()
+            error_df["_transformation_error"] = error_messages
+            success_df = df.drop(error_indices)
+        else:
+            success_df = df
+            error_df = pd.DataFrame()
+
+        return success_df, error_df
     except Exception as e:
         raise OperationFailedException("Error adding new columns from struct: %s", str(e))
+
 
 def add_new_column_from_string_format(df, fields):
     """
@@ -68,6 +87,7 @@ def add_new_column_from_string_format(df, fields):
     except Exception as e:
         raise OperationFailedException("Error adding new columns from unformatted string: %s", str(e))
 
+
 def empty_string_to_null(df, fields):
     """
     Replace empty strings with None (null) in the specified columns.
@@ -77,16 +97,18 @@ def empty_string_to_null(df, fields):
     fields (list): A list of column names where empty strings should be replaced with None.
 
     Returns:
-    DataFrame: A DataFrame with empty strings replaced by None.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
     try:
         if not isinstance(fields, list):
             raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
 
+        # Use vectorized operations - much faster and no copying
         for column_name in fields:
             df[column_name] = df[column_name].apply(lambda x: None if isinstance(x, str) and (x.isspace() or not x) else x)
 
-        return df
+        # No errors expected for this operation
+        return df, pd.DataFrame()
     except Exception as e:
         raise OperationFailedException("Error replacing empty string with sql nulls: %s", str(e))
 
@@ -100,14 +122,12 @@ def remove_duplicate_rows(df, fields):
     fields (list): A list of column names to consider when identifying duplicates.
 
     Returns:
-    DataFrame: A DataFrame with duplicates removed.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
-    try:
-        if not isinstance(fields, list):
-            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.drop_duplicates(subset=fields)
-    except Exception as e:
-        raise OperationFailedException("Error dropping row duplicates: %s", str(e))
+    if not isinstance(fields, list):
+        raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
+
+    return df.drop_duplicates(subset=fields), pd.DataFrame()
 
 
 def remove_rows_missing_mandatory_values(df, fields):
@@ -119,14 +139,28 @@ def remove_rows_missing_mandatory_values(df, fields):
     fields (list): A list of column names with mandatory values.
 
     Returns:
-    DataFrame: A DataFrame with rows containing mandatory values.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
     try:
         if not isinstance(fields, list):
             raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.dropna(subset=fields)
+
+        # Use boolean indexing - more memory efficient
+        error_mask = df[fields].isna().any(axis=1)
+
+        if error_mask.any():
+            error_df = df[error_mask].copy()
+            error_df["_transformation_error"] = "Missing mandatory values"
+            success_df = df[~error_mask]
+        else:
+            success_df = df
+            error_df = pd.DataFrame()
+
+        return success_df, error_df
     except Exception as e:
-        raise OperationFailedException("Error dropping rows missing mandatory field: %s", str(e))
+        # If operation fails completely, all records are errors
+        error_df = df.assign(_transformation_error=str(e))
+        return pd.DataFrame(), error_df
 
 
 def rename_column_names(df, fields):
@@ -138,14 +172,12 @@ def rename_column_names(df, fields):
     fields (dict): A dictionary where keys are old column names, and values are new column names.
 
     Returns:
-    DataFrame: A DataFrame with renamed columns.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
-    try:
-        if not isinstance(fields, dict):
-            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.rename(columns=fields)
-    except Exception as e:
-        raise OperationFailedException("Error renaming columns: %s", str(e))
+    if not isinstance(fields, dict):
+        raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
+
+    return df.rename(columns=fields), pd.DataFrame()
 
 
 def remove_columns(df, columns, silent):
@@ -255,17 +287,19 @@ class DataPreprocessing:
         fields (dict): A dictionary where keys are new column names, and values are the columns to duplicate.
 
         Returns:
-        DataFrame: A DataFrame with new duplicated columns added.
+        tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
         """
         try:
             if not isinstance(fields, dict):
                 raise ValueError("Invalid field list structure provided, require dict object")
+
             for column_name, _value in fields.items():
                 df[column_name] = df[_value]
 
-            return df
+            return df, pd.DataFrame()
         except Exception as e:
-            raise OperationFailedException("Error adding duplicate column(s): %s", str(e))
+            error_df = df.assign(_transformation_error=str(e))
+            return pd.DataFrame(), error_df
 
     def add_new_column(self, df, fields):
         """
@@ -276,19 +310,22 @@ class DataPreprocessing:
         fields (dict): A dictionary where keys are new column names, and values are their corresponding values.
 
         Returns:
-        DataFrame: A DataFrame with new columns added.
+        tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
         """
         try:
             if not isinstance(fields, dict):
                 raise ValueError("Invalid field list structure provided, require dict object")
+
             for column_name, _value in fields.items():
                 if column_name == "processed_dt":
                     df[column_name] = self.processed_dt
                 if column_name == "processed_time":
-                    df[column_name] = self.processed_time            
-            return df
+                    df[column_name] = self.processed_time
+
+            return df, pd.DataFrame()
         except Exception as e:
-            raise OperationFailedException("Error adding new columns: %s", str(e))
+            error_df = df.assign(_transformation_error=str(e))
+            return pd.DataFrame(), error_df
 
     def extract_key_values(self, obj, parent_key="", sep=".", field_name=""):
         """
@@ -696,10 +733,10 @@ class DataPreprocessing:
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function add_new_column_from_struct: {str(e)}")
 
-
     def parse_string_columns_as_json_by_config(self, json_data, df_raw):
         """
-        Parse columns that are defined as strings into json
+        Parse columns that are defined as strings into json.
+
         Parameters:
         json_data (dict or list): The JSON configuration data.
         df_raw (DataFrame): The raw DataFrame.
@@ -716,7 +753,7 @@ class DataPreprocessing:
             self.logger.info("config rule: data_transformations | parse_json_strings: %s", parse_json_column_list)
 
             for col in parse_json_column_list:
-                df_raw[col] = df_raw[col].apply(lambda x: json.loads(x) if isinstance(x, str) and x.strip().startswith('{') else None)
+                df_raw[col] = df_raw[col].apply(lambda x: json.loads(x) if isinstance(x, str) and x.strip().startswith("{") else None)
 
             if df_raw is None:
                 raise ValueError("Function: parse_json returned None object.")
