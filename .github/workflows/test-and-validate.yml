@@ -11,8 +11,6 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Node setup
         uses: actions/setup-node@v4
         with:
@@ -44,8 +42,6 @@ jobs:
         with:
           repository: govuk-one-login/devplatform-checkov-hook
           token: ${{ secrets.CHECKOUT_REPO_PAT }}
-          path: devplatform-checkov-hook
-          ref: main
       - name: Checkov actions scan
         uses: bridgecrewio/checkov-action@v12
         with:
