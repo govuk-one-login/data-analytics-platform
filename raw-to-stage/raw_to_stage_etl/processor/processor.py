@@ -58,6 +58,7 @@ class RawToStageProcessor:
             # Record the end time
             end_time = time.time()
 
+
             # Calculate the elapsed time in seconds
             elapsed_time = end_time - start_time
 
