@@ -45,7 +45,7 @@ jobs:
           repository: govuk-one-login/devplatform-checkov-hook
           token: ${{ secrets.CHECKOUT_REPO_PAT }}
           path: devplatform-checkov-hook
-          fetch-depth: 0
+          ref: main
       - name: Checkov actions scan
         uses: bridgecrewio/checkov-action@v12
         with:
