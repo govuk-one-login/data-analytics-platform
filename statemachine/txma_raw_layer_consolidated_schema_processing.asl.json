@@ -23,77 +23,11 @@
           "Next": "RunningInstanceDetected"
         }
       ],
-      "Default": "StartRawCrawler"
+      "Default": "RawToStageGlueStartJobRun"
     },
     "RunningInstanceDetected": {
       "Type": "Fail",
       "Error": "RunningInstanceDetected"
-    },
-    "StartRawCrawler": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
-      "Parameters": {
-        "Name": "${GlueCrawlerRawName}"
-      },
-      "Next": "MonitorRawCrawlerStatus",
-      "ResultPath": "$.rawCrawlerResult",
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Glue.AWSGlueException",
-            "Glue.GlueException"
-          ],
-          "BackoffRate": 2,
-          "IntervalSeconds": 10,
-          "MaxAttempts": 3
-        }
-      ]
-    },
-    "MonitorRawCrawlerStatus": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::aws-sdk:glue:getCrawler",
-      "Parameters": {
-        "Name": "${GlueCrawlerRawName}"
-      },
-      "ResultPath": "$.crawlerRawStatus",
-      "Next": "CheckRawCrawlerStatus"
-    },
-    "CheckRawCrawlerStatus": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.crawlerRawStatus.Crawler.State",
-          "StringEquals": "READY",
-          "Next": "RawCrawlerFinished"
-        },
-        {
-          "Or": [
-            {
-              "Variable": "$.crawlerRawStatus.Crawler.State",
-              "StringEquals": "RUNNING"
-            },
-            {
-              "Variable": "$.crawlerRawStatus.Crawler.State",
-              "StringEquals": "STOPPING"
-            },
-            {
-              "Variable": "$.crawlerRawStatus.Crawler.State",
-              "StringEquals": "STARTED"
-            }
-          ],
-          "Next": "WaitForRawCrawler"
-        }
-      ],
-      "Default": "CrawlerFailed"
-    },
-    "WaitForRawCrawler": {
-      "Type": "Wait",
-      "Seconds": 30,
-      "Next": "MonitorRawCrawlerStatus"
-    },
-    "RawCrawlerFinished": {
-      "Type": "Pass",
-      "Next": "RawToStageGlueStartJobRun"
     },
     "RawToStageGlueStartJobRun": {
       "Type": "Task",
@@ -137,11 +71,6 @@
     "StopProcessing": {
       "Type": "Pass",
       "End": true
-    },
-    "CrawlerFailed": {
-      "Type": "Fail",
-      "Error": "CrawlerFailed",
-      "Cause": "The Glue crawler execution failed."
     }
   }
 }

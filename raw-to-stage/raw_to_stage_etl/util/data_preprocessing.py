@@ -4,6 +4,7 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
+import json
 
 from ..exceptions.no_data_found_exception import NoDataFoundException
 from ..logging.logger import get_logger
@@ -42,6 +43,30 @@ def add_new_column_from_struct(df, fields):
     except Exception as e:
         raise OperationFailedException("Error adding new columns from struct: %s", str(e))
 
+def add_new_column_from_string_format(df, fields):
+    """
+    Create new columns from formatted string column in the DataFrame.
+
+    Parameters:
+    df (DataFrame): The input DataFrame.
+    fields (dict): A dictionary where keys are raw column names which contain unformatted string values
+    and the value is a dictionary of keys with new column names and the corresponding regex to extract from the original
+    data frame
+
+    Returns:
+    DataFrame: A DataFrame with new columns added from unformatted fields.
+    """
+    try:
+        if not isinstance(fields, dict):
+            raise ValueError("Invalid field list structure provided, require dict object")
+
+        for col, mappings in fields.items():
+            for new_col, pattern in mappings.items():
+                df[new_col] = df[col].str.extract(pattern)
+
+        return df
+    except Exception as e:
+        raise OperationFailedException("Error adding new columns from unformatted string: %s", str(e))
 
 def empty_string_to_null(df, fields):
     """
@@ -260,7 +285,7 @@ class DataPreprocessing:
                 if column_name == "processed_dt":
                     df[column_name] = self.processed_dt
                 if column_name == "processed_time":
-                    df[column_name] = self.processed_time
+                    df[column_name] = self.processed_time            
             return df
         except Exception as e:
             raise OperationFailedException("Error adding new columns: %s", str(e))
@@ -670,3 +695,67 @@ class DataPreprocessing:
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function add_new_column_from_struct: {str(e)}")
+
+
+    def parse_string_columns_as_json_by_config(self, json_data, df_raw):
+        """
+        Parse columns that are defined as strings into json
+        Parameters:
+        json_data (dict or list): The JSON configuration data.
+        df_raw (DataFrame): The raw DataFrame.
+        Returns:
+        DataFrame: The DataFrame with empty strings replaced by None.
+        """
+        try:
+            if not isinstance(json_data, (dict, list)):
+                raise ValueError(INVALID_JSON_ERROR)
+
+            parse_json_column_list = extract_element_by_name(json_data, "parse_json_list", "data_transformations")
+            if parse_json_column_list is None:
+                raise ValueError("parse_json_list value for data_cleaning is not found within config rules")
+            self.logger.info("config rule: data_transformations | parse_json_strings: %s", parse_json_column_list)
+
+            for col in parse_json_column_list:
+                df_raw[col] = df_raw[col].apply(lambda x: json.loads(x) if isinstance(x, str) and x.strip().startswith('{') else None)
+
+            if df_raw is None:
+                raise ValueError("Function: parse_json returned None object.")
+            elif df_raw.empty:
+                raise ValueError("No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
+
+            return df_raw
+
+        except Exception as e:
+            raise OperationFailedException(f"Exception Error within function parse_json: {str(e)}")
+
+    def add_new_column_from_formatted_string_by_json_config(self, json_data, df_raw):
+        """
+        Create new columns from string fields in a DataFrame based on JSON configuration.
+
+        Parameters:
+        json_data (dict or list): The JSON configuration data.
+        df_raw (DataFrame): The raw DataFrame.
+
+        Returns:
+        DataFrame: The DataFrame with new columns added from struct fields.
+        """
+        try:
+            if not isinstance(json_data, (dict, list)):
+                raise ValueError(INVALID_JSON_ERROR)
+
+            data_transformations_new_column_string_extract = extract_element_by_name(json_data, "new_column_string_extract", "data_transformations")
+            if data_transformations_new_column_string_extract is None:
+                raise ValueError("new_column_string_extract value for data_transformations is not found within config rules")
+            self.logger.info("config rule: data_transformations | new_column_string_extract: %s", data_transformations_new_column_string_extract)
+
+            df_raw = add_new_column_from_string_format(df_raw, data_transformations_new_column_string_extract)
+
+            if df_raw is None:
+                raise ValueError("Function: data_transformations_new_column_string_extract returned None object.")
+            elif df_raw.empty:
+                raise ValueError("No raw records returned for processing following adding of new columns from string format. Program is stopping.")
+
+            return df_raw
+
+        except Exception as e:
+            raise OperationFailedException(f"Exception Error within function add_new_column_from_string_format: {str(e)}")
