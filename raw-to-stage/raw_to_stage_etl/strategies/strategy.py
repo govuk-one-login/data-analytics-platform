@@ -146,6 +146,8 @@ class Strategy(ABC):
             df_raw_col_names_original,
         )
 
+        df_key_values = df_key_values[~((df_key_values["value"].isna()) | (df_key_values["value"] == "null"))]
+
         self.logger.info("rows to be ingested into the Stage layer key/value table from dataframe df_key_values: %s", len(df_key_values))
         stage_key_rows_inserted = int(len(df_key_values))
 
