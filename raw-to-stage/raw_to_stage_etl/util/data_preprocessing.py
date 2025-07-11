@@ -1,15 +1,15 @@
 """Module to perform preprocessing transformation functions on Pandas dataframe."""
 
-import json
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
+import json
 
-from .exceptions.util_exceptions import OperationFailedException
-from .json_config_processing_utilities import extract_element_by_name
 from ..exceptions.no_data_found_exception import NoDataFoundException
 from ..logging.logger import get_logger
+from .exceptions.util_exceptions import OperationFailedException
+from .json_config_processing_utilities import extract_element_by_name
 
 INVALID_FIELD_LIST_STRUCTURE = "Invalid field list structure provided, require list object"
 INVALID_JSON_ERROR = "Invalid JSON data provided"
@@ -35,15 +35,13 @@ def add_new_column_from_struct(df, fields):
             for item in value:
                 col_name = f"{key}_{item}"
                 df[col_name] = df.apply(
-                    lambda x, k=key, i=item: None if x[k] is None or x[k].get(i) is None or (
-                        not x[k].get(i).strip()) else x[k].get(i),
+                    lambda x, k=key, i=item: None if x[k] is None or x[k].get(i) is None or (not x[k].get(i).strip()) else x[k].get(i),
                     axis=1,
                 )
 
         return df
     except Exception as e:
         raise OperationFailedException("Error adding new columns from struct: %s", str(e))
-
 
 def add_new_column_from_string_format(df, fields):
     """
@@ -70,7 +68,6 @@ def add_new_column_from_string_format(df, fields):
     except Exception as e:
         raise OperationFailedException("Error adding new columns from unformatted string: %s", str(e))
 
-
 def empty_string_to_null(df, fields):
     """
     Replace empty strings with None (null) in the specified columns.
@@ -87,8 +84,7 @@ def empty_string_to_null(df, fields):
             raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
 
         for column_name in fields:
-            df[column_name] = df[column_name].apply(
-                lambda x: None if isinstance(x, str) and (x.isspace() or not x) else x)
+            df[column_name] = df[column_name].apply(lambda x: None if isinstance(x, str) and (x.isspace() or not x) else x)
 
         return df
     except Exception as e:
@@ -369,15 +365,13 @@ class DataPreprocessing:
             for column_name in fields:
                 df_key_value = df.apply(
                     lambda row, col=column_name: (
-                        [(row["event_id"], col, key, value) for key, value in
-                         self.extract_key_values(row[col], field_name=col)] if pd.notna(row[col]) else []
+                        [(row["event_id"], col, key, value) for key, value in self.extract_key_values(row[col], field_name=col)] if pd.notna(row[col]) else []
                     ),
                     axis=1,
                 )
                 dfs.append(df_key_value)
 
-            self.logger.info("class: DataPreprocessing | method=generate_key_value_records | dfs row count: %s",
-                             len(dfs))
+            self.logger.info("class: DataPreprocessing | method=generate_key_value_records | dfs row count: %s", len(dfs))
 
             key_value_pairs = pd.concat(dfs, ignore_index=True)
 
@@ -429,11 +423,9 @@ class DataPreprocessing:
                 "data_transformations",
             )
             if data_transformations_key_value_cols_exclusion_list is None:
-                raise ValueError(
-                    "generate_key_value_records value for data_transformations is not found within config rules")
+                raise ValueError("generate_key_value_records value for data_transformations is not found within config rules")
             self.logger.info(
-                "config rule: data_transformations | key_value_record_generation_column_exclusion_list: %s",
-                data_transformations_key_value_cols_exclusion_list
+                "config rule: data_transformations | key_value_record_generation_column_exclusion_list: %s", data_transformations_key_value_cols_exclusion_list
             )
 
             # Extract column names as list
@@ -442,8 +434,7 @@ class DataPreprocessing:
             # Generate a set of column names to generate key/value record(s)
             # Logic: df_raw original column names minus the key/value exclusion columns list
             #        convert set to list object to aid processing
-            process_columns_set = set(df_raw_col_names_original) - set(
-                data_transformations_key_value_cols_exclusion_list)
+            process_columns_set = set(df_raw_col_names_original) - set(data_transformations_key_value_cols_exclusion_list)
             process_columns_list = list(process_columns_set)
             self.logger.info("key/value records to be created for the following columns: %s", process_columns_list)
 
@@ -498,21 +489,16 @@ class DataPreprocessing:
             if not isinstance(json_data, (dict, list)):
                 raise ValueError(INVALID_JSON_ERROR)
 
-            data_cleaning_duplicate_row_removal_criteria_fields = extract_element_by_name(json_data,
-                                                                                          "duplicate_row_removal_criteria_fields",
-                                                                                          "data_cleaning")
+            data_cleaning_duplicate_row_removal_criteria_fields = extract_element_by_name(json_data, "duplicate_row_removal_criteria_fields", "data_cleaning")
             if data_cleaning_duplicate_row_removal_criteria_fields is None:
-                raise ValueError(
-                    "duplicate_row_removal_criteria_fields value for data_cleaning is not found within config rules")
-            self.logger.info("config rule: data_cleaning | duplicate_row_removal_criteria_fields: %s",
-                             data_cleaning_duplicate_row_removal_criteria_fields)
+                raise ValueError("duplicate_row_removal_criteria_fields value for data_cleaning is not found within config rules")
+            self.logger.info("config rule: data_cleaning | duplicate_row_removal_criteria_fields: %s", data_cleaning_duplicate_row_removal_criteria_fields)
 
             df_raw = remove_duplicate_rows(df_raw, data_cleaning_duplicate_row_removal_criteria_fields)
             if df_raw is None:
                 raise ValueError("Function: remove_duplicate_rows returned None object")
             elif df_raw.empty:
-                raise ValueError(
-                    "No raw records returned for processing following duplicate row removal. Program is stopping.")
+                raise ValueError("No raw records returned for processing following duplicate row removal. Program is stopping.")
             return df_raw
 
         except Exception as e:
@@ -533,27 +519,21 @@ class DataPreprocessing:
             if not isinstance(json_data, (dict, list)):
                 raise ValueError(INVALID_JSON_ERROR)
 
-            data_cleaning_mandatory_row_removal_criteria_fields = extract_element_by_name(json_data,
-                                                                                          "mandatory_row_removal_criteria_fields",
-                                                                                          "data_cleaning")
+            data_cleaning_mandatory_row_removal_criteria_fields = extract_element_by_name(json_data, "mandatory_row_removal_criteria_fields", "data_cleaning")
             if data_cleaning_mandatory_row_removal_criteria_fields is None:
-                raise ValueError(
-                    "mandatory_row_removal_criteria_fields value for data_cleaning is not found within config rules")
-            self.logger.info("config rule: data_cleaning | mandatory_row_removal_criteria_fields: %s",
-                             data_cleaning_mandatory_row_removal_criteria_fields)
+                raise ValueError("mandatory_row_removal_criteria_fields value for data_cleaning is not found within config rules")
+            self.logger.info("config rule: data_cleaning | mandatory_row_removal_criteria_fields: %s", data_cleaning_mandatory_row_removal_criteria_fields)
 
             df_raw = remove_rows_missing_mandatory_values(df_raw, data_cleaning_mandatory_row_removal_criteria_fields)
             if df_raw is None:
                 raise ValueError("Function: remove_rows_missing_mandatory_values returned None object")
             elif df_raw.empty:
-                raise ValueError(
-                    "No raw records returned for processing following missing mandatory fields row removal. Program is stopping.")
+                raise ValueError("No raw records returned for processing following missing mandatory fields row removal. Program is stopping.")
 
             return df_raw
 
         except Exception as e:
-            raise OperationFailedException(
-                f"Exception Error within function remove_rows_missing_mandatory_values: {str(e)}")
+            raise OperationFailedException(f"Exception Error within function remove_rows_missing_mandatory_values: {str(e)}")
 
     def rename_column_names_by_json_config(self, json_data, df_raw):
         """
@@ -570,21 +550,18 @@ class DataPreprocessing:
             if not isinstance(json_data, (dict, list)):
                 raise ValueError(INVALID_JSON_ERROR)
 
-            data_transformations_rename_column = extract_element_by_name(json_data, "rename_column",
-                                                                         "data_transformations")
+            data_transformations_rename_column = extract_element_by_name(json_data, "rename_column", "data_transformations")
             if data_transformations_rename_column is None:
                 self.logger.info("rename_column value for data_transformations is not found within config rules")
                 return df_raw
-            self.logger.info("config rule: data_transformations | rename_column: %s",
-                             data_transformations_rename_column)
+            self.logger.info("config rule: data_transformations | rename_column: %s", data_transformations_rename_column)
 
             df_raw = rename_column_names(df_raw, data_transformations_rename_column)
 
             if df_raw is None:
                 raise ValueError("Function: rename_column_names returned None object.")
             elif df_raw.empty:
-                raise ValueError(
-                    "No raw records returned for processing following rename of columns. Program is stopping.")
+                raise ValueError("No raw records returned for processing following rename of columns. Program is stopping.")
 
             return df_raw
 
@@ -606,20 +583,17 @@ class DataPreprocessing:
             if not isinstance(json_data, (dict, list)):
                 raise ValueError(INVALID_JSON_ERROR)
 
-            data_transformations_dup_column = extract_element_by_name(json_data, "duplicate_column",
-                                                                      "data_transformations")
+            data_transformations_dup_column = extract_element_by_name(json_data, "duplicate_column", "data_transformations")
             if data_transformations_dup_column is None:
                 raise ValueError("duplicate_column value for data_transformations is not found within config rules")
-            self.logger.info("config rule: data_transformations | duplicate_column: %s",
-                             data_transformations_dup_column)
+            self.logger.info("config rule: data_transformations | duplicate_column: %s", data_transformations_dup_column)
 
             df_raw = self.add_duplicate_column(df_raw, data_transformations_dup_column)
 
             if df_raw is None:
                 raise ValueError("Function: add_duplicate_column returned None object.")
             elif df_raw.empty:
-                raise ValueError(
-                    "No raw records returned for processing following adding of new duplicate columns. Program is stopping.")
+                raise ValueError("No raw records returned for processing following adding of new duplicate columns. Program is stopping.")
 
             return df_raw
 
@@ -651,8 +625,7 @@ class DataPreprocessing:
             if df_raw is None:
                 raise ValueError("Function: add_new_column returned None object.")
             elif df_raw.empty:
-                raise ValueError(
-                    "No raw records returned for processing following adding of new columns. Program is stopping.")
+                raise ValueError("No raw records returned for processing following adding of new columns. Program is stopping.")
 
             return df_raw
 
@@ -674,22 +647,17 @@ class DataPreprocessing:
             if not isinstance(json_data, (dict, list)):
                 raise ValueError(INVALID_JSON_ERROR)
 
-            data_transformations_new_column_struct_extract = extract_element_by_name(json_data,
-                                                                                     "new_column_struct_extract",
-                                                                                     "data_transformations")
+            data_transformations_new_column_struct_extract = extract_element_by_name(json_data, "new_column_struct_extract", "data_transformations")
             if data_transformations_new_column_struct_extract is None:
-                raise ValueError(
-                    "new_column_struct_extract value for data_transformations is not found within config rules")
-            self.logger.info("config rule: data_transformations | new_column_struct_extract: %s",
-                             data_transformations_new_column_struct_extract)
+                raise ValueError("new_column_struct_extract value for data_transformations is not found within config rules")
+            self.logger.info("config rule: data_transformations | new_column_struct_extract: %s", data_transformations_new_column_struct_extract)
 
             df_raw = add_new_column_from_struct(df_raw, data_transformations_new_column_struct_extract)
 
             if df_raw is None:
                 raise ValueError("Function: add_new_column_from_struct returned None object.")
             elif df_raw.empty:
-                raise ValueError(
-                    "No raw records returned for processing following adding of new columns from struct. Program is stopping.")
+                raise ValueError("No raw records returned for processing following adding of new columns from struct. Program is stopping.")
 
             return df_raw
 
@@ -711,25 +679,23 @@ class DataPreprocessing:
             if not isinstance(json_data, (dict, list)):
                 raise ValueError(INVALID_JSON_ERROR)
 
-            data_cleaning_empty_string_replacement = extract_element_by_name(json_data, "empty_string_replacement",
-                                                                             "data_cleaning")
+            data_cleaning_empty_string_replacement = extract_element_by_name(json_data, "empty_string_replacement", "data_cleaning")
             if data_cleaning_empty_string_replacement is None:
                 raise ValueError("empty_string_replacement value for data_cleaning is not found within config rules")
-            self.logger.info("config rule: data_cleaning | empty_string_replacement: %s",
-                             data_cleaning_empty_string_replacement)
+            self.logger.info("config rule: data_cleaning | empty_string_replacement: %s", data_cleaning_empty_string_replacement)
 
             df_raw = empty_string_to_null(df_raw, data_cleaning_empty_string_replacement)
 
             if df_raw is None:
                 raise ValueError("Function: empty_string_to_null returned None object.")
             elif df_raw.empty:
-                raise ValueError(
-                    "No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
+                raise ValueError("No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
 
             return df_raw
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function add_new_column_from_struct: {str(e)}")
+
 
     def parse_string_columns_as_json_by_config(self, json_data, df_raw):
         """
@@ -749,23 +715,13 @@ class DataPreprocessing:
                 raise ValueError("parse_json_list value for data_cleaning is not found within config rules")
             self.logger.info("config rule: data_transformations | parse_json_strings: %s", parse_json_column_list)
 
-            def parse_json_value(x):
-                if isinstance(x, str):
-                    x_stripped = x.strip()
-                    if x_stripped.startswith('{'):
-                        return json.loads(x)
-                    elif x_stripped.lower() == 'null':
-                        return None
-                return x
-            
             for col in parse_json_column_list:
-                df_raw[col] = df_raw[col].apply(parse_json_value)
+                df_raw[col] = df_raw[col].apply(lambda x: json.loads(x) if isinstance(x, str) and x.strip().startswith('{') else None)
 
             if df_raw is None:
                 raise ValueError("Function: parse_json returned None object.")
             elif df_raw.empty:
-                raise ValueError(
-                    "No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
+                raise ValueError("No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
 
             return df_raw
 
@@ -787,25 +743,19 @@ class DataPreprocessing:
             if not isinstance(json_data, (dict, list)):
                 raise ValueError(INVALID_JSON_ERROR)
 
-            data_transformations_new_column_string_extract = extract_element_by_name(json_data,
-                                                                                     "new_column_string_extract",
-                                                                                     "data_transformations")
+            data_transformations_new_column_string_extract = extract_element_by_name(json_data, "new_column_string_extract", "data_transformations")
             if data_transformations_new_column_string_extract is None:
-                raise ValueError(
-                    "new_column_string_extract value for data_transformations is not found within config rules")
-            self.logger.info("config rule: data_transformations | new_column_string_extract: %s",
-                             data_transformations_new_column_string_extract)
+                raise ValueError("new_column_string_extract value for data_transformations is not found within config rules")
+            self.logger.info("config rule: data_transformations | new_column_string_extract: %s", data_transformations_new_column_string_extract)
 
             df_raw = add_new_column_from_string_format(df_raw, data_transformations_new_column_string_extract)
 
             if df_raw is None:
                 raise ValueError("Function: data_transformations_new_column_string_extract returned None object.")
             elif df_raw.empty:
-                raise ValueError(
-                    "No raw records returned for processing following adding of new columns from string format. Program is stopping.")
+                raise ValueError("No raw records returned for processing following adding of new columns from string format. Program is stopping.")
 
             return df_raw
 
         except Exception as e:
-            raise OperationFailedException(
-                f"Exception Error within function add_new_column_from_string_format: {str(e)}")
+            raise OperationFailedException(f"Exception Error within function add_new_column_from_string_format: {str(e)}")
