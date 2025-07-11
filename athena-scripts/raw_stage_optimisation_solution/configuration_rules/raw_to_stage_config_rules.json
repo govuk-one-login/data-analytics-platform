@@ -1,7 +1,7 @@
 {
   "event_record_selection": {
     "event_processing_selection_criteria": {
-      "filter": "cast(concat(substr(datecreated, 6,4),substr(datecreated, 17, 2),substr(datecreated, 24, 2)) as int) >= processed_dt AND cast(timestamp as int) > replace_timestamp",
+      "filter": "CAST(concat(year, month, day) AS INT) >= processed_dt AND CAST(timestamp as INT) > replace_timestamp",
       "limit": 0
     },
     "event_processing_testing_criteria": {

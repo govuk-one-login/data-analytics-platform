@@ -152,6 +152,23 @@ SplunkPerformanceIndexSecret:
     Name: !Sub ${Environment}-SplunkPerformanceIndexSecret
     SecretString: '{"username":"xxx","password":"xxx"}'
 
+RawLayerSingleTableCrawler:
+  Type: AWS::Glue::Crawler
+  Properties:
+    Name: txma_raw_layer_events_schema_combined
+    Role: !GetAtt RawGlueCrawlerRole.Arn
+    Targets:
+      S3Targets:
+        - Path: !Sub 's3://${RawLayerBucket}/txma-refactored/'
+    DatabaseName: !Ref RawGlueDatabase
+    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    RecrawlPolicy:
+      RecrawlBehavior: CRAWL_EVERYTHING
+    SchemaChangePolicy:
+      UpdateBehavior: UPDATE_IN_DATABASE
+      DeleteBehavior: LOG
+    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"},"Tables":{"AddOrUpdateBehavior":"MergeNewColumns"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
+    
 TxmaRefactoredTable:
   Type: AWS::Glue::Table
   Properties:
