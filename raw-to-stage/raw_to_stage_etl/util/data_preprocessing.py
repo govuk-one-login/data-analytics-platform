@@ -73,19 +73,16 @@ def add_new_column_from_string_format(df, fields):
     data frame
 
     Returns:
-    DataFrame: A DataFrame with new columns added from unformatted fields.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
-    try:
-        if not isinstance(fields, dict):
-            raise ValueError("Invalid field list structure provided, require dict object")
+    if not isinstance(fields, dict):
+        raise ValueError("Invalid field list structure provided, require dict object")
 
-        for col, mappings in fields.items():
-            for new_col, pattern in mappings.items():
-                df[new_col] = df[col].str.extract(pattern)
+    for col, mappings in fields.items():
+        for new_col, pattern in mappings.items():
+            df[new_col] = df[col].str.extract(pattern)
 
-        return df
-    except Exception as e:
-        raise OperationFailedException("Error adding new columns from unformatted string: %s", str(e))
+    return df, pd.DataFrame()
 
 
 def empty_string_to_null(df, fields):
@@ -531,12 +528,7 @@ class DataPreprocessing:
                 raise ValueError("duplicate_row_removal_criteria_fields value for data_cleaning is not found within config rules")
             self.logger.info("config rule: data_cleaning | duplicate_row_removal_criteria_fields: %s", data_cleaning_duplicate_row_removal_criteria_fields)
 
-            df_raw = remove_duplicate_rows(df_raw, data_cleaning_duplicate_row_removal_criteria_fields)
-            if df_raw is None:
-                raise ValueError("Function: remove_duplicate_rows returned None object")
-            elif df_raw.empty:
-                raise ValueError("No raw records returned for processing following duplicate row removal. Program is stopping.")
-            return df_raw
+            return remove_duplicate_rows(df_raw, data_cleaning_duplicate_row_removal_criteria_fields)
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function remove_row_duplicates: {str(e)}")
@@ -561,13 +553,7 @@ class DataPreprocessing:
                 raise ValueError("mandatory_row_removal_criteria_fields value for data_cleaning is not found within config rules")
             self.logger.info("config rule: data_cleaning | mandatory_row_removal_criteria_fields: %s", data_cleaning_mandatory_row_removal_criteria_fields)
 
-            df_raw = remove_rows_missing_mandatory_values(df_raw, data_cleaning_mandatory_row_removal_criteria_fields)
-            if df_raw is None:
-                raise ValueError("Function: remove_rows_missing_mandatory_values returned None object")
-            elif df_raw.empty:
-                raise ValueError("No raw records returned for processing following missing mandatory fields row removal. Program is stopping.")
-
-            return df_raw
+            return remove_rows_missing_mandatory_values(df_raw, data_cleaning_mandatory_row_removal_criteria_fields)
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function remove_rows_missing_mandatory_values: {str(e)}")
@@ -593,14 +579,7 @@ class DataPreprocessing:
                 return df_raw
             self.logger.info("config rule: data_transformations | rename_column: %s", data_transformations_rename_column)
 
-            df_raw = rename_column_names(df_raw, data_transformations_rename_column)
-
-            if df_raw is None:
-                raise ValueError("Function: rename_column_names returned None object.")
-            elif df_raw.empty:
-                raise ValueError("No raw records returned for processing following rename of columns. Program is stopping.")
-
-            return df_raw
+            return rename_column_names(df_raw, data_transformations_rename_column)
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function rename_column_names: {str(e)}")
@@ -625,14 +604,7 @@ class DataPreprocessing:
                 raise ValueError("duplicate_column value for data_transformations is not found within config rules")
             self.logger.info("config rule: data_transformations | duplicate_column: %s", data_transformations_dup_column)
 
-            df_raw = self.add_duplicate_column(df_raw, data_transformations_dup_column)
-
-            if df_raw is None:
-                raise ValueError("Function: add_duplicate_column returned None object.")
-            elif df_raw.empty:
-                raise ValueError("No raw records returned for processing following adding of new duplicate columns. Program is stopping.")
-
-            return df_raw
+            return self.add_duplicate_column(df_raw, data_transformations_dup_column)
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function duplicate_column_by_json_config: {str(e)}")
@@ -657,14 +629,7 @@ class DataPreprocessing:
                 raise ValueError("new_column value for data_transformations is not found within config rules")
             self.logger.info("config rule: data_transformations | new_column: %s", data_transformations_new_column)
 
-            df_raw = self.add_new_column(df_raw, data_transformations_new_column)
-
-            if df_raw is None:
-                raise ValueError("Function: add_new_column returned None object.")
-            elif df_raw.empty:
-                raise ValueError("No raw records returned for processing following adding of new columns. Program is stopping.")
-
-            return df_raw
+            return self.add_new_column(df_raw, data_transformations_new_column)
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function rename_column_names: {str(e)}")
@@ -689,14 +654,7 @@ class DataPreprocessing:
                 raise ValueError("new_column_struct_extract value for data_transformations is not found within config rules")
             self.logger.info("config rule: data_transformations | new_column_struct_extract: %s", data_transformations_new_column_struct_extract)
 
-            df_raw = add_new_column_from_struct(df_raw, data_transformations_new_column_struct_extract)
-
-            if df_raw is None:
-                raise ValueError("Function: add_new_column_from_struct returned None object.")
-            elif df_raw.empty:
-                raise ValueError("No raw records returned for processing following adding of new columns from struct. Program is stopping.")
-
-            return df_raw
+            return add_new_column_from_struct(df_raw, data_transformations_new_column_struct_extract)
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function add_new_column_from_struct: {str(e)}")
@@ -721,14 +679,7 @@ class DataPreprocessing:
                 raise ValueError("empty_string_replacement value for data_cleaning is not found within config rules")
             self.logger.info("config rule: data_cleaning | empty_string_replacement: %s", data_cleaning_empty_string_replacement)
 
-            df_raw = empty_string_to_null(df_raw, data_cleaning_empty_string_replacement)
-
-            if df_raw is None:
-                raise ValueError("Function: empty_string_to_null returned None object.")
-            elif df_raw.empty:
-                raise ValueError("No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
-
-            return df_raw
+            return empty_string_to_null(df_raw, data_cleaning_empty_string_replacement)
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function add_new_column_from_struct: {str(e)}")
@@ -785,14 +736,7 @@ class DataPreprocessing:
                 raise ValueError("new_column_string_extract value for data_transformations is not found within config rules")
             self.logger.info("config rule: data_transformations | new_column_string_extract: %s", data_transformations_new_column_string_extract)
 
-            df_raw = add_new_column_from_string_format(df_raw, data_transformations_new_column_string_extract)
-
-            if df_raw is None:
-                raise ValueError("Function: data_transformations_new_column_string_extract returned None object.")
-            elif df_raw.empty:
-                raise ValueError("No raw records returned for processing following adding of new columns from string format. Program is stopping.")
-
-            return df_raw
+            return add_new_column_from_string_format(df_raw, data_transformations_new_column_string_extract)
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function add_new_column_from_string_format: {str(e)}")

@@ -65,37 +65,63 @@ class Strategy(ABC):
         if not isinstance(df_raw, pd.DataFrame) or df_raw.empty:
             raise NoDataFoundException("No raw records returned for processing. Program is stopping.")
 
-        # Initialize error collection wrapper
-        from ..util.data_preprocessing_wrapper import DataPreprocessingWrapper
+        # Collect all error DataFrames
+        all_errors = []
 
-        preprocessing_wrapper = DataPreprocessingWrapper(self.preprocessing)
+        # Remove columns and collect errors
+        df_stage, error_df = self.preprocessing.remove_columns_by_json_config(self.config_data, df_raw)
+        if not error_df.empty:
+            all_errors.append(error_df)
 
-        # Use wrapper methods that collect errors
-        df_stage = preprocessing_wrapper.remove_columns_by_json_config_with_errors(self.config_data, df_raw)
-        df_stage = preprocessing_wrapper.remove_row_duplicates_with_errors(self.config_data, df_stage)
+        # Remove duplicates and collect errors
+        df_stage, error_df = self.preprocessing.remove_row_duplicates(self.config_data, df_stage)
+        if not error_df.empty:
+            all_errors.append(error_df)
 
         df_raw_row_count = int(len(df_raw))
         df_raw_post_deduplication_row_count = int(len(df_stage))
         duplicate_rows_removed = df_raw_row_count - df_raw_post_deduplication_row_count
 
         # Remove rows with missing mandatory field values
-        df_stage = preprocessing_wrapper.remove_rows_missing_mandatory_values_by_json_config_with_errors(self.config_data, df_stage)
+        df_stage, error_df = self.preprocessing.remove_rows_missing_mandatory_values_by_json_config(self.config_data, df_stage)
+        if not error_df.empty:
+            all_errors.append(error_df)
 
         # Extract a list of column names from the original df_raw dataframe
         df_raw_col_names_original = list(df_stage.columns)
 
-        # Use existing methods for operations not yet wrapped
+        # Parse JSON columns (returns single DataFrame)
         df_stage = self.preprocessing.parse_string_columns_as_json_by_config(self.config_data, df_stage)
-        df_stage = preprocessing_wrapper.rename_column_names_by_json_config_with_errors(self.config_data, df_stage)
-        df_stage = preprocessing_wrapper.add_new_column_by_json_config_with_errors(self.config_data, df_stage)
-        df_stage = preprocessing_wrapper.add_new_column_from_struct_by_json_config_with_errors(self.config_data, df_stage)
 
-        # Use existing method for formatted string (not yet wrapped)
-        df_stage = self.preprocessing.add_new_column_from_formatted_string_by_json_config(self.config_data, df_stage)
+        # Rename columns and collect errors
+        df_stage, error_df = self.preprocessing.rename_column_names_by_json_config(self.config_data, df_stage)
+        if not error_df.empty:
+            all_errors.append(error_df)
 
-        # Empty string replacement with sql null
-        df_stage = preprocessing_wrapper.empty_string_to_null_by_json_config_with_errors(self.config_data, df_stage)
-        df_stage = preprocessing_wrapper.duplicate_column_by_json_config_with_errors(self.config_data, df_stage)
+        # Add new columns and collect errors
+        df_stage, error_df = self.preprocessing.add_new_column_by_json_config(self.config_data, df_stage)
+        if not error_df.empty:
+            all_errors.append(error_df)
+
+        # Add columns from struct and collect errors
+        df_stage, error_df = self.preprocessing.add_new_column_from_struct_by_json_config(self.config_data, df_stage)
+        if not error_df.empty:
+            all_errors.append(error_df)
+
+        # Add columns from formatted string and collect errors
+        df_stage, error_df = self.preprocessing.add_new_column_from_formatted_string_by_json_config(self.config_data, df_stage)
+        if not error_df.empty:
+            all_errors.append(error_df)
+
+        # Empty string replacement and collect errors
+        df_stage, error_df = self.preprocessing.empty_string_to_null_by_json_config(self.config_data, df_stage)
+        if not error_df.empty:
+            all_errors.append(error_df)
+
+        # Duplicate columns and collect errors
+        df_stage, error_df = self.preprocessing.duplicate_column_by_json_config(self.config_data, df_stage)
+        if not error_df.empty:
+            all_errors.append(error_df)
 
         if self.ROW_NUM in df_raw_col_names_original:
             df_raw_col_names_original.remove(self.ROW_NUM)
@@ -129,10 +155,13 @@ class Strategy(ABC):
         stage_select_col_names_list = list(stage_schema_columns.keys())
         df_stage = df_stage[stage_select_col_names_list]
 
-        # Get all collected errors
-        error_df = preprocessing_wrapper.get_all_errors()
+        # Combine all error DataFrames
+        if all_errors:
+            combined_error_df = pd.concat(all_errors, ignore_index=True)
+        else:
+            combined_error_df = pd.DataFrame()
 
-        return df_stage, df_key_values, error_df, duplicate_rows_removed, stage_table_rows_to_be_inserted, stage_key_rows_inserted
+        return df_stage, df_key_values, combined_error_df, duplicate_rows_removed, stage_table_rows_to_be_inserted, stage_key_rows_inserted
 
     def load(self, df_stage, df_key_values):
         """Load staging, key value dataframes into respective glue tables.
