@@ -1,10 +1,10 @@
 """Module to perform preprocessing transformation functions on Pandas dataframe."""
 
+import json
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
-import json
 
 from ..exceptions.no_data_found_exception import NoDataFoundException
 from ..logging.logger import get_logger
@@ -43,6 +43,7 @@ def add_new_column_from_struct(df, fields):
     except Exception as e:
         raise OperationFailedException("Error adding new columns from struct: %s", str(e))
 
+
 def add_new_column_from_string_format(df, fields):
     """
     Create new columns from formatted string column in the DataFrame.
@@ -67,6 +68,7 @@ def add_new_column_from_string_format(df, fields):
         return df
     except Exception as e:
         raise OperationFailedException("Error adding new columns from unformatted string: %s", str(e))
+
 
 def empty_string_to_null(df, fields):
     """
@@ -100,12 +102,13 @@ def remove_duplicate_rows(df, fields):
     fields (list): A list of column names to consider when identifying duplicates.
 
     Returns:
-    DataFrame: A DataFrame with duplicates removed.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
     try:
         if not isinstance(fields, list):
             raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.drop_duplicates(subset=fields)
+        unique_recs = df.drop_duplicates(subset=fields)
+        return unique_recs, df[~df.index.isin(unique_recs.index)]
     except Exception as e:
         raise OperationFailedException("Error dropping row duplicates: %s", str(e))
 
@@ -285,7 +288,7 @@ class DataPreprocessing:
                 if column_name == "processed_dt":
                     df[column_name] = self.processed_dt
                 if column_name == "processed_time":
-                    df[column_name] = self.processed_time            
+                    df[column_name] = self.processed_time
             return df
         except Exception as e:
             raise OperationFailedException("Error adding new columns: %s", str(e))
@@ -494,12 +497,13 @@ class DataPreprocessing:
                 raise ValueError("duplicate_row_removal_criteria_fields value for data_cleaning is not found within config rules")
             self.logger.info("config rule: data_cleaning | duplicate_row_removal_criteria_fields: %s", data_cleaning_duplicate_row_removal_criteria_fields)
 
-            df_raw = remove_duplicate_rows(df_raw, data_cleaning_duplicate_row_removal_criteria_fields)
+            df_raw, duplicates_df = remove_duplicate_rows(df_raw, data_cleaning_duplicate_row_removal_criteria_fields)
+
             if df_raw is None:
                 raise ValueError("Function: remove_duplicate_rows returned None object")
             elif df_raw.empty:
                 raise ValueError("No raw records returned for processing following duplicate row removal. Program is stopping.")
-            return df_raw
+            return df_raw, duplicates_df
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function remove_row_duplicates: {str(e)}")
@@ -696,10 +700,10 @@ class DataPreprocessing:
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function add_new_column_from_struct: {str(e)}")
 
-
     def parse_string_columns_as_json_by_config(self, json_data, df_raw):
         """
-        Parse columns that are defined as strings into json
+        Parse columns that are defined as strings into json.
+
         Parameters:
         json_data (dict or list): The JSON configuration data.
         df_raw (DataFrame): The raw DataFrame.
@@ -716,7 +720,7 @@ class DataPreprocessing:
             self.logger.info("config rule: data_transformations | parse_json_strings: %s", parse_json_column_list)
 
             for col in parse_json_column_list:
-                df_raw[col] = df_raw[col].apply(lambda x: json.loads(x) if isinstance(x, str) and x.strip().startswith('{') else None)
+                df_raw[col] = df_raw[col].apply(lambda x: json.loads(x) if isinstance(x, str) and x.strip().startswith("{") else None)
 
             if df_raw is None:
                 raise ValueError("Function: parse_json returned None object.")

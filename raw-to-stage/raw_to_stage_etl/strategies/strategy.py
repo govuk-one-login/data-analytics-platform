@@ -69,7 +69,9 @@ class Strategy(ABC):
 
         df_stage = self.preprocessing.remove_columns_by_json_config(self.config_data, df_raw)
 
-        df_stage = self.preprocessing.remove_row_duplicates(self.config_data, df_stage)
+        df_stage, error_df = self.preprocessing.remove_row_duplicates(self.config_data, df_stage)
+        if not error_df.empty:
+            all_errors.append(error_df)
 
         df_raw_row_count = int(len(df_raw))
         df_raw_post_deduplication_row_count = int(len(df_stage))
