@@ -20,7 +20,7 @@ class Strategy(ABC):
     DATASET = True
     INSERT_MODE = "append"
     ROW_NUM = "ROW_NUM"
-    DATE_CREATED="datecreated"
+    DATE_CREATED = "datecreated"
 
     def __init__(self, args, config_data, glue_client, s3_client, preprocessing) -> None:
         """Initialise variables.
@@ -64,6 +64,9 @@ class Strategy(ABC):
         if not isinstance(df_raw, pd.DataFrame) or df_raw.empty:
             raise NoDataFoundException("No raw records returned for processing. Program is stopping.")
 
+        # Collect all error DataFrames
+        all_errors = []
+
         df_stage = self.preprocessing.remove_columns_by_json_config(self.config_data, df_raw)
 
         df_stage = self.preprocessing.remove_row_duplicates(self.config_data, df_stage)
@@ -95,7 +98,7 @@ class Strategy(ABC):
             df_raw_col_names_original.remove(self.ROW_NUM)
         if self.DATE_CREATED in df_raw_col_names_original:
             df_raw_col_names_original.remove(self.DATE_CREATED)
-            
+
         self.logger.info("df_raw cols: %s", df_raw_col_names_original)
         self.logger.info("rows to be ingested into the Stage layer from dataframe df_raw: %s", len(df_stage))
         stage_table_rows_to_be_inserted = int(len(df_stage))
@@ -114,6 +117,8 @@ class Strategy(ABC):
             df_raw_col_names_original,
         )
 
+        df_key_values = df_key_values[~((df_key_values["value"].isna()) | (df_key_values["value"] == "null"))]
+
         self.logger.info("rows to be ingested into the Stage layer key/value table from dataframe df_key_values: %s", len(df_key_values))
         stage_key_rows_inserted = int(len(df_key_values))
 
@@ -122,7 +127,13 @@ class Strategy(ABC):
         # Extract column names as list
         stage_select_col_names_list = list(stage_schema_columns.keys())
         df_stage = df_stage[stage_select_col_names_list]
-        return df_stage, df_key_values, duplicate_rows_removed, stage_table_rows_to_be_inserted, stage_key_rows_inserted
+        # Combine all error DataFrames
+        if all_errors:
+            combined_error_df = pd.concat(all_errors, ignore_index=True)
+        else:
+            combined_error_df = pd.DataFrame()
+
+        return df_stage, df_key_values, combined_error_df, duplicate_rows_removed, stage_table_rows_to_be_inserted, stage_key_rows_inserted
 
     def load(self, df_stage, df_key_values):
         """Load staging, key value dataframes into respective glue tables.

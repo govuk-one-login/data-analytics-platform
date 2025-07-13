@@ -16,9 +16,7 @@ from raw_to_stage_etl.strategies.custom_strategy import CustomStrategy
 from raw_to_stage_etl.strategies.scheduled_strategy import ScheduledStrategy
 from raw_to_stage_etl.strategies.view_strategy import ViewStrategy
 from raw_to_stage_etl.util.data_preprocessing import DataPreprocessing
-from raw_to_stage_etl.util.exceptions.util_exceptions import OperationFailedException
-from raw_to_stage_etl.util.exceptions.util_exceptions import QueryException
-
+from raw_to_stage_etl.util.error_handler import ErrorHandler
 from raw_to_stage_etl.util.json_config_processing_utilities import extract_element_by_name
 
 logger = get_logger(__name__)
@@ -26,6 +24,8 @@ logger = get_logger(__name__)
 
 def main():
     """Start of the glue job. It controls flow of the whole job."""
+    error_handler = None
+    exit_code = 0
     try:
         # Glue Job Inputs
         args = getResolvedOptions(
@@ -61,6 +61,9 @@ def main():
         # Data transformation class
         preprocessing = DataPreprocessing(args)
 
+        # Error handler for failed transformations
+        error_handler = ErrorHandler(s3_app, args["stage_bucket"])
+
         json_data = s3_app.read_json(args["config_bucket"], args["config_key_path"])
         if json_data is None:
             raise ValueError("Class 's3_app' returned None, which is not allowed.")
@@ -73,13 +76,11 @@ def main():
         if job_type is None:
             raise ValueError("No job type specified to run")
 
-        if job_type == "CUSTOM":
-            processor = RawToStageProcessor(args, CustomStrategy(args, json_data, glue_app, s3_app, preprocessing))
-        elif job_type == "VIEW":
-            processor = RawToStageProcessor(args, ViewStrategy(args, json_data, glue_app, s3_app, preprocessing))
-        elif job_type == "SCHEDULED":
-            strategy = ScheduledStrategy(args, json_data, glue_app, s3_app, preprocessing)
-            processor = RawToStageProcessor(args, strategy)
+        # Create strategy based on job type
+        strategy_map = {"CUSTOM": CustomStrategy, "VIEW": ViewStrategy, "SCHEDULED": ScheduledStrategy}
+
+        strategy = strategy_map[job_type](args, json_data, glue_app, s3_app, preprocessing)
+        processor = RawToStageProcessor(args, strategy, error_handler)
 
         processor.process()
 
@@ -90,9 +91,9 @@ def main():
         """
         if job_type == "SCHEDULED":
             backfill_strategy = BackfillStrategy(args, json_data, glue_app, s3_app, preprocessing, strategy.max_timestamp, strategy.max_processed_dt)
-            processor = RawToStageProcessor(args, backfill_strategy)
+            backfill_processor = RawToStageProcessor(args, backfill_strategy, error_handler)
             try:
-                processor.process()
+                backfill_processor.process()
             except NoDataFoundException as e:
                 logger.info("Exception Message: %s, Stacktrace: %s", str(e), traceback.format_exc())
                 # as no data could be found for backfill, supress the exception
@@ -100,11 +101,24 @@ def main():
 
     except ValueError as e:
         logger.error("Value Error: %s, Stacktrace: %s", str(e), traceback.format_exc())
-        sys.exit("Exception encountered within main, exiting process")
+        exit_code = 1
 
     except Exception as e:
         logger.error("Exception Error: %s, Stacktrace: %s", str(e), traceback.format_exc())
-        sys.exit("Exception encountered within main, exiting process")
+        exit_code = 1
+
+    finally:
+        # Always write error records to S3, regardless of success or failure
+        if error_handler:
+            try:
+                error_handler.write_failed_records_to_s3()
+                logger.info(f"Total failed records processed: {error_handler.get_failed_record_count()}")
+            except Exception as e:
+                logger.error(f"Failed to write error records to S3: {str(e)}")
+
+        # Exit with appropriate code after cleanup
+        if "exit_code" in locals() and exit_code != 0:
+            sys.exit("Exception encountered within main, exiting process")
 
 
 def get_job_type(json_data):
