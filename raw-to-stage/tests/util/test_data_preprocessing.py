@@ -4,6 +4,16 @@ from raw_to_stage_etl.util.data_preprocessing import (DataPreprocessing, filter_
                                                       remove_duplicate_rows)
 
 
+@pytest.fixture
+def preprocessing():
+    return DataPreprocessing({})
+
+
+@pytest.fixture
+def mock_config():
+    return {"data_transformations": {"parse_json_list": ["user", "extensions"]}}
+
+
 def test_filter_null_values_and_null_strings():
     # Should drop nulls and null strings.
     input_data = [
@@ -17,11 +27,6 @@ def test_filter_null_values_and_null_strings():
     result = filter_null_values_and_null_strings(df, "value")
 
     pd.testing.assert_frame_equal(result.reset_index(drop=True), expected_df.reset_index(drop=True))
-
-
-@pytest.fixture
-def preprocessing():
-    return DataPreprocessing({})
 
 
 def test_remove_duplicate_rows(preprocessing):
@@ -52,8 +57,3 @@ def test_parse_string_columns_as_json_by_config(preprocessing, mock_config):
     result_df = preprocessing.parse_string_columns_as_json_by_config(mock_config, df)
 
     print(result_df)
-
-
-@pytest.fixture
-def mock_config():
-    return {"data_transformations": {"parse_json_list": ["user", "extensions"]}}
