@@ -243,6 +243,19 @@ def convert_value_to_float_or_int(value):
     return value
 
 
+def filter_null_values_and_null_strings(df, column):
+    """Remove rows which have null values or null as string('null') in column.
+
+    Parameters:
+     df          : input dataframe
+     column : column to filter on
+
+    Returns
+     converted value
+    """
+    return df[df[column].notna() & (df[column] != "null")]
+
+
 class DataPreprocessing:
     """A class for performing preprocessing tasks against a supplied dataframe."""
 
