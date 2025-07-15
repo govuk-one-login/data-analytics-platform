@@ -20,8 +20,11 @@ def test_remove_duplicate_rows(preprocessing):
     df = pd.DataFrame(array, columns=["name", "id", "event_id", "timestamp"])
 
     deduped_df, dupe_df = remove_duplicate_rows(df, ["timestamp", "event_id"])
-
+    print("Input DF")
+    print(df)
+    print("De-Duplicated")
     print(deduped_df)
+    print("Duplicates")
     print(dupe_df)
 
 
@@ -29,7 +32,7 @@ def test_parse_string_columns_as_json_by_config(preprocessing, mock_config):
     """Test parsing valid JSON objects"""
     array = [
         ['{"dummy":1}', '{"id":"Pradeep"}', "test", 123, "e123", 1234567],
-        ["extension", '{"id":"Pradeep"}', "value", 124],
+        ["abc", '{"id":"Pradeep"}', "value", 124],
         ['{"dummy":"str"}', "hi", "test2", 127, "e123", 1234567],
     ]
 

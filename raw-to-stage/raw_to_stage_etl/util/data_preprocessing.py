@@ -104,13 +104,21 @@ def remove_duplicate_rows(df, fields):
     Returns:
     tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
-    try:
-        if not isinstance(fields, list):
-            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        unique_recs = df.drop_duplicates(subset=fields)
-        return unique_recs, df[~df.index.isin(unique_recs.index)]
-    except Exception as e:
-        raise OperationFailedException("Error dropping row duplicates: %s", str(e))
+    if not isinstance(fields, list):
+        raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
+
+    # Single boolean mask operation - much more efficient
+    duplicate_mask = df.duplicated(subset=fields, keep="first")
+
+    if duplicate_mask.any():
+        error_df = df[duplicate_mask].copy()
+        error_df["_transformation_error"] = "Duplicate row"
+        success_df = df[~duplicate_mask]
+    else:
+        success_df = df
+        error_df = pd.DataFrame()
+
+    return success_df, error_df
 
 
 def remove_rows_missing_mandatory_values(df, fields):
