@@ -1,5 +1,5 @@
 [project]
-name = "raw-to-stage-etl"
+name = "raw-to-stage-etl-modules"
 requires-python = ">=3.9, <3.11"
 
 
