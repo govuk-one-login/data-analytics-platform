@@ -753,7 +753,7 @@ RawStageTransformProcessPythonGlueJob:
       '--workgroup': !Sub ${Environment}-dap-txma-processing
       '--TempDir': !Sub s3://${StageLayerBucket}/raw_stage_optimisation_processing/temporary/
       'library-set': 'analytics'
-      '--extra-py-files': !Sub 's3://${ELTMetadataBucket}/txma/raw_to_stage/dap_etl_modules-0.1.0-py3-none-any.whl'
+      '--extra-py-files': !Sub 's3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl'
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0

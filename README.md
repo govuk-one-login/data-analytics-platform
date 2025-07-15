@@ -311,7 +311,7 @@ to run the unit tests, run
 
 `poetry run pytest -s`
 
-upload the built wheel file in `dist-etl/dap-etl-0.1.0-none-any.whl` to s3://{raw}-dap-elt-metadata/txma/raw-to-stage
+upload the built wheel file in `etl-dist/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl` to s3://{raw}-dap-elt-metadata/txma/raw-to-stage
 
 this file is used as additional imports in glue to resolve imports and dependencies for the main script, to upload the main script
 

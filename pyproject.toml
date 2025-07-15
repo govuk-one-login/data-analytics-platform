@@ -1,5 +1,5 @@
 [project]
-name = "dap-etl-modules"
+name = "raw-to-stage-etl"
 requires-python = ">=3.9, <3.11"
 
 
