@@ -1,6 +1,6 @@
 """ScheduledStrategy is for ETL which runs everyday on schedule."""
 
-from ..util.database_utilities import date_minus_days, get_max_processed_dt, get_max_timestamp
+from ..util.database_utilities import date_minus_days, get_max_processed_dt, get_max_timestamp, timestamp_minus_firehose_buffer_time
 from ..util.json_config_processing_utilities import extract_element_by_name
 from .strategy import Strategy
 from datetime import datetime, timedelta
@@ -36,7 +36,9 @@ class ScheduledStrategy(Strategy):
             raise ValueError("Function 'get_max_timestamp' returned None, which is not allowed.")
         self.logger.info("retrieved timestamp filter value: %s", self.max_timestamp)
 
-        sql_query = self.get_raw_sql(self.max_processed_dt, self.max_timestamp, raw_database, raw_table)
+        firehose_adjusted_max_timestamp = str(timestamp_minus_firehose_buffer_time(self.max_timestamp, minutes=20))
+        
+        sql_query = self.get_raw_sql(self.max_processed_dt, firehose_adjusted_max_timestamp, raw_database, raw_table)
         return self.glue_client.get_raw_data(sql_query, self.athena_query_chunksize)
 
     def get_raw_sql(self, max_processed_dt, max_timestamp, raw_database, raw_table):
