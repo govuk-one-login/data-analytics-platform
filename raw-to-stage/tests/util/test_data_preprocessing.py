@@ -9,7 +9,6 @@ from raw_to_stage_etl.util.data_preprocessing import (
     rename_column_names,
     remove_columns,
     convert_value_to_float_or_int,
-    filter_null_values_and_null_strings
 )
 
 @pytest.fixture
@@ -93,7 +92,7 @@ def test_add_duplicate_column(preprocessor):
     result = preprocessor.add_duplicate_column(df.copy(), fields)
     assert "b" in result.columns and (result["b"] == result["a"]).all()
     
-def test_filter_null_values_and_null_strings():
+def test_filter_null_values_and_null_strings(preprocessor):
     # Should drop nulls and null strings.
     input_data = [
         ["test", 123, "e123", 1234567, "key1", None],
@@ -103,6 +102,6 @@ def test_filter_null_values_and_null_strings():
     columns = ["name", "id", "event_id", "timestamp", "key", "value"]
     df = pd.DataFrame(input_data, columns=columns)
     expected_df = pd.DataFrame([["value", 124, "e125", 1234568, "key3", "value1"]], columns=columns)
-    result = filter_null_values_and_null_strings(df, "value")
+    result = preprocessor.filter_null_values_and_null_strings(df, "value")
 
     pd.testing.assert_frame_equal(result.reset_index(drop=True), expected_df.reset_index(drop=True))

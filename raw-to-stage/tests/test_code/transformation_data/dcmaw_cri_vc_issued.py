@@ -19,7 +19,7 @@ def dcmaw_cri_vc_issued_input_output(timestamp, timestamp_formatted, timestamp_m
         "user": f'{{"govuk_signin_journey_id": "{govuk_signin_journey_id}", "user_id": "{user_id}"}}',
         "txma": '{"configVersion": "1.1.33"}',
         "client_id": "someClientId",
-        "extensions": '{"evidence": {"activityHistoryScore": "serialise", "strengthScore": "1", "type": "asymmetric", "validityScore": "Road", "checkDetails": {"biometricVerificationProcessLevel": "level", "checkMethod": "method 1"}, "failedCheckDetails": {"biometricVerificationProcessLevel": "Account", "checkMethod": "method 2"}}}',
+        "extensions": '{"evidence": {"activityHistoryScore": "null", "strengthScore": "1", "type": "asymmetric", "validityScore": "Road", "checkDetails": {"biometricVerificationProcessLevel": "level", "checkMethod": "method 1"}, "failedCheckDetails": {"biometricVerificationProcessLevel": "Account", "checkMethod": "method 2"}}}',
         "datecreated": f'year={year}/month={month}/day={day}'
     }
 
@@ -50,14 +50,7 @@ def dcmaw_cri_vc_issued_input_output(timestamp, timestamp_formatted, timestamp_m
         "processed_dt": processed_dt,
         "processed_time": processed_time
     },
-        {
-        "event_id": event_id,
-        "parent_column_name": "extensions",
-        "key": "evidence.activityHistoryScore",
-        "value": "serialise",
-        "processed_dt": processed_dt,
-        "processed_time": processed_time
-    },
+     
         {
         "event_id": event_id,
         "parent_column_name": "extensions",

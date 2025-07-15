@@ -114,6 +114,7 @@ class Strategy(ABC):
             df_raw_col_names_original,
         )
 
+        # Remove all nulls from key value records
         df_key_values = self.preprocessing.filter_null_values_and_null_strings(df_key_values, "value")
 
         self.logger.info("rows to be ingested into the Stage layer key/value table from dataframe df_key_values: %s", len(df_key_values))
