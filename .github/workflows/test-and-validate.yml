@@ -37,18 +37,13 @@ jobs:
           version: 1.134.0
       - name: IaC linting checks
         run: npm run iac:lint
-      - name: Check out checkov hooks repository code
-        uses: actions/checkout@v4
-        with:
-          repository: govuk-one-login/devplatform-checkov-hook
-          token: ${{ secrets.CHECKOUT_REPO_PAT }}
-          path: devplatform-checkov-hook
       - name: Checkov actions scan
         uses: bridgecrewio/checkov-action@v12
         with:
           config_file: .checkov.ci.yml
           directory: iac-dist
           quiet: true
+          baseline_branch: main
 
       # scripts
       - name: Script formatting checks

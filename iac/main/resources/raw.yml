@@ -99,23 +99,6 @@ RawGlueDatabase:
     DatabaseInput:
       Name: !Sub ${Environment}-${RawGlueDatabaseName}
 
-RawLayerSingleTableCrawler:
-  Type: AWS::Glue::Crawler
-  Properties:
-    Name: txma_raw_layer_events_schema_combined
-    Role: !GetAtt RawGlueCrawlerRole.Arn
-    Targets:
-      S3Targets:
-        - Path: !Sub 's3://${RawLayerBucket}/txma-refactored/'
-    DatabaseName: !Ref RawGlueDatabase
-    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
-    RecrawlPolicy:
-      RecrawlBehavior: CRAWL_EVERYTHING
-    SchemaChangePolicy:
-      UpdateBehavior: UPDATE_IN_DATABASE
-      DeleteBehavior: LOG
-    Configuration: '{"Version":1,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"},"Tables":{"AddOrUpdateBehavior":"MergeNewColumns"}}, "Grouping": {"TableGroupingPolicy": "CombineCompatibleSchemas"}}'
-
 SplunkRawLayerSingleTableCrawler:
   Type: AWS::Glue::Crawler
   Properties:
@@ -168,3 +151,56 @@ SplunkPerformanceIndexSecret:
     Description: 'a secret to store username and password for access the performance index'
     Name: !Sub ${Environment}-SplunkPerformanceIndexSecret
     SecretString: '{"username":"xxx","password":"xxx"}'
+
+TxmaRefactoredTable:
+  Type: AWS::Glue::Table
+  Properties:
+    CatalogId: !Ref AWS::AccountId
+    DatabaseName: !Ref RawGlueDatabase
+    TableInput:
+      Name: txma-refactored
+      Description: TxMA Raw Layer events as json
+      StorageDescriptor:
+        Columns:
+          - Name: event_id
+            Type: string
+          - Name: event_name
+            Type: string
+          - Name: component_id
+            Type: string
+          - Name: client_id
+            Type: string
+          - Name: timestamp
+            Type: int
+          - Name: timestamp_formatted
+            Type: string
+          - Name: user
+            Type: string
+          - Name: event_timestamp_ms
+            Type: bigint
+          - Name: event_timestamp_ms_formatted
+            Type: string
+          - Name: extensions
+            Type: string
+          - Name: txma
+            Type: string
+        Compressed: true
+        StoredAsSubDirectories: false
+        Location: !Sub s3://${RawLayerBucket}/txma-refactored/
+        InputFormat: org.apache.hadoop.mapred.TextInputFormat
+        OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+        SerdeInfo:
+          SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+      PartitionKeys:
+        - Name: datecreated
+          Type: string
+      TableType: EXTERNAL_TABLE
+      Parameters:
+        EXTERNAL: 'TRUE'
+        'projection.enabled': 'true'
+        'projection.datecreated.type': 'date'
+        'projection.datecreated.format': "'year='yyyy/'month='MM/'day='dd"
+        'projection.datecreated.range': 'year=2025/month=01/day=01,NOW'
+        'projection.datecreated.interval': 1
+        'projection.datecreated.interval.unit': 'DAYS'
+        'storage.location.template': !Join ['', ['s3://', !Ref RawLayerBucket, '/txma-refactored/${datecreated}/']]
