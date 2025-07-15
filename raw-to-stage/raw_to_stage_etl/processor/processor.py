@@ -14,10 +14,11 @@ METADATA_ROOT_FOLDER = "txma_raw_stage_metadata"
 class RawToStageProcessor:
     """Class for ETL flow control."""
 
-    def __init__(self, args: dict, strategy: Strategy) -> None:
+    def __init__(self, args: dict, strategy: Strategy, error_handler=None) -> None:
         """Initialise, configure strategy & logger instance variables."""
         if strategy:
             self.strategy = strategy
+        self.error_handler = error_handler
         self.logger = get_logger(__name__)
 
     def process(self) -> None:
@@ -46,7 +47,10 @@ class RawToStageProcessor:
             start_time = time.time()
 
             # Transform df chunk
-            (df_stage, df_key_values, duplicate_rows_removed, stage_table_rows_inserted, stage_key_rows_inserted) = self.strategy.transform(df_raw)
+            (df_stage, df_key_values, error_df, duplicate_rows_removed, stage_table_rows_inserted, stage_key_rows_inserted) = self.strategy.transform(df_raw)
+
+            if self.error_handler and not error_df.empty:
+                self.error_handler.add_failed_records(error_df)
 
             cumulative_duplicate_rows_removed = cumulative_duplicate_rows_removed + duplicate_rows_removed
             cumulative_stage_table_rows_inserted = cumulative_stage_table_rows_inserted + stage_table_rows_inserted

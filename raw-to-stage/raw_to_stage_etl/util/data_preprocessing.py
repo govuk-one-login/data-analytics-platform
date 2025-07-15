@@ -102,14 +102,23 @@ def remove_duplicate_rows(df, fields):
     fields (list): A list of column names to consider when identifying duplicates.
 
     Returns:
-    DataFrame: A DataFrame with duplicates removed.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
-    try:
-        if not isinstance(fields, list):
-            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.drop_duplicates(subset=fields)
-    except Exception as e:
-        raise OperationFailedException("Error dropping row duplicates: %s", str(e))
+    if not isinstance(fields, list):
+        raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
+
+    # Single boolean mask operation - much more efficient
+    duplicate_mask = df.duplicated(subset=fields, keep="first")
+
+    if duplicate_mask.any():
+        error_df = df[duplicate_mask].copy()
+        error_df["_transformation_error"] = "Duplicate row"
+        success_df = df[~duplicate_mask]
+    else:
+        success_df = df
+        error_df = pd.DataFrame()
+
+    return success_df, error_df
 
 
 def remove_rows_missing_mandatory_values(df, fields):
@@ -509,12 +518,13 @@ class DataPreprocessing:
                 raise ValueError("duplicate_row_removal_criteria_fields value for data_cleaning is not found within config rules")
             self.logger.info("config rule: data_cleaning | duplicate_row_removal_criteria_fields: %s", data_cleaning_duplicate_row_removal_criteria_fields)
 
-            df_raw = remove_duplicate_rows(df_raw, data_cleaning_duplicate_row_removal_criteria_fields)
+            df_raw, duplicates_df = remove_duplicate_rows(df_raw, data_cleaning_duplicate_row_removal_criteria_fields)
+
             if df_raw is None:
                 raise ValueError("Function: remove_duplicate_rows returned None object")
             elif df_raw.empty:
                 raise ValueError("No raw records returned for processing following duplicate row removal. Program is stopping.")
-            return df_raw
+            return df_raw, duplicates_df
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function remove_row_duplicates: {str(e)}")

@@ -51,8 +51,13 @@ class GlueTableQueryAndWrite:
             pd.DataFrame: The query result as a Pandas DataFrame, or None if an error occurs.
         """
         try:
-            df = wr.athena.read_sql_query(query, database=database, chunksize=chunksize)
-            return df
+            result = wr.athena.read_sql_query(query, database=database, chunksize=chunksize)
+            result_list = list(result)
+            # Handle scenario when there are no rows for the query executed and only column names are returned
+            if len(result_list) == 1 and isinstance(result_list[0], str):
+                return None
+            return result_list
+
         except Exception as e:
             self.logger.error("Error reading Athena table: %s", str(e))
             return None

@@ -64,9 +64,14 @@ class Strategy(ABC):
         if not isinstance(df_raw, pd.DataFrame) or df_raw.empty:
             raise NoDataFoundException("No raw records returned for processing. Program is stopping.")
 
+        # Collect all error DataFrames
+        all_errors = []
+
         df_stage = self.preprocessing.remove_columns_by_json_config(self.config_data, df_raw)
 
-        df_stage = self.preprocessing.remove_row_duplicates(self.config_data, df_stage)
+        df_stage, error_df = self.preprocessing.remove_row_duplicates(self.config_data, df_stage)
+        if not error_df.empty:
+            all_errors.append(error_df)
 
         df_raw_row_count = int(len(df_raw))
         df_raw_post_deduplication_row_count = int(len(df_stage))
@@ -124,7 +129,13 @@ class Strategy(ABC):
         # Extract column names as list
         stage_select_col_names_list = list(stage_schema_columns.keys())
         df_stage = df_stage[stage_select_col_names_list]
-        return df_stage, df_key_values, duplicate_rows_removed, stage_table_rows_to_be_inserted, stage_key_rows_inserted
+        # Combine all error DataFrames
+        if all_errors:
+            combined_error_df = pd.concat(all_errors, ignore_index=True)
+        else:
+            combined_error_df = pd.DataFrame()
+
+        return df_stage, df_key_values, combined_error_df, duplicate_rows_removed, stage_table_rows_to_be_inserted, stage_key_rows_inserted
 
     def load(self, df_stage, df_key_values):
         """Load staging, key value dataframes into respective glue tables.

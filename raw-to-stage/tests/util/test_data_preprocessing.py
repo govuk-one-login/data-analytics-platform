@@ -1,5 +1,17 @@
 import pandas as pd
-from raw_to_stage_etl.util.data_preprocessing import filter_null_values_and_null_strings
+import pytest
+from raw_to_stage_etl.util.data_preprocessing import (DataPreprocessing, filter_null_values_and_null_strings,
+                                                      remove_duplicate_rows)
+
+
+@pytest.fixture
+def preprocessing():
+    return DataPreprocessing({})
+
+
+@pytest.fixture
+def mock_config():
+    return {"data_transformations": {"parse_json_list": ["user", "extensions"]}}
 
 
 def test_filter_null_values_and_null_strings():
@@ -15,3 +27,33 @@ def test_filter_null_values_and_null_strings():
     result = filter_null_values_and_null_strings(df, "value")
 
     pd.testing.assert_frame_equal(result.reset_index(drop=True), expected_df.reset_index(drop=True))
+
+
+def test_remove_duplicate_rows(preprocessing):
+    """Test parsing valid JSON objects"""
+    array = [["test", 123, "e123", 1234567], ["value", 124], ["test2", 127, "e123", 1234567]]
+
+    df = pd.DataFrame(array, columns=["name", "id", "event_id", "timestamp"])
+
+    deduped_df, dupe_df = remove_duplicate_rows(df, ["timestamp", "event_id"])
+    print("Input DF")
+    print(df)
+    print("De-Duplicated")
+    print(deduped_df)
+    print("Duplicates")
+    print(dupe_df)
+
+
+def test_parse_string_columns_as_json_by_config(preprocessing, mock_config):
+    """Test parsing valid JSON objects"""
+    array = [
+        ['{"dummy":1}', '{"id":"Pradeep"}', "test", 123, "e123", 1234567],
+        ["abc", '{"id":"Pradeep"}', "value", 124],
+        ['{"dummy":"str"}', "hi", "test2", 127, "e123", 1234567],
+    ]
+
+    df = pd.DataFrame(array, columns=["extensions", "user", "name", "id", "event_id", "timestamp"])
+
+    result_df = preprocessing.parse_string_columns_as_json_by_config(mock_config, df)
+
+    print(result_df)
