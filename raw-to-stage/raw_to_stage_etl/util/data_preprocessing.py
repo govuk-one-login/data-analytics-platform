@@ -1,10 +1,10 @@
 """Module to perform preprocessing transformation functions on Pandas dataframe."""
 
+import json
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
-import json
 
 from ..exceptions.no_data_found_exception import NoDataFoundException
 from ..logging.logger import get_logger
@@ -43,6 +43,7 @@ def add_new_column_from_struct(df, fields):
     except Exception as e:
         raise OperationFailedException("Error adding new columns from struct: %s", str(e))
 
+
 def add_new_column_from_string_format(df, fields):
     """
     Create new columns from formatted string column in the DataFrame.
@@ -67,6 +68,7 @@ def add_new_column_from_string_format(df, fields):
         return df
     except Exception as e:
         raise OperationFailedException("Error adding new columns from unformatted string: %s", str(e))
+
 
 def empty_string_to_null(df, fields):
     """
@@ -232,6 +234,19 @@ def convert_value_to_float_or_int(value):
     return value
 
 
+def filter_null_values_and_null_strings(df, column):
+    """Remove rows which have null values or null as string('null') in column.
+
+    Parameters:
+     df          : input dataframe
+     column : column to filter on
+
+    Returns
+     converted value
+    """
+    return df[df[column].notna() & (df[column] != "null")]
+
+
 class DataPreprocessing:
     """A class for performing preprocessing tasks against a supplied dataframe."""
 
@@ -395,11 +410,11 @@ class DataPreprocessing:
             raise OperationFailedException("Error generating key/value records: %s", str(e))
 
     def generate_key_value_records_by_json_config(
-            self,
-            json_data,
-            df_raw,
-            key_value_schema_columns,
-            df_raw_col_names_original,
+        self,
+        json_data,
+        df_raw,
+        key_value_schema_columns,
+        df_raw_col_names_original,
     ):
         """
         Generate key/value pairs in a DataFrame based on JSON configuration.
@@ -696,10 +711,10 @@ class DataPreprocessing:
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function add_new_column_from_struct: {str(e)}")
 
-
     def parse_string_columns_as_json_by_config(self, json_data, df_raw):
         """
-        Parse columns that are defined as strings into json
+        Parse columns that are defined as strings into json.
+
         Parameters:
         json_data (dict or list): The JSON configuration data.
         df_raw (DataFrame): The raw DataFrame.
@@ -716,7 +731,7 @@ class DataPreprocessing:
             self.logger.info("config rule: data_transformations | parse_json_strings: %s", parse_json_column_list)
 
             for col in parse_json_column_list:
-                df_raw[col] = df_raw[col].apply(lambda x: json.loads(x) if isinstance(x, str) and x.strip().startswith('{') else None)
+                df_raw[col] = df_raw[col].apply(lambda x: json.loads(x) if isinstance(x, str) and x.strip().startswith("{") else None)
 
             if df_raw is None:
                 raise ValueError("Function: parse_json returned None object.")
