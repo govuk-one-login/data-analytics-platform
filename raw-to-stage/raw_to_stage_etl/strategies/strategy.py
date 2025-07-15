@@ -20,7 +20,7 @@ class Strategy(ABC):
     DATASET = True
     INSERT_MODE = "append"
     ROW_NUM = "ROW_NUM"
-    DATE_CREATED="datecreated"
+    DATE_CREATED = "datecreated"
 
     def __init__(self, args, config_data, glue_client, s3_client, preprocessing) -> None:
         """Initialise variables.
@@ -95,7 +95,7 @@ class Strategy(ABC):
             df_raw_col_names_original.remove(self.ROW_NUM)
         if self.DATE_CREATED in df_raw_col_names_original:
             df_raw_col_names_original.remove(self.DATE_CREATED)
-            
+
         self.logger.info("df_raw cols: %s", df_raw_col_names_original)
         self.logger.info("rows to be ingested into the Stage layer from dataframe df_raw: %s", len(df_stage))
         stage_table_rows_to_be_inserted = int(len(df_stage))
@@ -113,6 +113,8 @@ class Strategy(ABC):
             stage_key_value_schema_columns,
             df_raw_col_names_original,
         )
+
+        df_key_values = self.preprocessing.filter_null_values_and_null_strings(df_key_values, "value")
 
         self.logger.info("rows to be ingested into the Stage layer key/value table from dataframe df_key_values: %s", len(df_key_values))
         stage_key_rows_inserted = int(len(df_key_values))
