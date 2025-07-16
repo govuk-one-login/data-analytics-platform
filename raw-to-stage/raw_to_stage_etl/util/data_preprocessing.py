@@ -233,20 +233,6 @@ def convert_value_to_float_or_int(value):
             pass  # Ignore if conversion fails
     return value
 
-
-def filter_null_values_and_null_strings(df, column):
-    """Remove rows which have null values or null as string('null') in column.
-
-    Parameters:
-     df          : input dataframe
-     column : column to filter on
-
-    Returns
-     converted value
-    """
-    return df[df[column].notna() & (df[column] != "null")]
-
-
 class DataPreprocessing:
     """A class for performing preprocessing tasks against a supplied dataframe."""
 
@@ -774,3 +760,18 @@ class DataPreprocessing:
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function add_new_column_from_string_format: {str(e)}")
+        
+    def filter_null_values_and_null_strings(self, df, column):
+        """Remove rows which have null values or null as string('null') in column.
+
+        Parameters:
+        df : DataFrame
+            Input dataframe
+        column : str
+            Column to filter on
+
+        Returns:
+        DataFrame
+            Filtered dataframe
+        """
+        return df[df[column].notna() & (df[column] != "null")]

@@ -1,7 +1,7 @@
 .aws-sam/
 .DS_Store
 .idea/
-dist/
+*dist*/
 node_modules/
 coverage/
 jest-stare/
@@ -13,3 +13,10 @@ iac-dist/
 layer-dist/
 *.egg-info
 build/
+
+# raw to stage ignore files
+**/.pytest_cache/
+**/*.egg-info/
+**/dist/
+**/__pycache__/
+**/*.py[cod]

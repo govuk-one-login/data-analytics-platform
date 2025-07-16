@@ -16,8 +16,7 @@ from raw_to_stage_etl.strategies.custom_strategy import CustomStrategy
 from raw_to_stage_etl.strategies.scheduled_strategy import ScheduledStrategy
 from raw_to_stage_etl.strategies.view_strategy import ViewStrategy
 from raw_to_stage_etl.util.data_preprocessing import DataPreprocessing
-from raw_to_stage_etl.util.exceptions.util_exceptions import OperationFailedException
-from raw_to_stage_etl.util.exceptions.util_exceptions import QueryException
+
 
 from raw_to_stage_etl.util.json_config_processing_utilities import extract_element_by_name
 

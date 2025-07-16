@@ -24,7 +24,6 @@ jobs:
         run: npm run lint:check
       - name: Run lambda tests
         run: npm run test
-
       # iac
       - name: IaC formatting checks
         run: npm run iac:format:check

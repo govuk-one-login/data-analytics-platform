@@ -34,13 +34,7 @@ class CustomStrategy(Strategy):
         deduplicate_subquery = f"""select *,
                                 row_number() over (
                                         partition by event_id
-                                        order by cast(
-                                    concat(
-                                        cast(year as varchar),
-                                        cast(lpad(cast(month as varchar), 2, '0') as varchar),
-                                        cast(lpad(cast(day as varchar), 2, '0') as varchar)
-                                    ) as int
-                                ) desc
+                                        order by datecreated desc
                                         ) as row_num
                         from \"{self.args['raw_database']}\".\"{self.args['raw_source_table']}\" as t
                     where {custom_filter}"""

@@ -17,3 +17,4 @@ def get_logger(name):
     logger = Logger(level=os.getenv("LOG_LEVEL", "INFO"), service=name)
     logger.append_keys(**{"location": "%(filename)s:%(funcName)s:%(lineno)d"})
     return logger
+

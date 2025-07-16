@@ -294,14 +294,26 @@ _Production preview_ has a real TxMA queue in addition to its placeholder queue 
 
 For a guide to how and why certain development decisions, coding practices, etc. were made, please refer to the [Development Decisions document](docs/development-decisions.md).
 
-## Packaging:
-cd to project root directory
-cd raw-to-stage
-# Once you make changes to modules, build and install them to your local venv to be accessible from raw_to_stage_process_glue_job.py
-# The wheel file which is built in below step is used by glue job on AWS too
-pip3 install --upgrade build
-python3 -m build
+For a list of TODOs for the project, please see the [TODOs document](docs/todos.md).
 
-pip3 install ./dist/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl  --force-reinstall
 
-Now you can fix imports ,pointing to any new modules you created, in the raw_to_stage_process_glue_job.py
+## Raw-to-Stage ETL Job :
+The raw-to-stage ETL jobs runs as part of DAP step function to load transformed and new raw data in to the stage layer
+
+The packaged ETL job is stored in S3 in s3://{raw}-dap-elt-metadata/txma/raw-to-stage
+
+To install dependencies and build the package, From the root folder run,
+
+`poetry install`
+`poetry build -o etl-dist`
+
+to run the unit tests, run
+
+`poetry run pytest -s`
+
+upload the built wheel file in `etl-dist/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl` to s3://{raw}-dap-elt-metadata/txma/raw-to-stage
+
+this file is used as additional imports in glue to resolve imports and dependencies for the main script, to upload the main script
+
+upload `raw-to-stage/raw_to_stage_etl/raw_to_stage_process_glue_job.py` to the same location
+

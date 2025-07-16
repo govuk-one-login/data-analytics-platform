@@ -40,14 +40,7 @@ def generate_raw_select_filter(json_data, database, table, filter_processed_dt, 
         deduplicate_subquery = f"""select *,
                                     row_number() over (
                                             partition by event_id
-                                            order by cast(
-                                        concat(
-                                            cast(year as varchar),
-                                            cast(lpad(cast(month as varchar), 2, '0') as varchar),
-                                            cast(lpad(cast(day as varchar), 2, '0') as varchar)
-                                        ) as int
-                                    ) desc
-                                        ) as row_num
+                                            order by datecreated desc
                             from \"{database}\".\"{table}\" as t """
 
         sql = f'''select * from \"{database}\".\"{table}\"'''
