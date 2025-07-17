@@ -78,7 +78,9 @@ class Strategy(ABC):
         duplicate_rows_removed = df_raw_row_count - df_raw_post_deduplication_row_count
 
         # Remove rows with missing mandatory field values
-        df_stage = self.preprocessing.remove_rows_missing_mandatory_values_by_json_config(self.config_data, df_stage)
+        df_stage, error_df = self.preprocessing.remove_rows_missing_mandatory_values_by_json_config(self.config_data, df_stage)
+        if not error_df.empty:
+            all_errors.append(error_df)
 
         # Extract a list of column names from the original df_raw dataframe
         df_raw_col_names_original = list(df_stage.columns)

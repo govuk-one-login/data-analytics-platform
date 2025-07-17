@@ -11,7 +11,38 @@ def preprocessing():
 
 @pytest.fixture
 def mock_config():
-    return {"data_transformations": {"parse_json_list": ["user", "extensions"]}}
+    return {
+        "data_transformations": {"parse_json_list": ["user", "extensions"]},
+        "data_cleaning": {
+            "duplicate_row_removal_criteria_fields": ["event_id", "timestamp"],
+            "mandatory_row_removal_criteria_fields": ["event_name", "timestamp"],
+        },
+    }
+
+
+def test_remove_rows_missing_mandatory_values_by_json_config(preprocessing, mock_config):
+    array = [["test", 123, "e123"], [None, "value", 124], ["test2", 127, "e123", "1234567"], [None, 128, "e12678", None]]
+    columns = ["event_name", "id", "event_id", "timestamp"]
+    df = pd.DataFrame(array, columns=columns)
+
+    filtered_df, dropped_df = preprocessing.remove_rows_missing_mandatory_values_by_json_config(mock_config, df)
+
+    # Expected results
+    expected_filtered_df = pd.DataFrame([["test2", 127, "e123", "1234567"]], columns=columns)
+    expected_dropped_df = pd.DataFrame([["test", 123, "e123", None], [None, "value", 124, None], [None, 128, "e12678", None]], columns=columns)
+
+    # Add the transformation error column to expected_dropped_df
+    expected_dropped_df["_transformation_error"] = "Missing mandatory values"
+
+    # Convert to same dtypes (only for common columns)
+    common_columns = list(set(filtered_df.columns) & set(expected_filtered_df.columns))
+    expected_filtered_df = expected_filtered_df.astype({col: filtered_df[col].dtype for col in common_columns})
+
+    common_dropped_columns = list(set(dropped_df.columns) & set(expected_dropped_df.columns))
+    expected_dropped_df = expected_dropped_df.astype({col: dropped_df[col].dtype for col in common_dropped_columns})
+
+    pd.testing.assert_frame_equal(filtered_df.reset_index(drop=True), expected_filtered_df.reset_index(drop=True))
+    pd.testing.assert_frame_equal(dropped_df.reset_index(drop=True), expected_dropped_df.reset_index(drop=True))
 
 
 def test_filter_null_values_and_null_strings():

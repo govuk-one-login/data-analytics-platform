@@ -104,21 +104,24 @@ def remove_duplicate_rows(df, fields):
     Returns:
     tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
-    if not isinstance(fields, list):
-        raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
+    try:
+        if not isinstance(fields, list):
+            raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
 
-    # Single boolean mask operation - much more efficient
-    duplicate_mask = df.duplicated(subset=fields, keep="first")
+        # Single boolean mask operation - much more efficient
+        duplicate_mask = df.duplicated(subset=fields, keep="first")
 
-    if duplicate_mask.any():
-        error_df = df[duplicate_mask].copy()
-        error_df["_transformation_error"] = "Duplicate row"
-        success_df = df[~duplicate_mask]
-    else:
-        success_df = df
-        error_df = pd.DataFrame()
+        if duplicate_mask.any():
+            error_df = df[duplicate_mask].copy()
+            error_df["_transformation_error"] = "Duplicate row"
+            success_df = df[~duplicate_mask]
+        else:
+            success_df = df
+            error_df = pd.DataFrame()
 
-    return success_df, error_df
+        return success_df, error_df
+    except Exception as e:
+        raise OperationFailedException("Error dropping row duplicates: %s", str(e))
 
 
 def remove_rows_missing_mandatory_values(df, fields):
@@ -130,12 +133,24 @@ def remove_rows_missing_mandatory_values(df, fields):
     fields (list): A list of column names with mandatory values.
 
     Returns:
-    DataFrame: A DataFrame with rows containing mandatory values.
+    tuple: (success_df, error_df) - DataFrames with successful and failed transformations.
     """
     try:
         if not isinstance(fields, list):
             raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.dropna(subset=fields)
+
+        # Create boolean mask for rows with missing values
+        missing_mask = df[fields].isna().any(axis=1)
+
+        if missing_mask.any():
+            error_df = df[missing_mask].copy()
+            error_df["_transformation_error"] = "Missing mandatory values"
+            success_df = df[~missing_mask]
+        else:
+            success_df = df
+            error_df = pd.DataFrame()
+
+        return success_df, error_df
     except Exception as e:
         raise OperationFailedException("Error dropping rows missing mandatory field: %s", str(e))
 
@@ -549,13 +564,13 @@ class DataPreprocessing:
                 raise ValueError("mandatory_row_removal_criteria_fields value for data_cleaning is not found within config rules")
             self.logger.info("config rule: data_cleaning | mandatory_row_removal_criteria_fields: %s", data_cleaning_mandatory_row_removal_criteria_fields)
 
-            df_raw = remove_rows_missing_mandatory_values(df_raw, data_cleaning_mandatory_row_removal_criteria_fields)
+            df_raw, error_df = remove_rows_missing_mandatory_values(df_raw, data_cleaning_mandatory_row_removal_criteria_fields)
             if df_raw is None:
                 raise ValueError("Function: remove_rows_missing_mandatory_values returned None object")
             elif df_raw.empty:
                 raise ValueError("No raw records returned for processing following missing mandatory fields row removal. Program is stopping.")
 
-            return df_raw
+            return df_raw, error_df
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function remove_rows_missing_mandatory_values: {str(e)}")
