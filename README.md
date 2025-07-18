@@ -302,14 +302,14 @@ The raw-to-stage ETL jobs runs as part of DAP step function to load transformed 
 
 The packaged ETL job is stored in S3 in s3://{raw}-dap-elt-metadata/txma/raw-to-stage
 
-To install dependencies and build the package, From the root folder run,
+To install dependencies and build the package, navigate to raw-to-stage/ From the root folder run,
 
-`poetry install`
-`poetry build -o etl-dist`
+`pip3 install --upgrade build`
+`python3 -m build`
 
 to run the unit tests, run
 
-`poetry run pytest -s`
+`python3 run pytest -s`
 
 upload the built wheel file in `etl-dist/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl` to s3://{raw}-dap-elt-metadata/txma/raw-to-stage
 
