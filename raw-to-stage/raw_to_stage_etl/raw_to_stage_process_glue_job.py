@@ -82,21 +82,6 @@ def main():
 
         processor.process()
 
-        """
-        This next part of the process(Backfill) for SCHEDULED will be temporary until we figure out a way to load
-        events that were missing from the previous job
-        TODO: remove the backfill part of the job when there is no need.
-        """
-        if job_type == "SCHEDULED":
-            backfill_strategy = BackfillStrategy(args, json_data, glue_app, s3_app, preprocessing, strategy.max_timestamp, strategy.max_processed_dt)
-            processor = RawToStageProcessor(args, backfill_strategy)
-            try:
-                processor.process()
-            except NoDataFoundException as e:
-                logger.info("Exception Message: %s, Stacktrace: %s", str(e), traceback.format_exc())
-                # as no data could be found for backfill, supress the exception
-                logger.info("Exiting without raising error(As no data could be found for backfill)")
-
     except ValueError as e:
         logger.error("Value Error: %s, Stacktrace: %s", str(e), traceback.format_exc())
         sys.exit("Exception encountered within main, exiting process")
