@@ -11,7 +11,6 @@ from raw_to_stage_etl.clients.s3_read_write import S3ReadWrite
 from raw_to_stage_etl.exceptions.no_data_found_exception import NoDataFoundException
 from raw_to_stage_etl.logging.logger import get_logger
 from raw_to_stage_etl.processor.processor import RawToStageProcessor
-from raw_to_stage_etl.strategies.backfill_strategy import BackfillStrategy
 from raw_to_stage_etl.strategies.custom_strategy import CustomStrategy
 from raw_to_stage_etl.strategies.scheduled_strategy import ScheduledStrategy
 from raw_to_stage_etl.strategies.view_strategy import ViewStrategy
