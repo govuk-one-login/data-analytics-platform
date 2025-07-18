@@ -1,0 +1,18 @@
+pre-commit==4.0.1
+boto3==1.35.83
+pandas==2.2.3
+# pandas-stubs==2.2.3.241126
+awswrangler==3.10.1
+awsglue-dev==2021.12.30
+black==24.10.0
+pyupgrade==3.19.1
+isort==5.13.2
+flake8==7.1.1
+flake8-bandit==4.1.1
+flake8-bugbear==24.12.12
+reindent==3.5.1
+mypy==1.14.1
+pydocstyle==6.3.0
+aws_lambda_powertools==3.4.1
+pytest==7.4.4
+pytest-mock==3.12.0
