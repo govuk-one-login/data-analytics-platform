@@ -1,6 +1,6 @@
 # DI Data Analytics Platform
 
-Data and Analytics platform which will enable the implementation of the [GOV.UK One Login](https://govukverify.atlassian.net/l/cp/ZBmDjKz0).
+Data and Analytics platform which will enable the implementation of the [GOV.UK One Login reporting strategy](https://govukverify.atlassian.net/l/cp/ZBmDjKz0).
 
 ## Prerequisites
 
