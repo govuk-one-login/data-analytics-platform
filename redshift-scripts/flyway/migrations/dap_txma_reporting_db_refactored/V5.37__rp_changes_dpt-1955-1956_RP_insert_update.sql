@@ -50,7 +50,7 @@ WHERE  client_id='oNDHNPrkflBnNyNijFx1yr3Kth8';
 --updates for QCiNhw5sqzxzn0nCNP-QDAc-JuQ
 
 INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
-SELECT '6Rsn6Xg-Focyzjct9MdVuz1tvgc', 'Civil Service Jobs', 'CO - National Maritime Single Window','CO','CO'
+SELECT 'QCiNhw5sqzxzn0nCNP-QDAc-JuQ', 'Civil Service Jobs', 'CO - National Maritime Single Window','CO','CO'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.REF_RELYING_PARTIES_refactored
@@ -69,7 +69,7 @@ WHERE  client_id='QCiNhw5sqzxzn0nCNP-QDAc-JuQ';
 --updates for x0cK4DGNDnCXmsPrYC6cJRV1LC0
 
 INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
-SELECT '6Rsn6Xg-Focyzjct9MdVuz1tvgc', 'National Security and Investment', 'CO - National Security and Investment','CO','CO'
+SELECT 'x0cK4DGNDnCXmsPrYC6cJRV1LC0', 'National Security and Investment', 'CO - National Security and Investment','CO','CO'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.REF_RELYING_PARTIES_refactored
@@ -87,7 +87,7 @@ WHERE  client_id='x0cK4DGNDnCXmsPrYC6cJRV1LC0';
 --updates for B9KZl6C1T3h4rYswq84GF2okyFk
 
 INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
-SELECT '6Rsn6Xg-Focyzjct9MdVuz1tvgc', 'Find Teacher Training Courses', 'DFE - Find Teacher Training Courses','DFE','DFE'
+SELECT 'B9KZl6C1T3h4rYswq84GF2okyFkc', 'Find Teacher Training Courses', 'DFE - Find Teacher Training Courses','DFE','DFE'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.REF_RELYING_PARTIES_refactored
