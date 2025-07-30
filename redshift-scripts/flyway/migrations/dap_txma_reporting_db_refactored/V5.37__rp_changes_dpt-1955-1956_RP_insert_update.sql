@@ -1,7 +1,7 @@
 --updates for IJ_TuVEgIqAWT2mCe9b5uocMyNs
 
 INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
-SELECT 'IJ_TuVEgIqAWT2mCe9b5uocMyNs', 'Targeted Retention Incentives for Further Education Teachers', 'DFE - Targeted Retention Incentives for Further Education Teachers','DWP','DFE'
+SELECT 'IJ_TuVEgIqAWT2mCe9b5uocMyNs', 'Targeted Retention Incentives for Further Education Teachers', 'DFE - Targeted Retention Incentives for Further Education Teachers','DFE','DFE'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.REF_RELYING_PARTIES_refactored
@@ -12,8 +12,8 @@ WHERE NOT EXISTS (
 UPDATE conformed_refactored.dim_relying_party_refactored
 SET relying_party_name='Targeted Retention Incentives for Further Education Teachers'
     ,display_name='DFE - Targeted Retention Incentives for Further Education Teachers'
-    ,department_name='DBT'
-    ,agency_name='DBT'
+    ,department_name='DFE'
+    ,agency_name='DFE'
 WHERE  client_id='IJ_TuVEgIqAWT2mCe9b5uocMyNs';
 
 --updates for 6Rsn6Xg-Focyzjct9MdVuz1tvgc
