@@ -91,7 +91,7 @@ WHERE  client_id='x0cK4DGNDnCXmsPrYC6cJRV1LC0';
 --updates for B9KZl6C1T3h4rYswq84GF2okyFk
 
 INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
-SELECT 'B9KZl6C1T3h4rYswq84GF2okyFkc', 'Find Teacher Training Courses', 'DFE - Find Teacher Training Courses','DFE','DFE'
+SELECT 'B9KZl6C1T3h4rYswq84GF2okyFk', 'Find Teacher Training Courses', 'DFE - Find Teacher Training Courses','DFE','DFE'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.REF_RELYING_PARTIES_refactored
