@@ -1,10 +1,9 @@
 """ScheduledStrategy is for ETL which runs everyday on schedule."""
 
-from ..util.database_utilities import date_minus_days, get_max_processed_dt, get_max_timestamp
+from ..util.database_utilities import (date_minus_days, get_max_processed_dt, get_max_timestamp,
+                                       timestamp_minus_firehose_buffer_time)
 from ..util.json_config_processing_utilities import extract_element_by_name
 from .strategy import Strategy
-from datetime import datetime, timedelta
-
 
 
 class ScheduledStrategy(Strategy):
@@ -29,14 +28,21 @@ class ScheduledStrategy(Strategy):
         if self.max_processed_dt is None:
             raise ValueError("Function 'get_max_processed_dt' returned None, which is not allowed.")
         self.logger.info("retrieved processed_dt filter value: %s", self.max_processed_dt)
-        
+
         self.max_timestamp = get_max_timestamp(self.glue_client, stage_database, stage_target_table)
 
         if self.max_timestamp is None:
             raise ValueError("Function 'get_max_timestamp' returned None, which is not allowed.")
         self.logger.info("retrieved timestamp filter value: %s", self.max_timestamp)
 
-        sql_query = self.get_raw_sql(self.max_processed_dt, self.max_timestamp, raw_database, raw_table)
+        """Firehose buffer time is 15 mins.So we subtract 20 mins from the max timestamp which ensures every run will
+           look for events with a timestamp higher than that value. This is to catch any events which might have flown
+           in during previous run(As soon as ETL job extracts data, if records flow in after that extract cut off, they
+           will be missed without this subtraction) and might have been missed. This will result in duplicates in the
+           stage layer which the conformed layer will be able to handle"""
+        firehose_adjusted_max_timestamp = str(timestamp_minus_firehose_buffer_time(self.max_timestamp, minutes=20))
+
+        sql_query = self.get_raw_sql(self.max_processed_dt, firehose_adjusted_max_timestamp, raw_database, raw_table)
         return self.glue_client.get_raw_data(sql_query, self.athena_query_chunksize)
 
     def get_raw_sql(self, max_processed_dt, max_timestamp, raw_database, raw_table):
@@ -59,7 +65,7 @@ class ScheduledStrategy(Strategy):
         if event_processing_selection_criteria_limit is None:
             raise ValueError("limit value for event_processing_selection_criteria is not found within config rules")
         self.logger.info("config rule: event_processing_selection_criteria | limit: %s", event_processing_selection_criteria_limit)
-        update_filter = event_processing_selection_criteria_filter.replace("processed_dt", date_minus_days(max_processed_dt,1)).replace(
+        update_filter = event_processing_selection_criteria_filter.replace("processed_dt", date_minus_days(max_processed_dt, 1)).replace(
             "replace_timestamp", str(max_timestamp)
         )
         sql_query = f"""select * from \"{raw_database}\".\"{raw_table}\" where {update_filter}"""
