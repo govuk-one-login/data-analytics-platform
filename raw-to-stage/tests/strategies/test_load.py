@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import call
 from raw_to_stage_etl.strategies.scheduled_strategy import ScheduledStrategy
-from raw_to_stage_etl.strategies.backfill_strategy import BackfillStrategy
 from raw_to_stage_etl.strategies.custom_strategy import CustomStrategy
 from raw_to_stage_etl.strategies.view_strategy import ViewStrategy
 from raw_to_stage_etl.util.data_preprocessing import DataPreprocessing
