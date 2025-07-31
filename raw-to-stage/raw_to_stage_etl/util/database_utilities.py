@@ -284,3 +284,9 @@ def date_minus_days(max_processed_dt_str, days):
     max_processed_dt=datetime.strptime(max_processed_dt_str, DATE_FORMAT)
     max_processed_dt_minus_days = max_processed_dt - timedelta(days=days)
     return max_processed_dt_minus_days.strftime(DATE_FORMAT)
+
+def timestamp_minus_firehose_buffer_time(max_timestamp, minutes):
+    """Subtract no of given minutes from timestamp and return new timestamp."""
+    max_timestamp_dt=datetime.fromtimestamp(max_timestamp)
+    max_timestamp_minus_minutes = max_timestamp_dt - timedelta(minutes=minutes)
+    return int(max_timestamp_minus_minutes.timestamp())
