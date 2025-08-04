@@ -6,7 +6,6 @@ on:
       lowercase-environment:
         type: string
         required: true
-  pull_request:
 
 jobs:
   release-build:
@@ -17,7 +16,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Build release distributions
-        run:
+        run: |
           cd raw-to-stage
           python -m pip install build
           python -m build
