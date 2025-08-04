@@ -36,4 +36,6 @@ jobs:
           S3_BUCKET="s3://$(echo "${{ inputs.lowercase-environment }}")-dap-elt-metadata/txma/raw-to-stage"
 
           echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"
+          pwd
+          ls $FILES_ROOT
           aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive"
