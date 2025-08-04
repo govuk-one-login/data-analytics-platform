@@ -32,7 +32,7 @@ jobs:
       - name: Upload wheel file to S3
         run: |
           REGION="eu-west-2"
-          FILES_ROOT="./dist"
+          FILES_ROOT="./raw-to-stage/dist"
           S3_BUCKET="s3://$(echo "${{ inputs.lowercase-environment }}")-dap-elt-metadata/txma/raw-to-stage"
 
           echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"
