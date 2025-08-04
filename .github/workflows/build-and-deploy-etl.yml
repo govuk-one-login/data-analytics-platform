@@ -6,6 +6,7 @@ on:
       lowercase-environment:
         type: string
         required: true
+  pull_request:
 
 jobs:
   release-build:
