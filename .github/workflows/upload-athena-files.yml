@@ -23,7 +23,39 @@ jobs:
       - name: Validate input environment
         run: scripts/validate-environment.sh ${{ inputs.environment }}
 
-  upload-to-s3:
+  build-and-release-etl-job:
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build release distributions
+        run: |
+          cd raw-to-stage
+          python -m pip install build
+          python -m build
+      - name: Assume AWS GitHub actions role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.ELT_METADATA_UPLOAD_ROLE_ARN }}
+      - name: Upload wheel file to S3
+        run: |
+          REGION="eu-west-2"
+          FILES_ROOT="./raw-to-stage/dist"
+          S3_BUCKET="s3://$(echo "${{ inputs.lowercase-environment }}")-dap-elt-metadata/txma/raw-to-stage"
+
+          echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"
+          pwd
+          ls $FILES_ROOT
+          aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive
+
+  upload-athena-to-s3:
     needs: [validate-environment]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
