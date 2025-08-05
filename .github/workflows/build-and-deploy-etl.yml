@@ -28,7 +28,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets.FLYWAY_FILES_UPLOAD_ROLE_ARN }}
+          role-to-assume: ${{ secrets.ELT_METADATA_UPLOAD_ROLE_ARN }}
       - name: Upload wheel file to S3
         run: |
           REGION="eu-west-2"
