@@ -29,14 +29,13 @@ else
   exit 1
 fi
 
-if [ "$runtype" != "local" ]
-then
-        REGION="eu-west-2"
-        FILES_ROOT="./dist"
-        S3_BUCKET="s3://$(echo "$lowercase_environment")-dap-elt-metadata/txma/raw-to-stage"
+if [ "$runtype" != "local" ]; then
+  REGION="eu-west-2"
+  FILES_ROOT="./dist"
+  S3_BUCKET="s3://$(echo "$lowercase_environment")-dap-elt-metadata/txma/raw-to-stage"
 
-        echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"
-        pwd
-        ls $FILES_ROOT
-        aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive
+  echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"
+  pwd
+  ls $FILES_ROOT
+  aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive
 fi
