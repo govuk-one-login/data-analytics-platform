@@ -309,7 +309,7 @@ To install dependencies and build the package, navigate to raw-to-stage/ From th
 
 to run the unit tests, run
 
-`python3 run pytest -s`
+`python3 -m pytest`
 
 upload the built wheel file in `etl-dist/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl` to s3://{raw}-dap-elt-metadata/txma/raw-to-stage
 
