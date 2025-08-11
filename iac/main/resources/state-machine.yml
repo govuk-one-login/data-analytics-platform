@@ -729,7 +729,7 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
         Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
         Properties:
           Schedule: cron(20 1 * * ? *)
-          Enabled: !If [IsBuild, false, true]
+          State: !If [IsDevOrBuild, ENABLED, DISABLED]
 
 RawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job

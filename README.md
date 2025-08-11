@@ -300,7 +300,7 @@ For a list of TODOs for the project, please see the [TODOs document](docs/todos.
 ## Raw-to-Stage ETL Job :
 The raw-to-stage ETL jobs runs as part of DAP step function to load transformed and new raw data in to the stage layer
 
-The packaged ETL job is stored in S3 in s3://{raw}-dap-elt-metadata/txma/raw-to-stage
+The packaged ETL job is stored in S3 in s3://{raw}-dap-elt-metadata/txma/raw_to_stage
 
 To install dependencies and build the package, navigate to raw-to-stage/ From the root folder run,
 
@@ -311,9 +311,6 @@ to run the unit tests, run
 
 `python3 -m pytest`
 
-upload the built wheel file in `etl-dist/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl` to s3://{raw}-dap-elt-metadata/txma/raw-to-stage
-
-this file is used as additional imports in glue to resolve imports and dependencies for the main script, to upload the main script
-
-upload `raw-to-stage/raw_to_stage_etl/raw_to_stage_process_glue_job.py` to the same location
-
+to upload these files to S3 use the [`Upload Athena files to S3`](https://github.com/govuk-one-login/data-analytics-platform/actions/workflows/upload-athena-files.yml) Github Action by specifying the below parameters:
+    - Branch
+    - Environment 
