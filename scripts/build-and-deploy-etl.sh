@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-lowercase_environment=$1
+lowercase_environment=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 runtype=$(echo "$2" | tr '[:upper:]' '[:lower:]')
 ROOT=$(pwd)
 
