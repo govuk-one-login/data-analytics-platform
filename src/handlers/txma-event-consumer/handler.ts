@@ -16,7 +16,6 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
       if (shouldLog) {
         logger.info(`Received record with message id ${record.messageId} with event ${JSON.stringify(record.body)}`);
         logger.error(`some error`);
-
       }
 
       try {
