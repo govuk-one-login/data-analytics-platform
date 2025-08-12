@@ -66,7 +66,7 @@ Parameters:
     Description: Workspace ID for GDS Slack
     Type: String
     Default: T8GT9416G
-    
+
 Conditions:
   UseCodeSigning: !Not
     - !Equals
@@ -135,4 +135,3 @@ Mappings:
       SlackChannelId: C083A3B482G
     production:
       SlackChannelId: C092FMNFSUW
-
