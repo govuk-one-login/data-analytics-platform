@@ -829,7 +829,7 @@ TopicRoutingPolicy:
 SNSAlertTopic:
   Type: AWS::SNS::Topic
   Properties:
-    TopicName: !Sub ${Environment}-dap-elt-support-management-topic
+    TopicName: !Sub dap-alerts-notification-topic
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 DataQualityStageLayerOptimisedPythonGlueJob:
