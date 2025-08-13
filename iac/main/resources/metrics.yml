@@ -21,7 +21,7 @@ DAPNotificationsTopicSubscribePolicy:
           Resource: !Ref DAPNotificationsTopic
         - Sid: AllowCoudwatchPublish
           Effect: Allow
-          Principal: 
+          Principal:
             Service:
               - codestar-notifications.amazonaws.com
               - cloudwatch.amazonaws.com
