@@ -19,6 +19,17 @@ DAPNotificationsTopicSubscribePolicy:
             AWS:
               - !Sub ${AWS::AccountId}
           Resource: !Ref DAPNotificationsTopic
+        - Sid: AllowCoudwatchPublish
+          Effect: Allow
+          Principal: 
+            Service:
+              - codestar-notifications.amazonaws.com
+              - cloudwatch.amazonaws.com
+              - budgets.amazonaws.com
+              - events.amazonaws.com
+          Action:
+            - sns:Publish
+          Resource: !Ref DAPNotificationsTopic
     Topics:
       - !Ref DAPNotificationsTopic
 
