@@ -33,7 +33,7 @@ if [ "$runtype" != "local" ]; then
   REGION="eu-west-2"
   FILES_ROOT="./dist"
   ETL_ROOT="./raw_to_stage_etl"
-  DESTINATION_PATH="s3://$(echo "$lowercase_environment")-dap-elt-metadata/txma/raw_to_stage"
+  DESTINATION_PATH="s3://$(echo "$lowercase_environment")-dap-elt-metadata/txma/raw_to_stage/"
 
   echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"
   pwd
