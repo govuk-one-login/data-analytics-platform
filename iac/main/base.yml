@@ -62,6 +62,10 @@ Parameters:
     Type: String
     Description: String of characters to exclude from the redshift password stored in secretsmanager
     Default: '"''@/\'
+  SlackWorkspaceId:
+    Description: Workspace ID for GDS Slack
+    Type: String
+    Default: T8GT9416G
 
 Conditions:
   UseCodeSigning: !Not
@@ -116,3 +120,18 @@ Globals:
     Environment:
       Variables:
         NODE_OPTIONS: '--enable-source-maps'
+
+Mappings:
+  DAPNotificationsSlackChannelIds:
+    dev:
+      SlackChannelId: C083A3B482G
+    build:
+      SlackChannelId: C083A3B482G
+    staging:
+      SlackChannelId: C083A3B482G
+    integration:
+      SlackChannelId: C083A3B482G
+    production-preview:
+      SlackChannelId: C083A3B482G
+    production:
+      SlackChannelId: C092FMNFSUW
