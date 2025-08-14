@@ -33,12 +33,12 @@ if [ "$runtype" != "local" ]; then
   REGION="eu-west-2"
   FILES_ROOT="./dist"
   ETL_ROOT="./raw_to_stage_etl"
-  S3_BUCKET="s3://$(echo "$lowercase_environment")-dap-elt-metadata/txma/raw-to-stage"
+  DESTINATION_PATH="s3://$(echo "$lowercase_environment")-dap-elt-metadata/txma/raw_to_stage/"
 
   echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"
   pwd
   ls $FILES_ROOT
-  aws --region="$REGION" s3 cp "$FILES_ROOT" "$S3_BUCKET" --recursive
-  echo "Uploading raw_to_stage_process_glue_job.py from $CURRENT_DIR to bucket $S3_BUCKET"
-  aws --region="$REGION" s3 cp "$ETL_ROOT/raw_to_stage_process_glue_job.py" "$S3_BUCKET"
+  aws --region="$REGION" s3 cp "$FILES_ROOT" "$DESTINATION_PATH" --recursive
+  echo "Uploading raw_to_stage_process_glue_job.py from $CURRENT_DIR to s3 path $DESTINATION_PATH"
+  aws --region="$REGION" s3 cp "$ETL_ROOT/raw_to_stage_process_glue_job.py" "$DESTINATION_PATH"
 fi
