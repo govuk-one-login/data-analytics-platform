@@ -1,6 +1,7 @@
 {
   "Comment": "AWS Step Functions state machine that processes raw datasets (consolidated schema) from TxMA into the staging layer of Athena",
   "StartAt": "ListExecutions",
+  "TimeoutSeconds": 10800,
   "States": {
     "ListExecutions": {
       "Type": "Task",
