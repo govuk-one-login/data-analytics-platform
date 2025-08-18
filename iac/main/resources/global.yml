@@ -381,7 +381,10 @@ FlowLogRole:
             - Effect: Allow
               Action:
                 - 's3:PutObject'
-              Resource: !Sub 'arn:aws:s3:::${VPCFlowLogsBucket}/*'
+                - 's3:GetBucketAcl'
+              Resource:
+                - !Sub 'arn:aws:s3:::${VPCFlowLogsBucket}'
+                - !Sub 'arn:aws:s3:::${VPCFlowLogsBucket}/*'
 
 FlowLogs:
   Type: 'AWS::EC2::FlowLog'
@@ -391,6 +394,7 @@ FlowLogs:
     ResourceId: !Ref VPCForDAP
     ResourceType: VPC
     TrafficType: ALL
+    DeliverLogsPermissionArn: !GetAtt FlowLogRole.Arn
 
 SubnetForDAP1:
   Type: AWS::EC2::Subnet
