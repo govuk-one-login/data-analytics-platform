@@ -140,6 +140,15 @@ VPCFlowLogsBucketPolicy:
           Resource: !Sub ${VPCFlowLogsBucket.Arn}/*
           Principal:
             AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+        - Effect: Allow
+          Action:
+            - 's3:PutObject'
+            - 's3:GetBucketAcl'
+          Resource:
+            - !Sub ${VPCFlowLogsBucket.Arn}
+            - !Sub ${VPCFlowLogsBucket.Arn}/*
+          Principal:
+            Service: delivery.logs.amazonaws.com
 
 S3NotificationsLoggerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda just does logging
@@ -394,7 +403,6 @@ FlowLogs:
     ResourceId: !Ref VPCForDAP
     ResourceType: VPC
     TrafficType: ALL
-    DeliverLogsPermissionArn: !GetAtt FlowLogRole.Arn
 
 SubnetForDAP1:
   Type: AWS::EC2::Subnet
