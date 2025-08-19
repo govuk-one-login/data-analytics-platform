@@ -86,6 +86,9 @@ Conditions:
   IsStaging: !Equals [!Ref Environment, staging]
   IsProduction: !Equals [!Ref Environment, production]
   IsProductionPreview: !Equals [!Ref Environment, production-preview]
+  IsDevOrBuild: !Or
+    - !Condition IsDev
+    - !Condition IsBuild
   IsQuicksightEnvironment: !Or
     - !Condition IsDev
     - !Condition IsProduction
