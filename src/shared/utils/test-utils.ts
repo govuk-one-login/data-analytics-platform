@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEventV2, SQSEvent } from 'aws-lambda';
 import { readFile } from 'fs/promises';
+import { Context } from 'aws-lambda';
 import type { Readable } from 'stream';
 import type { SdkStream } from '@aws-sdk/types';
 import type { AttributeType } from '@aws-sdk/client-cognito-identity-provider';
@@ -55,4 +56,19 @@ interface MockCognitoUser {
 
 export const mockCognitoUser = (username: string, email: string): MockCognitoUser => {
   return { Username: username, UserAttributes: [{ Name: 'email', Value: email }] };
+};
+
+export const mockLambdaContext: Context = {
+  callbackWaitsForEmptyEventLoop: false,
+  functionName: 'someFunction',
+  functionVersion: 'someVersion',
+  invokedFunctionArn: 'someFunctionArn',
+  memoryLimitInMB: '1',
+  awsRequestId: 'someRequestId',
+  logGroupName: 'someLogGroupName',
+  logStreamName: 'someLogStreamName',
+  getRemainingTimeInMillis: () => 1,
+  done: jest.fn(),
+  fail: jest.fn(),
+  succeed: jest.fn(),
 };
