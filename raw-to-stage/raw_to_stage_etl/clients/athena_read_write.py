@@ -44,6 +44,8 @@ class AthenaReadWrite:
                 WorkGroup=workgroup,
             )
 
+            # Add comment to test DPT-1909 (remove later)
+
             # Get the query execution ID
             query_execution_id = response["QueryExecutionId"]
 
