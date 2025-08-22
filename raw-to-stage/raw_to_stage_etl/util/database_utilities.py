@@ -7,7 +7,8 @@ from .exceptions.util_exceptions import QueryException
 
 logger = get_logger(__name__)
 
-DATE_FORMAT="%Y%m%d"
+DATE_FORMAT = "%Y%m%d"
+
 
 def get_all_previous_processed_dts(glue_client, stage_database, stage_target_table, max_processed_dt, current_process_dt):
     """Get all previous processed dates(excluding max processed date and current processing date).
@@ -215,9 +216,9 @@ def get_max_processed_dt_when_table_doesnt_exist(glue_client, raw_database, raw_
     sql = f'''select min(
                             cast(
                                 concat(
-                                    cast(year as varchar),
-                                    cast(lpad(cast(month as varchar), 2, '0') as varchar),
-                                    cast(lpad(cast(day as varchar), 2, '0') as varchar)
+                                    cast(substr(datecreated, 6,4) as varchar),
+                                    cast(lpad(cast(substr(datecreated, 17,2) as varchar), 2, '0') as varchar),
+                                    cast(lpad(cast(substr(datecreated, 24,2) as varchar), 2, '0') as varchar)
                                     )
                                 as int
                             )
@@ -279,14 +280,16 @@ def get_max_processed_dt_when_table_exists(glue_client, stage_database, stage_ta
                     raise QueryException("Stage table does not contain the processed_dt column.")
         return None
 
+
 def date_minus_days(max_processed_dt_str, days):
     """Subtract no of given days from date and return new date string."""
-    max_processed_dt=datetime.strptime(max_processed_dt_str, DATE_FORMAT)
+    max_processed_dt = datetime.strptime(max_processed_dt_str, DATE_FORMAT)
     max_processed_dt_minus_days = max_processed_dt - timedelta(days=days)
     return max_processed_dt_minus_days.strftime(DATE_FORMAT)
 
+
 def timestamp_minus_firehose_buffer_time(max_timestamp, minutes):
     """Subtract no of given minutes from timestamp and return new timestamp."""
-    max_timestamp_dt=datetime.fromtimestamp(max_timestamp)
+    max_timestamp_dt = datetime.fromtimestamp(max_timestamp)
     max_timestamp_minus_minutes = max_timestamp_dt - timedelta(minutes=minutes)
     return int(max_timestamp_minus_minutes.timestamp())
