@@ -38,7 +38,7 @@ WHERE  client_id='zNRRx57bVhTdAZQEMa9Q0lXRb5o';
 --HMCTS - Apply for a Gender Recognition Certificate
 
 INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
-SELECT 'PIS7mbqOcs7auNqL2v33aZqESBs','FApply for a Gender Recognition Certificate','HMCTS - Apply for a Gender Recognition Certificate','HMCTS','DTS'
+SELECT 'PIS7mbqOcs7auNqL2v33aZqESBs','Apply for a Gender Recognition Certificate','HMCTS - Apply for a Gender Recognition Certificate','HMCTS','DTS'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.REF_RELYING_PARTIES_refactored
