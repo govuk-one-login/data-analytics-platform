@@ -33,6 +33,7 @@ class ScheduledStrategy(Strategy):
 
         if self.max_timestamp is None:
             raise ValueError("Function 'get_max_timestamp' returned None, which is not allowed.")
+
         self.logger.info("retrieved timestamp filter value: %s", self.max_timestamp)
 
         """Firehose buffer time is 15 mins.So we subtract 20 mins from the max timestamp which ensures every run will
