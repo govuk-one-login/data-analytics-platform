@@ -1,20 +1,26 @@
 --DBT - Product Safety Database
 
 INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
-SELECT 'sdlgbEirK30fvgbrf0C78XY60qN','PDP Connection Portal','MaPS - PDP Connection Portal','DWP','MaPS'
+SELECT 'sdlgbEirK30fvgbrf0C78XY60qN','Product Safety Database','DBT - Product Safety Database','DBT','OPSS'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.REF_RELYING_PARTIES_refactored
     WHERE client_id = 'sdlgbEirK30fvgbrf0C78XY60qN'
 );
 
+UPDATE conformed_refactored.REF_RELYING_PARTIES_refactored
+SET client_name='Product Safety Database'
+    ,display_name='DBT - Product Safety Database'
+    ,department_name='DBT'
+    ,agency_name='OPSS'
+WHERE  client_id='sdlgbEirK30fvgbrf0C78XY60qN';
 
 
 UPDATE conformed_refactored.dim_relying_party_refactored
-SET relying_party_name='PDP Connection Portal'
-    ,display_name='MaPS - PDP Connection Portal'
-    ,department_name='DWP'
-    ,agency_name='MaPS'
+SET relying_party_name='Product Safety Database'
+    ,display_name='DBT - Product Safety Database'
+    ,department_name='DBT'
+    ,agency_name='OPSS'
 WHERE  client_id='sdlgbEirK30fvgbrf0C78XY60qN';
 
 --DESNZ - Manage your Energy Savings Opportunity Scheme
