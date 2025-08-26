@@ -27,6 +27,6 @@ def test_correct_strategy_methods_called(strategy_cls):
 
     mock_strategy.extract.assert_called_once()
     args, _ = mock_strategy.transform.call_args
-    pd.testing.assert_frame_equal(args[0], test_dfs['stage_df'])
+    pd.testing.assert_frame_equal(args[0], test_dfs['raw_df'])
     args, _ = mock_strategy.load.call_args
     pd.testing.assert_frame_equal(args[0], test_dfs['stage_layer_df'])
