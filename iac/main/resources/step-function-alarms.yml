@@ -14,7 +14,7 @@ TxmaRawToADMStepFunctionFailureAlarm:
       - Name: StateMachineArn
         Value: !Ref TxmaRawLayerConsolidatedSchemaProcessingStateMachine
     AlarmActions:
-      - !Ref SNSReferenceDataAlertTopic
+      - !Ref DAPNotificationsTopic
 
 TxmaStepFunctionAbortedAlarm:
   Type: 'AWS::CloudWatch::Alarm'
@@ -32,7 +32,7 @@ TxmaStepFunctionAbortedAlarm:
       - Name: StateMachineArn
         Value: !Ref TxmaRawLayerConsolidatedSchemaProcessingStateMachine
     AlarmActions:
-      - !Ref SNSReferenceDataAlertTopic
+      - !Ref DAPNotificationsTopic
 
 TxmaStepFunctionLongRunningAlarm:
   Type: 'AWS::CloudWatch::Alarm'
@@ -50,4 +50,4 @@ TxmaStepFunctionLongRunningAlarm:
       - Name: StateMachineArn
         Value: !Ref TxmaRawLayerConsolidatedSchemaProcessingStateMachine
     AlarmActions:
-      - !Ref SNSReferenceDataAlertTopic
+      - !Ref DAPNotificationsTopic
