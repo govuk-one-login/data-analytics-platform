@@ -1,7 +1,7 @@
 TxmaRawToADMStepFunctionFailureAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
-    AlarmName: !Sub '${AWS::StackName}-raw-to-adm-step-failed'
+    AlarmName: !Sub '${Environment}-${AWS::StackName}-raw-to-adm-step-failed'
     AlarmDescription: 'Alarm for TxMA Raw to ADM Step Function execution failures'
     MetricName: ExecutionsFailed
     Namespace: AWS/States
@@ -19,7 +19,7 @@ TxmaRawToADMStepFunctionFailureAlarm:
 TxmaStepFunctionAbortedAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
-    AlarmName: !Sub '${AWS::StackName}-raw-to-adm-step-aborted'
+    AlarmName: !Sub '${Environment}-${AWS::StackName}-raw-to-adm-step-aborted'
     AlarmDescription: 'Alarm for TxMA Step Function execution aborts'
     MetricName: ExecutionsAborted
     Namespace: AWS/States
@@ -37,7 +37,7 @@ TxmaStepFunctionAbortedAlarm:
 TxmaStepFunctionLongRunningAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
-    AlarmName: !Sub '${AWS::StackName}-raw-to-adm-long-running'
+    AlarmName: !Sub '${Environment}-${AWS::StackName}-raw-to-adm-long-running'
     AlarmDescription: 'Alarm for long-running TxMA Step Function executions'
     MetricName: ExecutionTime
     Namespace: AWS/States
