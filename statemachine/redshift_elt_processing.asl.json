@@ -1,5 +1,5 @@
 {
-  "Comment": "Redshit ELT processing workflow for loading dimension and fact tables",
+  "Comment": "Redshift ELT processing workflow for loading dimension and fact tables",
   "StartAt": "ListExecutions",
   "States": {
     "ListExecutions": {
