@@ -42,7 +42,7 @@ jobs:
         run: scripts/build-and-deploy-etl.sh ${{ inputs.environment }} remote
           
   upload-athena-to-s3:
-    needs: [validate-environment]
+    needs: [validate-environment, build-and-release-etl-job]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
