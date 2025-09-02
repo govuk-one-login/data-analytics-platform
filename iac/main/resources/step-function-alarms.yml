@@ -91,8 +91,7 @@ RedshiftProcessingStepFunctionRetryAlarm:
   Properties:
     AlarmName: !Sub '${Environment}-${AWS::StackName}-redshift-processing-retry'
     AlarmDescription: 'Alarm when RedshiftProcessingStepFunction is retried (1-2 failures only)'
-    AlarmRule: !Sub |
-      ALARM(${RedshiftProcessingStepFunctionRetryMinAlarm}) AND ALARM(${RedshiftProcessingStepFunctionRetryMaxAlarm})
+    AlarmRule: !Sub 'ALARM(${RedshiftProcessingStepFunctionRetryMinAlarm}) AND ALARM(${RedshiftProcessingStepFunctionRetryMaxAlarm})'
     AlarmActions:
       - !Ref DAPNotificationsTopic
 
@@ -138,7 +137,6 @@ ADMProcessingStepFunctionRetryAlarm:
   Properties:
     AlarmName: !Sub '${Environment}-${AWS::StackName}-adm-processing-retry'
     AlarmDescription: 'Alarm when trigger_adm_processing_step_function is retried (1-2 failures only)'
-    AlarmRule: !Sub |
-      ALARM(${ADMProcessingStepFunctionRetryMinAlarm}) AND ALARM(${ADMProcessingStepFunctionRetryMaxAlarm})
+    AlarmRule: !Sub 'ALARM(${ADMProcessingStepFunctionRetryMinAlarm}) AND ALARM(${ADMProcessingStepFunctionRetryMaxAlarm})'
     AlarmActions:
       - !Ref DAPNotificationsTopic
