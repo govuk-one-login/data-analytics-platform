@@ -2,7 +2,7 @@ TxmaRawToADMStepFunctionFailureAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
     AlarmName: !Sub '${Environment}-${AWS::StackName}-raw-to-adm-step-failed'
-    AlarmDescription: 'Alarm for TxMA Raw to ADM Step Function execution failures'
+    AlarmDescription: !Sub 'Alarm for ${Environment}-${AWS::StackName}-txma-raw-consolidated-schema-to-stage-process step function execution failures'
     MetricName: ExecutionsFailed
     Namespace: AWS/States
     Statistic: Sum
@@ -20,7 +20,7 @@ TxmaStepFunctionAbortedAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
     AlarmName: !Sub '${Environment}-${AWS::StackName}-raw-to-adm-step-aborted'
-    AlarmDescription: 'Alarm for TxMA Step Function execution aborts'
+    AlarmDescription: !Sub 'Alarm for ${Environment}-${AWS::StackName}-txma-raw-consolidated-schema-to-stage-process step function execution aborts'
     MetricName: ExecutionsAborted
     Namespace: AWS/States
     Statistic: Sum
@@ -38,7 +38,7 @@ TxmaStepFunctionLongRunningAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
     AlarmName: !Sub '${Environment}-${AWS::StackName}-raw-to-adm-long-running'
-    AlarmDescription: 'Alarm for long-running TxMA Step Function executions'
+    AlarmDescription: !Sub 'Alarm for long-running ${Environment}-${AWS::StackName}-txma-raw-consolidated-schema-to-stage-process step function executions'
     MetricName: ExecutionTime
     Namespace: AWS/States
     Statistic: Maximum
@@ -56,7 +56,7 @@ RedshiftProcessingStepFunctionRetryMinAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
     AlarmName: !Sub '${Environment}-${AWS::StackName}-redshift-retry-min'
-    AlarmDescription: 'Minimum threshold for retry detection'
+    AlarmDescription: !Sub 'Minimum threshold for retry detection of ${Environment}-${AWS::StackName}-consolidated-stage-layer-to-redshift-processing step function'
     MetricName: ExecutionsFailed
     Namespace: AWS/States
     Statistic: Sum
@@ -66,14 +66,14 @@ RedshiftProcessingStepFunctionRetryMinAlarm:
     ComparisonOperator: GreaterThanOrEqualToThreshold
     Dimensions:
       - Name: StateMachineArn
-        Value: !Ref RedshiftProcessingStateMachine
+        Value: !Ref RedshiftConsolidatedModelProcessingStateMachine
     TreatMissingData: notBreaching
 
 RedshiftProcessingStepFunctionRetryMaxAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
     AlarmName: !Sub '${Environment}-${AWS::StackName}-redshift-retry-max'
-    AlarmDescription: 'Maximum threshold for retry detection'
+    AlarmDescription: !Sub 'Maximum threshold for retry detection of ${Environment}-${AWS::StackName}-consolidated-stage-layer-to-redshift-processing step function'
     MetricName: ExecutionsFailed
     Namespace: AWS/States
     Statistic: Sum
@@ -83,14 +83,14 @@ RedshiftProcessingStepFunctionRetryMaxAlarm:
     ComparisonOperator: LessThanThreshold
     Dimensions:
       - Name: StateMachineArn
-        Value: !Ref RedshiftProcessingStateMachine
+        Value: !Ref RedshiftConsolidatedModelProcessingStateMachine
     TreatMissingData: notBreaching
 
 RedshiftProcessingStepFunctionRetryAlarm:
   Type: 'AWS::CloudWatch::CompositeAlarm'
   Properties:
     AlarmName: !Sub '${Environment}-${AWS::StackName}-redshift-processing-retry'
-    AlarmDescription: 'Alarm when RedshiftProcessingStepFunction is retried (1-2 failures only)'
+    AlarmDescription: !Sub 'Alarm when ${Environment}-${AWS::StackName}-consolidated-stage-layer-to-redshift-processing is retried (1-2 failures only)'
     AlarmRule: !Sub 'ALARM(${RedshiftProcessingStepFunctionRetryMinAlarm}) AND ALARM(${RedshiftProcessingStepFunctionRetryMaxAlarm})'
     AlarmActions:
       - !Ref DAPNotificationsTopic
@@ -100,7 +100,7 @@ ADMProcessingStepFunctionRetryMinAlarm:
   Condition: IsADMEnvironment
   Properties:
     AlarmName: !Sub '${Environment}-${AWS::StackName}-adm-retry-min'
-    AlarmDescription: 'Minimum threshold for ADM retry detection'
+    AlarmDescription: !Sub 'Minimum threshold for ADM retry detection for ${Environment}-${AWS::StackName}-consolidated-conformed-layer-to-adm-processing step function'
     MetricName: ExecutionsFailed
     Namespace: AWS/States
     Statistic: Sum
@@ -118,7 +118,7 @@ ADMProcessingStepFunctionRetryMaxAlarm:
   Condition: IsADMEnvironment
   Properties:
     AlarmName: !Sub '${Environment}-${AWS::StackName}-adm-retry-max'
-    AlarmDescription: 'Maximum threshold for ADM retry detection'
+    AlarmDescription: !Sub 'Maximum threshold for ADM retry detection for ${Environment}-${AWS::StackName}-consolidated-conformed-layer-to-adm-processing step function'
     MetricName: ExecutionsFailed
     Namespace: AWS/States
     Statistic: Sum
@@ -136,7 +136,7 @@ ADMProcessingStepFunctionRetryAlarm:
   Condition: IsADMEnvironment
   Properties:
     AlarmName: !Sub '${Environment}-${AWS::StackName}-adm-processing-retry'
-    AlarmDescription: 'Alarm when trigger_adm_processing_step_function is retried (1-2 failures only)'
+    AlarmDescription: !Sub 'Alarm when ${Environment}-${AWS::StackName}-consolidated-conformed-layer-to-adm-processing step function is retried (1-2 failures only)'
     AlarmRule: !Sub 'ALARM(${ADMProcessingStepFunctionRetryMinAlarm}) AND ALARM(${ADMProcessingStepFunctionRetryMaxAlarm})'
     AlarmActions:
       - !Ref DAPNotificationsTopic
