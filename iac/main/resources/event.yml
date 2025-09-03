@@ -61,7 +61,6 @@ EventConsumerLambda:
       Variables:
         FIREHOSE_STREAM_NAME: !Sub '${Environment}-${DeliveryStreamName}'
         ENVIRONMENT: !Ref Environment
-        LOG_LEVEL: DEBUG
     Tags:
       Environment: !Ref Environment
     VpcConfig:
