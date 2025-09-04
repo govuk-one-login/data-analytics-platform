@@ -1,55 +1,38 @@
-TxmaStepFunctionFailureEventRule:
-  Type: AWS::Events::Rule
+TxmaStepFunctionFailureAlarm:
+  Type: AWS::CloudWatch::Alarm
   Properties:
-    Description: !Sub '${Environment}-${AWS::StackName}-txma-raw-consolidated-schema-to-stage-process Step Function Failure with Step Details'
-    EventPattern:
-      source:
-        - aws.states
-      detail-type:
-        - Step Functions Execution Status Change
-      detail:
-        status:
-          - FAILED
-          - ABORTED
-        stateMachineArn:
-          - !Ref TxmaRawLayerConsolidatedSchemaProcessingStateMachine
-    State: 'ENABLED'
-    Targets:
-      - Arn: !Ref DAPNotificationsTopic
-        Id: 'TxmaStepFunctionFailureAlert'
-        InputTransformer:
-          InputPathsMap:
-            execution_name: $.detail.name
-            status: $.detail.status
-            start_date: $.detail.startDate
-            stop_date: $.detail.stopDate
-            state_machine: $.detail.stateMachineArn
-            failed_step: $.detail.cause
-          InputTemplate: |-
-            {
-                "version": "1.0",
-                "source": "custom",
-                "id": "txma-step-function-failure-alert",
-                "content": {
-                  "textType": "client-markdown",
-                  "title": ":Alert: DAP Raw to ADM Step Function Failure",
-                  "description": "DAP Raw to ADM Step Function execution failed with step details.",
-                  "nextSteps": [
-                    "Execution: <execution_name>",
-                    "Status: <status>",
-                    "Start Date: <start_date>",
-                    "Stop Date: <stop_date>",
-                    "Failed Step: <failed_step>",
-                    "State Machine: <state_machine>",
-                    "Please review the Step Function execution logs."
-                  ],
-                  "keywords": [
-                    "TxMA Step Function failure",
-                    "Critical",
-                    "Immediate action required"
-                  ]
-                }
-              }
+    AlarmName: !Sub '${Environment}-${AWS::StackName}-raw-to-adm-step-failed'
+    AlarmDescription: !Sub 'Alarm for ${Environment}-${AWS::StackName}-txma-raw-consolidated-schema-to-stage-process step function execution failures'
+    MetricName: ExecutionsFailed
+    Namespace: AWS/States
+    Statistic: Sum
+    Period: 600
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    Dimensions:
+      - Name: StateMachineArn
+        Value: !Ref TxmaRawLayerConsolidatedSchemaProcessingStateMachine
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+
+TxmaStepFunctionAbortedAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub '${Environment}-${AWS::StackName}-raw-to-adm-step-aborted'
+    AlarmDescription: !Sub 'Alarm for ${Environment}-${AWS::StackName}-txma-raw-consolidated-schema-to-stage-process step function execution aborts'
+    MetricName: ExecutionsAborted
+    Namespace: AWS/States
+    Statistic: Sum
+    Period: 600
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    Dimensions:
+      - Name: StateMachineArn
+        Value: !Ref TxmaRawLayerConsolidatedSchemaProcessingStateMachine
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
 
 TxmaStepFunctionLongRunningAlarm:
   Type: 'AWS::CloudWatch::Alarm'
@@ -59,7 +42,7 @@ TxmaStepFunctionLongRunningAlarm:
     MetricName: ExecutionTime
     Namespace: AWS/States
     Statistic: Maximum
-    Period: 900
+    Period: 600
     EvaluationPeriods: 1
     Threshold: 14400000
     ComparisonOperator: GreaterThanThreshold
