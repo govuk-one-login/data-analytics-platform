@@ -52,11 +52,11 @@ TxmaStepFunctionLongRunningAlarm:
     AlarmActions:
       - !Ref DAPNotificationsTopic
 
-RedshiftProcessingStepFunctionRetryMinAlarm:
+RedshiftProcessingStepFunctionRetryAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
-    AlarmName: !Sub '${Environment}-${AWS::StackName}-redshift-retry-min'
-    AlarmDescription: !Sub 'Minimum threshold for retry detection of ${Environment}-${AWS::StackName}-consolidated-stage-layer-to-redshift-processing step function'
+    AlarmName: !Sub '${Environment}-${AWS::StackName}-redshift-retry'
+    AlarmDescription: !Sub '${Environment}-${AWS::StackName}-consolidated-stage-layer-to-redshift-processing step function is being retried'
     MetricName: ExecutionsFailed
     Namespace: AWS/States
     Statistic: Sum
@@ -68,30 +68,6 @@ RedshiftProcessingStepFunctionRetryMinAlarm:
       - Name: StateMachineArn
         Value: !Ref RedshiftConsolidatedModelProcessingStateMachine
     TreatMissingData: notBreaching
-
-RedshiftProcessingStepFunctionRetryMaxAlarm:
-  Type: 'AWS::CloudWatch::Alarm'
-  Properties:
-    AlarmName: !Sub '${Environment}-${AWS::StackName}-redshift-retry-max'
-    AlarmDescription: !Sub 'Maximum threshold for retry detection of ${Environment}-${AWS::StackName}-consolidated-stage-layer-to-redshift-processing step function'
-    MetricName: ExecutionsFailed
-    Namespace: AWS/States
-    Statistic: Sum
-    Period: 300
-    EvaluationPeriods: 1
-    Threshold: 3
-    ComparisonOperator: LessThanThreshold
-    Dimensions:
-      - Name: StateMachineArn
-        Value: !Ref RedshiftConsolidatedModelProcessingStateMachine
-    TreatMissingData: notBreaching
-
-RedshiftProcessingStepFunctionRetryAlarm:
-  Type: 'AWS::CloudWatch::CompositeAlarm'
-  Properties:
-    AlarmName: !Sub '${Environment}-${AWS::StackName}-redshift-processing-retry'
-    AlarmDescription: !Sub 'Alarm when ${Environment}-${AWS::StackName}-consolidated-stage-layer-to-redshift-processing is retried (1-2 failures only)'
-    AlarmRule: !Sub 'ALARM(${RedshiftProcessingStepFunctionRetryMinAlarm}) AND ALARM(${RedshiftProcessingStepFunctionRetryMaxAlarm})'
     AlarmActions:
       - !Ref DAPNotificationsTopic
 
@@ -100,7 +76,7 @@ ADMProcessingStepFunctionRetryMinAlarm:
   Condition: IsADMEnvironment
   Properties:
     AlarmName: !Sub '${Environment}-${AWS::StackName}-adm-retry-min'
-    AlarmDescription: !Sub 'Minimum threshold for ADM retry detection for ${Environment}-${AWS::StackName}-consolidated-conformed-layer-to-adm-processing step function'
+    AlarmDescription: !Sub '${Environment}-${AWS::StackName}-consolidated-conformed-layer-to-adm-processing step function is being retried'
     MetricName: ExecutionsFailed
     Namespace: AWS/States
     Statistic: Sum
@@ -112,31 +88,5 @@ ADMProcessingStepFunctionRetryMinAlarm:
       - Name: StateMachineArn
         Value: !Ref ADMConsolidatedModelProcessingStateMachine
     TreatMissingData: notBreaching
-
-ADMProcessingStepFunctionRetryMaxAlarm:
-  Type: 'AWS::CloudWatch::Alarm'
-  Condition: IsADMEnvironment
-  Properties:
-    AlarmName: !Sub '${Environment}-${AWS::StackName}-adm-retry-max'
-    AlarmDescription: !Sub 'Maximum threshold for ADM retry detection for ${Environment}-${AWS::StackName}-consolidated-conformed-layer-to-adm-processing step function'
-    MetricName: ExecutionsFailed
-    Namespace: AWS/States
-    Statistic: Sum
-    Period: 300
-    EvaluationPeriods: 1
-    Threshold: 3
-    ComparisonOperator: LessThanThreshold
-    Dimensions:
-      - Name: StateMachineArn
-        Value: !Ref ADMConsolidatedModelProcessingStateMachine
-    TreatMissingData: notBreaching
-
-ADMProcessingStepFunctionRetryAlarm:
-  Type: 'AWS::CloudWatch::CompositeAlarm'
-  Condition: IsADMEnvironment
-  Properties:
-    AlarmName: !Sub '${Environment}-${AWS::StackName}-adm-processing-retry'
-    AlarmDescription: !Sub 'Alarm when ${Environment}-${AWS::StackName}-consolidated-conformed-layer-to-adm-processing step function is retried (1-2 failures only)'
-    AlarmRule: !Sub 'ALARM(${ADMProcessingStepFunctionRetryMinAlarm}) AND ALARM(${ADMProcessingStepFunctionRetryMaxAlarm})'
     AlarmActions:
       - !Ref DAPNotificationsTopic
