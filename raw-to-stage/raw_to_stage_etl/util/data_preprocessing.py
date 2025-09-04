@@ -426,7 +426,7 @@ class DataPreprocessing:
             if data_transformations_key_value_cols_exclusion_list is None:
                 raise ValueError("generate_key_value_records value for data_transformations is not found within config rules")
             self.logger.info(
-                "config rule: data_transformations | key_value_record_generation_column_exclusion_list: %s", data_transformations_key_value_cols_exclusion_list
+                "Config rule: data_transformations | key_value_record_generation_column_exclusion_list: %s", data_transformations_key_value_cols_exclusion_list
             )
 
             # Extract column names as list
@@ -555,7 +555,7 @@ class DataPreprocessing:
             if data_transformations_rename_column is None:
                 self.logger.info("rename_column value for data_transformations is not found within config rules")
                 return df_raw
-            self.logger.info("config rule: data_transformations | rename_column: %s", data_transformations_rename_column)
+            self.logger.info("Config rule: data_transformations | rename_column: %s", data_transformations_rename_column)
 
             df_raw = rename_column_names(df_raw, data_transformations_rename_column)
 
@@ -587,7 +587,7 @@ class DataPreprocessing:
             data_transformations_dup_column = extract_element_by_name(json_data, "duplicate_column", "data_transformations")
             if data_transformations_dup_column is None:
                 raise ValueError("duplicate_column value for data_transformations is not found within config rules")
-            self.logger.info("config rule: data_transformations | duplicate_column: %s", data_transformations_dup_column)
+            self.logger.info("Config rule: data_transformations | duplicate_column: %s", data_transformations_dup_column)
 
             df_raw = self.add_duplicate_column(df_raw, data_transformations_dup_column)
 
@@ -619,7 +619,7 @@ class DataPreprocessing:
             data_transformations_new_column = extract_element_by_name(json_data, "new_column", "data_transformations")
             if data_transformations_new_column is None:
                 raise ValueError("new_column value for data_transformations is not found within config rules")
-            self.logger.info("config rule: data_transformations | new_column: %s", data_transformations_new_column)
+            self.logger.info("Config rule: data_transformations | new_column: %s", data_transformations_new_column)
 
             df_raw = self.add_new_column(df_raw, data_transformations_new_column)
 
@@ -651,7 +651,7 @@ class DataPreprocessing:
             data_transformations_new_column_struct_extract = extract_element_by_name(json_data, "new_column_struct_extract", "data_transformations")
             if data_transformations_new_column_struct_extract is None:
                 raise ValueError("new_column_struct_extract value for data_transformations is not found within config rules")
-            self.logger.info("config rule: data_transformations | new_column_struct_extract: %s", data_transformations_new_column_struct_extract)
+            self.logger.info("Config rule: data_transformations | new_column_struct_extract: %s", data_transformations_new_column_struct_extract)
 
             df_raw = add_new_column_from_struct(df_raw, data_transformations_new_column_struct_extract)
 
@@ -714,7 +714,7 @@ class DataPreprocessing:
             parse_json_column_list = extract_element_by_name(json_data, "parse_json_list", "data_transformations")
             if parse_json_column_list is None:
                 raise ValueError("parse_json_list value for data_cleaning is not found within config rules")
-            self.logger.info("config rule: data_transformations | parse_json_strings: %s", parse_json_column_list)
+            self.logger.info("Config rule: data_transformations | parse_json_strings: %s", parse_json_column_list)
 
             for col in parse_json_column_list:
                 df_raw[col] = df_raw[col].apply(lambda x: json.loads(x) if isinstance(x, str) and x.strip().startswith("{") else None)
@@ -747,7 +747,7 @@ class DataPreprocessing:
             data_transformations_new_column_string_extract = extract_element_by_name(json_data, "new_column_string_extract", "data_transformations")
             if data_transformations_new_column_string_extract is None:
                 raise ValueError("new_column_string_extract value for data_transformations is not found within config rules")
-            self.logger.info("config rule: data_transformations | new_column_string_extract: %s", data_transformations_new_column_string_extract)
+            self.logger.info("Config rule: data_transformations | new_column_string_extract: %s", data_transformations_new_column_string_extract)
 
             df_raw = add_new_column_from_string_format(df_raw, data_transformations_new_column_string_extract)
 
