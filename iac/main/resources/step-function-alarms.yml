@@ -52,10 +52,10 @@ TxmaStepFunctionLongRunningAlarm:
     AlarmActions:
       - !Ref DAPNotificationsTopic
 
-RedshiftProcessingStepFunctionRetryAlarm:
+RedshiftProcessingStepFunctionRetryingAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Properties:
-    AlarmName: !Sub '${Environment}-${AWS::StackName}-redshift-retry'
+    AlarmName: !Sub '${Environment}-${AWS::StackName}-redshift-retrying'
     AlarmDescription: !Sub '${Environment}-${AWS::StackName}-consolidated-stage-layer-to-redshift-processing step function is being retried'
     MetricName: ExecutionsFailed
     Namespace: AWS/States
@@ -71,11 +71,11 @@ RedshiftProcessingStepFunctionRetryAlarm:
     AlarmActions:
       - !Ref DAPNotificationsTopic
 
-ADMProcessingStepFunctionRetryAlarm:
+ADMProcessingStepFunctionRetryingAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Condition: IsADMEnvironment
   Properties:
-    AlarmName: !Sub '${Environment}-${AWS::StackName}-adm-retry'
+    AlarmName: !Sub '${Environment}-${AWS::StackName}-adm-retrying'
     AlarmDescription: !Sub '${Environment}-${AWS::StackName}-consolidated-conformed-layer-to-adm-processing step function is being retried'
     MetricName: ExecutionsFailed
     Namespace: AWS/States
