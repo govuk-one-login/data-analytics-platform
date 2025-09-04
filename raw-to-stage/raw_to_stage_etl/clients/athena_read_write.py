@@ -20,10 +20,7 @@ class AthenaReadWrite:
 
     """
 
-    def __init__(self, args):
-        """Initialize a new AthenaReadWrite instance."""
-        self.athena_client = boto3.client("athena", region_name="eu-west-2")
-        self.logger = get_logger(__name__)
+
 
     def run_query(self, database, sql, workgroup):
         """
