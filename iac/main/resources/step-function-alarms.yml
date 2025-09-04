@@ -71,11 +71,11 @@ RedshiftProcessingStepFunctionRetryAlarm:
     AlarmActions:
       - !Ref DAPNotificationsTopic
 
-ADMProcessingStepFunctionRetryMinAlarm:
+ADMProcessingStepFunctionRetryAlarm:
   Type: 'AWS::CloudWatch::Alarm'
   Condition: IsADMEnvironment
   Properties:
-    AlarmName: !Sub '${Environment}-${AWS::StackName}-adm-retry-min'
+    AlarmName: !Sub '${Environment}-${AWS::StackName}-adm-retry'
     AlarmDescription: !Sub '${Environment}-${AWS::StackName}-consolidated-conformed-layer-to-adm-processing step function is being retried'
     MetricName: ExecutionsFailed
     Namespace: AWS/States
