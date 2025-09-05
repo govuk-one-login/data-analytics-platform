@@ -52,6 +52,15 @@ DAPNotificationChatbotRole:
             - sts:AssumeRole
     ManagedPolicyArns:
       - arn:aws:iam::aws:policy/AWSResourceExplorerReadOnlyAccess
+    Policies:
+      - PolicyName: CloudWatchAlarmsAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - cloudwatch:DescribeAlarms
+              Resource: '*'
 
 DAPNotificationsChatbotConfiguration:
   Type: AWS::Chatbot::SlackChannelConfiguration
