@@ -1,5 +1,5 @@
 {
-  "Comment": "Redshit ELT processing workflow for refreshing presentation ADM views",
+  "Comment": "Redshift ELT processing workflow for refreshing presentation ADM views",
   "StartAt": "ListExecutions",
   "States": {
     "ListExecutions": {
