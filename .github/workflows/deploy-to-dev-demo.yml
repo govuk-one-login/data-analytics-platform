@@ -28,8 +28,7 @@ jobs:
       - name: Build release distributions
         env:
           ARTIFACT_BUCKET_NAME: ${{ secrets.ARTEFACT_BUCKET_NAME_DEMO }}
-          lowercase_environment: dev
-        run: scripts/build-and-deploy-etl.sh ${{ inputs.environment }} remote
+        run: scripts/build-and-deploy-etl.sh dev remote
 
   deploy-main-application:
     needs: [test-and-validate, build-and-release-etl-job]
