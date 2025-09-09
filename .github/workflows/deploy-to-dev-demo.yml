@@ -24,7 +24,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets.ELT_METADATA_UPLOAD_ROLE_ARN }}
+          role-to-assume: ${{ secrets.GH_ACTIONS_ROLE_ARN_DEMO }}
       - name: Build release distributions
         env:
           ARTIFACT_BUCKET_NAME: ${{ secrets.ARTEFACT_BUCKET_NAME_DEMO }}
