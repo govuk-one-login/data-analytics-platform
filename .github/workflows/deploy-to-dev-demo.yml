@@ -69,3 +69,4 @@ jobs:
           artifact-bucket-name: ${{ secrets.ARTEFACT_BUCKET_NAME_DEMO }}
           signing-profile-name: ${{ secrets.SIGNING_PROFILE_NAME_DEMO }}
           working-directory: .
+
