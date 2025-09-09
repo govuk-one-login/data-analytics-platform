@@ -2,11 +2,6 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Data and Analytics Stack
 Transform: AWS::Serverless-2016-10-31
 
-Outputs:
-  TXMABucket:
-    Description: 'Name of raw bucket'
-    Value: !Ref RawLayerBucket
-
 Parameters:
   Environment:
     Description: Environment type
@@ -19,6 +14,7 @@ Parameters:
       - integration
       - production
       - production-preview
+      - demo
   CodeSigningConfigArn:
     Description: ARN of Code Signing Config from deployment pipeline
     Type: String
@@ -62,70 +58,11 @@ Parameters:
     Description: Workspace ID for GDS Slack
     Type: String
     Default: T8GT9416G
-
-Mappings:
-  DAPNotificationsSlackChannelIds:
-    dev:
-      SlackChannelId: C083A3B482G
-    build:
-      SlackChannelId: C083A3B482G
-    staging:
-      SlackChannelId: C083A3B482G
-    integration:
-      SlackChannelId: C083A3B482G
-    production-preview:
-      SlackChannelId: C083A3B482G
-    production:
-      SlackChannelId: C09D8TDHX1T
-  EnvironmentConfiguration:
-    dev:
-      dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
-    build:
-      dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
-    staging:
-      dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
-    integration:
-      dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
-    production-preview:
-      dynatraceSecretArn: unused
-    production:
-      dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceProductionVariables
-
-Conditions:
-  UseCodeSigning: !Not
-    - !Equals
-      - !Ref CodeSigningConfigArn
-      - none
-  UsePermissionsBoundary: !Not
-    - !Equals
-      - !Ref PermissionsBoundary
-      - none
-  UseTestingContainers: !Not
-    - !Equals
-      - !Ref TestRoleArn
-      - none
-  IsDev: !Equals [!Ref Environment, dev]
-  IsBuild: !Equals [!Ref Environment, build]
-  IsIntegration: !Equals [!Ref Environment, integration]
-  IsStaging: !Equals [!Ref Environment, staging]
-  IsProduction: !Equals [!Ref Environment, production]
-  IsProductionPreview: !Equals [!Ref Environment, production-preview]
-  IsDevOrBuild: !Or
-    - !Condition IsDev
-    - !Condition IsBuild
-  IsQuicksightEnvironment: !Or
-    - !Condition IsDev
-    - !Condition IsProduction
-    - !Condition IsProductionPreview
-  # is this an environment that uses secure pipelines for deployments (production-preview does a direct sam deploy)
-  # used to determine if extra policies need to be added to the secure pipelines deploy role in pipeline.yml
-  IsSecurePipelinesEnvironment: !Not [!Condition IsProductionPreview]
-  IsManualReferenceDataEnvironment: !Or
-    - !Condition IsProduction
-    - !Condition IsProductionPreview
-  IsADMEnvironment: !Or
-    - !Condition IsProduction
-    - !Condition IsProductionPreview
+  CommitSha:
+    Description: Commit SHA for this deployment
+    Type: String
+    Default: none
+    AllowedPattern: (none)|([a-f0-9]{40})
 
 Globals:
   Function:
@@ -144,41 +81,3 @@ Globals:
     Environment:
       Variables:
         NODE_OPTIONS: '--enable-source-maps'
-        DT_CONNECTION_AUTH_TOKEN: !If
-          - IsSecurePipelinesEnvironment
-          - !Sub
-            - '{{resolve:secretsmanager:${SecretArn}:SecretString:DT_CONNECTION_AUTH_TOKEN}}'
-            - SecretArn: !FindInMap [EnvironmentConfiguration, !Ref Environment, dynatraceSecretArn]
-          - !Ref 'AWS::NoValue'
-        DT_CONNECTION_BASE_URL: !If
-          - IsSecurePipelinesEnvironment
-          - !Sub
-            - '{{resolve:secretsmanager:${SecretArn}:SecretString:DT_CONNECTION_BASE_URL}}'
-            - SecretArn: !FindInMap [EnvironmentConfiguration, !Ref Environment, dynatraceSecretArn]
-          - !Ref 'AWS::NoValue'
-        DT_CLUSTER_ID: !If
-          - IsSecurePipelinesEnvironment
-          - !Sub
-            - '{{resolve:secretsmanager:${SecretArn}:SecretString:DT_CLUSTER_ID}}'
-            - SecretArn: !FindInMap [EnvironmentConfiguration, !Ref Environment, dynatraceSecretArn]
-          - !Ref 'AWS::NoValue'
-        DT_LOG_COLLECTION_AUTH_TOKEN: !If
-          - IsSecurePipelinesEnvironment
-          - !Sub
-            - '{{resolve:secretsmanager:${SecretArn}:SecretString:DT_LOG_COLLECTION_AUTH_TOKEN}}'
-            - SecretArn: !FindInMap [EnvironmentConfiguration, !Ref Environment, dynatraceSecretArn]
-          - !Ref 'AWS::NoValue'
-        DT_TENANT: !If
-          - IsSecurePipelinesEnvironment
-          - !Sub
-            - '{{resolve:secretsmanager:${SecretArn}:SecretString:DT_TENANT}}'
-            - SecretArn: !FindInMap [EnvironmentConfiguration, !Ref Environment, dynatraceSecretArn]
-          - !Ref 'AWS::NoValue'
-        DT_OPEN_TELEMETRY_ENABLE_INTEGRATION: !If
-          - IsSecurePipelinesEnvironment
-          - 'true'
-          - !Ref 'AWS::NoValue'
-    Layers: !If
-      - IsSecurePipelinesEnvironment
-      - - arn:aws:lambda:eu-west-2:216552277552:layer:Dynatrace_OneAgent_1_313_2_20250404-043044_with_collector_nodejs:1
-      - !Ref 'AWS::NoValue'
