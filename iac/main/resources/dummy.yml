@@ -187,6 +187,69 @@ RawStageTransformProcessPythonGlueJob:
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0
+    SecurityConfiguration: !Ref GlueSecurityConfig
     MaxCapacity: 1
     Name: !Sub ${Environment}-dap-raw-stage-transform-process
     Role: !Ref GlueScriptsExecutionRole
+
+GlueSecurityConfig:
+  Type: AWS::Glue::SecurityConfiguration
+  Properties:
+    Name: !Sub ${Environment}-dap-glue-security-configuration
+    EncryptionConfiguration:
+      CloudWatchEncryption:
+        CloudWatchEncryptionMode: SSE-KMS
+        KmsKeyArn: !GetAtt KmsKey.Arn
+      JobBookmarksEncryption:
+        JobBookmarksEncryptionMode: CSE-KMS
+        KmsKeyArn: !GetAtt KmsKey.Arn
+      S3Encryptions:
+        - S3EncryptionMode: SSE-KMS
+          KmsKeyArn: !GetAtt KmsKey.Arn
+
+KmsKey:
+  Type: AWS::KMS::Key
+  Properties:
+    EnableKeyRotation: true
+    KeyPolicy:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: Allow
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+          Action: kms:*
+          Resource: '*'
+        - Effect: Allow
+          Principal:
+            Service:
+              - cloudwatch.amazonaws.com
+              - cloudtrail.amazonaws.com
+              - lambda.amazonaws.com
+              - s3.amazonaws.com
+              - sns.amazonaws.com
+              - sqs.amazonaws.com
+              - logs.amazonaws.com
+              - logs.eu-west-2.amazonaws.com
+              - glue.amazonaws.com
+              - redshift.amazonaws.com
+              - redshift-serverless.amazonaws.com
+              - chatbot.amazonaws.com
+              - events.amazonaws.com
+            AWS:
+              - !GetAtt RawGlueCrawlerRole.Arn
+              - !GetAtt StepFunctionRole.Arn
+              - !GetAtt GlueScriptsExecutionRole.Arn
+              - !GetAtt StepFunctionRedshiftProcessRole.Arn
+          Action:
+            - kms:Encrypt*
+            - kms:Decrypt*
+            - kms:ReEncrypt*
+            - kms:GenerateDataKey*
+            - kms:Describe*
+          Resource: '*'
+
+KmsKeyAlias:
+  Type: AWS::KMS::Alias
+  Properties:
+    AliasName: !Sub alias/${Environment}-dap-key
+    TargetKeyId: !Ref KmsKey
