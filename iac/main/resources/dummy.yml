@@ -1,4 +1,3 @@
-
 GlueScriptsExecutionRole:
   Type: AWS::IAM::Role
   Properties:
@@ -182,7 +181,7 @@ RawStageTransformProcessPythonGlueJob:
       '--stage_target_key_value_table': 'txma_stage_layer_key_values'
       '--txma_raw_dedup_view_key_path': 'txma/raw_stage_optimisation_solution/athena_db_object/txma_raw_dedup_view.sql'
       '--workgroup': !Sub ${Environment}-dap-txma-processing
-      '--TempDir':  s3://some_buckett/raw_stage_optimisation_processing/temporary/
+      '--TempDir': s3://some_buckett/raw_stage_optimisation_processing/temporary/
       'library-set': 'analytics'
       '--extra-py-files': 'some_bucket/txma/raw_to_stage/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl'
     ExecutionProperty:
