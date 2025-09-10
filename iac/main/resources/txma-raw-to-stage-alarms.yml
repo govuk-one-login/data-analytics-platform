@@ -1,0 +1,53 @@
+TXMAEventConsumerFunctionErrorMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref TxmaEventConsumerLogs
+    FilterPattern: '"Error delivering data to DAP''s Kinesis Firehose:"'
+    MetricTransformations:
+      - MetricValue: '1'
+        MetricNamespace: !Ref CloudWatchMetricNamespace
+        MetricName: !Sub '${AWS::StackName}-txma-event-consumer-DAPError'
+
+TXMAEventConsumerFunctionErrorAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmActions:
+      - !ImportValue txma-alarms-slack-alerts-BuildNotificationTopicArn
+    AlarmDescription: >-
+      Alarm that triggers when DAP Firehose delivery errors occur
+    AlarmName: !Sub '${AWS::StackName}-txma-event-consumer-DAPErrorAlarm'
+    ComparisonOperator: GreaterThanThreshold
+    DatapointsToAlarm: 1
+    EvaluationPeriods: 1
+    Threshold: 0
+    MetricName: !Sub '${AWS::StackName}-txma-event-consumer-DAPError'
+    Namespace: !Ref CloudWatchMetricNamespace
+    Statistic: Sum
+    Period: 60
+
+TXMAEventConsumerFunctionDurationAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmActions:
+      - !ImportValue txma-alarms-slack-alerts-BuildNotificationTopicArn
+    AlarmDescription: >
+      Alarm that triggers when TXMA Event Consumer Lambda runs longer than 3 minutes
+    AlarmName: !Sub '${AWS::StackName}-txma-event-consumer-DurationAlarm'
+    ComparisonOperator: GreaterThanThreshold
+    DatapointsToAlarm: 1
+    EvaluationPeriods: 1
+    Threshold: 180000
+    MetricName: Duration
+    Namespace: AWS/Lambda
+    Statistic: Maximum
+    Period: 60
+    Dimensions:
+      - Name: FunctionName
+        Value: !Sub '${AWS::StackName}-txma-event-consumer'
+
+TxmaEventConsumerLogs:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    KmsKeyId: '{{resolve:ssm:LogsKmsKeyArn}}'
+    LogGroupName: !Sub '/aws/lambda/${AWS::StackName}-txma-event-consumer'
+    RetentionInDays: 30
