@@ -359,7 +359,7 @@ VPCForDAP:
       - Key: Environment
         Value: !Ref Environment
       - Key: Name
-        Value: dap-private-vpc-${Environment}
+        Value: dap-private-vpc-demo
 
 FlowLogRole:
   Type: 'AWS::IAM::Role'
