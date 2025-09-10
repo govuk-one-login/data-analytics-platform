@@ -117,7 +117,7 @@ RedshiftSecretRotationLambda:
   Properties:
     # todo remove this once secretsmanager permissions have been added to secure pipelines permissions boundary
     PermissionsBoundary: !Ref AWS::NoValue
-    FunctionName: redshift-rotate-secret
+    FunctionName: redshift-rotate-secret-demo
     Handler: redshift-rotate-secret.handler
     Policies:
       - AWSLambdaBasicExecutionRole
@@ -371,7 +371,7 @@ FlywayFilesBucketUploadRole:
   Condition: IsBuild
   Type: AWS::IAM::Role
   Properties:
-    RoleName: dap-flyway-files-upload-role
+    RoleName: dap-flyway-files-upload-role-demo
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -419,7 +419,7 @@ DataAnalyticsADMRedshiftRole:
             StringLike:
               'token.actions.githubusercontent.com:sub': repo:govuk-one-login/data-analytics-adm:*
     Policies:
-      - PolicyName: !Sub data-analytics-adm-redshift-policy
+      - PolicyName: !Sub data-analytics-adm-redshift-policy-${Environment}
         PolicyDocument:
           Version: 2012-10-17
           Statement:

@@ -12,7 +12,7 @@ EventConsumerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
   Type: AWS::Serverless::Function
   Properties:
-    FunctionName: txma-event-consumer
+    FunctionName: ${Environment}-txma-event-consumer
     Events:
       # this event is called CleanEvent for historic reasons (originally some data cleaning/validation was planned at this stage)
       # as it exists now, this lambda just receives txma events and passes them directly to firehose

@@ -23,6 +23,7 @@ Parameters:
       - integration
       - production
       - production-preview
+      - demo
   CodeSigningConfigArn:
     Description: ARN of Code Signing Config from deployment pipeline
     Type: String
