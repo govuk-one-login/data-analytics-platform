@@ -31,10 +31,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.ELT_METADATA_UPLOAD_ROLE_ARN }}
@@ -52,7 +52,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v5
       - name: Assume AWS GitHub actions role
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.ELT_METADATA_UPLOAD_ROLE_ARN }}
