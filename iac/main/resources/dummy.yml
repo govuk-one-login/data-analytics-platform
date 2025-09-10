@@ -236,10 +236,7 @@ KmsKey:
               - chatbot.amazonaws.com
               - events.amazonaws.com
             AWS:
-              - !GetAtt RawGlueCrawlerRole.Arn
-              - !GetAtt StepFunctionRole.Arn
               - !GetAtt GlueScriptsExecutionRole.Arn
-              - !GetAtt StepFunctionRedshiftProcessRole.Arn
           Action:
             - kms:Encrypt*
             - kms:Decrypt*
