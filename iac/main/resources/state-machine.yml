@@ -21,7 +21,7 @@ ELTMetadataUploadRole:
   Condition: IsBuild
   Type: AWS::IAM::Role
   Properties:
-    RoleName: dap-elt-metadata-upload-role
+    RoleName: dap-elt-metadata-upload-role-demo
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:

@@ -679,7 +679,7 @@ VPCEndpointRedshiftServerless:
 AWSSupportReadOnlyRole:
   Type: 'AWS::IAM::Role'
   Properties:
-    RoleName: 'AWS-Support-ReadOnly'
+    RoleName: 'AWS-Support-ReadOnly-demo'
     AssumeRolePolicyDocument:
       Version: '2012-10-17'
       Statement:
