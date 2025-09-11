@@ -1,7 +1,7 @@
 GlueScriptsExecutionRole:
   Type: AWS::IAM::Role
   Properties:
-    RoleName: !Sub ${Environment}-dap-glue-scripts-execution-role
+    RoleName: !Sub ${Environment}-dap-glue-scripts-execution-role-demo
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -13,7 +13,7 @@ GlueScriptsExecutionRole:
             - sts:AssumeRole
     Path: /
     Policies:
-      - PolicyName: !Sub ${Environment}-dap-glue-scripts-execution-policy
+      - PolicyName: !Sub ${Environment}-dap-glue-scripts-execution-policy--demo
         PolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -176,7 +176,7 @@ RawStageTransformProcessPythonGlueJob:
           ],
         ]
     DefaultArguments:
-      '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
+      '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process--demo
       '--LOG_LEVEL': 'INFO'
       '--additional-python-modules': 'awswrangler,aws_lambda_powertools'
       '--config_bucket': 'some_bucket'
@@ -211,7 +211,7 @@ RawStageTransformProcessPythonGlueJob:
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration
   Properties:
-    Name: !Sub ${Environment}-dap-glue-security-configuration
+    Name: !Sub ${Environment}-dap-glue-security-configuration-demo
     EncryptionConfiguration:
       CloudWatchEncryption:
         CloudWatchEncryptionMode: SSE-KMS
@@ -264,5 +264,5 @@ KmsKey:
 KmsKeyAlias:
   Type: AWS::KMS::Alias
   Properties:
-    AliasName: !Sub alias/${Environment}-dap-key
+    AliasName: !Sub alias/${Environment}-dap-key--demo
     TargetKeyId: !Ref KmsKey
