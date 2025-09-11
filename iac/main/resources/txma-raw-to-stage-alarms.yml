@@ -53,7 +53,6 @@ TxmaEventConsumerLogs:
     LogGroupName: !Sub '/aws/lambda/${AWS::StackName}-txma-event-consumer'
     RetentionInDays: 30
 
-
 # CloudWatch Log Group for the Glue Job
 SplunkMigratedRawStageTransformProcessLogGroup:
   Type: AWS::Logs::LogGroup
@@ -71,7 +70,7 @@ AthenaReadWriteExceptionMetricFilter:
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
         MetricName: AthenaReadWriteExceptions
-        MetricValue: "1"
+        MetricValue: '1'
         DefaultValue: 0
 
 # Alarm for AthenaReadWrite exceptions
@@ -100,7 +99,7 @@ GlueTableQueryAndWriteDoesTableExistMetricFilter:
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
         MetricName: GlueTableQueryAndWriteDoesTableExistExceptions
-        MetricValue: "1"
+        MetricValue: '1'
         DefaultValue: 0
 
 GlueTableQueryAndWriteQueryTableMetricFilter:
@@ -111,7 +110,7 @@ GlueTableQueryAndWriteQueryTableMetricFilter:
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
         MetricName: GlueTableQueryAndWriteQueryTableExceptions
-        MetricValue: "1"
+        MetricValue: '1'
         DefaultValue: 0
 
 GlueTableQueryAndWriteWriteTableMetricFilter:
@@ -122,7 +121,7 @@ GlueTableQueryAndWriteWriteTableMetricFilter:
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
         MetricName: GlueTableQueryAndWriteWriteTableExceptions
-        MetricValue: "1"
+        MetricValue: '1'
         DefaultValue: 0
 
 # S3ReadWrite Exception Metric Filters
@@ -134,7 +133,7 @@ S3ReadWriteReadJsonMetricFilter:
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
         MetricName: S3ReadWriteReadJsonExceptions
-        MetricValue: "1"
+        MetricValue: '1'
         DefaultValue: 0
 
 S3ReadWriteWriteJsonMetricFilter:
@@ -145,7 +144,7 @@ S3ReadWriteWriteJsonMetricFilter:
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
         MetricName: S3ReadWriteWriteJsonExceptions
-        MetricValue: "1"
+        MetricValue: '1'
         DefaultValue: 0
 
 S3ReadWriteReadFileMetricFilter:
@@ -156,7 +155,7 @@ S3ReadWriteReadFileMetricFilter:
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
         MetricName: S3ReadWriteReadFileExceptions
-        MetricValue: "1"
+        MetricValue: '1'
         DefaultValue: 0
 
 # Strategy Exception Metric Filter
@@ -168,7 +167,7 @@ StrategyLoadMetricFilter:
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
         MetricName: StrategyLoadExceptions
-        MetricValue: "1"
+        MetricValue: '1'
         DefaultValue: 0
 
 # Main Function None Exception Metric Filter
@@ -180,7 +179,7 @@ MainFunctionS3AppNoneMetricFilter:
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
         MetricName: MainFunctionS3AppNoneExceptions
-        MetricValue: "1"
+        MetricValue: '1'
         DefaultValue: 0
 
 # Main Function S3App None Exception Alarm
