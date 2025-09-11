@@ -6,7 +6,7 @@ TXMAEventConsumerFunctionErrorMetricFilter:
     FilterPattern: '"Error delivering data to DAP''s Kinesis Firehose:"'
     MetricTransformations:
       - MetricValue: '1'
-        MetricNamespace: !Ref CloudWatchMetricNamespace
+        MetricNamespace: !Ref EventConsumerMetrics
         MetricName: !Sub '${AWS::StackName}-txma-event-consumer-DAPError'
 
 TXMAEventConsumerFunctionErrorAlarm:
@@ -22,7 +22,7 @@ TXMAEventConsumerFunctionErrorAlarm:
     EvaluationPeriods: 1
     Threshold: 0
     MetricName: !Sub '${AWS::StackName}-txma-event-consumer-DAPError'
-    Namespace: !Ref CloudWatchMetricNamespace
+    Namespace: !Ref EventConsumerMetrics
     Statistic: Sum
     Period: 60
 
@@ -69,7 +69,7 @@ AthenaReadWriteExceptionMetricFilter:
     LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.athena_read_write", message="Exception when running Athena query:*"]'
     MetricTransformations:
-      - MetricNamespace: DAP/GlueJobs
+      - MetricNamespace: DAPGlueJobMetrics
         MetricName: AthenaReadWriteExceptions
         MetricValue: "1"
         DefaultValue: 0
@@ -81,7 +81,7 @@ AthenaReadWriteExceptionAlarm:
     AlarmName: !Sub ${Environment}-dap-athena-readwrite-exception-alarm
     AlarmDescription: Alarm when AthenaReadWrite.run_query method logs exceptions
     MetricName: AthenaReadWriteExceptions
-    Namespace: DAP/GlueJobs
+    Namespace: DAPGlueJobMetrics
     Statistic: Sum
     Period: 300
     EvaluationPeriods: 1
@@ -98,7 +98,7 @@ GlueTableQueryAndWriteDoesTableExistMetricFilter:
     LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.glue_table_query_and_write", message="Error querying glue data catalog:*"]'
     MetricTransformations:
-      - MetricNamespace: DAP/GlueJobs
+      - MetricNamespace: DAPGlueJobMetrics
         MetricName: GlueTableQueryAndWriteDoesTableExistExceptions
         MetricValue: "1"
         DefaultValue: 0
@@ -109,7 +109,7 @@ GlueTableQueryAndWriteQueryTableMetricFilter:
     LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.glue_table_query_and_write", message="Error reading Athena table:*"]'
     MetricTransformations:
-      - MetricNamespace: DAP/GlueJobs
+      - MetricNamespace: DAPGlueJobMetrics
         MetricName: GlueTableQueryAndWriteQueryTableExceptions
         MetricValue: "1"
         DefaultValue: 0
@@ -120,7 +120,7 @@ GlueTableQueryAndWriteWriteTableMetricFilter:
     LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.glue_table_query_and_write", message="Error writing to Athena table:*"]'
     MetricTransformations:
-      - MetricNamespace: DAP/GlueJobs
+      - MetricNamespace: DAPGlueJobMetrics
         MetricName: GlueTableQueryAndWriteWriteTableExceptions
         MetricValue: "1"
         DefaultValue: 0
@@ -132,7 +132,7 @@ S3ReadWriteReadJsonMetricFilter:
     LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.s3_read_write", message="Error reading JSON from S3:*"]'
     MetricTransformations:
-      - MetricNamespace: DAP/GlueJobs
+      - MetricNamespace: DAPGlueJobMetrics
         MetricName: S3ReadWriteReadJsonExceptions
         MetricValue: "1"
         DefaultValue: 0
@@ -143,7 +143,7 @@ S3ReadWriteWriteJsonMetricFilter:
     LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.s3_read_write", message="Error writing JSON to S3:*"]'
     MetricTransformations:
-      - MetricNamespace: DAP/GlueJobs
+      - MetricNamespace: DAPGlueJobMetrics
         MetricName: S3ReadWriteWriteJsonExceptions
         MetricValue: "1"
         DefaultValue: 0
@@ -154,7 +154,7 @@ S3ReadWriteReadFileMetricFilter:
     LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.s3_read_write", message="Error reading file from S3:*"]'
     MetricTransformations:
-      - MetricNamespace: DAP/GlueJobs
+      - MetricNamespace: DAPGlueJobMetrics
         MetricName: S3ReadWriteReadFileExceptions
         MetricValue: "1"
         DefaultValue: 0
@@ -166,7 +166,7 @@ StrategyLoadMetricFilter:
     LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.strategies.strategy", message="Exception Error writing to Stage layer:*"]'
     MetricTransformations:
-      - MetricNamespace: DAP/GlueJobs
+      - MetricNamespace: DAPGlueJobMetrics
         MetricName: StrategyLoadExceptions
         MetricValue: "1"
         DefaultValue: 0
@@ -178,7 +178,7 @@ MainFunctionS3AppNoneMetricFilter:
     LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.raw_to_stage_process_glue_job", message="Value Error: Class ''s3_app'' returned None, which is not allowed.*"]'
     MetricTransformations:
-      - MetricNamespace: DAP/GlueJobs
+      - MetricNamespace: DAPGlueJobMetrics
         MetricName: MainFunctionS3AppNoneExceptions
         MetricValue: "1"
         DefaultValue: 0
@@ -190,7 +190,7 @@ MainFunctionS3AppNoneAlarm:
     AlarmName: !Sub ${Environment}-dap-main-s3app-none-exception-alarm
     AlarmDescription: Alarm when main function encounters s3_app returning None
     MetricName: MainFunctionS3AppNoneExceptions
-    Namespace: DAP/GlueJobs
+    Namespace: DAPGlueJobMetrics
     Statistic: Sum
     Period: 300
     EvaluationPeriods: 1
@@ -207,7 +207,7 @@ GlueTableQueryAndWriteDoesTableExistAlarm:
     AlarmName: !Sub ${Environment}-dap-glue-table-does-exist-exception-alarm
     AlarmDescription: Alarm when GlueTableQueryAndWrite.does_glue_table_exist method logs exceptions
     MetricName: GlueTableQueryAndWriteDoesTableExistExceptions
-    Namespace: DAP/GlueJobs
+    Namespace: DAPGlueJobMetrics
     Statistic: Sum
     Period: 300
     EvaluationPeriods: 1
@@ -223,7 +223,7 @@ GlueTableQueryAndWriteQueryTableAlarm:
     AlarmName: !Sub ${Environment}-dap-glue-table-query-exception-alarm
     AlarmDescription: Alarm when GlueTableQueryAndWrite.query_glue_table method logs exceptions
     MetricName: GlueTableQueryAndWriteQueryTableExceptions
-    Namespace: DAP/GlueJobs
+    Namespace: DAPGlueJobMetrics
     Statistic: Sum
     Period: 300
     EvaluationPeriods: 1
@@ -239,7 +239,7 @@ GlueTableQueryAndWriteWriteTableAlarm:
     AlarmName: !Sub ${Environment}-dap-glue-table-write-exception-alarm
     AlarmDescription: Alarm when GlueTableQueryAndWrite.write_to_glue_table method logs exceptions
     MetricName: GlueTableQueryAndWriteWriteTableExceptions
-    Namespace: DAP/GlueJobs
+    Namespace: DAPGlueJobMetrics
     Statistic: Sum
     Period: 300
     EvaluationPeriods: 1
@@ -256,7 +256,7 @@ S3ReadWriteReadJsonAlarm:
     AlarmName: !Sub ${Environment}-dap-s3-read-json-exception-alarm
     AlarmDescription: Alarm when S3ReadWrite.read_json method logs exceptions
     MetricName: S3ReadWriteReadJsonExceptions
-    Namespace: DAP/GlueJobs
+    Namespace: DAPGlueJobMetrics
     Statistic: Sum
     Period: 300
     EvaluationPeriods: 1
@@ -272,7 +272,7 @@ S3ReadWriteWriteJsonAlarm:
     AlarmName: !Sub ${Environment}-dap-s3-write-json-exception-alarm
     AlarmDescription: Alarm when S3ReadWrite.write_json method logs exceptions
     MetricName: S3ReadWriteWriteJsonExceptions
-    Namespace: DAP/GlueJobs
+    Namespace: DAPGlueJobMetrics
     Statistic: Sum
     Period: 300
     EvaluationPeriods: 1
@@ -288,7 +288,7 @@ S3ReadWriteReadFileAlarm:
     AlarmName: !Sub ${Environment}-dap-s3-read-file-exception-alarm
     AlarmDescription: Alarm when S3ReadWrite.read_file method logs exceptions
     MetricName: S3ReadWriteReadFileExceptions
-    Namespace: DAP/GlueJobs
+    Namespace: DAPGlueJobMetrics
     Statistic: Sum
     Period: 300
     EvaluationPeriods: 1
@@ -305,7 +305,7 @@ StrategyLoadAlarm:
     AlarmName: !Sub ${Environment}-dap-strategy-load-exception-alarm
     AlarmDescription: Alarm when Strategy.load method logs exceptions
     MetricName: StrategyLoadExceptions
-    Namespace: DAP/GlueJobs
+    Namespace: DAPGlueJobMetrics
     Statistic: Sum
     Period: 300
     EvaluationPeriods: 1
