@@ -1,4 +1,4 @@
-name: ✳️ Deploy to the dev environment (demo)
+name: ✳️ Deploy to the build environment (demo)
 
 on:
   push:
@@ -67,6 +67,6 @@ jobs:
         uses: govuk-one-login/devplatform-upload-action@v3.11.0
         with:
           artifact-bucket-name: ${{ secrets.ARTEFACT_BUCKET_NAME_DEMO }}
-          signing-profile-name: ${{ secrets.SIGNING_PROFILE_NAME_DEMO }}
+          signing-profile-name: ${{ secrets.SIGNING_PROFILE_NAME_BUILD }}
           working-directory: .
 
