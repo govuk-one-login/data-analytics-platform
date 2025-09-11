@@ -38,7 +38,7 @@ jobs:
       environment: ${{ inputs.environment }}
 
   deploy-main-application:
-    needs: [validate-environment, validate-branch-ahead]
+    needs: [validate-environment, validate-branch-ahead, upload-athena-files]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
@@ -78,7 +78,7 @@ jobs:
           working-directory: .
 
   deploy-quicksight-access-application:
-    needs: [validate-environment, validate-branch-ahead]
+    needs: [validate-environment, validate-branch-ahead, upload-athena-files]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
