@@ -46,7 +46,8 @@ def main():
         os.environ["LOG_LEVEL"] = args.get("LOG_LEVEL", "INFO")
         global logger
         logger = get_logger(__name__)
-
+        # This is to test this new deployment works 
+        
         # init all helper classes
 
         # S3 config file reader class

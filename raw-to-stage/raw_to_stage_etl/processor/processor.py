@@ -27,6 +27,7 @@ class RawToStageProcessor:
         These dfs are looped and for each df, performs transform and load operations.
         Then prints various metrics like no of records, time taken etc.
         """
+        self.logger.info("TESTING")
         # extract data from raw layer
         dfs = self.strategy.extract()
 
