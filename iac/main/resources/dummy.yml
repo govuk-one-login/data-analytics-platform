@@ -166,7 +166,15 @@ RawStageTransformProcessPythonGlueJob:
     Command:
       Name: pythonshell
       PythonVersion: '3.9'
-      ScriptLocation: !Sub s3://some_bucket/txma/raw_to_stage/raw_to_stage_process_glue_job.py
+      ScriptLocation:
+        !Join [
+          '',
+          [
+            s3://demo-pipeline-githubartifactsourcebucket-pdb2ecthlkvb/,
+            !Ref CommitSha,
+            /raw_to_stage_process_glue_job.py,
+          ],
+        ]
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
       '--LOG_LEVEL': 'INFO'
@@ -183,7 +191,15 @@ RawStageTransformProcessPythonGlueJob:
       '--workgroup': !Sub ${Environment}-dap-txma-processing
       '--TempDir': s3://some_buckett/raw_stage_optimisation_processing/temporary/
       'library-set': 'analytics'
-      '--extra-py-files': 'some_bucket/txma/raw_to_stage/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl'
+      '--extra-py-files':
+        !Join [
+          '',
+          [
+            s3://demo-pipeline-githubartifactsourcebucket-pdb2ecthlkvb/,
+            !Ref CommitSha,
+            /raw_to_stage_etl_modules-0.1.0-py3-none-any.whl,
+          ],
+        ]
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0
