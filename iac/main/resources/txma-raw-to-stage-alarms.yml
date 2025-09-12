@@ -57,7 +57,7 @@ TxmaEventConsumerLogs:
 RawStageTransformProcessLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: !Sub /aws/glue/python-jobs/${Environment}-dap-raw-stage-transform-process    
+    LogGroupName: !Sub /aws/glue/python-jobs/${Environment}-dap-raw-stage-transform-process
     RetentionInDays: 30
 
 # Metric to capture AthenaReadWrite exceptions
