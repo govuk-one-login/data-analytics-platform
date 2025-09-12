@@ -6,7 +6,7 @@ TXMAEventConsumerFunctionErrorMetricFilter:
     FilterPattern: '"Error delivering data to DAP''s Kinesis Firehose:"'
     MetricTransformations:
       - MetricValue: '1'
-        MetricNamespace: !Ref EventConsumerMetrics
+        MetricNamespace: CloudTrailMetrics
         MetricName: !Sub '${AWS::StackName}-txma-event-consumer-DAPError'
 
 TXMAEventConsumerFunctionErrorAlarm:
@@ -22,7 +22,7 @@ TXMAEventConsumerFunctionErrorAlarm:
     EvaluationPeriods: 1
     Threshold: 0
     MetricName: !Sub '${AWS::StackName}-txma-event-consumer-DAPError'
-    Namespace: !Ref EventConsumerMetrics
+    Namespace: CloudTrailMetrics
     Statistic: Sum
     Period: 60
 
@@ -39,7 +39,7 @@ TXMAEventConsumerFunctionDurationAlarm:
     EvaluationPeriods: 1
     Threshold: 180000
     MetricName: Duration
-    Namespace: AWS/Lambda
+    Namespace: CloudTrailMetrics
     Statistic: Maximum
     Period: 60
     Dimensions:
@@ -54,18 +54,17 @@ TxmaEventConsumerLogs:
     RetentionInDays: 30
 
 # CloudWatch Log Group for the Glue Job
-SplunkMigratedRawStageTransformProcessLogGroup:
+RawStageTransformProcessLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: !Sub /aws/glue/python-jobs/${Environment}-dap-splunk-migration-raw-stage-transform-process
-    KmsMasterKeyId: !GetAtt KmsKey.Arn
+    LogGroupName: !Sub /aws/glue/python-jobs/${Environment}-dap-raw-stage-transform-process    
     RetentionInDays: 30
 
 # Metric to capture AthenaReadWrite exceptions
 AthenaReadWriteExceptionMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.athena_read_write", message="Exception when running Athena query:*"]'
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
@@ -94,7 +93,7 @@ AthenaReadWriteExceptionAlarm:
 GlueTableQueryAndWriteDoesTableExistMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.glue_table_query_and_write", message="Error querying glue data catalog:*"]'
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
@@ -105,7 +104,7 @@ GlueTableQueryAndWriteDoesTableExistMetricFilter:
 GlueTableQueryAndWriteQueryTableMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.glue_table_query_and_write", message="Error reading Athena table:*"]'
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
@@ -116,7 +115,7 @@ GlueTableQueryAndWriteQueryTableMetricFilter:
 GlueTableQueryAndWriteWriteTableMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.glue_table_query_and_write", message="Error writing to Athena table:*"]'
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
@@ -128,7 +127,7 @@ GlueTableQueryAndWriteWriteTableMetricFilter:
 S3ReadWriteReadJsonMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.s3_read_write", message="Error reading JSON from S3:*"]'
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
@@ -139,7 +138,7 @@ S3ReadWriteReadJsonMetricFilter:
 S3ReadWriteWriteJsonMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.s3_read_write", message="Error writing JSON to S3:*"]'
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
@@ -150,7 +149,7 @@ S3ReadWriteWriteJsonMetricFilter:
 S3ReadWriteReadFileMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.s3_read_write", message="Error reading file from S3:*"]'
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
@@ -162,7 +161,7 @@ S3ReadWriteReadFileMetricFilter:
 StrategyLoadMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.strategies.strategy", message="Exception Error writing to Stage layer:*"]'
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
@@ -174,7 +173,7 @@ StrategyLoadMetricFilter:
 MainFunctionS3AppNoneMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Ref SplunkMigratedRawStageTransformProcessLogGroup
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
     FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.raw_to_stage_process_glue_job", message="Value Error: Class ''s3_app'' returned None, which is not allowed.*"]'
     MetricTransformations:
       - MetricNamespace: DAPGlueJobMetrics
