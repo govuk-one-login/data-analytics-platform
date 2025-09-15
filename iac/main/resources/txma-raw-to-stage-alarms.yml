@@ -6,7 +6,7 @@ TXMAEventConsumerFunctionErrorMetricFilter:
     FilterPattern: '"Error delivering data to DAP''s Kinesis Firehose:"'
     MetricTransformations:
       - MetricValue: '1'
-        MetricNamespace: DAP/TXMAConsumer/Logs
+        MetricNamespace: DAP/TXMAEventConsumer/Logs
         MetricName: !Sub '${AWS::StackName}-txma-event-consumer-DAPError'
 
 TXMAEventConsumerFunctionErrorAlarm:
@@ -22,7 +22,7 @@ TXMAEventConsumerFunctionErrorAlarm:
     EvaluationPeriods: 1
     Threshold: 0
     MetricName: !Sub '${AWS::StackName}-txma-event-consumer-DAPError'
-    Namespace: DAP/TXMAConsumer/Logs
+    Namespace: DAP/TXMAEventConsumer/Logs
     Statistic: Sum
     Period: 60
 
@@ -39,7 +39,7 @@ TXMAEventConsumerFunctionDurationAlarm:
     EvaluationPeriods: 1
     Threshold: 180000
     MetricName: Duration
-    Namespace: DAP/TXMAConsumer/Logs
+    Namespace: DAP/TXMAEventConsumer/Logs
     Statistic: Maximum
     Period: 60
     Dimensions:
