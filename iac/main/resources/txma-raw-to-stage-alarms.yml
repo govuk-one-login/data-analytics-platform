@@ -13,7 +13,7 @@ TXMAEventConsumerFunctionErrorAlarm:
   Type: AWS::CloudWatch::Alarm
   Properties:
     AlarmActions:
-      - !ImportValue txma-alarms-slack-alerts-BuildNotificationTopicArn
+      - !Ref DAPNotificationsTopic
     AlarmDescription: >-
       Alarm that triggers when DAP Firehose delivery errors occur
     AlarmName: !Sub '${AWS::StackName}-txma-event-consumer-DAPErrorAlarm'
@@ -30,7 +30,7 @@ TXMAEventConsumerFunctionDurationAlarm:
   Type: AWS::CloudWatch::Alarm
   Properties:
     AlarmActions:
-      - !ImportValue txma-alarms-slack-alerts-BuildNotificationTopicArn
+      - !Ref DAPNotificationsTopic
     AlarmDescription: >
       Alarm that triggers when TXMA Event Consumer Lambda runs longer than 3 minutes
     AlarmName: !Sub '${AWS::StackName}-txma-event-consumer-DurationAlarm'
@@ -87,7 +87,7 @@ AthenaReadWriteExceptionAlarm:
     Threshold: 1
     ComparisonOperator: GreaterThanOrEqualToThreshold
     AlarmActions:
-      - !Ref SNSAlertTopic
+      - !Ref DAPNotificationsTopic
     TreatMissingData: notBreaching
 
 # GlueTableQueryAndWrite Exception Metric Filters
@@ -196,7 +196,7 @@ MainFunctionS3AppNoneAlarm:
     Threshold: 1
     ComparisonOperator: GreaterThanOrEqualToThreshold
     AlarmActions:
-      - !Ref SNSAlertTopic
+      - !Ref DAPNotificationsTopic
     TreatMissingData: notBreaching
 
 # GlueTableQueryAndWrite Exception Alarms
@@ -213,7 +213,7 @@ GlueTableQueryAndWriteDoesTableExistAlarm:
     Threshold: 1
     ComparisonOperator: GreaterThanOrEqualToThreshold
     AlarmActions:
-      - !Ref SNSAlertTopic
+      - !Ref DAPNotificationsTopic
     TreatMissingData: notBreaching
 
 GlueTableQueryAndWriteQueryTableAlarm:
@@ -229,7 +229,7 @@ GlueTableQueryAndWriteQueryTableAlarm:
     Threshold: 1
     ComparisonOperator: GreaterThanOrEqualToThreshold
     AlarmActions:
-      - !Ref SNSAlertTopic
+      - !Ref DAPNotificationsTopic
     TreatMissingData: notBreaching
 
 GlueTableQueryAndWriteWriteTableAlarm:
@@ -245,7 +245,7 @@ GlueTableQueryAndWriteWriteTableAlarm:
     Threshold: 1
     ComparisonOperator: GreaterThanOrEqualToThreshold
     AlarmActions:
-      - !Ref SNSAlertTopic
+      - !Ref DAPNotificationsTopic
     TreatMissingData: notBreaching
 
 # S3ReadWrite Exception Alarms
@@ -262,7 +262,7 @@ S3ReadWriteReadJsonAlarm:
     Threshold: 1
     ComparisonOperator: GreaterThanOrEqualToThreshold
     AlarmActions:
-      - !Ref SNSAlertTopic
+      - !Ref DAPNotificationsTopic
     TreatMissingData: notBreaching
 
 S3ReadWriteWriteJsonAlarm:
@@ -278,7 +278,7 @@ S3ReadWriteWriteJsonAlarm:
     Threshold: 1
     ComparisonOperator: GreaterThanOrEqualToThreshold
     AlarmActions:
-      - !Ref SNSAlertTopic
+      - !Ref DAPNotificationsTopic
     TreatMissingData: notBreaching
 
 S3ReadWriteReadFileAlarm:
@@ -294,7 +294,7 @@ S3ReadWriteReadFileAlarm:
     Threshold: 1
     ComparisonOperator: GreaterThanOrEqualToThreshold
     AlarmActions:
-      - !Ref SNSAlertTopic
+      - !Ref DAPNotificationsTopic
     TreatMissingData: notBreaching
 
 # Strategy Exception Alarm
@@ -311,5 +311,5 @@ StrategyLoadAlarm:
     Threshold: 1
     ComparisonOperator: GreaterThanOrEqualToThreshold
     AlarmActions:
-      - !Ref SNSAlertTopic
+      - !Ref DAPNotificationsTopic
     TreatMissingData: notBreaching
