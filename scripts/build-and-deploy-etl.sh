@@ -45,9 +45,9 @@ if [ "$runtype" != "local" ]; then
   # Upload files with metadata
   for file in $(find "$FILES_ROOT" -type f); do
     key="txma/raw_to_stage/$(basename "$file")"
-    aws --region="$REGION" s3api put-object --bucket "$BUCKET_NAME" --key "$key" --body "$file" --metadata "Commit-Sha=$COMMIT_SHA,Commit-Message=$COMMIT_MESSAGE_CLEAN" > /dev/null
+    aws --region="$REGION" s3api put-object --bucket "$BUCKET_NAME" --key "$key" --body "$file" --metadata "Commit-Sha=${COMMIT_SHA},Commit-Message=${COMMIT_MESSAGE_CLEAN}" > /dev/null
   done
 
   echo "Uploading raw_to_stage_process_glue_job.py from $CURRENT_DIR to s3 path $DESTINATION_PATH"
-  aws --region="$REGION" s3api put-object --bucket "$BUCKET_NAME" --key "txma/raw_to_stage/raw_to_stage_process_glue_job.py" --body "$ETL_ROOT/raw_to_stage_process_glue_job.py" --metadata "Commit-Sha=$COMMIT_SHA,Commit-Message=$COMMIT_MESSAGE_CLEAN" > /dev/null
+  aws --region="$REGION" s3api put-object --bucket "$BUCKET_NAME" --key "txma/raw_to_stage/raw_to_stage_process_glue_job.py" --body "$ETL_ROOT/raw_to_stage_process_glue_job.py" --metadata "Commit-Sha=${COMMIT_SHA},Commit-Message=${COMMIT_MESSAGE_CLEAN}" > /dev/null
 fi

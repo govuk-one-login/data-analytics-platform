@@ -167,6 +167,11 @@ QuicksightAccessUserPoolClient:
     SupportedIdentityProviders:
       - COGNITO
     UserPoolId: !Ref QuicksightAccessUserPool
+    AccessTokenValidity: 240
+    IdTokenValidity: 240
+    TokenValidityUnits:
+      AccessToken: minutes
+      IdToken: minutes
 
 QuicksightAccessUserPoolDomain:
   Type: AWS::Cognito::UserPoolDomain

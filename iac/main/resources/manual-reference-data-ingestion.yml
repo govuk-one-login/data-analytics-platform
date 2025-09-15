@@ -424,6 +424,13 @@ ReferenceDataTopicRoutingPolicy:
           Action:
             - SNS:Publish
           Resource: !Ref SNSReferenceDataAlertTopic
+        - Sid: CloudWatch_publish
+          Effect: Allow
+          Principal:
+            Service: 'cloudwatch.amazonaws.com'
+          Action:
+            - SNS:Publish
+          Resource: !Ref SNSReferenceDataAlertTopic
     Topics:
       - !Ref SNSReferenceDataAlertTopic
 
