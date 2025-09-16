@@ -17,9 +17,9 @@ jobs:
       matrix:
         include:
           - target: BUILD
-            ARTIFACT_BUCKET_NAME_SECRET: ARTIFACT_BUCKET_NAME_CORE_AUDIT_DEV
-            GH_ACTIONS_ROLE_ARN_SECRET: GH_ACTIONS_ROLE_ARN_CORE_AUDIT_DEV
-            SIGNING_PROFILE_SECRET: SIGNING_PROFILE_NAME_AUDIT_DEV
+            ARTIFACT_BUCKET_NAME_SECRET: ${{ secrets[format('ARTIFACT_BUCKET_NAME_QUICKSIGHT_ACCESS_{0}', inputs.environment)] }}
+            GH_ACTIONS_ROLE_ARN_SECRET: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_QUICKSIGHT_ACCESS_{0}', inputs.environment)] }}
+            SIGNING_PROFILE_SECRET: ${{ secrets[format('SIGNING_PROFILE_NAME_{0}', inputs.environment)] }}
     name: Package template - ${{ matrix.target }}
     permissions:
       id-token: write
