@@ -1,0 +1,103 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Core infrastructure that should not change often.
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Environment:
+    Description: The environment type
+    Type: String
+    AllowedValues:
+      - dev
+      - build
+      - staging
+      - integration
+      - production-preview
+      - production
+  PermissionsBoundary:
+    Description: The ARN of the permissions boundary to apply to any role created by the template
+    Type: String
+    Default: none
+
+Conditions:
+  UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
+  CslsS3Logs: !Or [!Equals [!Ref Environment, production], !Equals [!Ref Environment, production-preview]]
+
+Mappings:
+  ######################################################
+  # Start: Centralised Security Logging Service (CSLS) #
+  ######################################################
+
+  CslsLogsDestination:
+    Environment:
+      production: arn:aws:logs:eu-west-2:885513274347:destination:csls_cw_logs_destination_prodpython
+      production-preview: arn:aws:logs:eu-west-2:885513274347:destination:csls_cw_logs_destination_prodpython
+      integration: unused
+      staging: unused
+      build: unused
+      dev: unused
+
+Resources:
+  ###################
+  # Start: KMS Keys #
+  ###################
+
+  LogsKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: Enable Root access
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:*
+            Resource: '*'
+          - Sid: Allow CloudWatch Logs to use key
+            Effect: Allow
+            Principal:
+              Service: !Sub logs.${AWS::Region}.amazonaws.com
+            Action:
+              - kms:Decrypt*
+              - kms:Describe*
+              - kms:Encrypt*
+              - kms:GenerateDataKey*
+              - kms:ReEncrypt*
+            Resource: '*'
+            Condition:
+              ArnLike:
+                kms:EncryptionContext:aws:logs:arn: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*
+
+  LogsKmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/${AWS::StackName}/${Environment}/logs-kms-key
+      TargetKeyId: !Ref LogsKmsKey
+
+  #################
+  # End: KMS Keys #
+  #################
+
+  #########################
+  # Start: SSM Parameters #
+  #########################
+
+  LogsKmsKeyArnParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: LogsKmsKeyArn
+      Type: String
+      Value: !GetAtt LogsKmsKey.Arn
+
+  CSLSLogsDestinationParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: CSLSLogsDestination
+      Type: String
+      Value: !FindInMap [CslsLogsDestination, Environment, !Ref Environment]
+
+  #######################
+  # End: SSM Parameters #
+  #######################
