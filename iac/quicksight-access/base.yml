@@ -61,10 +61,11 @@ Conditions:
     Fn::And:
       - Condition: IsQuicksightEnvironment
       - Condition: IsNotProductionPreview
-  CslsEgress: !Or
-    - !Condition IsProduction
-    - !Condition IsIntegration
-    - !Condition IsStaging
+  CslsEgress: !And
+    - !Condition IsQuicksightEnvironment
+    - !Or
+      - !Condition IsProduction
+      - !Condition IsProductionPreview
 
 Globals:
   Function:

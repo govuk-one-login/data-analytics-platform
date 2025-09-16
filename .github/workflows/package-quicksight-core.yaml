@@ -45,5 +45,5 @@ jobs:
         with:
           artifact-bucket-name: ${{ secrets[matrix.ARTIFACT_BUCKET_NAME_SECRET]}}
           signing-profile-name: ${{ secrets[matrix.SIGNING_PROFILE_SECRET] }}
-          template-file: iac/core/quicksight/template.yaml
+          template-file: iac/core/quicksight/base-template.yml
           working-directory: '.'
