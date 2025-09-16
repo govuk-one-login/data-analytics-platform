@@ -89,7 +89,7 @@ QuicksightApiAccessSubscriptionFilter:
   Condition: CslsEgress
   Properties:
     LogGroupName: !Ref QuicksightApiAccessLogGroup
-    FilterPattern: ''
+    FilterPattern: '{ $.level = * && $.level != %TRACE|DEBUG% }'
     DestinationArn: '{{resolve:ssm:CSLSLogsDestination}}'
 
 QuicksightAccessApiGateway:

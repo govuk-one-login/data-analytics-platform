@@ -1,0 +1,49 @@
+name: Package core infrastructure
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - iac/core/quicksight/**
+  workflow_dispatch: {}
+
+env:
+  AWS_REGION: eu-west-2
+
+jobs:
+  package:
+    strategy:
+      matrix:
+        include:
+          - target: BUILD
+            ARTIFACT_BUCKET_NAME_SECRET: ARTIFACT_BUCKET_NAME_CORE_AUDIT_DEV
+            GH_ACTIONS_ROLE_ARN_SECRET: GH_ACTIONS_ROLE_ARN_CORE_AUDIT_DEV
+            SIGNING_PROFILE_SECRET: SIGNING_PROFILE_NAME_AUDIT_DEV
+    name: Package template - ${{ matrix.target }}
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+      - name: Setup SAM CLI
+        uses: aws-actions/setup-sam@v2
+      - name: Assume AWS role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets[matrix.GH_ACTIONS_ROLE_ARN_SECRET] }}
+      - name: Package SAM app
+        uses: govuk-one-login/devplatform-upload-action@v3.8.1
+        with:
+          artifact-bucket-name: ${{ secrets[matrix.ARTIFACT_BUCKET_NAME_SECRET]}}
+          signing-profile-name: ${{ secrets[matrix.SIGNING_PROFILE_SECRET] }}
+          template-file: iac/core/quicksight/template.yaml
+          working-directory: '.'
