@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - iac/core/quicksight/**
+      - iac/core/**
   workflow_dispatch: {}
 
 env:
@@ -45,5 +45,5 @@ jobs:
         with:
           artifact-bucket-name: ${{ secrets[matrix.ARTIFACT_BUCKET_NAME_SECRET]}}
           signing-profile-name: ${{ secrets[matrix.SIGNING_PROFILE_SECRET] }}
-          template-file: iac/core/quicksight/base-template.yml
+          template-file: iac/core/base-template.yml
           working-directory: '.'
