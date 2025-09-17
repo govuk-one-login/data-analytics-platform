@@ -84,14 +84,6 @@ QuicksightApiAccessLogGroup:
     LogGroupName: !Sub /aws/apigateway/${AWS::StackName}-endpoint-access-logs
     RetentionInDays: 30
 
-QuicksightApiAccessSubscriptionFilter:
-  Type: AWS::Logs::SubscriptionFilter
-  Condition: CslsEgress
-  Properties:
-    LogGroupName: !Ref QuicksightApiAccessLogGroup
-    FilterPattern: '{ $.level = * && $.level != %TRACE|DEBUG% }'
-    DestinationArn: '{{resolve:ssm:CSLSLogsDestination}}'
-
 QuicksightAccessApiGateway:
   Type: AWS::ApiGatewayV2::Api
   Condition: IsQuicksightEnvironment

@@ -20,21 +20,6 @@ Parameters:
 
 Conditions:
   UsePermissionsBoundary: !Not [!Equals [!Ref PermissionsBoundary, none]]
-  CslsS3Logs: !Or [!Equals [!Ref Environment, production], !Equals [!Ref Environment, production-preview]]
-
-Mappings:
-  ######################################################
-  # Start: Centralised Security Logging Service (CSLS) #
-  ######################################################
-
-  CslsLogsDestination:
-    Environment:
-      production: arn:aws:logs:eu-west-2:885513274347:destination:csls_cw_logs_destination_prodpython
-      production-preview: arn:aws:logs:eu-west-2:885513274347:destination:csls_cw_logs_destination_prodpython
-      integration: unused
-      staging: unused
-      build: unused
-      dev: unused
 
 Resources:
   ###################
@@ -90,13 +75,6 @@ Resources:
       Name: LogsKmsKeyArn
       Type: String
       Value: !GetAtt LogsKmsKey.Arn
-
-  CSLSLogsDestinationParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: CSLSLogsDestination
-      Type: String
-      Value: !FindInMap [CslsLogsDestination, Environment, !Ref Environment]
 
   #######################
   # End: SSM Parameters #
