@@ -13,6 +13,8 @@ import type { StartExecutionCommand, StartExecutionOutput } from '@aws-sdk/clien
 import { SFNClient } from '@aws-sdk/client-sfn';
 import { RedshiftDataClient } from '@aws-sdk/client-redshift-data';
 import type { ExecuteStatementCommand, GetStatementResultCommandOutput } from '@aws-sdk/client-redshift-data';
+import { FirehoseClient } from '@aws-sdk/client-firehose';
+import { SQSClient } from '@aws-sdk/client-sqs';
 
 const mockAthenaClient = mockClient(AthenaClient);
 const mockLambdaClient = mockClient(LambdaClient);
@@ -38,7 +40,9 @@ const EXPECTED_S3_BODY = {
 let ATHENA_QUERY_RESULTS: GetQueryResultsOutput;
 let REDSHIFT_QUERY_RESULTS: GetStatementResultCommandOutput;
 
-const CONTEXT: Context = { invokedFunctionArn: '' } as unknown as Context;
+const CONTEXT: Context = {
+  invokedFunctionArn: 'arn:aws:lambda:eu-west-2:123456789012:function:test',
+} as unknown as Context;
 
 const REDSHIFT_SECRET_ARN = (process.env.REDSHIFT_SECRET_ARN = 'secret-arn');
 
@@ -539,6 +543,96 @@ const getEvent = (overrides: { environment?: string; command?: string; input?: o
     input: overrides.input ?? {},
   };
 };
+
+test('firehose describe stream', async () => {
+  const mockFirehoseClient = mockClient(FirehoseClient);
+  mockFirehoseClient.resolves({});
+
+  const event = getEvent({
+    command: 'FIREHOSE_DESCRIBE_STREAM',
+    input: { DeliveryStreamName: 'test-stream' },
+  });
+  await handler(event, CONTEXT);
+
+  expect(mockFirehoseClient.calls()).toHaveLength(1);
+  mockFirehoseClient.reset();
+});
+
+test('lambda list events', async () => {
+  mockLambdaClient.resolves({});
+
+  const event = getEvent({
+    command: 'LAMBDA_LIST_EVENTS',
+    input: { FunctionName: 'test-function' },
+  });
+  await handler(event, CONTEXT);
+
+  expect(mockLambdaClient.calls()).toHaveLength(1);
+});
+
+test('s3 list objects', async () => {
+  mockS3Client.resolves({});
+
+  const event = getEvent({
+    command: 'S3_LIST',
+    input: { Bucket: 'test-bucket' },
+  });
+  await handler(event, CONTEXT);
+
+  expect(mockS3Client.calls()).toHaveLength(1);
+});
+
+test('sqs get url', async () => {
+  const mockSQSClient = mockClient(SQSClient);
+  mockSQSClient.resolves({});
+
+  const event = getEvent({
+    command: 'SQS_GET_URL',
+    input: { QueueName: 'test-queue' },
+  });
+  await handler(event, CONTEXT);
+
+  expect(mockSQSClient.calls()).toHaveLength(1);
+  mockSQSClient.reset();
+});
+
+test('sqs send message', async () => {
+  const mockSQSClient = mockClient(SQSClient);
+  mockSQSClient.resolves({});
+
+  const event = getEvent({
+    command: 'SQS_SEND',
+    input: { QueueUrl: 'test-queue-url', MessageBody: 'test message' },
+  });
+  await handler(event, CONTEXT);
+
+  expect(mockSQSClient.calls()).toHaveLength(1);
+  mockSQSClient.reset();
+});
+
+test('sfn describe execution', async () => {
+  mockSFNClient.resolves({});
+
+  const event = getEvent({
+    command: 'SFN_DESCRIBE_EXECUTION',
+    input: { executionArn: 'test-execution-arn' },
+  });
+  await handler(event, CONTEXT);
+
+  expect(mockSFNClient.calls()).toHaveLength(1);
+});
+
+test('sfn list executions', async () => {
+  mockSFNClient.resolves({});
+
+  const event = getEvent({
+    command: 'SFN_LIST_EXECUTIONS',
+    input: { stateMachineName: 'test-state-machine' },
+  });
+  await handler(event, CONTEXT);
+
+  expect(mockSFNClient.calls()).toHaveLength(1);
+});
 
 const testS3Response = async (
   expectedETag: string,

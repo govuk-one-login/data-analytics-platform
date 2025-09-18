@@ -308,6 +308,86 @@ test('clean disabled in production environment', async () => {
   await testClean(true);
 });
 
+test('empty bucket contents', async () => {
+  mockS3Client.on(ListObjectsV2Command, { Bucket: FLYWAY_FILES_BUCKET_NAME }).resolves({ Contents: [] });
+  mockSecretsManagerResponses();
+
+  await expect(handler(TEST_EVENT)).rejects.toThrow(
+    'Error getting flyway files - Bucket contents are undefined or empty',
+  );
+
+  expect(mockS3Client.calls()).toHaveLength(1);
+});
+
+test('JSON parse error in decodeOutput', async () => {
+  mockS3Responses();
+  mockSecretsManagerResponses();
+
+  spawnSyncSpy.mockImplementation(() => {
+    return {
+      status: 0,
+      stdout: Buffer.from('invalid json {', 'utf-8'),
+      stderr: Buffer.from('', 'utf-8'),
+      error: undefined,
+    };
+  });
+
+  const response = await handler(TEST_EVENT);
+  expect(response.status).toEqual(0);
+  expect(response.stdout).toHaveProperty('parseError');
+  expect(response.stderr).toEqual({});
+});
+
+test('null output buffer', async () => {
+  mockS3Responses();
+  mockSecretsManagerResponses();
+
+  spawnSyncSpy.mockImplementation(() => {
+    return {
+      status: 0,
+      // @ts-expect-error Simulating null buffer for test coverage
+      stdout: null,
+      stderr: Buffer.from('', 'utf-8'),
+      error: undefined,
+    };
+  });
+
+  const response = await handler(TEST_EVENT);
+  expect(response.status).toEqual(0);
+  expect(response.stdout).toBeNull();
+});
+
+test('write stream error', async () => {
+  mockS3Client.on(ListObjectsV2Command, { Bucket: FLYWAY_FILES_BUCKET_NAME }).resolves({
+    Contents: [{ Key: 'test-file.sql' }],
+  });
+
+  class MockReadableError extends Readable {
+    pipe<T extends NodeJS.WritableStream>(destination: T, options?: { end?: boolean }): T {
+      // @ts-expect-error this is fine as it's just for creating a mock
+      return this;
+    }
+
+    // @ts-expect-error this is fine as it's just for creating a mock
+    on(event: string, listener: (err?: Error) => void): this {
+      if (event === 'error') {
+        listener(new Error('Write stream error'));
+      }
+      return this;
+    }
+  }
+
+  mockS3Client
+    .on(GetObjectCommand, { Bucket: FLYWAY_FILES_BUCKET_NAME, Key: 'test-file.sql' })
+    .resolves({ Body: new MockReadableError() as SdkStream<Readable> });
+
+  mockSecretsManagerResponses();
+
+  await expect(handler(TEST_EVENT)).rejects.toThrow('Error getting flyway files - Write stream error');
+
+  expect(mockS3Client.calls()).toHaveLength(2);
+});
+
 const testClean = async (cleanShouldBeDisabled: boolean): Promise<void> => {
   mockS3Responses();
   mockSecretsManagerResponses();
