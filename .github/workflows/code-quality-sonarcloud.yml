@@ -24,7 +24,7 @@ jobs:
       - name: Install node packages
         run: npm ci
       - name: Generate coverage report
-        run: npm run test:coverage
+        run: npm run test:cov
       - name: SonarCloud scan
         uses: SonarSource/sonarqube-scan-action@v5.3.1
         env:
