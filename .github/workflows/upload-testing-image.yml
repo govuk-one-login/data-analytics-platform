@@ -29,7 +29,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v5
       - name: Assume AWS GitHub actions role
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.GH_ACTIONS_ROLE_ARN_BUILD }}
