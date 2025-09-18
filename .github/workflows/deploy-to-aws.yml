@@ -48,7 +48,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v5
       - name: Node setup
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -66,7 +66,7 @@ jobs:
       - name: SAM build
         run: sam build
       - name: Assume AWS GitHub actions role
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_{0}', inputs.environment)] }}
@@ -88,7 +88,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v5
       - name: Node setup
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -106,7 +106,7 @@ jobs:
       - name: SAM build
         run: sam build
       - name: Assume AWS GitHub actions role
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_QUICKSIGHT_ACCESS_{0}', inputs.environment)] }}
