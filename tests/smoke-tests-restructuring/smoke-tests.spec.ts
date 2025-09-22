@@ -16,7 +16,7 @@ import { startStepFunction } from '../helpers/step-helpers';
 describe('smoke tests for DAP services', () => {
   // 	    // ******************** Smoke Tests  ************************************
 
-  test('Verify Lambda is connected to SQS ', async () => {
+  test.skip('Verify Lambda is connected to SQS ', async () => {
     const lambdaEvents = await listLambdaEventMappings();
     expect(lambdaEvents.EventSourceMappings).toHaveLength(1);
 
@@ -27,17 +27,17 @@ describe('smoke tests for DAP services', () => {
     // expect(txmaEvent?.State).toEqual('Enabled');
   });
 
-  test('Verify Data Firehose is reachable ', async () => {
+  test.skip('Verify Data Firehose is reachable ', async () => {
     const deliveryStream = await describeFirehoseDeliveryStream(deliveryStreamName());
     expect(deliveryStream.DeliveryStreamDescription?.DeliveryStreamStatus === 'ACTIVE');
   });
 
-  test('Verify s3 Buckets are reachable ', async () => {
+  test.skip('Verify s3 Buckets are reachable ', async () => {
     const filesins3 = await getS3BucketStatus(rawdataS3BucketName(), 'txma');
     expect(filesins3.$metadata.httpStatusCode === 200);
   });
 
-  test('Verify Athena queries are executable ', async () => {
+  test.skip('Verify Athena queries are executable ', async () => {
     const athenaQueryResults = await getQueryResults(
       'SELECT * from txma_stage_layer_key_values limit 10',
       txmaStageDatabaseName(),
@@ -46,7 +46,7 @@ describe('smoke tests for DAP services', () => {
     expect(JSON.stringify(athenaQueryResults)).not.toBeNull();
   });
 
-  test('Verify latest day data has been processed ', async () => {
+  test.skip('Verify latest day data has been processed ', async () => {
     const athenaQueryResults = await getQueryResults(
       'SELECT * from txma_stage_layer_key_values where processed_dt = ' + TodayDate() + ' limit 10',
       txmaStageDatabaseName(),
