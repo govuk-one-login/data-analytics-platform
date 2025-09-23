@@ -2,10 +2,10 @@ import {
   AdminUpdateUserAttributesCommand,
   AdminUpdateUserAttributesCommandInput,
 } from '@aws-sdk/client-cognito-identity-provider';
-import { cognitoClient } from '../../shared/clients';
-import { getLogger } from '../../shared/powertools';
+import { cognitoClient } from '../../../common/clients';
+import { getLogger } from '../../../common/services/powertools/powertools';
 import { PostAuthenticationTriggerEvent } from 'aws-lambda';
-import { getRequiredParams } from '../../shared/utils/utils';
+import { getRequiredParams } from '../../../common/utilities/utils';
 
 export const logger = getLogger('lambda/cognito-post-authentication');
 

@@ -8,7 +8,7 @@ import {
 import type { AssetBundleImportJobStatus, StartAssetBundleImportJobCommandInput } from '@aws-sdk/client-quicksight';
 import type { QuicksightImportEvent } from './handler';
 import { handler } from './handler';
-import { analysisIdFromS3Uri } from '../../shared/quicksight-import-export/filename-utils';
+import { analysisIdFromS3Uri } from '../../../common/quicksight-import-export/filename-utils';
 
 const ACCOUNT_ID = '123456789012';
 

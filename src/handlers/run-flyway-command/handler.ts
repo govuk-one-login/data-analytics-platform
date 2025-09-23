@@ -1,9 +1,9 @@
-import { getLogger } from '../../shared/powertools';
-import { findOrThrow, getAWSEnvironment, getEnvironmentVariable, getErrorMessage } from '../../shared/utils/utils';
-import { getSecret } from '../../shared/secrets-manager/get-secret';
-import type { RedshiftSecret } from '../../shared/types/secrets-manager';
+import { getLogger } from '../../../common/powertools';
+import { findOrThrow, getAWSEnvironment, getEnvironmentVariable, getErrorMessage } from '../../../common/utilities/utils';
+import { getSecret } from '../../../common/secrets-manager/get-secret';
+import type { RedshiftSecret } from '../../../common/types/secrets-manager';
 import * as child_process from 'node:child_process';
-import { s3Client } from '../../shared/clients';
+import { s3Client } from '../../../common/clients';
 import { GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import * as fs from 'node:fs';

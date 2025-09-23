@@ -1,6 +1,6 @@
-import { ensureDefined, getEnvironmentVariable, getErrorMessage } from '../../shared/utils/utils';
-import { getLogger } from '../../shared/powertools';
-import { secretsManagerClient } from '../../shared/clients';
+import { ensureDefined, getEnvironmentVariable, getErrorMessage } from '../../../common/utilities/utils';
+import { getLogger } from '../../../common/powertools';
+import { secretsManagerClient } from '../../../common/clients';
 import type { DescribeSecretCommandOutput } from '@aws-sdk/client-secrets-manager';
 import {
   DescribeSecretCommand,
@@ -10,8 +10,8 @@ import {
 } from '@aws-sdk/client-secrets-manager';
 import * as crypto from 'node:crypto';
 import { DatabaseAccess } from './database-access';
-import { getSecret } from '../../shared/secrets-manager/get-secret';
-import type { RedshiftSecret, SecretRotationStage } from '../../shared/types/secrets-manager';
+import { getSecret } from '../../../common/secrets-manager/get-secret';
+import type { RedshiftSecret, SecretRotationStage } from '../../../common/types/secrets-manager';
 
 const logger = getLogger('lambda/redshift-rotate-secret');
 

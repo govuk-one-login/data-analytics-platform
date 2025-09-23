@@ -1,8 +1,8 @@
 import { handler } from './handler';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
-import type { AthenaGetConfigEvent } from '../../shared/types/raw-layer-processing';
-import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
+import type { AthenaGetConfigEvent } from '../../../common/types/raw-layer-processing';
+import { getTestResource, mockS3BodyStream } from '../../../common/utilities/test-utils';
 
 const mockS3Client = mockClient(S3Client);
 

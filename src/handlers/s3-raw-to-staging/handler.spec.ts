@@ -1,6 +1,6 @@
 import { handler } from './handler';
 import { mockClient } from 'aws-sdk-client-mock';
-import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
+import { getTestResource, mockS3BodyStream } from '../../../common/utilities/test-utils';
 import type { S3Event } from 'aws-lambda';
 import { CopyObjectCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 

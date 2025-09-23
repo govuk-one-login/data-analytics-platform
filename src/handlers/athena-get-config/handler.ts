@@ -1,8 +1,8 @@
-import { getRequiredParams, parseS3ResponseAsObject } from '../../shared/utils/utils';
+import { getRequiredParams, parseS3ResponseAsObject } from '../../../common/utilities/utils';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { s3Client } from '../../shared/clients';
-import type { AthenaGetConfigEvent, RawLayerEventStatus } from '../../shared/types/raw-layer-processing';
-import { getLogger } from '../../shared/powertools';
+import { s3Client } from '../../../common/clients';
+import type { AthenaGetConfigEvent, RawLayerEventStatus } from '../../../common/types/raw-layer-processing';
+import { getLogger } from '../../../common/powertools';
 
 const logger = getLogger('lambda/athena-get-config');
 

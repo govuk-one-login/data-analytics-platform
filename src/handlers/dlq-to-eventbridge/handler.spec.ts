@@ -2,9 +2,9 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { handler, logger } from './handler';
 import type { S3Event, SQSEvent, SQSRecord } from 'aws-lambda';
-import { getTestResource } from '../../shared/utils/test-utils';
+import { getTestResource } from '../../../common/utilities/test-utils';
 import type { RedshiftGetMetadataEvent } from '../redshift-get-metadata/handler';
-import type { RedshiftFileMetadata } from '../../shared/types/redshift-metadata';
+import type { RedshiftFileMetadata } from '../../../common/types/redshift-metadata';
 
 const loggerSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
 

@@ -1,9 +1,9 @@
 import type { Context, SQSBatchItemFailure, SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import { PutRecordCommand } from '@aws-sdk/client-firehose';
-import { firehoseClient } from '../../shared/clients';
-import { getEnvironmentVariable } from '../../shared/utils/utils';
-import { getLogger } from '../../shared/powertools';
-import { AuditEvent, isValidAuditEvent } from '../../shared/types/event';
+import { firehoseClient } from '../../../common/clients';
+import { getEnvironmentVariable } from '../../../common/utilities/utils';
+import { getLogger } from '../../../common/services/powertools/powertools';
+import { AuditEvent, isValidAuditEvent } from '../../../common/types/audit-event';
 
 export const logger = getLogger('lambda/txma-event-consumer');
 

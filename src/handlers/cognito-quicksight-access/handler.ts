@@ -1,8 +1,8 @@
-import { getLogger } from '../../shared/powertools';
+import { getLogger } from '../../../common/powertools';
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context } from 'aws-lambda';
-import { quicksightClient } from '../../shared/clients';
+import { quicksightClient } from '../../../common/clients';
 import { GenerateEmbedUrlForRegisteredUserCommand } from '@aws-sdk/client-quicksight';
-import { getAWSEnvironment, getEnvironmentVariable } from '../../shared/utils/utils';
+import { getAWSEnvironment, getEnvironmentVariable } from '../../../common/utilities/utils';
 
 export const logger = getLogger('lambda/cognito-quicksight-access');
 

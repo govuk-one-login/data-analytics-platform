@@ -1,11 +1,11 @@
 import type { S3Event, SQSBatchItemFailure, SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import type { RedshiftGetMetadataEvent } from '../redshift-get-metadata/handler';
-import { getS3EventRecords, getSQSEventRecords } from '../../shared/utils/utils';
-import { getLogger } from '../../shared/powertools';
-import { eventbridgeClient } from '../../shared/clients';
+import { getS3EventRecords, getSQSEventRecords } from '../../../common/utilities/utils';
+import { getLogger } from '../../../common/powertools';
+import { eventbridgeClient } from '../../../common/clients';
 import { PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import type { PutEventsRequestEntry } from '@aws-sdk/client-eventbridge';
-import type { RedshiftFileMetadata } from '../../shared/types/redshift-metadata';
+import type { RedshiftFileMetadata } from '../../../common/types/redshift-metadata';
 
 export const logger = getLogger('lambda/dlq-to-eventbridge');
 

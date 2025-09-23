@@ -1,10 +1,10 @@
 import { handler, logger } from './handler';
 import type { TokenResponse, UserInfoResponse } from './handler';
-import { mockApiGatewayEvent } from '../../shared/utils/test-utils';
+import { mockApiGatewayEvent } from '../../../common/utilities/test-utils';
 import { mockClient } from 'aws-sdk-client-mock';
 import { GenerateEmbedUrlForRegisteredUserCommand, QuickSightClient } from '@aws-sdk/client-quicksight';
 import type { APIGatewayProxyEventV2, Context } from 'aws-lambda';
-import { type AWS_ENVIRONMENTS } from '../../shared/constants';
+import { type AWS_ENVIRONMENTS } from '../../../common/constants';
 
 const ACCOUNT_ID = '012345678901';
 

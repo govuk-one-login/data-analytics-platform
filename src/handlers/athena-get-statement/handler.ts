@@ -1,9 +1,9 @@
-import { getAWSEnvironment, getRequiredParams, parseS3ResponseAsString } from '../../shared/utils/utils';
-import { s3Client } from '../../shared/clients';
+import { getAWSEnvironment, getRequiredParams, parseS3ResponseAsString } from '../../../common/utilities/utils';
+import { s3Client } from '../../../common/clients';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
-import type { AthenaGetStatementEvent } from '../../shared/types/raw-layer-processing';
-import { RawLayerProcessingActions } from '../../shared/types/raw-layer-processing';
-import { getLogger } from '../../shared/powertools';
+import type { AthenaGetStatementEvent } from '../../../common/types/raw-layer-processing';
+import { RawLayerProcessingActions } from '../../../common/types/raw-layer-processing';
+import { getLogger } from '../../../common/powertools';
 
 const logger = getLogger('lambda/athena-get-statement');
 

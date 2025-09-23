@@ -1,4 +1,4 @@
-import type { RedshiftSecret } from '../../shared/types/secrets-manager';
+import type { RedshiftSecret } from '../../../common/types/secrets-manager';
 import type { Knex } from 'knex';
 import { knex } from 'knex';
 import type { Logger } from '@aws-lambda-powertools/logger';
