@@ -56,3 +56,12 @@ test('success', async () => {
 
   expect(mockSQSClient.calls()).toHaveLength(1);
 });
+
+test('filename parsing error', async () => {
+  const testEvent = { ...TEST_EVENT };
+  testEvent.Records[0].s3.object.key = 'invalid-filename.csv';
+
+  await expect(handler(testEvent)).rejects.toThrow('Unable to parse key path string "invalid-filename"');
+
+  expect(mockSQSClient.calls()).toHaveLength(0);
+});

@@ -116,6 +116,12 @@ Unit testing is done with [Jest](https://jestjs.io) and the lambdas should all h
 * `jest consumer` - run a specific test or tests
     * anything after `jest` is used as a regex match - so in this example `consumer` causes jest to match all tests under the `src/handlers/txma-event-consumer/` directory (and any other directory that might have `consumer` in its name)
 
+You can also view code coverage reports by running this command:
+
+```sh
+npm run test:cov
+```
+
 #### Integration tests
 
 TODO

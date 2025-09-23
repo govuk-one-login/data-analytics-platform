@@ -20,3 +20,6 @@ build/
 **/dist/
 **/__pycache__/
 **/*.py[cod]
+
+venvlocal/
+venv/
