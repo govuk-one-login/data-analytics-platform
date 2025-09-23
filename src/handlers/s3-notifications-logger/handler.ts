@@ -1,5 +1,5 @@
 import type { S3ObjectCreatedNotificationEvent, S3ObjectDeletedNotificationEvent } from 'aws-lambda';
-import { getLogger } from '../../shared/powertools';
+import { getLogger } from '../../../common/powertools';
 
 export const logger = getLogger('lambda/s3-notifications-logger');
 

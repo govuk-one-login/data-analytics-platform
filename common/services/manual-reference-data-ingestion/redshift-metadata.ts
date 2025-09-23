@@ -1,8 +1,8 @@
-import { getEnvironmentVariable, parseS3ResponseAsObject } from '../utils/utils';
-import { s3Client } from '../clients';
+import { getEnvironmentVariable, parseS3ResponseAsObject } from '../../utilities/utils';
+import { s3Client } from '../../clients';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import type { S3EventRecord } from 'aws-lambda';
-import type { RedshiftConfig, RedshiftDatasource } from '../types/redshift-metadata';
+import type { RedshiftConfig, RedshiftDatasource } from '../../types/redshift-metadata';
 import type { Logger } from '@aws-lambda-powertools/logger';
 
 export const getDatasource = async (record: S3EventRecord, logger: Logger): Promise<RedshiftDatasource> => {

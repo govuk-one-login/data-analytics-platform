@@ -1,5 +1,5 @@
 import { handler, logger } from './handler';
-import { mockLambdaContext, mockSQSEvent } from '../../shared/utils/test-utils';
+import { mockLambdaContext, mockSQSEvent } from '../../../common/utilities/test-utils';
 import { FirehoseClient } from '@aws-sdk/client-firehose';
 import { mockClient } from 'aws-sdk-client-mock';
 

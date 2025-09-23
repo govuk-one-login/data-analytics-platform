@@ -1,5 +1,5 @@
 import { AdminGetUserCommand, UserNotFoundException } from '@aws-sdk/client-cognito-identity-provider';
-import { cognitoClient, quicksightClient } from '../clients';
+import { cognitoClient, quicksightClient } from '../../clients';
 import { DescribeUserCommand, ListUserGroupsCommand, ResourceNotFoundException } from '@aws-sdk/client-quicksight';
 
 export class UserStatus {

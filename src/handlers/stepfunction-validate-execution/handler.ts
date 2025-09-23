@@ -1,6 +1,6 @@
-import { getLogger } from '../../shared/powertools';
-import { sfnClient } from '../../shared/clients';
-import { ensureDefined, getEnvironmentVariable } from '../../shared/utils/utils';
+import { getLogger } from '../../../common/powertools';
+import { sfnClient } from '../../../common/clients';
+import { ensureDefined, getEnvironmentVariable } from '../../../common/utilities/utils';
 import { DescribeExecutionCommand, ListExecutionsCommand } from '@aws-sdk/client-sfn';
 import type { DescribeExecutionCommandOutput } from '@aws-sdk/client-sfn';
 

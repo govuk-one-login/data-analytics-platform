@@ -1,5 +1,5 @@
 import { handler, logger } from './handler';
-import { getTestResource } from '../../shared/utils/test-utils';
+import { getTestResource } from '../../../common/utilities/test-utils';
 import type { S3ObjectCreatedNotificationEvent } from 'aws-lambda';
 
 const loggerInfoSpy = jest.spyOn(logger, 'info').mockImplementation(() => undefined);

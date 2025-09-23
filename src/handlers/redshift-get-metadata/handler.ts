@@ -1,7 +1,7 @@
-import { getLogger } from '../../shared/powertools';
-import { getEnvironmentVariable, getRequiredParams } from '../../shared/utils/utils';
-import type { RedshiftConfig, RedshiftFileMetadata } from '../../shared/types/redshift-metadata';
-import { getConfigFile, getFilePathParts } from '../../shared/manual-reference-data-ingestion/redshift-metadata';
+import { getLogger } from '../../../common/powertools';
+import { getEnvironmentVariable, getRequiredParams } from '../../../common/utilities/utils';
+import type { RedshiftConfig, RedshiftFileMetadata } from '../../../common/types/redshift-metadata';
+import { getConfigFile, getFilePathParts } from '../../../common/services/manual-reference-data-ingestion/redshift-metadata';
 
 const logger = getLogger('lambda/redshift-get-metadata');
 

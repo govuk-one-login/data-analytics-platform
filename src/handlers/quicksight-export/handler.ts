@@ -1,12 +1,12 @@
-import { getLogger } from '../../shared/powertools';
-import { ensureDefined, getAccountId } from '../../shared/utils/utils';
-import { quicksightClient, s3Client } from '../../shared/clients';
+import { getLogger } from '../../../common/powertools';
+import { ensureDefined, getAccountId } from '../../../common/utilities/utils';
+import { quicksightClient, s3Client } from '../../../common/clients';
 import type { DescribeAssetBundleExportJobCommandOutput } from '@aws-sdk/client-quicksight';
 import { DescribeAssetBundleExportJobCommand, StartAssetBundleExportJobCommand } from '@aws-sdk/client-quicksight';
 import type { Context } from 'aws-lambda';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { waitForJob } from '../../shared/utils/wait-for-job';
-import { filenameFromAnalysisId } from '../../shared/quicksight-import-export/filename-utils';
+import { waitForJob } from '../../../common/utilities/wait-for-job';
+import { filenameFromAnalysisId } from '../../../common/quicksight-import-export/filename-utils';
 
 const logger = getLogger('lambda/quicksight-export');
 

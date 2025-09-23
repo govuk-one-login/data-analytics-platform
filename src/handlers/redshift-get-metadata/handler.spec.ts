@@ -2,8 +2,8 @@ import type { RedshiftGetMetadataEvent } from './handler';
 import { handler } from './handler';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
-import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
-import type { RedshiftConfig } from '../../shared/types/redshift-metadata';
+import { getTestResource, mockS3BodyStream } from '../../../common/utilities/test-utils';
+import type { RedshiftConfig } from '../../../common/types/redshift-metadata';
 
 const mockS3Client = mockClient(S3Client);
 

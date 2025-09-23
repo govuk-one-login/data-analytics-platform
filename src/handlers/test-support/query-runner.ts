@@ -2,8 +2,8 @@ import { logger } from './handler';
 import type { TestSupportEvent } from './handler';
 import { GetQueryExecutionCommand, GetQueryResultsCommand, StartQueryExecutionCommand } from '@aws-sdk/client-athena';
 import type { GetQueryResultsOutput } from '@aws-sdk/client-athena';
-import { getEnvironmentVariable, getRequiredParams, sleep } from '../../shared/utils/utils';
-import { athenaClient, redshiftDataClient } from '../../shared/clients';
+import { getEnvironmentVariable, getRequiredParams, sleep } from '../../../common/utilities/utils';
+import { athenaClient, redshiftDataClient } from '../../../common/clients';
 import {
   DescribeStatementCommand,
   ExecuteStatementCommand,

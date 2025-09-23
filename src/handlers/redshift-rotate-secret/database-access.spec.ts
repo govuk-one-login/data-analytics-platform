@@ -1,6 +1,6 @@
 import { DatabaseAccess } from './database-access';
-import type { RedshiftSecret } from '../../shared/types/secrets-manager';
-import { getLogger } from '../../shared/powertools';
+import type { RedshiftSecret } from '../../../common/types/secrets-manager';
+import { getLogger } from '../../../common/powertools';
 import { knex } from 'knex';
 
 jest.mock('knex', () => ({

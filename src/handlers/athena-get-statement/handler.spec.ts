@@ -1,13 +1,13 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
+import { getTestResource, mockS3BodyStream } from '../../../common/utilities/test-utils';
 import { handler } from './handler';
 import type {
   AthenaGetStatementEvent,
   RawLayerProcessingAction,
   RawLayerProcessingConfigObject,
-} from '../../shared/types/raw-layer-processing';
-import type { AWS_ENVIRONMENTS } from '../../shared/constants';
+} from '../../../common/types/raw-layer-processing';
+import type { AWS_ENVIRONMENTS } from '../../../common/constants';
 
 const mockS3Client = mockClient(S3Client);
 

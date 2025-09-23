@@ -1,5 +1,5 @@
-import { AWS_ENVIRONMENTS } from '../../shared/constants';
-import { getAccountId, getRequiredParams, lambdaInvokeResponse } from '../../shared/utils/utils';
+import { AWS_ENVIRONMENTS } from '../../../common/constants';
+import { getAccountId, getRequiredParams, lambdaInvokeResponse } from '../../../common/utilities/utils';
 import { DescribeLogStreamsCommand, GetLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
 import { InvokeCommand, ListEventSourceMappingsCommand } from '@aws-sdk/client-lambda';
 import type { CopyObjectCommandOutput, DeleteObjectCommandOutput, GetObjectCommandOutput } from '@aws-sdk/client-s3';
@@ -11,9 +11,9 @@ import {
   PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import { GetQueueUrlCommand, SendMessageCommand } from '@aws-sdk/client-sqs';
-import { cloudwatchClient, firehoseClient, lambdaClient, s3Client, sfnClient, sqsClient } from '../../shared/clients';
+import { cloudwatchClient, firehoseClient, lambdaClient, s3Client, sfnClient, sqsClient } from '../../../common/clients';
 import * as zlib from 'zlib';
-import { getLogger } from '../../shared/powertools';
+import { getLogger } from '../../../common/powertools';
 import { DescribeExecutionCommand, ListExecutionsCommand, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import type { Context } from 'aws-lambda';
 import { DescribeDeliveryStreamCommand } from '@aws-sdk/client-firehose';

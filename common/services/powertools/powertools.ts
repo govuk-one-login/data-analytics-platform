@@ -1,5 +1,5 @@
 import { Logger } from '@aws-lambda-powertools/logger';
-import { getAWSEnvironment } from './utils/utils';
+import { getAWSEnvironment } from '../../utilities/utils';
 import { Metrics } from '@aws-lambda-powertools/metrics';
 import { LogLevel } from '@aws-lambda-powertools/logger/lib/cjs/types/Logger';
 

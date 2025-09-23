@@ -1,7 +1,7 @@
 import { handler } from './handler';
 import { mockClient } from 'aws-sdk-client-mock';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import { getTestResource } from '../../shared/utils/test-utils';
+import { getTestResource } from '../../../common/utilities/test-utils';
 import type { S3Event } from 'aws-lambda';
 
 const mockSQSClient = mockClient(SQSClient);

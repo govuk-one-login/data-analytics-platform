@@ -1,6 +1,6 @@
-import { getLogger } from '../../shared/powertools';
-import { getEnvironmentVariable } from '../../shared/utils/utils';
-import { redshiftServerlessClient } from '../../shared/clients';
+import { getLogger } from '../../../common/powertools';
+import { getEnvironmentVariable } from '../../../common/utilities/utils';
+import { redshiftServerlessClient } from '../../../common/clients';
 import { CreateSnapshotCommand, CreateSnapshotCommandOutput } from '@aws-sdk/client-redshift-serverless';
 
 export const logger = getLogger('lambda/redshift-create-snapshot');

@@ -9,10 +9,10 @@ import {
 } from '@aws-sdk/client-secrets-manager';
 import { databaseAccess, handler } from './handler';
 import type { RotateSecretStep } from './handler';
-import type { RedshiftSecret, SecretRotationStage } from '../../shared/types/secrets-manager';
+import type { RedshiftSecret, SecretRotationStage } from '../../../common/types/secrets-manager';
 import type { Database } from './database-access';
 import { DatabaseAccess } from './database-access';
-import { getLogger } from '../../shared/powertools';
+import { getLogger } from '../../../common/powertools';
 import type { Knex } from 'knex';
 
 const mockSecretsManagerClient = mockClient(SecretsManagerClient);

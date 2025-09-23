@@ -3,14 +3,14 @@ import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-sec
 import { handler } from './handler';
 import type { RunFlywayEvent } from './handler';
 import * as child_process from 'node:child_process';
-import { getTestResource } from '../../shared/utils/test-utils';
+import { getTestResource } from '../../../common/utilities/test-utils';
 import * as fs from 'node:fs';
 import { GetObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { Readable } from 'node:stream';
 import * as path from 'node:path';
 import * as tar from 'tar';
 import type { SdkStream } from '@aws-sdk/types';
-import type { RedshiftSecret } from '../../shared/types/secrets-manager';
+import type { RedshiftSecret } from '../../../common/types/secrets-manager';
 
 const mockS3Client = mockClient(S3Client);
 const mockSecretsManagerClient = mockClient(SecretsManagerClient);
