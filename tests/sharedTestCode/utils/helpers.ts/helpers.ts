@@ -1,7 +1,7 @@
 import { SQSEvent, SQSRecord } from 'aws-lambda';
 import mockSQSEvent from '../../../sharedTestCode/test-auth-event.json'
 import { randomUUID } from 'crypto';
-import { AuditEvent } from '../../../../common/types/event';
+import { AuditEvent } from '../../../../common/types/audit-event';
 
 export const createSqsEvent = (auditEvent: AuditEvent): SQSEvent => {
   return {
