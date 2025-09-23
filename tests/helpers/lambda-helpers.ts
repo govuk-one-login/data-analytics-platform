@@ -1,9 +1,9 @@
 import { InvokeCommand } from '@aws-sdk/client-lambda';
 import type { ListEventSourceMappingsResponse } from '@aws-sdk/client-lambda';
 import type { TestSupportEvent } from '../../src/handlers/test-support/handler';
-import { decodeObject, encodeObject, getAWSEnvironment } from '../../src/shared/utils/utils';
-import { lambdaClient } from '../../src/shared/clients';
-import { getLogger } from '../../src/shared/powertools';
+import { decodeObject, encodeObject, getAWSEnvironment } from '../../common/utilities/utils';
+import { lambdaClient } from '../../common/clients';
+import { getLogger } from '../../common/powertools';
 const logger = getLogger('auth_account_creation_group');
 
 export interface GetQueueUrlResult {
