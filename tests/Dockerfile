@@ -25,6 +25,7 @@ COPY package.json package-lock.json tsconfig.json ./
 COPY tests ./tests
 COPY tests/run-tests.sh /
 
+
 RUN chmod +x /run-tests.sh
 WORKDIR /test-app/tests
 
