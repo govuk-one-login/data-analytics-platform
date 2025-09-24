@@ -24,7 +24,6 @@ COPY --from=builder /build-app/node_modules ./node_modules
 COPY package.json package-lock.json tsconfig.json ./
 COPY tests ./tests
 COPY tests/run-tests.sh /
-COPY common ./common
 
 RUN chmod +x /run-tests.sh
 WORKDIR /test-app/tests
