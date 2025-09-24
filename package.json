@@ -87,7 +87,9 @@
     "iac:format:fix": "prettier --write iac",
     "scripts:format:check": "prettier --check scripts",
     "scripts:format:fix": "prettier --write scripts",
-    "husky:install": "husky"
+    "husky:install": "husky",
+    "test:integration": "jest -c ./tests/integration-tests/jest.config.integration.ts --runInBand",
+    "test:integration:ci": "npm run test:integration --ci"
   },
   "lint-staged": {
     "*": "prettier --write",
