@@ -7,3 +7,5 @@ These resources are:
 - KMS keys
 - KMS aliases
 - SSM Parameters
+
+Change to trigger DAP Core workflow
