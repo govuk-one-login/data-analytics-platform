@@ -92,30 +92,30 @@ QuicksightAccessApiGateway:
     ProtocolType: HTTP
     Target: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
 
-QuicksightAccessApiGatewayStage:
-  Type: AWS::ApiGatewayV2::Stage
-  Condition: IsQuicksightEnvironment
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
-  Properties:
-    ApiId: !Ref QuicksightAccessApiGateway
-    StageName: $default
-    AutoDeploy: true
-    AccessLogSettings:
-      DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
-      Format: >-
-        {
-        "requestId": "$context.requestId",
-        "ip": "$context.identity.sourceIp",
-        "requestTime": "$context.requestTime",
-        "httpMethod": "$context.httpMethod",
-        "path": "$context.path",
-        "routeKey": "$context.routeKey",
-        "status": "$context.status",
-        "protocol": "$context.protocol",
-        "responseLatency": "$context.responseLatency",
-        "responseLength": "$context.responseLength"
-        }
+# QuicksightAccessApiGatewayStage:
+#   Type: AWS::ApiGatewayV2::Stage
+#   Condition: IsQuicksightEnvironment
+#   DeletionPolicy: Retain
+#   UpdateReplacePolicy: Retain
+#   Properties:
+#     ApiId: !Ref QuicksightAccessApiGateway
+#     StageName: $default
+#     AutoDeploy: true
+#     AccessLogSettings:
+#       DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
+#       Format: >-
+#         {
+#         "requestId": "$context.requestId",
+#         "ip": "$context.identity.sourceIp",
+#         "requestTime": "$context.requestTime",
+#         "httpMethod": "$context.httpMethod",
+#         "path": "$context.path",
+#         "routeKey": "$context.routeKey",
+#         "status": "$context.status",
+#         "protocol": "$context.protocol",
+#         "responseLatency": "$context.responseLatency",
+#         "responseLength": "$context.responseLength"
+#         }
 
 QuicksightAccessApiGatewayLambdaPermission:
   Type: AWS::Lambda::Permission
