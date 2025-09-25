@@ -99,7 +99,7 @@ QuicksightAccessApiGatewayStage:
   UpdateReplacePolicy: Retain
   Properties:
     ApiId: !Ref QuicksightAccessApiGateway
-    StageName: $default-new
+    StageName: quicksight-stage
     AutoDeploy: true
     AccessLogSettings:
       DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
@@ -124,7 +124,7 @@ QuicksightAccessApiGatewayLambdaPermission:
     FunctionName: !Ref QuicksightAccessLambdaFunction
     Action: lambda:InvokeFunction
     Principal: apigateway.amazonaws.com
-    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/$default
+    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/prod
 
 QuicksightAccessUserPool:
   Type: AWS::Cognito::UserPool
