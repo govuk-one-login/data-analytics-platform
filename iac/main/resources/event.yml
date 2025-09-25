@@ -13,16 +13,6 @@ EventConsumerLambda:
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: txma-event-consumer
-    Events:
-      # this event is called CleanEvent for historic reasons (originally some data cleaning/validation was planned at this stage)
-      # as it exists now, this lambda just receives txma events and passes them directly to firehose
-      CleanEvent:
-        Type: SQS
-        Properties:
-          BatchSize: 1
-          Queue: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
-          FunctionResponseTypes:
-            - ReportBatchItemFailures
     Handler: txma-event-consumer.handler
     Policies:
       - AWSLambdaBasicExecutionRole
@@ -55,7 +45,7 @@ EventConsumerLambda:
               Action: kms:decrypt
               Resource: '{{resolve:ssm:TxMAKMSKeyARN}}'
             - !Ref AWS::NoValue
-    ReservedConcurrentExecutions: 10
+    MemorySize: 1024
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
@@ -70,6 +60,15 @@ EventConsumerLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
+
+EventConsumerEventSourceMapping:
+  Type: 'AWS::Lambda::EventSourceMapping'
+  Properties:
+    BatchSize: 10
+    EventSourceArn: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
+    FunctionName: !GetAtt EventConsumerLambda.Arn
+    FunctionResponseTypes:
+      - ReportBatchItemFailures
 
 KinesisFirehose:
   Type: 'AWS::KinesisFirehose::DeliveryStream'
