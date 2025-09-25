@@ -15,6 +15,16 @@ EventConsumerLambda:
   Properties:
     FunctionName: txma-event-consumer
     Handler: txma-event-consumer.handler
+    Events:
+      # this event is called CleanEvent for historic reasons (originally some data cleaning/validation was planned at this stage)
+      # as it exists now, this lambda just receives txma events and passes them directly to firehose
+      CleanEvent:
+        Type: SQS
+        Properties:
+          BatchSize: 10
+          Queue: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
+          FunctionResponseTypes:
+            - ReportBatchItemFailures
     Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
@@ -60,15 +70,6 @@ EventConsumerLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
-
-EventConsumerEventSourceMapping:
-  Type: 'AWS::Lambda::EventSourceMapping'
-  Properties:
-    BatchSize: 10
-    EventSourceArn: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
-    FunctionName: !GetAtt EventConsumerLambda.Arn
-    FunctionResponseTypes:
-      - ReportBatchItemFailures
 
 KinesisFirehose:
   Type: 'AWS::KinesisFirehose::DeliveryStream'
