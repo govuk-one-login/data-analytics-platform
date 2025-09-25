@@ -46,7 +46,6 @@ EventConsumerLambda:
               Action: kms:decrypt
               Resource: '{{resolve:ssm:TxMAKMSKeyARN}}'
             - !Ref AWS::NoValue
-    MemorySize: 1024
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
