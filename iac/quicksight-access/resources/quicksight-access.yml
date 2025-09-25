@@ -95,6 +95,8 @@ QuicksightAccessApiGateway:
 QuicksightAccessApiGatewayStage:
   Type: AWS::ApiGatewayV2::Stage
   Condition: IsQuicksightEnvironment
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     ApiId: !Ref QuicksightAccessApiGateway
     StageName: $default
