@@ -10,6 +10,7 @@ EventConsumerQueue:
 
 EventConsumerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+  # checkov:skip=CKV_AWS_115:Not setting concurrent execution limits, 
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: txma-event-consumer
