@@ -108,30 +108,7 @@ QuicksightAccessApiGatewayRoute:
     RouteKey: '$default'
     Target: !Sub integrations/${QuicksightAccessApiGatewayIntegration}
 
-QuicksightAccessApiGatewayStage:
-  Type: AWS::ApiGatewayV2::Stage
-  Condition: IsQuicksightEnvironment
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
-  Properties:
-    ApiId: !Ref QuicksightAccessApiGateway
-    StageName: quicksight-stage
-    AutoDeploy: true
-    AccessLogSettings:
-      DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
-      Format: >-
-        {
-        "requestId": "$context.requestId",
-        "ip": "$context.identity.sourceIp",
-        "requestTime": "$context.requestTime",
-        "httpMethod": "$context.httpMethod",
-        "path": "$context.path",
-        "routeKey": "$context.routeKey",
-        "status": "$context.status",
-        "protocol": "$context.protocol",
-        "responseLatency": "$context.responseLatency",
-        "responseLength": "$context.responseLength"
-        }
+# QuicksightAccessApiGatewayStage removed - using existing $default stage
 
 QuicksightAccessApiGatewayLambdaPermission:
   Type: AWS::Lambda::Permission
@@ -140,7 +117,7 @@ QuicksightAccessApiGatewayLambdaPermission:
     FunctionName: !Ref QuicksightAccessLambdaFunction
     Action: lambda:InvokeFunction
     Principal: apigateway.amazonaws.com
-    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/quicksight-stage
+    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/$default
 
 QuicksightAccessUserPool:
   Type: AWS::Cognito::UserPool
