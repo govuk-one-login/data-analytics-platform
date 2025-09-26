@@ -100,13 +100,7 @@ QuicksightAccessApiGatewayIntegration:
     IntegrationUri: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
     PayloadFormatVersion: '2.0'
 
-QuicksightAccessApiGatewayRoute:
-  Type: AWS::ApiGatewayV2::Route
-  Condition: IsQuicksightEnvironment
-  Properties:
-    ApiId: !Ref QuicksightAccessApiGateway
-    RouteKey: '$default'
-    Target: !Sub integrations/${QuicksightAccessApiGatewayIntegration}
+# QuicksightAccessApiGatewayRoute removed - using existing $default route
 
 # QuicksightAccessApiGatewayStage removed - using existing $default stage
 
