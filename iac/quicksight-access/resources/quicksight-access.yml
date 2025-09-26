@@ -90,19 +90,32 @@ QuicksightAccessApiGateway:
   Properties:
     Name: !Sub ${Environment}-dap-quicksight-access
     ProtocolType: HTTP
+    Target: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
 
-QuicksightAccessApiGatewayIntegration:
-  Type: AWS::ApiGatewayV2::Integration
+QuicksightAccessApiGatewayStage:
+  Type: AWS::ApiGatewayV2::Stage
   Condition: IsQuicksightEnvironment
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     ApiId: !Ref QuicksightAccessApiGateway
-    IntegrationType: AWS_PROXY
-    IntegrationUri: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
-    PayloadFormatVersion: '2.0'
-
-# QuicksightAccessApiGatewayRoute removed - using existing $default route
-
-# QuicksightAccessApiGatewayStage removed - using existing $default stage
+    StageName: $default
+    AutoDeploy: true
+    AccessLogSettings:
+      DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
+      Format: >-
+        {
+        "requestId": "$context.requestId",
+        "ip": "$context.identity.sourceIp",
+        "requestTime": "$context.requestTime",
+        "httpMethod": "$context.httpMethod",
+        "path": "$context.path",
+        "routeKey": "$context.routeKey",
+        "status": "$context.status",
+        "protocol": "$context.protocol",
+        "responseLatency": "$context.responseLatency",
+        "responseLength": "$context.responseLength"
+        }
 
 QuicksightAccessApiGatewayLambdaPermission:
   Type: AWS::Lambda::Permission
