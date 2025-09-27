@@ -84,49 +84,45 @@ QuicksightApiAccessLogGroup:
     LogGroupName: !Sub /aws/apigateway/${AWS::StackName}-endpoint-access-logs
     RetentionInDays: 30
 
-# QuicksightAccessApiGateway:
-#   Type: AWS::ApiGatewayV2::Api
-#   Condition: IsQuicksightEnvironment
-#   DeletionPolicy: Retain
-#   UpdateReplacePolicy: Retain
-#   Properties:
-#     Name: !Sub ${Environment}-dap-quicksight-access
-#     ProtocolType: HTTP
-#     Target: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
+QuicksightAccessApiGateway:
+  Type: AWS::ApiGatewayV2::Api
+  Condition: IsQuicksightEnvironment
+  Properties:
+    Name: !Sub ${Environment}-dap-quicksight-access
+    ProtocolType: HTTP
+    Target: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
 
-# QuicksightAccessApiGatewayStage:
-#   Type: AWS::ApiGatewayV2::Stage
-#   Condition: IsQuicksightEnvironment
-#   DeletionPolicy: Retain
-#   UpdateReplacePolicy: Retain
-#   Properties:
-#     ApiId: !Ref QuicksightAccessApiGateway
-#     StageName: $default
-#     AutoDeploy: true
-#     AccessLogSettings:
-#       DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
-#       Format: >-
-#         {
-#         "requestId": "$context.requestId",
-#         "ip": "$context.identity.sourceIp",
-#         "requestTime": "$context.requestTime",
-#         "httpMethod": "$context.httpMethod",
-#         "path": "$context.path",
-#         "routeKey": "$context.routeKey",
-#         "status": "$context.status",
-#         "protocol": "$context.protocol",
-#         "responseLatency": "$context.responseLatency",
-#         "responseLength": "$context.responseLength"
-#         }
+QuicksightAccessApiGatewayStage:
+  Type: AWS::ApiGatewayV2::Stage
+  Condition: IsQuicksightEnvironment
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway
+    StageName: $default
+    AutoDeploy: true
+    AccessLogSettings:
+      DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
+      Format: >-
+        {
+        "requestId": "$context.requestId",
+        "ip": "$context.identity.sourceIp",
+        "requestTime": "$context.requestTime",
+        "httpMethod": "$context.httpMethod",
+        "path": "$context.path",
+        "routeKey": "$context.routeKey",
+        "status": "$context.status",
+        "protocol": "$context.protocol",
+        "responseLatency": "$context.responseLatency",
+        "responseLength": "$context.responseLength"
+        }
 
-# QuicksightAccessApiGatewayLambdaPermission:
-#   Type: AWS::Lambda::Permission
-#   Condition: IsQuicksightEnvironment
-#   Properties:
-#     FunctionName: !Ref QuicksightAccessLambdaFunction
-#     Action: lambda:InvokeFunction
-#     Principal: apigateway.amazonaws.com
-#     SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/$default
+QuicksightAccessApiGatewayLambdaPermission:
+  Type: AWS::Lambda::Permission
+  Condition: IsQuicksightEnvironment
+  Properties:
+    FunctionName: !Ref QuicksightAccessLambdaFunction
+    Action: lambda:InvokeFunction
+    Principal: apigateway.amazonaws.com
+    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/$default
 
 QuicksightAccessUserPool:
   Type: AWS::Cognito::UserPool
@@ -189,8 +185,7 @@ QuicksightAccessUserPoolClient:
       - openid
       - profile
     CallbackURLs:
-      - https://example.com # Temporary placeholder while API Gateway is commented out
-      # - !GetAtt QuicksightAccessApiGateway.ApiEndpoint
+      - !GetAtt QuicksightAccessApiGateway.ApiEndpoint
     ClientName: !Sub ${Environment}-dap-quicksight-access-client
     ExplicitAuthFlows:
       - ALLOW_REFRESH_TOKEN_AUTH
