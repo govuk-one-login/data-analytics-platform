@@ -90,7 +90,23 @@ QuicksightAccessApiGateway:
   Properties:
     Name: !Sub ${Environment}-dap-quicksight-access
     ProtocolType: HTTP
-    Target: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
+
+QuicksightAccessApiGatewayIntegration:
+  Type: AWS::ApiGatewayV2::Integration
+  Condition: IsQuicksightEnvironment
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway
+    IntegrationType: AWS_PROXY
+    IntegrationUri: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
+    PayloadFormatVersion: '2.0'
+
+QuicksightAccessApiGatewayRoute:
+  Type: AWS::ApiGatewayV2::Route
+  Condition: IsQuicksightEnvironment
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway
+    RouteKey: '$default'
+    Target: !Sub integrations/${QuicksightAccessApiGatewayIntegration}
 
 QuicksightAccessApiGatewayStage:
   Type: AWS::ApiGatewayV2::Stage
