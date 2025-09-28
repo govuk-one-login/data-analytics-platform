@@ -100,36 +100,48 @@ QuicksightAccessApiGatewayIntegration:
     IntegrationUri: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
     PayloadFormatVersion: '2.0'
 
-QuicksightAccessApiGatewayRoute:
-  Type: AWS::ApiGatewayV2::Route
+UpdateApiGatewayStageCustomResource:
+  Type: AWS::CloudFormation::CustomResource
   Condition: IsQuicksightEnvironment
   Properties:
+    ServiceToken: !GetAtt UpdateApiGatewayStageFunction.Arn
     ApiId: !Ref QuicksightAccessApiGateway
-    RouteKey: '$default'
-    Target: !Sub integrations/${QuicksightAccessApiGatewayIntegration}
+    StageName: '$default'
+    LogGroupArn: !GetAtt QuicksightApiAccessLogGroup.Arn
 
-QuicksightAccessApiGatewayStage:
-  Type: AWS::ApiGatewayV2::Stage
+UpdateApiGatewayStageFunction:
+  # checkov:skip=CKV_AWS_115: Custom resource function runs only during deployments, no concurrency limit needed
+  # checkov:skip=CKV_AWS_116: DLQ not needed for custom resource function that runs only during deployments
+  Type: AWS::Serverless::Function
   Condition: IsQuicksightEnvironment
   Properties:
-    ApiId: !Ref QuicksightAccessApiGateway
-    StageName: prod
-    AutoDeploy: true
-    AccessLogSettings:
-      DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
-      Format: >-
-        {
-        "requestId": "$context.requestId",
-        "ip": "$context.identity.sourceIp",
-        "requestTime": "$context.requestTime",
-        "httpMethod": "$context.httpMethod",
-        "path": "$context.path",
-        "routeKey": "$context.routeKey",
-        "status": "$context.status",
-        "protocol": "$context.protocol",
-        "responseLatency": "$context.responseLatency",
-        "responseLength": "$context.responseLength"
-        }
+    FunctionName: update-apigateway-stage
+    Handler: update-apigateway-stage.handler
+    Policies:
+      - Statement:
+          - Effect: Allow
+            Action:
+              - apigateway:UpdateStage
+              - apigateway:GetStage
+            Resource: '*'
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        ENVIRONMENT: !Ref Environment
+    Tags:
+      Environment: !Ref Environment
+    # this lambda lives in the protected subnets of a different VPC than the main application lambdas
+    # because it needs (limited) internet access to call cognito and quicksight APIs and these services do not have VPC endpoints
+    # see https://govukverify.atlassian.net/wiki/spaces/PLAT/pages/3531735041/VPC
+    VpcConfig:
+      SecurityGroupIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-AWSServicesEndpointSecurityGroupId
+      SubnetIds:
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdA
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdB
+        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdC
+
+# QuicksightAccessApiGatewayStage - using existing $default stage with custom resource for logging
 
 QuicksightAccessApiGatewayLambdaPermission:
   Type: AWS::Lambda::Permission
@@ -138,7 +150,7 @@ QuicksightAccessApiGatewayLambdaPermission:
     FunctionName: !Ref QuicksightAccessLambdaFunction
     Action: lambda:InvokeFunction
     Principal: apigateway.amazonaws.com
-    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/prod
+    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/$default
 
 QuicksightAccessUserPool:
   Type: AWS::Cognito::UserPool
@@ -201,7 +213,7 @@ QuicksightAccessUserPoolClient:
       - openid
       - profile
     CallbackURLs:
-      - !Sub '${QuicksightAccessApiGateway.ApiEndpoint}/prod'
+      - !GetAtt QuicksightAccessApiGateway.ApiEndpoint
     ClientName: !Sub ${Environment}-dap-quicksight-access-client
     ExplicitAuthFlows:
       - ALLOW_REFRESH_TOKEN_AUTH
