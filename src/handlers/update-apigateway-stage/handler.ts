@@ -3,7 +3,7 @@ import { CloudFormationCustomResourceEvent, Context } from 'aws-lambda';
 import * as https from 'https';
 import { getLogger } from '../../shared/powertools';
 
-const client = new ApiGatewayV2Client({ region: process.env.AWS_REGION });
+const client = new ApiGatewayV2Client({ region: 'eu-west-2' });
 export const logger = getLogger('lambda/update-apigateway-stage');
 
 export const handler = async (event: CloudFormationCustomResourceEvent, context: Context): Promise<void> => {
