@@ -117,6 +117,8 @@ UpdateApiGatewayStageFunction:
   Properties:
     FunctionName: update-apigateway-stage
     Handler: update-apigateway-stage.handler
+    Timeout: 60
+    MemorySize: 256
     Policies:
       - Statement:
           - Effect: Allow

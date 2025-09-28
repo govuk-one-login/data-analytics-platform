@@ -34,7 +34,7 @@ export const handler = async (event: CloudFormationCustomResourceEvent, context:
       return;
     }
 
-    logger.info('Processing request', { RequestType, ApiId, StageName });
+    logger.info('Processing request', { RequestType, ApiId, StageName, LogGroupArn });
 
     try {
       if (RequestType === 'Create' || RequestType === 'Update') {
@@ -50,14 +50,22 @@ export const handler = async (event: CloudFormationCustomResourceEvent, context:
         });
 
         logger.info('Sending UpdateStageCommand to API Gateway');
-        await client
-          .send(command)
+
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => {
+            logger.error('API Gateway call timed out after 20 seconds');
+            reject(new Error('API Gateway call timeout'));
+          }, 20000);
+        });
+
+        await Promise.race([client.send(command), timeoutPromise])
           .then(result => {
             logger.info('API Gateway UpdateStage response', { result });
           })
           .catch(apiError => {
             logger.error('API Gateway UpdateStage failed', {
-              error: apiError,
+              error: String(apiError),
               errorName: apiError?.name,
               errorMessage: apiError?.message,
               errorCode: apiError?.$metadata?.httpStatusCode,
