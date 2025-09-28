@@ -112,6 +112,7 @@ UpdateApiGatewayStageCustomResource:
 UpdateApiGatewayStageFunction:
   # checkov:skip=CKV_AWS_115: Custom resource function runs only during deployments, no concurrency limit needed
   # checkov:skip=CKV_AWS_116: DLQ not needed for custom resource function that runs only during deployments
+  # checkov:skip=CKV_AWS_117: Lambda needs internet access for API Gateway V2 calls, no VPC endpoints available
   Type: AWS::Serverless::Function
   Condition: IsQuicksightEnvironment
   Properties:
@@ -132,16 +133,8 @@ UpdateApiGatewayStageFunction:
         ENVIRONMENT: !Ref Environment
     Tags:
       Environment: !Ref Environment
-    # this lambda lives in the protected subnets of a different VPC than the main application lambdas
-    # because it needs (limited) internet access to call cognito and quicksight APIs and these services do not have VPC endpoints
-    # see https://govukverify.atlassian.net/wiki/spaces/PLAT/pages/3531735041/VPC
-    VpcConfig:
-      SecurityGroupIds:
-        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-AWSServicesEndpointSecurityGroupId
-      SubnetIds:
-        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdA
-        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdB
-        - Fn::ImportValue: !Sub ${Environment}-dap-vpc-ProtectedSubnetIdC
+    # Custom resource Lambda runs outside VPC to access API Gateway V2 service
+    # API Gateway V2 does not have VPC endpoints
 
 # QuicksightAccessApiGatewayStage - using existing $default stage with custom resource for logging
 
