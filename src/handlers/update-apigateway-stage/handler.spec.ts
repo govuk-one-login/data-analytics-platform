@@ -5,14 +5,14 @@ import { mockClient } from 'aws-sdk-client-mock';
 const mockApiGatewayV2Client = mockClient(ApiGatewayV2Client);
 
 // Mock the handler to avoid HTTP request issues in tests
-jest.mock('./update-apigateway-stage', () => ({
+jest.mock('./handler', () => ({
   handler: jest.fn(),
 }));
 
-import { handler } from './update-apigateway-stage';
+import { handler } from './handler';
 const mockHandler = handler as jest.MockedFunction<typeof handler>;
 
-describe('update-apigateway-stage handler', () => {
+describe('handler handler', () => {
   const mockContext: Context = {
     logStreamName: 'test-log-stream',
   } as Context;
