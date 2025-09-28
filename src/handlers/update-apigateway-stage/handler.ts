@@ -18,7 +18,9 @@ export const handler = async (event: CloudFormationCustomResourceEvent, context:
 
     if (!ResourceProperties) {
       logger.error('ResourceProperties missing from event');
-      await sendResponse(event, context, 'FAILED', {});
+      await sendResponse(event, context, 'FAILED', {})
+        .then(() => logger.info('FAILED response sent for missing ResourceProperties'))
+        .catch(err => logger.error('Failed to send response for missing ResourceProperties', { error: err }));
       return;
     }
 
@@ -26,7 +28,9 @@ export const handler = async (event: CloudFormationCustomResourceEvent, context:
 
     if (!ApiId || !StageName || !LogGroupArn) {
       logger.error('Required properties missing', { ApiId, StageName, LogGroupArn });
-      await sendResponse(event, context, 'FAILED', {});
+      await sendResponse(event, context, 'FAILED', {})
+        .then(() => logger.info('FAILED response sent for missing properties'))
+        .catch(err => logger.error('Failed to send response for missing properties', { error: err }));
       return;
     }
 
@@ -46,39 +50,54 @@ export const handler = async (event: CloudFormationCustomResourceEvent, context:
         });
 
         logger.info('Sending UpdateStageCommand to API Gateway');
-        try {
-          const result = await client.send(command);
-          logger.info('API Gateway UpdateStage response', { result });
-        } catch (apiError) {
-          logger.error('API Gateway UpdateStage failed', {
-            error: apiError,
-            errorName: apiError?.name,
-            errorMessage: apiError?.message,
-            errorCode: apiError?.$metadata?.httpStatusCode,
+        await client
+          .send(command)
+          .then(result => {
+            logger.info('API Gateway UpdateStage response', { result });
+          })
+          .catch(apiError => {
+            logger.error('API Gateway UpdateStage failed', {
+              error: apiError,
+              errorName: apiError?.name,
+              errorMessage: apiError?.message,
+              errorCode: apiError?.$metadata?.httpStatusCode,
+            });
+            throw apiError;
           });
-          throw apiError;
-        }
         logger.info('Successfully updated stage', { StageName, ApiId });
       } else {
         logger.info('Skipping stage update for Delete request');
       }
 
       logger.info('Sending SUCCESS response to CloudFormation');
-      await sendResponse(event, context, 'SUCCESS', {});
-      logger.info('SUCCESS response sent successfully');
+      await sendResponse(event, context, 'SUCCESS', {})
+        .then(() => {
+          logger.info('SUCCESS response sent successfully');
+        })
+        .catch(responseError => {
+          logger.error('Failed to send SUCCESS response', { error: responseError });
+          throw responseError;
+        });
     } catch (error) {
       logger.error('Error updating stage', { error });
       logger.info('Sending FAILED response to CloudFormation');
-      await sendResponse(event, context, 'FAILED', {});
-      logger.info('FAILED response sent successfully');
+      await sendResponse(event, context, 'FAILED', {})
+        .then(() => {
+          logger.info('FAILED response sent successfully');
+        })
+        .catch(responseError => {
+          logger.error('Failed to send FAILED response', { error: responseError });
+        });
     }
   } catch (unexpectedError) {
     logger.error('Unexpected error in handler', { error: unexpectedError });
-    try {
-      await sendResponse(event, context, 'FAILED', {});
-    } catch (responseError) {
-      logger.error('Failed to send error response', { error: responseError });
-    }
+    await sendResponse(event, context, 'FAILED', {})
+      .then(() => {
+        logger.info('Emergency FAILED response sent successfully');
+      })
+      .catch(responseError => {
+        logger.error('Failed to send emergency error response', { error: responseError });
+      });
   }
 };
 
