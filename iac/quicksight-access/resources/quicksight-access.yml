@@ -124,8 +124,8 @@ UpdateApiGatewayStageFunction:
       - Statement:
           - Effect: Allow
             Action:
-              - apigatewayv2:UpdateStage
-              - apigatewayv2:GetStage
+              - apigateway:PATCH
+              - apigateway:GET
             Resource: '*'
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
