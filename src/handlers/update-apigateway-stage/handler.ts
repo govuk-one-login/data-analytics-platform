@@ -7,13 +7,18 @@ const client = new ApiGatewayV2Client({ region: process.env.AWS_REGION });
 export const logger = getLogger('lambda/update-apigateway-stage');
 
 export const handler = async (event: CloudFormationCustomResourceEvent, context: Context): Promise<void> => {
-  logger.info('Event received', { event });
+  logger.info('Event received', {
+    RequestType: event.RequestType,
+    LogicalResourceId: event.LogicalResourceId,
+    RequestId: event.RequestId,
+  });
 
   const { RequestType, ResourceProperties } = event;
   const { ApiId, StageName, LogGroupArn } = ResourceProperties;
 
   try {
     if (RequestType === 'Create' || RequestType === 'Update') {
+      logger.info('Updating API Gateway stage', { ApiId, StageName });
       const command = new UpdateStageCommand({
         ApiId,
         StageName,
@@ -26,12 +31,18 @@ export const handler = async (event: CloudFormationCustomResourceEvent, context:
 
       await client.send(command);
       logger.info('Successfully updated stage', { StageName, ApiId });
+    } else {
+      logger.info('Skipping stage update for Delete request');
     }
 
+    logger.info('Sending SUCCESS response to CloudFormation');
     await sendResponse(event, context, 'SUCCESS', {});
+    logger.info('SUCCESS response sent successfully');
   } catch (error) {
     logger.error('Error updating stage', { error });
+    logger.info('Sending FAILED response to CloudFormation');
     await sendResponse(event, context, 'FAILED', {});
+    logger.info('FAILED response sent successfully');
   }
 };
 
@@ -44,7 +55,7 @@ async function sendResponse(
   const responseBody = JSON.stringify({
     Status: responseStatus,
     Reason: `See CloudWatch Log Stream: ${context.logStreamName}`,
-    PhysicalResourceId: context.logStreamName,
+    PhysicalResourceId: event.LogicalResourceId,
     StackId: event.StackId,
     RequestId: event.RequestId,
     LogicalResourceId: event.LogicalResourceId,
