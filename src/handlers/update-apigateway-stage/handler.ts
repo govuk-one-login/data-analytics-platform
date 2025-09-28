@@ -45,7 +45,19 @@ export const handler = async (event: CloudFormationCustomResourceEvent, context:
           },
         });
 
-        await client.send(command);
+        logger.info('Sending UpdateStageCommand to API Gateway');
+        try {
+          const result = await client.send(command);
+          logger.info('API Gateway UpdateStage response', { result });
+        } catch (apiError) {
+          logger.error('API Gateway UpdateStage failed', {
+            error: apiError,
+            errorName: apiError?.name,
+            errorMessage: apiError?.message,
+            errorCode: apiError?.$metadata?.httpStatusCode,
+          });
+          throw apiError;
+        }
         logger.info('Successfully updated stage', { StageName, ApiId });
       } else {
         logger.info('Skipping stage update for Delete request');
