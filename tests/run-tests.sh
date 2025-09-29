@@ -10,15 +10,16 @@
 # in the Dockerfile.
 cd /test-app || exit 1
 
-export TXMA_QUEUE_URL=$CFN_TXMAQueueURL
-export TXMA_BUCKET=$CFN_TXMABucket
-
-npm run integration-test
-
-TESTS_EXIT_CODE=$?
-
-cp reports/testReport.xml $TEST_REPORT_ABSOLUTE_DIR/junit.xml
-
-if [ $TESTS_EXIT_CODE -ne 0 ]; then
+if [ "$TEST_ENVIRONMENT" == "build" ]; then
+  npm run test:integration:ci
+  TESTS_EXIT_CODE=$?
+elif [ "$TEST_ENVIRONMENT" == "staging" ]; then
+  npm run test:integration:ci
+  TESTS_EXIT_CODE=$?
+else
+  echo "No Test Environment Set"
   exit 1
 fi
+
+cp tests/integration-tests/reports/junit.xml $TEST_REPORT_ABSOLUTE_DIR/junit.xml
+exit $TESTS_EXIT_CODE

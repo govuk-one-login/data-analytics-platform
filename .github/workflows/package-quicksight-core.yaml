@@ -17,8 +17,8 @@ jobs:
       matrix:
         include:
           - target: BUILD
-            ARTIFACT_BUCKET_NAME_SECRET: ARTIFACT_BUCKET_NAME_BUILD
-            GH_ACTIONS_ROLE_ARN_SECRET: GH_ACTIONS_ROLE_ARN_BUILD
+            ARTIFACT_BUCKET_NAME_SECRET: ARTIFACT_BUCKET_NAME_CORE_BUILD
+            GH_ACTIONS_ROLE_ARN_SECRET: GH_ACTIONS_ROLE_ARN_CORE_BUILD
             SIGNING_PROFILE_SECRET: SIGNING_PROFILE_NAME_BUILD
     name: Package template - ${{ matrix.target }}
     permissions:

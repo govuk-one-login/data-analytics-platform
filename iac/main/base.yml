@@ -67,6 +67,32 @@ Parameters:
     Type: String
     Default: T8GT9416G
 
+Mappings:
+  DAPNotificationsSlackChannelIds:
+    dev:
+      SlackChannelId: C083A3B482G
+    build:
+      SlackChannelId: C083A3B482G
+    staging:
+      SlackChannelId: C083A3B482G
+    integration:
+      SlackChannelId: C083A3B482G
+    production-preview:
+      SlackChannelId: C083A3B482G
+    production:
+      SlackChannelId: C09D8TDHX1T
+  EnvironmentConfiguration:
+    dev:
+      dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
+    build:
+      dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
+    staging:
+      dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
+    integration:
+      dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
+    production:
+      dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceProductionVariables
+
 Conditions:
   UseCodeSigning: !Not
     - !Equals
@@ -120,21 +146,47 @@ Globals:
     Runtime: nodejs22.x
     Timeout: 30
     CodeUri: dist/
+    MemorySize: 1024
+    Architectures:
+      - arm64
     Environment:
       Variables:
         NODE_OPTIONS: '--enable-source-maps'
-
-Mappings:
-  DAPNotificationsSlackChannelIds:
-    dev:
-      SlackChannelId: C083A3B482G
-    build:
-      SlackChannelId: C083A3B482G
-    staging:
-      SlackChannelId: C083A3B482G
-    integration:
-      SlackChannelId: C083A3B482G
-    production-preview:
-      SlackChannelId: C083A3B482G
-    production:
-      SlackChannelId: C09D8TDHX1T
+        DT_CONNECTION_AUTH_TOKEN: !If
+          - IsSecurePipelinesEnvironment
+          - !Sub
+            - '{{resolve:secretsmanager:${SecretArn}:SecretString:DT_CONNECTION_AUTH_TOKEN}}'
+            - SecretArn: !FindInMap [EnvironmentConfiguration, !Ref Environment, dynatraceSecretArn]
+          - !Ref 'AWS::NoValue'
+        DT_CONNECTION_BASE_URL: !If
+          - IsSecurePipelinesEnvironment
+          - !Sub
+            - '{{resolve:secretsmanager:${SecretArn}:SecretString:DT_CONNECTION_BASE_URL}}'
+            - SecretArn: !FindInMap [EnvironmentConfiguration, !Ref Environment, dynatraceSecretArn]
+          - !Ref 'AWS::NoValue'
+        DT_CLUSTER_ID: !If
+          - IsSecurePipelinesEnvironment
+          - !Sub
+            - '{{resolve:secretsmanager:${SecretArn}:SecretString:DT_CLUSTER_ID}}'
+            - SecretArn: !FindInMap [EnvironmentConfiguration, !Ref Environment, dynatraceSecretArn]
+          - !Ref 'AWS::NoValue'
+        DT_LOG_COLLECTION_AUTH_TOKEN: !If
+          - IsSecurePipelinesEnvironment
+          - !Sub
+            - '{{resolve:secretsmanager:${SecretArn}:SecretString:DT_LOG_COLLECTION_AUTH_TOKEN}}'
+            - SecretArn: !FindInMap [EnvironmentConfiguration, !Ref Environment, dynatraceSecretArn]
+          - !Ref 'AWS::NoValue'
+        DT_TENANT: !If
+          - IsSecurePipelinesEnvironment
+          - !Sub
+            - '{{resolve:secretsmanager:${SecretArn}:SecretString:DT_TENANT}}'
+            - SecretArn: !FindInMap [EnvironmentConfiguration, !Ref Environment, dynatraceSecretArn]
+          - !Ref 'AWS::NoValue'
+        DT_OPEN_TELEMETRY_ENABLE_INTEGRATION: !If
+          - IsSecurePipelinesEnvironment
+          - 'true'
+          - !Ref 'AWS::NoValue'
+    Layers: !If
+      - IsSecurePipelinesEnvironment
+      - - arn:aws:lambda:eu-west-2:216552277552:layer:Dynatrace_OneAgent_1_313_2_20250404-043044_with_collector_nodejs:1
+      - !Ref 'AWS::NoValue'
