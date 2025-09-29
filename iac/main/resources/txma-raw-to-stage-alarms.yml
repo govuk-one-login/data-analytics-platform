@@ -199,6 +199,36 @@ MainFunctionS3AppNoneAlarm:
       - !Ref DAPNotificationsTopic
     TreatMissingData: notBreaching
 
+# Main Function general catch all metric filter
+MainFunctionCatchAllMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
+    FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.raw_to_stage_process_glue_job", message="Value Error: *"]'
+    MetricTransformations:
+      - MetricNamespace: DAP/RawToStage/Logs
+        MetricName: MainFunctionS3AppNoneExceptions
+        MetricValue: '1'
+        DefaultValue: 0
+
+# Main Function General Catch All Alarm
+MainFunctionCatchAllAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub ${Environment}-dap-main-catch-all-alarm
+    AlarmDescription: Alarm when any error from ETL job is logged
+    MetricName: MainFunctionCatchAllMetricFilter
+    Namespace: DAP/RawToStage/Logs
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    TreatMissingData: notBreaching
+
+
 # GlueTableQueryAndWrite Exception Alarms
 GlueTableQueryAndWriteDoesTableExistAlarm:
   Type: AWS::CloudWatch::Alarm
