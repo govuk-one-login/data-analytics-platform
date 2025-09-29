@@ -120,4 +120,50 @@ describe('handler handler', () => {
 
     expect(mockApiGatewayV2Client.calls()).toHaveLength(0);
   });
+
+  it('should handle Create and Update request types', async () => {
+    const createEvent = { ...mockEvent, RequestType: 'Create' as const };
+    const updateEvent = { ...mockEvent, RequestType: 'Update' as const };
+
+    mockApiGatewayV2Client.resolves({});
+
+    await expect(handler(createEvent, mockContext)).resolves.not.toThrow();
+    expect(mockApiGatewayV2Client.calls()).toHaveLength(1);
+
+    mockApiGatewayV2Client.reset();
+    mockApiGatewayV2Client.resolves({});
+
+    await expect(handler(updateEvent, mockContext)).resolves.not.toThrow();
+    expect(mockApiGatewayV2Client.calls()).toHaveLength(1);
+  });
+
+  it('should handle Delete request type', async () => {
+    const deleteEvent = { ...mockEvent, RequestType: 'Delete' as const };
+
+    await expect(handler(deleteEvent, mockContext)).resolves.not.toThrow();
+    expect(mockApiGatewayV2Client.calls()).toHaveLength(0);
+  });
+
+  it('should handle missing ResourceProperties scenario', async () => {
+    const eventWithoutProps = { ...mockEvent, ResourceProperties: undefined };
+
+    await expect(handler(eventWithoutProps as CloudFormationCustomResourceEvent, mockContext)).resolves.not.toThrow();
+    expect(mockApiGatewayV2Client.calls()).toHaveLength(0);
+  });
+
+  it('should handle incomplete ResourceProperties scenario', async () => {
+    const eventWithIncompleteProps = { ...mockEvent, ResourceProperties: { ApiId: 'test' } };
+
+    await expect(
+      handler(eventWithIncompleteProps as CloudFormationCustomResourceEvent, mockContext),
+    ).resolves.not.toThrow();
+    expect(mockApiGatewayV2Client.calls()).toHaveLength(0);
+  });
+
+  it('should handle unexpected errors in handler', async () => {
+    // Force an error by making the event malformed
+    const malformedEvent = null as unknown as CloudFormationCustomResourceEvent;
+
+    await expect(handler(malformedEvent, mockContext)).resolves.not.toThrow();
+  });
 });
