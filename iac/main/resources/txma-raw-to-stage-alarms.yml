@@ -228,7 +228,6 @@ MainFunctionCatchAllAlarm:
       - !Ref DAPNotificationsTopic
     TreatMissingData: notBreaching
 
-
 # GlueTableQueryAndWrite Exception Alarms
 GlueTableQueryAndWriteDoesTableExistAlarm:
   Type: AWS::CloudWatch::Alarm
