@@ -1,76 +1,66 @@
-import type { Context, SQSBatchItemFailure, SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
-import { PutRecordCommand } from '@aws-sdk/client-firehose';
-import { firehoseClient } from '../../shared/clients';
+import type { Context, SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import { getEnvironmentVariable } from '../../shared/utils/utils';
 import { getLogger } from '../../shared/powertools';
 import { AuditEvent, isValidAuditEvent } from '../../shared/types/event';
+import { parseJson } from '../../shared/objects/parse-json';
+import { getBodyAsBuffer } from '../../shared/objects/get-string-as-buffer';
+import { firehosePutRecordBatch } from '../../shared/firehose/put-batch-record';
 
 export const logger = getLogger('lambda/txma-event-consumer');
 
 export const handler = async (event: SQSEvent, context: Context): Promise<SQSBatchResponse> => {
-  const batchItemFailures: SQSBatchItemFailure[] = [];
   logger.addContext(context);
+  const failedRecords = await processRecords(event.Records);
+  return {
+    batchItemFailures: failedRecords.map(record => ({ itemIdentifier: record.messageId })),
+  };
+};
 
-  await Promise.all(
-    event.Records.map(async record => {
-      const processed = await processRecord(record);
-      if (!processed) {
-        batchItemFailures.push({ itemIdentifier: record.messageId });
+const processRecords = async (records: SQSRecord[]): Promise<SQSRecord[]> => {
+  const { validRecords, failedRecords, validEvents } = validateRecords(records);
+  if (validRecords.length === 0) return failedRecords;
+  try {
+    await sendToFirehose(validRecords);
+    logger.debug('Successfully delivered events to firehose', {
+      count: validEvents.length,
+      eventId: validEvents.map(event => event.event_id),
+      componentId: validEvents.map(event => event.component_id || 'UNKNOWN'),
+    });
+    return failedRecords;
+  } catch (error) {
+    logger.error("Error delivering batch data to DAP's Kinesis Firehose:", { error });
+    return [...failedRecords, ...validRecords];
+  }
+};
+
+const validateRecords = (records: SQSRecord[]) => {
+  return records.reduce(
+    (acc, record) => {
+      try {
+        const auditEvent = parseJson(record.body) as AuditEvent;
+        if (isValidAuditEvent(auditEvent)) {
+          acc.validRecords.push(record);
+          acc.validEvents.push(auditEvent);
+        } else {
+          logger.error('Invalid audit event', {
+            eventId: (auditEvent as AuditEvent).event_id ?? 'UNKNOWN',
+            componentId: (auditEvent as AuditEvent).component_id ?? 'UNKNOWN',
+          });
+          acc.failedRecords.push(record);
+        }
+      } catch (e) {
+        logger.error('Error processing record', { error: e });
+        acc.failedRecords.push(record);
       }
-    }),
-  );
-  return { batchItemFailures };
-};
-
-const processRecord = async (record: SQSRecord): Promise<boolean> => {
-  try {
-    const auditEvent = parseAuditEvent(record.body) as AuditEvent;
-    if (!isValidAuditEvent(auditEvent)) {
-      logger.error('Invalid audit event', {
-        eventId: (auditEvent as AuditEvent).event_id ?? 'UNKNOWN',
-        componentId: (auditEvent as AuditEvent).component_id ?? 'UNKNOWN',
-      });
-      return false;
-    }
-
-    const buffer = getBodyAsBuffer(record.body);
-    const firehoseRequest = getFirehoseCommand(buffer);
-    await sendMessageToKinesisFirehose(firehoseRequest);
-    return true;
-  } catch (e) {
-    logger.error('Error processing record', { error: e });
-    return false;
-  }
-};
-
-const sendMessageToKinesisFirehose = async (firehoseRequest: PutRecordCommand): Promise<void> => {
-  try {
-    await firehoseClient.send(firehoseRequest);
-  } catch (error) {
-    logger.error("Error delivering data to DAP's Kinesis Firehose:", { error });
-    throw error;
-  }
-};
-
-const getBodyAsBuffer = (body: string): Uint8Array => {
-  try {
-    return new Uint8Array(Buffer.from(body));
-  } catch (error) {
-    logger.error('Unable to parse event body into Buffer', { error });
-    throw error;
-  }
-};
-
-const getFirehoseCommand = (body: Uint8Array): PutRecordCommand => {
-  const deliveryStreamName = getEnvironmentVariable('FIREHOSE_STREAM_NAME');
-  return new PutRecordCommand({
-    DeliveryStreamName: deliveryStreamName,
-    Record: {
-      Data: body,
+      return acc;
     },
-  });
+    { validRecords: [] as SQSRecord[], failedRecords: [] as SQSRecord[], validEvents: [] as AuditEvent[] },
+  );
 };
 
-const parseAuditEvent = (body: string): unknown => {
-  return JSON.parse(body);
+const sendToFirehose = async (records: SQSRecord[]) => {
+  const firehoseRecords = records.map(record => ({
+    Data: getBodyAsBuffer(record.body),
+  }));
+  await firehosePutRecordBatch(getEnvironmentVariable('FIREHOSE_STREAM_NAME'), firehoseRecords);
 };
