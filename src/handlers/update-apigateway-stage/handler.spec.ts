@@ -1,16 +1,25 @@
 import { ApiGatewayV2Client, UpdateStageCommand } from '@aws-sdk/client-apigatewayv2';
 import { CloudFormationCustomResourceEvent, Context } from 'aws-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
+import * as https from 'https';
 
 const mockApiGatewayV2Client = mockClient(ApiGatewayV2Client);
 
-// Mock the handler to avoid HTTP request issues in tests
-jest.mock('./handler', () => ({
-  handler: jest.fn(),
+// Mock https module to avoid actual HTTP requests
+jest.mock('https', () => ({
+  request: jest.fn(),
+}));
+
+// Mock the logger
+jest.mock('../../shared/powertools', () => ({
+  getLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+  }),
 }));
 
 import { handler } from './handler';
-const mockHandler = handler as jest.MockedFunction<typeof handler>;
+const mockHttps = https as jest.Mocked<typeof https>;
 
 describe('handler handler', () => {
   const mockContext: Context = {
@@ -33,39 +42,42 @@ describe('handler handler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockApiGatewayV2Client.reset();
+
+    // Mock https.request to simulate CloudFormation response
+    const mockRequest = {
+      on: jest.fn().mockReturnThis(),
+      write: jest.fn().mockReturnThis(),
+      end: jest.fn().mockReturnThis(),
+    };
+
+    mockHttps.request = jest.fn().mockImplementation((options, callback) => {
+      if (callback) {
+        callback({ statusCode: 200 } as https.IncomingMessage);
+      }
+      return mockRequest as https.ClientRequest;
+    });
   });
 
   it('should update stage on Create request', async () => {
     mockApiGatewayV2Client.resolves({});
-    mockHandler.mockImplementation(async event => {
-      const { ResourceProperties } = event;
-      const { ApiId, StageName, LogGroupArn } = ResourceProperties;
-
-      const command = new UpdateStageCommand({
-        ApiId,
-        StageName,
-        AccessLogSettings: {
-          DestinationArn: LogGroupArn,
-          Format: 'test-format',
-        },
-      });
-      await mockApiGatewayV2Client.send(command);
-    });
 
     await handler(mockEvent, mockContext);
 
     expect(mockApiGatewayV2Client.calls()).toHaveLength(1);
+    const call = mockApiGatewayV2Client.calls()[0];
+    expect(call.args[0]).toBeInstanceOf(UpdateStageCommand);
+    expect(call.args[0].input).toMatchObject({
+      ApiId: 'test-api-id',
+      StageName: '$default',
+      AccessLogSettings: {
+        DestinationArn: 'arn:aws:logs:region:account:log-group:test',
+      },
+    });
   });
 
   it('should update stage on Update request', async () => {
     const updateEvent = { ...mockEvent, RequestType: 'Update' as const };
     mockApiGatewayV2Client.resolves({});
-    mockHandler.mockImplementation(async event => {
-      const { RequestType } = event;
-      if (RequestType === 'Create' || RequestType === 'Update') {
-        await mockApiGatewayV2Client.send(new UpdateStageCommand({}));
-      }
-    });
 
     await handler(updateEvent, mockContext);
 
@@ -74,12 +86,6 @@ describe('handler handler', () => {
 
   it('should not update stage on Delete request', async () => {
     const deleteEvent = { ...mockEvent, RequestType: 'Delete' as const };
-    mockHandler.mockImplementation(async event => {
-      const { RequestType } = event;
-      if (RequestType === 'Create' || RequestType === 'Update') {
-        await mockApiGatewayV2Client.send(new UpdateStageCommand({}));
-      }
-    });
 
     await handler(deleteEvent, mockContext);
 
@@ -88,16 +94,30 @@ describe('handler handler', () => {
 
   it('should handle API Gateway errors', async () => {
     mockApiGatewayV2Client.rejects(new Error('API Gateway error'));
-    mockHandler.mockImplementation(async () => {
-      try {
-        await mockApiGatewayV2Client.send(new UpdateStageCommand({}));
-      } catch (error) {
-        // Error handled
-      }
-    });
 
-    await handler(mockEvent, mockContext);
+    await expect(handler(mockEvent, mockContext)).resolves.not.toThrow();
 
     expect(mockApiGatewayV2Client.calls()).toHaveLength(1);
+  });
+
+  it('should handle missing ResourceProperties', async () => {
+    const eventWithoutProps = { ...mockEvent, ResourceProperties: undefined };
+
+    await expect(handler(eventWithoutProps as CloudFormationCustomResourceEvent, mockContext)).resolves.not.toThrow();
+
+    expect(mockApiGatewayV2Client.calls()).toHaveLength(0);
+  });
+
+  it('should handle missing required properties', async () => {
+    const eventWithMissingProps = {
+      ...mockEvent,
+      ResourceProperties: { ApiId: 'test-api-id' },
+    };
+
+    await expect(
+      handler(eventWithMissingProps as CloudFormationCustomResourceEvent, mockContext),
+    ).resolves.not.toThrow();
+
+    expect(mockApiGatewayV2Client.calls()).toHaveLength(0);
   });
 });
