@@ -1,0 +1,344 @@
+# TXMA Event Consumer Lambda
+TXMAEventConsumerFunctionErrorMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref TxmaEventConsumerLogs
+    FilterPattern: '"Error delivering data to DAP''s Kinesis Firehose:"'
+    MetricTransformations:
+      - MetricValue: '1'
+        MetricNamespace: DAP/TXMAEventConsumer/Logs
+        MetricName: !Sub '${AWS::StackName}-txma-event-consumer-DAPError'
+
+TXMAEventConsumerFunctionErrorAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    AlarmDescription: >-
+      Alarm that triggers when DAP Firehose delivery errors occur
+    AlarmName: !Sub '${AWS::StackName}-txma-event-consumer-DAPErrorAlarm'
+    ComparisonOperator: GreaterThanThreshold
+    DatapointsToAlarm: 1
+    EvaluationPeriods: 1
+    Threshold: 0
+    MetricName: !Sub '${AWS::StackName}-txma-event-consumer-DAPError'
+    Namespace: DAP/TXMAEventConsumer/Logs
+    Statistic: Sum
+    Period: 60
+
+TXMAEventConsumerFunctionDurationAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    AlarmDescription: >
+      Alarm that triggers when TXMA Event Consumer Lambda runs longer than 3 minutes
+    AlarmName: !Sub '${AWS::StackName}-txma-event-consumer-DurationAlarm'
+    ComparisonOperator: GreaterThanThreshold
+    DatapointsToAlarm: 1
+    EvaluationPeriods: 1
+    Threshold: 180000
+    MetricName: Duration
+    Namespace: DAP/TXMAEventConsumer/Logs
+    Statistic: Maximum
+    Period: 60
+    Dimensions:
+      - Name: FunctionName
+        Value: !Sub '${AWS::StackName}-txma-event-consumer'
+
+TxmaEventConsumerLogs:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    KmsKeyId: '{{resolve:ssm:LogsKmsKeyArn}}'
+    LogGroupName: !Sub '/aws/lambda/${AWS::StackName}-txma-event-consumer'
+    RetentionInDays: 30
+
+# CloudWatch Log Group for the Glue Job
+RawStageTransformProcessLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: !Sub /aws/glue/python-jobs/${Environment}-dap-raw-stage-transform-process
+    KmsKeyId: !GetAtt KmsKey.Arn
+    RetentionInDays: 30
+
+# Metric to capture AthenaReadWrite exceptions
+AthenaReadWriteExceptionMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
+    FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.athena_read_write", message="Exception when running Athena query:*"]'
+    MetricTransformations:
+      - MetricNamespace: DAP/RawToStage/Logs
+        MetricName: AthenaReadWriteExceptions
+        MetricValue: '1'
+        DefaultValue: 0
+
+# Alarm for AthenaReadWrite exceptions
+AthenaReadWriteExceptionAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub ${Environment}-dap-athena-readwrite-exception-alarm
+    AlarmDescription: Alarm when AthenaReadWrite.run_query method logs exceptions
+    MetricName: AthenaReadWriteExceptions
+    Namespace: DAP/RawToStage/Logs
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    TreatMissingData: notBreaching
+
+# GlueTableQueryAndWrite Exception Metric Filters
+GlueTableQueryAndWriteDoesTableExistMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
+    FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.glue_table_query_and_write", message="Error querying glue data catalog:*"]'
+    MetricTransformations:
+      - MetricNamespace: DAP/RawToStage/Logs
+        MetricName: GlueTableQueryAndWriteDoesTableExistExceptions
+        MetricValue: '1'
+        DefaultValue: 0
+
+GlueTableQueryAndWriteQueryTableMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
+    FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.glue_table_query_and_write", message="Error reading Athena table:*"]'
+    MetricTransformations:
+      - MetricNamespace: DAP/RawToStage/Logs
+        MetricName: GlueTableQueryAndWriteQueryTableExceptions
+        MetricValue: '1'
+        DefaultValue: 0
+
+GlueTableQueryAndWriteWriteTableMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
+    FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.glue_table_query_and_write", message="Error writing to Athena table:*"]'
+    MetricTransformations:
+      - MetricNamespace: DAP/RawToStage/Logs
+        MetricName: GlueTableQueryAndWriteWriteTableExceptions
+        MetricValue: '1'
+        DefaultValue: 0
+
+# S3ReadWrite Exception Metric Filters
+S3ReadWriteReadJsonMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
+    FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.s3_read_write", message="Error reading JSON from S3:*"]'
+    MetricTransformations:
+      - MetricNamespace: DAP/RawToStage/Logs
+        MetricName: S3ReadWriteReadJsonExceptions
+        MetricValue: '1'
+        DefaultValue: 0
+
+S3ReadWriteWriteJsonMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
+    FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.s3_read_write", message="Error writing JSON to S3:*"]'
+    MetricTransformations:
+      - MetricNamespace: DAP/RawToStage/Logs
+        MetricName: S3ReadWriteWriteJsonExceptions
+        MetricValue: '1'
+        DefaultValue: 0
+
+S3ReadWriteReadFileMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
+    FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.clients.s3_read_write", message="Error reading file from S3:*"]'
+    MetricTransformations:
+      - MetricNamespace: DAP/RawToStage/Logs
+        MetricName: S3ReadWriteReadFileExceptions
+        MetricValue: '1'
+        DefaultValue: 0
+
+# Strategy Exception Metric Filter
+StrategyLoadMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
+    FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.strategies.strategy", message="Exception Error writing to Stage layer:*"]'
+    MetricTransformations:
+      - MetricNamespace: DAPGlueJobMetrics
+        MetricName: StrategyLoadExceptions
+        MetricValue: '1'
+        DefaultValue: 0
+
+# Main Function None Exception Metric Filter
+MainFunctionS3AppNoneMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
+    FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.raw_to_stage_process_glue_job", message="Value Error: Class ''s3_app'' returned None, which is not allowed.*"]'
+    MetricTransformations:
+      - MetricNamespace: DAP/RawToStage/Logs
+        MetricName: MainFunctionS3AppNoneExceptions
+        MetricValue: '1'
+        DefaultValue: 0
+
+# Main Function S3App None Exception Alarm
+MainFunctionS3AppNoneAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub ${Environment}-dap-main-s3app-none-exception-alarm
+    AlarmDescription: Alarm when main function encounters s3_app returning None
+    MetricName: MainFunctionS3AppNoneExceptions
+    Namespace: DAP/RawToStage/Logs
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    TreatMissingData: notBreaching
+
+# Main Function general catch all metric filter
+MainFunctionCatchAllMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Ref RawStageTransformProcessLogGroup
+    FilterPattern: '[timestamp, request_id, level="ERROR", logger_name="raw_to_stage_etl.raw_to_stage_process_glue_job", message="Value Error: *"]'
+    MetricTransformations:
+      - MetricNamespace: DAP/RawToStage/Logs
+        MetricName: MainFunctionS3AppNoneExceptions
+        MetricValue: '1'
+        DefaultValue: 0
+
+# Main Function General Catch All Alarm
+MainFunctionCatchAllAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub ${Environment}-dap-main-catch-all-alarm
+    AlarmDescription: Alarm when any error from ETL job is logged
+    MetricName: MainFunctionCatchAllMetricFilter
+    Namespace: DAP/RawToStage/Logs
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    TreatMissingData: notBreaching
+
+# GlueTableQueryAndWrite Exception Alarms
+GlueTableQueryAndWriteDoesTableExistAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub ${Environment}-dap-glue-table-does-exist-exception-alarm
+    AlarmDescription: Alarm when GlueTableQueryAndWrite.does_glue_table_exist method logs exceptions
+    MetricName: GlueTableQueryAndWriteDoesTableExistExceptions
+    Namespace: DAP/RawToStage/Logs
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    TreatMissingData: notBreaching
+
+GlueTableQueryAndWriteQueryTableAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub ${Environment}-dap-glue-table-query-exception-alarm
+    AlarmDescription: Alarm when GlueTableQueryAndWrite.query_glue_table method logs exceptions
+    MetricName: GlueTableQueryAndWriteQueryTableExceptions
+    Namespace: DAP/RawToStage/Logs
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    TreatMissingData: notBreaching
+
+GlueTableQueryAndWriteWriteTableAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub ${Environment}-dap-glue-table-write-exception-alarm
+    AlarmDescription: Alarm when GlueTableQueryAndWrite.write_to_glue_table method logs exceptions
+    MetricName: GlueTableQueryAndWriteWriteTableExceptions
+    Namespace: DAP/RawToStage/Logs
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    TreatMissingData: notBreaching
+
+# S3ReadWrite Exception Alarms
+S3ReadWriteReadJsonAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub ${Environment}-dap-s3-read-json-exception-alarm
+    AlarmDescription: Alarm when S3ReadWrite.read_json method logs exceptions
+    MetricName: S3ReadWriteReadJsonExceptions
+    Namespace: DAP/RawToStage/Logs
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    TreatMissingData: notBreaching
+
+S3ReadWriteWriteJsonAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub ${Environment}-dap-s3-write-json-exception-alarm
+    AlarmDescription: Alarm when S3ReadWrite.write_json method logs exceptions
+    MetricName: S3ReadWriteWriteJsonExceptions
+    Namespace: DAP/RawToStage/Logs
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    TreatMissingData: notBreaching
+
+S3ReadWriteReadFileAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub ${Environment}-dap-s3-read-file-exception-alarm
+    AlarmDescription: Alarm when S3ReadWrite.read_file method logs exceptions
+    MetricName: S3ReadWriteReadFileExceptions
+    Namespace: DAP/RawToStage/Logs
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    TreatMissingData: notBreaching
+
+# Strategy Exception Alarm
+StrategyLoadAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub ${Environment}-dap-strategy-load-exception-alarm
+    AlarmDescription: Alarm when Strategy.load method logs exceptions
+    MetricName: StrategyLoadExceptions
+    Namespace: DAP/RawToStage/Logs
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    TreatMissingData: notBreaching
