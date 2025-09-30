@@ -161,7 +161,7 @@ QuicksightAccessApiGatewayLambdaPermission2:
     FunctionName: !Ref QuicksightAccessLambdaFunction
     Action: lambda:InvokeFunction
     Principal: apigateway.amazonaws.com
-    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway2}/dap/GET
+    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway2}/*/*/*
 
 QuicksightAccessUserPool:
   Type: AWS::Cognito::UserPool
