@@ -133,16 +133,23 @@ QuicksightAccessApiGatewayRoute2:
     RouteKey: 'GET /'
     Target: !Sub 'integrations/${QuicksightAccessApiGatewayIntegration2}'
 
-QuicksightAccessApiGatewayStage2:
-  Type: AWS::ApiGatewayV2::Stage
+QuicksightAccessApiGatewayDeployment2:
+  Type: AWS::ApiGatewayV2::Deployment
   Condition: IsQuicksightEnvironment
   DependsOn:
     - QuicksightAccessApiGatewayRoute2
     - QuicksightAccessApiGatewayIntegration2
   Properties:
     ApiId: !Ref QuicksightAccessApiGateway2
+    Description: 'Deployment for dap stage'
+
+QuicksightAccessApiGatewayStage2:
+  Type: AWS::ApiGatewayV2::Stage
+  Condition: IsQuicksightEnvironment
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway2
     StageName: 'dap'
-    AutoDeploy: true
+    DeploymentId: !Ref QuicksightAccessApiGatewayDeployment2
     AccessLogSettings:
       DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
       Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","path":"$context.path","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLatency":"$context.responseLatency","responseLength":"$context.responseLength"}'
