@@ -40,7 +40,7 @@ if [ "$runtype" != "local" ]; then
   pwd
   ls $FILES_ROOT
   BUCKET_NAME="$(echo "$lowercase_environment")-dap-elt-metadata"
-  COMMIT_MESSAGE_CLEAN=$(echo "$COMMIT_MESSAGE" | sed "s/'//g" | sed 's/ (#[0-9]*)$//' | head -c 256)
+  COMMIT_MESSAGE_CLEAN=$(echo "$COMMIT_MESSAGE" | sed "s/'//g" | sed 's/ (#[0-9]*)$//' | sed 's/[.\/:-]*//g' | head -c 256)
 
   # Upload files with metadata
   for file in $(find "$FILES_ROOT" -type f); do
