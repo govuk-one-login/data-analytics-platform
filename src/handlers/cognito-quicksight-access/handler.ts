@@ -30,6 +30,17 @@ export interface UserInfoResponse {
 
 export const handler = async (event: APIGatewayProxyEventV2, context: Context): Promise<APIGatewayProxyResultV2> => {
   try {
+    // Handle favicon requests
+    if (event.rawPath === '/favicon.ico') {
+      return {
+        statusCode: 404,
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: 'Not Found',
+      };
+    }
+
     const code = await getCode(event);
     const tokens = await callTokenEndpoint(event.requestContext.domainName, code);
     const userInfo = await callUserInfoEndpoint(tokens);
@@ -58,11 +69,6 @@ const getCode = async (event: APIGatewayProxyEventV2): Promise<string> => {
     queryStringParameters: event.queryStringParameters,
     rawQueryString: event.rawQueryString,
   });
-
-  // Handle favicon requests gracefully
-  if (event.rawPath === '/favicon.ico') {
-    throw new Error('Favicon request - not an OAuth callback');
-  }
 
   // Try to get code from queryStringParameters first
   let code = event?.queryStringParameters?.code;
