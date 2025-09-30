@@ -88,9 +88,7 @@ test('success', async () => {
 test('bad query parameters', async () => {
   setEvent(await mockApiGatewayEvent({ hello: 'world' }, ACCOUNT_ID));
 
-  await verifyErrorResponseAndLogs(
-    'code query param is missing or invalid - parameters are {"hello":"world"}, rawQueryString: hello=world',
-  );
+  await verifyErrorResponseAndLogs('code query param is missing or invalid - parameters are {"hello":"world"}');
 
   expect(mockQuicksightClient.calls()).toHaveLength(0);
 });
