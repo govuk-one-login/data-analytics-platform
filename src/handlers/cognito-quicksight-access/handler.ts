@@ -53,10 +53,25 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
 };
 
 const getCode = async (event: APIGatewayProxyEventV2): Promise<string> => {
-  const code = event?.queryStringParameters?.code;
+  logger.info('Event details', {
+    queryStringParameters: event.queryStringParameters,
+    rawQueryString: event.rawQueryString,
+    pathParameters: event.pathParameters,
+    headers: event.headers,
+  });
+
+  // Try to get code from queryStringParameters first
+  let code = event?.queryStringParameters?.code;
+
+  // If not found, try parsing from rawQueryString
+  if (!code && event.rawQueryString) {
+    const params = new URLSearchParams(event.rawQueryString);
+    code = params.get('code');
+  }
+
   if (code === null || code === undefined || code.length === 0) {
     throw new Error(
-      `code query param is missing or invalid - parameters are ${JSON.stringify(event.queryStringParameters)}`,
+      `code query param is missing or invalid - parameters are ${JSON.stringify(event.queryStringParameters)}, rawQueryString: ${event.rawQueryString}`,
     );
   }
   return code;
