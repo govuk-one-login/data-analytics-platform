@@ -214,7 +214,7 @@ QuicksightAccessUserPoolClient:
       - openid
       - profile
     CallbackURLs:
-      - !GetAtt QuicksightAccessApiGateway.ApiEndpoint
+      - !GetAtt QuicksightAccessApiGateway2.ApiEndpoint
     ClientName: !Sub ${Environment}-dap-quicksight-access-client
     ExplicitAuthFlows:
       - ALLOW_REFRESH_TOKEN_AUTH
