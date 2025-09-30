@@ -136,6 +136,9 @@ QuicksightAccessApiGatewayRoute2:
 QuicksightAccessApiGatewayStage2:
   Type: AWS::ApiGatewayV2::Stage
   Condition: IsQuicksightEnvironment
+  DependsOn:
+    - QuicksightAccessApiGatewayRoute2
+    - QuicksightAccessApiGatewayIntegration2
   Properties:
     ApiId: !Ref QuicksightAccessApiGateway2
     StageName: 'dap'
