@@ -109,6 +109,50 @@ QuicksightAccessApiGatewayLambdaPermission:
     Principal: apigateway.amazonaws.com
     SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/$default
 
+QuicksightAccessApiGateway2:
+  Type: AWS::ApiGatewayV2::Api
+  Condition: IsQuicksightEnvironment
+  Properties:
+    Name: !Sub ${Environment}-dap-quicksight-access-2
+    ProtocolType: HTTP
+
+QuicksightAccessApiGatewayIntegration2:
+  Type: AWS::ApiGatewayV2::Integration
+  Condition: IsQuicksightEnvironment
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway2
+    IntegrationType: AWS_PROXY
+    IntegrationUri: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
+    PayloadFormatVersion: '2.0'
+
+QuicksightAccessApiGatewayRoute2:
+  Type: AWS::ApiGatewayV2::Route
+  Condition: IsQuicksightEnvironment
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway2
+    RouteKey: 'GET /'
+    Target: !Sub 'integrations/${QuicksightAccessApiGatewayIntegration2}'
+
+QuicksightAccessApiGatewayStage2:
+  Type: AWS::ApiGatewayV2::Stage
+  Condition: IsQuicksightEnvironment
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway2
+    StageName: 'dap'
+    AutoDeploy: true
+    AccessLogSettings:
+      DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
+      Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","path":"$context.path","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLatency":"$context.responseLatency","responseLength":"$context.responseLength"}'
+
+QuicksightAccessApiGatewayLambdaPermission2:
+  Type: AWS::Lambda::Permission
+  Condition: IsQuicksightEnvironment
+  Properties:
+    FunctionName: !Ref QuicksightAccessLambdaFunction
+    Action: lambda:InvokeFunction
+    Principal: apigateway.amazonaws.com
+    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway2}/*/dap
+
 QuicksightAccessUserPool:
   Type: AWS::Cognito::UserPool
   Condition: IsQuicksightEnvironment

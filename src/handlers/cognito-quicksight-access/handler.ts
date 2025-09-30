@@ -30,17 +30,6 @@ export interface UserInfoResponse {
 
 export const handler = async (event: APIGatewayProxyEventV2, context: Context): Promise<APIGatewayProxyResultV2> => {
   try {
-    // Handle favicon requests
-    if (event.rawPath === '/favicon.ico') {
-      return {
-        statusCode: 404,
-        headers: {
-          'Content-Type': 'text/plain',
-        },
-        body: 'Not Found',
-      };
-    }
-
     const code = await getCode(event);
     const tokens = await callTokenEndpoint(event.requestContext.domainName, code);
     const userInfo = await callUserInfoEndpoint(tokens);
@@ -64,24 +53,10 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
 };
 
 const getCode = async (event: APIGatewayProxyEventV2): Promise<string> => {
-  logger.info('Event details', {
-    rawPath: event.rawPath,
-    queryStringParameters: event.queryStringParameters,
-    rawQueryString: event.rawQueryString,
-  });
-
-  // Try to get code from queryStringParameters first
-  let code = event?.queryStringParameters?.code;
-
-  // If not found, try parsing from rawQueryString
-  if (!code && event.rawQueryString) {
-    const params = new URLSearchParams(event.rawQueryString);
-    code = params.get('code');
-  }
-
+  const code = event?.queryStringParameters?.code;
   if (code === null || code === undefined || code.length === 0) {
     throw new Error(
-      `code query param is missing or invalid - parameters are ${JSON.stringify(event.queryStringParameters)}, rawQueryString: ${event.rawQueryString}`,
+      `code query param is missing or invalid - parameters are ${JSON.stringify(event.queryStringParameters)}`,
     );
   }
   return code;
