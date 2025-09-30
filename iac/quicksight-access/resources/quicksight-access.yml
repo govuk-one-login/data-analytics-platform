@@ -100,42 +100,6 @@ QuicksightAccessApiGatewayIntegration:
     IntegrationUri: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
     PayloadFormatVersion: '2.0'
 
-UpdateApiGatewayStageCustomResource:
-  Type: AWS::CloudFormation::CustomResource
-  Condition: IsQuicksightEnvironment
-  Properties:
-    ServiceToken: !GetAtt UpdateApiGatewayStageFunction.Arn
-    ApiId: !Ref QuicksightAccessApiGateway
-    StageName: '$default'
-    LogGroupArn: !GetAtt QuicksightApiAccessLogGroup.Arn
-
-UpdateApiGatewayStageFunction:
-  # checkov:skip=CKV_AWS_115: Custom resource function runs only during deployments, no concurrency limit needed
-  # checkov:skip=CKV_AWS_116: DLQ not needed for custom resource function that runs only during deployments
-  # checkov:skip=CKV_AWS_117: Lambda needs internet access for API Gateway V2 calls, no VPC endpoints available
-  Type: AWS::Serverless::Function
-  Condition: IsQuicksightEnvironment
-  Properties:
-    FunctionName: update-apigateway-stage
-    Handler: update-apigateway-stage.handler
-    Timeout: 60
-    MemorySize: 256
-    Policies:
-      - Statement:
-          - Effect: Allow
-            Action:
-              - apigateway:PATCH
-              - apigateway:GET
-            Resource: '*'
-    Environment:
-      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
-      Variables:
-        ENVIRONMENT: !Ref Environment
-    Tags:
-      Environment: !Ref Environment
-    # Custom resource Lambda runs outside VPC to access API Gateway V2 service
-    # API Gateway V2 does not have VPC endpoints
-
 # QuicksightAccessApiGatewayStage - using existing $default stage with custom resource for logging
 
 QuicksightAccessApiGatewayLambdaPermission:
