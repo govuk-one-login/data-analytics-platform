@@ -1,0 +1,41 @@
+LogsKmsKey:
+  Type: AWS::KMS::Key
+  Properties:
+    EnableKeyRotation: true
+    KeyPolicy:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: Enable Root access
+          Effect: Allow
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+          Action:
+            - kms:*
+          Resource: '*'
+        - Sid: Allow CloudWatch Logs to use key
+          Effect: Allow
+          Principal:
+            Service: !Sub logs.${AWS::Region}.amazonaws.com
+          Action:
+            - kms:Decrypt*
+            - kms:Describe*
+            - kms:Encrypt*
+            - kms:GenerateDataKey*
+            - kms:ReEncrypt*
+          Resource: '*'
+          Condition:
+            ArnLike:
+              kms:EncryptionContext:aws:logs:arn: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*
+
+LogsKmsKeyAlias:
+  Type: AWS::KMS::Alias
+  Properties:
+    AliasName: !Sub alias/${AWS::StackName}/${Environment}/logs-kms-key
+    TargetKeyId: !Ref LogsKmsKey
+
+LogsKmsKeyArnParameter:
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: LogsKmsKeyArn
+    Type: String
+    Value: !GetAtt LogsKmsKey.Arn

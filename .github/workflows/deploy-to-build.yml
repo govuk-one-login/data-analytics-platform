@@ -4,15 +4,27 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  test-and-validate:
-    secrets: inherit
-    uses: ./.github/workflows/test-and-validate.yml
+  check-core-iac-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      core-iac-changed: ${{ steps.changes.outputs.core }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Check for changes to core iac
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            core:
+              - 'iac/core/**'
 
   deploy-to-build:
-    needs: [test-and-validate]
+    needs: [check-core-iac-changes]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
@@ -20,4 +32,5 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/deploy-to-aws.yml
     with:
+      core-iac-changed: ${{ needs.check-core-iac-changes.outputs.core-iac-changed }}
       environment: BUILD
