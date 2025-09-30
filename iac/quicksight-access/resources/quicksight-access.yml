@@ -214,7 +214,7 @@ QuicksightAccessUserPoolClient:
       - openid
       - profile
     CallbackURLs:
-      - !GetAtt QuicksightAccessApiGateway2.ApiEndpoint
+      - !Sub 'https://${QuicksightAccessApiGateway2}.execute-api.${AWS::Region}.amazonaws.com/dap'
     ClientName: !Sub ${Environment}-dap-quicksight-access-client
     ExplicitAuthFlows:
       - ALLOW_REFRESH_TOKEN_AUTH
