@@ -100,6 +100,28 @@ QuicksightAccessApiGatewayIntegration:
     IntegrationUri: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
     PayloadFormatVersion: '2.0'
 
+QuicksightAccessApiGatewayRoute:
+  Type: AWS::ApiGatewayV2::Route
+  Condition: IsQuicksightEnvironment
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway
+    RouteKey: 'GET /'
+    Target: !Sub 'integrations/${QuicksightAccessApiGatewayIntegration}'
+
+QuicksightAccessApiGatewayStage:
+  Type: AWS::ApiGatewayV2::Stage
+  Condition: IsQuicksightEnvironment
+  DependsOn:
+    - QuicksightAccessApiGatewayRoute
+    - QuicksightAccessApiGatewayIntegration
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway
+    StageName: '$default'
+    AutoDeploy: true
+    AccessLogSettings:
+      DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
+      Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","path":"$context.path","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLatency":"$context.responseLatency","responseLength":"$context.responseLength"}'
+
 QuicksightAccessApiGatewayLambdaPermission:
   Type: AWS::Lambda::Permission
   Condition: IsQuicksightEnvironment
@@ -107,7 +129,7 @@ QuicksightAccessApiGatewayLambdaPermission:
     FunctionName: !Ref QuicksightAccessLambdaFunction
     Action: lambda:InvokeFunction
     Principal: apigateway.amazonaws.com
-    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/$default
+    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/*/*
 
 QuicksightAccessApiGateway2:
   Type: AWS::ApiGatewayV2::Api
@@ -125,31 +147,24 @@ QuicksightAccessApiGatewayIntegration2:
     IntegrationUri: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
     PayloadFormatVersion: '2.0'
 
-QuicksightAccessApiGatewayRoute2:
+QuicksightAccessApiGatewayCatchAllRoute2:
   Type: AWS::ApiGatewayV2::Route
   Condition: IsQuicksightEnvironment
   Properties:
     ApiId: !Ref QuicksightAccessApiGateway2
-    RouteKey: 'GET /'
+    RouteKey: '$default'
     Target: !Sub 'integrations/${QuicksightAccessApiGatewayIntegration2}'
-
-QuicksightAccessApiGatewayDeployment2:
-  Type: AWS::ApiGatewayV2::Deployment
-  Condition: IsQuicksightEnvironment
-  DependsOn:
-    - QuicksightAccessApiGatewayRoute2
-    - QuicksightAccessApiGatewayIntegration2
-  Properties:
-    ApiId: !Ref QuicksightAccessApiGateway2
-    Description: 'Deployment for dap stage'
 
 QuicksightAccessApiGatewayStage2:
   Type: AWS::ApiGatewayV2::Stage
   Condition: IsQuicksightEnvironment
+  DependsOn:
+    - QuicksightAccessApiGatewayCatchAllRoute2
+    - QuicksightAccessApiGatewayIntegration2
   Properties:
     ApiId: !Ref QuicksightAccessApiGateway2
     StageName: 'dap'
-    DeploymentId: !Ref QuicksightAccessApiGatewayDeployment2
+    AutoDeploy: true
     AccessLogSettings:
       DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
       Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","path":"$context.path","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLatency":"$context.responseLatency","responseLength":"$context.responseLength"}'
@@ -157,6 +172,8 @@ QuicksightAccessApiGatewayStage2:
 QuicksightAccessApiGatewayLambdaPermission2:
   Type: AWS::Lambda::Permission
   Condition: IsQuicksightEnvironment
+  DependsOn:
+    - QuicksightAccessApiGatewayStage2
   Properties:
     FunctionName: !Ref QuicksightAccessLambdaFunction
     Action: lambda:InvokeFunction
