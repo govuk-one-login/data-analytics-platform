@@ -100,7 +100,24 @@ QuicksightAccessApiGatewayIntegration:
     IntegrationUri: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
     PayloadFormatVersion: '2.0'
 
-# QuicksightAccessApiGatewayStage - using existing $default stage with custom resource for logging
+QuicksightAccessApiGatewayRoute:
+  Type: AWS::ApiGatewayV2::Route
+  Condition: IsQuicksightEnvironment
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway
+    RouteKey: 'GET /'
+    Target: !Sub 'integrations/${QuicksightAccessApiGatewayIntegration}'
+
+QuicksightAccessApiGatewayStage:
+  Type: AWS::ApiGatewayV2::Stage
+  Condition: IsQuicksightEnvironment
+  Properties:
+    ApiId: !Ref QuicksightAccessApiGateway
+    StageName: '$default'
+    AutoDeploy: true
+    AccessLogSettings:
+      DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
+      Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","path":"$context.path","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLatency":"$context.responseLatency","responseLength":"$context.responseLength"}'
 
 QuicksightAccessApiGatewayLambdaPermission:
   Type: AWS::Lambda::Permission
