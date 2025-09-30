@@ -54,11 +54,15 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
 
 const getCode = async (event: APIGatewayProxyEventV2): Promise<string> => {
   logger.info('Event details', {
+    rawPath: event.rawPath,
     queryStringParameters: event.queryStringParameters,
     rawQueryString: event.rawQueryString,
-    pathParameters: event.pathParameters,
-    headers: event.headers,
   });
+
+  // Handle favicon requests gracefully
+  if (event.rawPath === '/favicon.ico') {
+    throw new Error('Favicon request - not an OAuth callback');
+  }
 
   // Try to get code from queryStringParameters first
   let code = event?.queryStringParameters?.code;
