@@ -321,3 +321,20 @@ to upload these files to S3 use the [`Upload Athena files to S3`](https://github
     - Branch
     - Environment 
 
+## Cognito, API Gateway, and QuickSight Authentication Flow
+
+The authentication flow begins when a user attempts to access QuickSight dashboards. 
+Amazon Cognito serves as the identity provider, managing user authentication and authorization through OAuth 2.0 flows. 
+The Cognito User Pool is configured with MFA enabled and contains registered users who have permission to access the analytics dashboards. 
+When users need to authenticate, they're redirected to the Cognito hosted UI where they enter their credentials and complete any required MFA challenges.
+
+API Gateway acts as the entry point and callback handler for the authentication process. 
+API Gateway instance is configured using a custom "dap" stage. It points to cognito-quicksight-access Lambda function with a callback URL registered in Cognito. 
+When Cognito completes the authentication process, it redirects users back to the appropriate API Gateway endpoint with an authorization code. 
+The API Gateway then triggers the Lambda function, passing along the authorization code and request context information including the domain name and path.
+
+The Lambda function orchestrates the token exchange and QuickSight access process. 
+It receives the authorization code from Cognito, constructs the proper redirect URI based on the API Gateway context, and exchanges the code for access tokens by calling Cognito's token endpoint. 
+Using the access token, it retrieves user information from Cognito's userInfo endpoint to get the username. 
+Finally, it calls QuickSight's GenerateEmbedUrlForRegisteredUser API to create a secure, time-limited embed URL that grants the authenticated user access to the QuickSight console. 
+The Lambda returns a 302 redirect response that sends the user directly to their personalized QuickSight dashboard, completing the seamless authentication and authorization flow.
