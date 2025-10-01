@@ -338,3 +338,11 @@ It receives the authorization code from Cognito, constructs the proper redirect 
 Using the access token, it retrieves user information from Cognito's userInfo endpoint to get the username. 
 Finally, it calls QuickSight's GenerateEmbedUrlForRegisteredUser API to create a secure, time-limited embed URL that grants the authenticated user access to the QuickSight console. 
 The Lambda returns a 302 redirect response that sends the user directly to their personalized QuickSight dashboard, completing the seamless authentication and authorization flow.
+
+### To create user in Dev to test
+1) Login to AWS Dev as Admin
+2) Open Quicksight App
+3) Goto account info and get Username, Email(your work email)
+4) Add new user in Cognito with this username, email. Make sure to send email with credentials in add user step 
+5) Use login URL from Cognito, use credentials which you got in your email
+6) Change password, configure MFA and you should see quicksight dashboard
