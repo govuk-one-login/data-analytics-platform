@@ -143,6 +143,9 @@ QuicksightAccessApiGatewayStage2:
     ApiId: !Ref QuicksightAccessApiGateway2
     StageName: 'dap'
     AutoDeploy: true
+    DefaultRouteSettings:
+      ThrottlingRateLimit: 100
+      ThrottlingBurstLimit: 200
     AccessLogSettings:
       DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
       Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","path":"$context.path","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLatency":"$context.responseLatency","responseLength":"$context.responseLength"}'
