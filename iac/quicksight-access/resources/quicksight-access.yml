@@ -107,7 +107,7 @@ QuicksightAccessApiGatewayLambdaPermission:
     FunctionName: !Ref QuicksightAccessLambdaFunction
     Action: lambda:InvokeFunction
     Principal: apigateway.amazonaws.com
-    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/*/*
+    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/$default
 
 QuicksightAccessApiGateway2:
   Type: AWS::ApiGatewayV2::Api
@@ -156,7 +156,7 @@ QuicksightAccessApiGatewayLambdaPermission2:
     FunctionName: !Ref QuicksightAccessLambdaFunction
     Action: lambda:InvokeFunction
     Principal: apigateway.amazonaws.com
-    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway2}/*/*/*
+    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway2}/dap/$default
 
 QuicksightAccessUserPool:
   Type: AWS::Cognito::UserPool
