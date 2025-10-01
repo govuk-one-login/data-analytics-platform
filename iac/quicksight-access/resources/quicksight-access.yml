@@ -219,7 +219,7 @@ QuicksightAccessUserPoolClient:
       - openid
       - profile
     CallbackURLs:
-      # - !Sub 'https://${QuicksightAccessApiGateway}.execute-api.${AWS::Region}.amazonaws.com/'
+      - !Sub 'https://${QuicksightAccessApiGateway}.execute-api.${AWS::Region}.amazonaws.com/'
       - !Sub 'https://${QuicksightAccessApiGateway2}.execute-api.${AWS::Region}.amazonaws.com/dap'
     ClientName: !Sub ${Environment}-dap-quicksight-access-client
     ExplicitAuthFlows:

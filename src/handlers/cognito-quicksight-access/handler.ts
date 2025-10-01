@@ -31,7 +31,7 @@ export interface UserInfoResponse {
 export const handler = async (event: APIGatewayProxyEventV2, context: Context): Promise<APIGatewayProxyResultV2> => {
   try {
     const code = await getCode(event);
-    const tokens = await callTokenEndpoint(event.requestContext.domainName, code);
+    const tokens = await callTokenEndpoint(event.requestContext.domainName, event.requestContext.http.path, code);
     const userInfo = await callUserInfoEndpoint(tokens);
     const embedUrl = await getEmbedUrl(event.requestContext.accountId, userInfo.username);
     return {
@@ -63,12 +63,16 @@ const getCode = async (event: APIGatewayProxyEventV2): Promise<string> => {
 };
 
 // see https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
-const callTokenEndpoint = async (apiGatewayDomainName: string, code: string): Promise<TokenResponse> => {
+const callTokenEndpoint = async (
+  apiGatewayDomainName: string,
+  httpPath: string,
+  code: string,
+): Promise<TokenResponse> => {
   const url = `${getCognitoDomain()}/oauth2/token`;
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
     client_id: getCognitoClientId(),
-    redirect_uri: `https://${apiGatewayDomainName}`,
+    redirect_uri: `https://${apiGatewayDomainName}${httpPath}`,
     code,
   });
 
