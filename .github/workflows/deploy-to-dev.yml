@@ -3,7 +3,7 @@ name: ✳️ Deploy to the dev environment
 on:
   push:
     branches:
-      - dpt-2243
+      - main
   workflow_dispatch:
     inputs:
       skip-s3-upload:
