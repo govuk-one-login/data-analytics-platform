@@ -109,54 +109,54 @@ QuicksightAccessApiGatewayLambdaPermission:
     Principal: apigateway.amazonaws.com
     SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway}/*/*/*
 
-QuicksightAccessApiGateway2:
-  Type: AWS::ApiGatewayV2::Api
-  Condition: IsQuicksightEnvironment
-  Properties:
-    Name: !Sub ${Environment}-dap-quicksight-access-2
-    ProtocolType: HTTP
-
-QuicksightAccessApiGatewayIntegration2:
-  Type: AWS::ApiGatewayV2::Integration
-  Condition: IsQuicksightEnvironment
-  Properties:
-    ApiId: !Ref QuicksightAccessApiGateway2
-    IntegrationType: AWS_PROXY
-    IntegrationUri: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
-    PayloadFormatVersion: '2.0'
-
-QuicksightAccessApiGatewayCatchAllRoute2:
-  Type: AWS::ApiGatewayV2::Route
-  Condition: IsQuicksightEnvironment
-  Properties:
-    ApiId: !Ref QuicksightAccessApiGateway2
-    RouteKey: '$default'
-    Target: !Sub 'integrations/${QuicksightAccessApiGatewayIntegration2}'
-
-QuicksightAccessApiGatewayStage2:
-  Type: AWS::ApiGatewayV2::Stage
-  Condition: IsQuicksightEnvironment
-  DependsOn:
-    - QuicksightAccessApiGatewayCatchAllRoute2
-    - QuicksightAccessApiGatewayIntegration2
-  Properties:
-    ApiId: !Ref QuicksightAccessApiGateway2
-    StageName: 'dap'
-    AutoDeploy: true
-    AccessLogSettings:
-      DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
-      Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","path":"$context.path","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLatency":"$context.responseLatency","responseLength":"$context.responseLength"}'
-
-QuicksightAccessApiGatewayLambdaPermission2:
-  Type: AWS::Lambda::Permission
-  Condition: IsQuicksightEnvironment
-  DependsOn:
-    - QuicksightAccessApiGatewayStage2
-  Properties:
-    FunctionName: !Ref QuicksightAccessLambdaFunction
-    Action: lambda:InvokeFunction
-    Principal: apigateway.amazonaws.com
-    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway2}/*/*/*
+#QuicksightAccessApiGateway2:
+#  Type: AWS::ApiGatewayV2::Api
+#  Condition: IsQuicksightEnvironment
+#  Properties:
+#    Name: !Sub ${Environment}-dap-quicksight-access-2
+#    ProtocolType: HTTP
+#
+#QuicksightAccessApiGatewayIntegration2:
+#  Type: AWS::ApiGatewayV2::Integration
+#  Condition: IsQuicksightEnvironment
+#  Properties:
+#    ApiId: !Ref QuicksightAccessApiGateway2
+#    IntegrationType: AWS_PROXY
+#    IntegrationUri: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:cognito-quicksight-access
+#    PayloadFormatVersion: '2.0'
+#
+#QuicksightAccessApiGatewayCatchAllRoute2:
+#  Type: AWS::ApiGatewayV2::Route
+#  Condition: IsQuicksightEnvironment
+#  Properties:
+#    ApiId: !Ref QuicksightAccessApiGateway2
+#    RouteKey: '$default'
+#    Target: !Sub 'integrations/${QuicksightAccessApiGatewayIntegration2}'
+#
+#QuicksightAccessApiGatewayStage2:
+#  Type: AWS::ApiGatewayV2::Stage
+#  Condition: IsQuicksightEnvironment
+#  DependsOn:
+#    - QuicksightAccessApiGatewayCatchAllRoute2
+#    - QuicksightAccessApiGatewayIntegration2
+#  Properties:
+#    ApiId: !Ref QuicksightAccessApiGateway2
+#    StageName: 'dap'
+#    AutoDeploy: true
+#    AccessLogSettings:
+#      DestinationArn: !GetAtt QuicksightApiAccessLogGroup.Arn
+#      Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","path":"$context.path","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLatency":"$context.responseLatency","responseLength":"$context.responseLength"}'
+#
+#QuicksightAccessApiGatewayLambdaPermission2:
+#  Type: AWS::Lambda::Permission
+#  Condition: IsQuicksightEnvironment
+#  DependsOn:
+#    - QuicksightAccessApiGatewayStage2
+#  Properties:
+#    FunctionName: !Ref QuicksightAccessLambdaFunction
+#    Action: lambda:InvokeFunction
+#    Principal: apigateway.amazonaws.com
+#    SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${QuicksightAccessApiGateway2}/*/*/*
 
 QuicksightAccessUserPool:
   Type: AWS::Cognito::UserPool
@@ -219,7 +219,8 @@ QuicksightAccessUserPoolClient:
       - openid
       - profile
     CallbackURLs:
-      - !Sub 'https://${QuicksightAccessApiGateway2}.execute-api.${AWS::Region}.amazonaws.com/dap'
+      - !Sub 'https://${QuicksightAccessApiGateway}.execute-api.${AWS::Region}.amazonaws.com/'
+      # - !Sub 'https://${QuicksightAccessApiGateway2}.execute-api.${AWS::Region}.amazonaws.com/dap'
     ClientName: !Sub ${Environment}-dap-quicksight-access-client
     ExplicitAuthFlows:
       - ALLOW_REFRESH_TOKEN_AUTH
