@@ -316,6 +316,11 @@ RunFlywayCommandLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
+  Metadata:
+    cfn-lint:
+      config:
+        ignore_checks:
+          - E3032
 
 FlywayFilesBucket:
   Type: AWS::S3::Bucket
