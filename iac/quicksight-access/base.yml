@@ -56,7 +56,7 @@ Mappings:
     integration:
       dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
     production-preview:
-      ddynatraceSecretArn: unused
+      dynatraceSecretArn: unused
     production:
       dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceProductionVariables
 
