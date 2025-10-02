@@ -5,19 +5,54 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      skip-s3-upload:
+        type: boolean
+        required: false
+        description: Skip uploading athena files to S3
 
 jobs:
   test-and-validate:
     secrets: inherit
     uses: ./.github/workflows/test-and-validate.yml
 
+  check-core-iac-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      core-iac-changed: ${{ steps.changes.outputs.core }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        with:
+          fetch-depth: 0
+      - name: Check for changes to core iac
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3
+        id: changes
+        with:
+          filters: |
+            core:
+              - 'iac/core/**'
+
   deploy-to-dev:
-    needs: [test-and-validate]
+    needs: [test-and-validate, check-core-iac-changes]
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
       contents: read
     secrets: inherit
-    uses: ./.github/workflows/deploy-to-aws.yml
+    uses: ./.github/workflows/sam-deploy.yml
+    with:
+      core-iac-changed: ${{ needs.check-core-iac-changes.outputs.core-iac-changed }}
+      lowercase-environment: dev
+
+  upload-athena-files:
+    if: inputs.skip-s3-upload != true
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
+    uses: ./.github/workflows/upload-athena-files.yml
     with:
       environment: DEV
+
