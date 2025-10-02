@@ -316,7 +316,7 @@ RunFlywayCommandLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
-    
+
 FlywayFilesBucket:
   Type: AWS::S3::Bucket
   Properties:
