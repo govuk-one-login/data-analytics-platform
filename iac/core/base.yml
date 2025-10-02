@@ -11,6 +11,7 @@ Parameters:
       - build
       - staging
       - integration
+      - hello
       - production-preview
       - production
   PermissionsBoundary:
