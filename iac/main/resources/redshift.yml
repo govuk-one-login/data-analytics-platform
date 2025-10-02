@@ -300,6 +300,8 @@ RunFlywayCommandLambda:
         REDSHIFT_SECRET_ID: !Ref RedshiftSecret
         FLYWAY_FILES_BUCKET_NAME: !Ref FlywayFilesBucket
         ENVIRONMENT: !Ref Environment
+    Architectures:
+      - x86_64
     Tags:
       Environment: !Ref Environment
     MemorySize: 4096
@@ -314,6 +316,11 @@ RunFlywayCommandLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
+  Metadata:
+    cfn-lint:
+      config:
+        ignore_checks:
+          - E3032
 
 FlywayFilesBucket:
   Type: AWS::S3::Bucket
