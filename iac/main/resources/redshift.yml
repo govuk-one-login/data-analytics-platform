@@ -269,6 +269,8 @@ RunFlywayCommandLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed
   Type: AWS::Serverless::Function
   Properties:
+    Architectures:
+      - x86_64
     FunctionName: run-flyway-command
     Handler: run-flyway-command.handler
     Policies:
@@ -300,8 +302,6 @@ RunFlywayCommandLambda:
         REDSHIFT_SECRET_ID: !Ref RedshiftSecret
         FLYWAY_FILES_BUCKET_NAME: !Ref FlywayFilesBucket
         ENVIRONMENT: !Ref Environment
-    Architectures:
-      - x86_64
     Tags:
       Environment: !Ref Environment
     MemorySize: 4096
@@ -451,6 +451,8 @@ RedshiftCreateSnapshotLambda:
   Properties:
     FunctionName: redshift-create-snapshot
     Handler: redshift-create-snapshot.handler
+    Architectures:
+      - arm64
     Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
