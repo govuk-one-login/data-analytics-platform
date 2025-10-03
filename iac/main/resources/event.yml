@@ -68,7 +68,7 @@ EventConsumerEventSourceMapping:
   Properties:
     BatchSize: 10
     Enabled: true
-    EventSourceArn: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
+    EventSourceArn: !If [IsDevOrBuild, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
     FunctionName: !GetAtt EventConsumerLambda.Arn
     FunctionResponseTypes:
       - ReportBatchItemFailures
