@@ -3,7 +3,6 @@ Description: Data and Analytics Stack
 Transform: AWS::Serverless-2016-10-31
 
 Outputs:
-
   TXMABucket:
     Description: 'Name of raw bucket'
     Value: !Ref RawLayerBucket
