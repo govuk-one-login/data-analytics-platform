@@ -346,3 +346,10 @@ The Lambda returns a 302 redirect response that sends the user directly to their
 4) Add new user in Cognito with this username, email. Make sure to send email with credentials in add user step 
 5) Use login URL from Cognito, use credentials which you got in your email
 6) Change password, configure MFA and you should see quicksight dashboard
+
+### Configuring SSO IDP URL on Quicksight
+Go to Quicksight as Admin and Go to User Icon(top right corner) after login. Click on Manage Quicksight page, SSO settings.
+
+Update IDP URL with Cognito login page URL
+
+Now the Quicksight will use new API Gateway
