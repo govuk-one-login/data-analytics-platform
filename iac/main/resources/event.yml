@@ -3,7 +3,7 @@
 # it also exists in production preview to allow manual event injection
 EventConsumerQueue:
   Type: AWS::SQS::Queue
-  Condition: UsePlaceholderTxMAQueue
+  Condition: IsDevOrBuild
   Properties:
     QueueName: !Sub ${Environment}-placeholder-txma-event-queue
     KmsMasterKeyId: !GetAtt KmsKey.Arn
@@ -25,29 +25,13 @@ EventConsumerLambda:
               - 'sqs:DeleteMessage'
               - 'sqs:GetQueueAttributes'
               - 'sqs:ReceiveMessage'
-            Resource: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
+            Resource: !If [IsDevOrBuild, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
           - Effect: Allow
             Action: firehose:PutRecord
             Resource: !GetAtt KinesisFirehose.Arn
           - Effect: Allow
             Action: kms:decrypt
-            Resource: !If [UsePlaceholderTxMAQueue, !GetAtt KmsKey.Arn, '{{resolve:ssm:TxMAKMSKeyARN}}']
-          # extra statements for production preview as it needs access to both a real TxMA queue and a placeholder queue
-          - !If
-            - IsProductionPreview
-            - Effect: Allow
-              Action:
-                - 'sqs:DeleteMessage'
-                - 'sqs:GetQueueAttributes'
-                - 'sqs:ReceiveMessage'
-              Resource: '{{resolve:ssm:TxMAEventQueueARN}}'
-            - !Ref AWS::NoValue
-          - !If
-            - IsProductionPreview
-            - Effect: Allow
-              Action: kms:decrypt
-              Resource: '{{resolve:ssm:TxMAKMSKeyARN}}'
-            - !Ref AWS::NoValue
+            Resource: !If [IsDevOrBuild, !GetAtt KmsKey.Arn, '{{resolve:ssm:TxMAKMSKeyARN}}']
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
@@ -68,7 +52,7 @@ EventConsumerEventSourceMapping:
   Properties:
     BatchSize: 10
     Enabled: true
-    EventSourceArn: !If [UsePlaceholderTxMAQueue, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
+    EventSourceArn: !If [IsDevOrBuild, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
     FunctionName: !GetAtt EventConsumerLambda.Arn
     FunctionResponseTypes:
       - ReportBatchItemFailures
