@@ -3,6 +3,8 @@ RedshiftGetMetadataLambda:
   Properties:
     FunctionName: !Sub redshift-get-metadata-${Environment}
     Handler: redshift-get-metadata.handler
+    Architectures:
+      - arm64
     Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
@@ -240,6 +242,8 @@ S3SendMetadataLambda:
   Properties:
     FunctionName: !Sub s3-send-metadata-${Environment}
     Handler: s3-send-metadata.handler
+    Architectures:
+      - arm64
     Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
@@ -288,6 +292,8 @@ S3RawToStagingLambda:
   Properties:
     FunctionName: !Sub s3-raw-to-staging-${Environment}
     Handler: s3-raw-to-staging.handler
+    Architectures:
+      - arm64
     Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
@@ -445,6 +451,8 @@ DLQLambda:
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: !Sub dlq-to-eventbridge-${Environment}
+    Architectures:
+      - arm64
     Events:
       ReceiveFromDLQ:
         Type: SQS
@@ -513,6 +521,8 @@ StepFunctionValidationLambda:
   Properties:
     FunctionName: !Sub stepfunction-validate-execution-${Environment}
     Handler: stepfunction-validate-execution.handler
+    Architectures:
+      - arm64
     Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
