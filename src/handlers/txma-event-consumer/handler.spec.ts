@@ -2,7 +2,6 @@ import { handler, logger } from './handler';
 import { mockLambdaContext, mockSQSEvent } from '../../shared/utils/test-utils';
 import { FirehoseClient } from '@aws-sdk/client-firehose';
 import { mockClient } from 'aws-sdk-client-mock';
-
 const loggerInfoSpy = jest.spyOn(logger, 'info').mockImplementation(() => undefined);
 const loggerErrorSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
 const loggerDebugSpy = jest.spyOn(logger, 'debug').mockImplementation(() => undefined);
@@ -30,9 +29,10 @@ test('valid event', async () => {
 
   expect(response.batchItemFailures).toHaveLength(0);
   expect(mockFirehoseClient.calls()).toHaveLength(1);
-  expect(loggerDebugSpy).toHaveBeenCalledWith('Successfully processed audit event', {
-    componentId: 'test-component-id',
-    eventId: 'test-id',
+  expect(loggerDebugSpy).toHaveBeenCalledWith('Successfully delivered events to firehose', {
+    eventId: ['test-id'],
+    componentId: ['test-component-id'],
+    count: 1,
   });
 });
 
@@ -73,7 +73,9 @@ test('missing stream name', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(0);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Error processing record', { error: expect.any(Error) });
+  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose:", {
+    error: expect.any(Error),
+  });
 });
 
 test('firehose error', async () => {
@@ -85,31 +87,25 @@ test('firehose error', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(1);
-  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering data to DAP's Kinesis Firehose:", {
+  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose:", {
     error: expect.any(Error),
   });
 });
 
 test('batch error handling', async () => {
-  mockFirehoseClient.rejectsOnce().resolves({});
+  mockFirehoseClient.rejects();
 
   const validEvent = JSON.stringify({ event_name: 'test', timestamp: 1234567890, event_id: 'test-id' });
   const sqsEvent = mockSQSEvent(validEvent, validEvent, 'null', validEvent);
   const response = await handler(sqsEvent, mockLambdaContext);
 
-  // 1 and 3 should have failed. 1 because of the mock client rejecting on the first call and 3 as the body is invalid JSON
-  expect(response.batchItemFailures).toHaveLength(2);
-  expect(response.batchItemFailures.map(failure => failure.itemIdentifier)).toEqual(expect.arrayContaining(['1', '3']));
-  expect(mockFirehoseClient.calls()).toHaveLength(3);
-  expect(loggerDebugSpy).toHaveBeenCalledWith('Successfully processed audit event', {
-    componentId: 'UNKNOWN',
-    eventId: 'test-id',
-  });
-  expect(loggerDebugSpy).toHaveBeenCalledWith('Successfully processed audit event', {
-    componentId: 'UNKNOWN',
-    eventId: 'test-id',
-  });
-  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering data to DAP's Kinesis Firehose:", {
+  // All 4 records should fail: 3 valid ones fail due to Firehose error, 1 fails due to invalid JSON
+  expect(response.batchItemFailures).toHaveLength(4);
+  expect(mockFirehoseClient.calls()).toHaveLength(1);
+  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose:", {
     error: expect.any(Error),
+  });
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Error processing record', {
+    error: expect.any(TypeError),
   });
 });
