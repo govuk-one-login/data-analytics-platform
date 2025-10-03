@@ -3,9 +3,6 @@ Description: Data and Analytics Stack
 Transform: AWS::Serverless-2016-10-31
 
 Outputs:
-  TXMAQueueURL:
-    Description: 'TxMA queue URL'
-    Value: !If [UsePlaceholderTxMAQueue, !Ref EventConsumerQueue, '']
 
   TXMABucket:
     Description: 'Name of raw bucket'
@@ -121,10 +118,7 @@ Conditions:
     - !Condition IsDev
     - !Condition IsProduction
     - !Condition IsProductionPreview
-  UsePlaceholderTxMAQueue: !Or
-    - !Condition IsDev
-    - !Condition IsBuild
-    - !Condition IsProductionPreview
+
   # is this an environment that uses secure pipelines for deployments (production-preview does a direct sam deploy)
   # used to determine if extra policies need to be added to the secure pipelines deploy role in pipeline.yml
   IsSecurePipelinesEnvironment: !Not [!Condition IsProductionPreview]
