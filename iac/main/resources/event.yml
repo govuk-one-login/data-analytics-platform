@@ -3,7 +3,7 @@
 # it also exists in production preview to allow manual event injection
 EventConsumerQueue:
   Type: AWS::SQS::Queue
-  Condition: UsePlaceholderTxMAQueue
+  Condition: IsDevOrBuild
   Properties:
     QueueName: !Sub ${Environment}-placeholder-txma-event-queue
     KmsMasterKeyId: !GetAtt KmsKey.Arn
