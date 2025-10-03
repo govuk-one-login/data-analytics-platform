@@ -348,7 +348,7 @@ The Lambda returns a 302 redirect response that sends the user directly to their
 6) Change password, configure MFA and you should see quicksight dashboard
 
 ### Configuring SSO IDP URL on Quicksight
-Go to Quicksight and Go to User Icon after login. Click on Manage Quicksight page, SSO settings.
+Go to Quicksight as Admin and Go to User Icon(top right corner) after login. Click on Manage Quicksight page, SSO settings.
 
 Update IDP URL with Cognito login page URL
 
