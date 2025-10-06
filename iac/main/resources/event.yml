@@ -124,3 +124,10 @@ IAMRoleKinesisFirehose:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
                 - logs:PutLogEvents
+
+TxmaEventConsumerLogs:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    KmsKeyId: '{{resolve:ssm:LogsKmsKeyArn}}'
+    LogGroupName: !Sub '/aws/lambda/txma-event-consumer'
+    RetentionInDays: 30
