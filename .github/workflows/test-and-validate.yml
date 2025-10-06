@@ -12,7 +12,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Node setup
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v4
         with:
           node-version: 22
           cache: npm
@@ -37,7 +37,7 @@ jobs:
       - name: IaC linting checks
         run: npm run iac:lint
       - name: Checkov actions scan
-        uses: bridgecrewio/checkov-action@4f9f1bef9f759c19c966f39c0638ea427d776f4d # v12
+        uses: bridgecrewio/checkov-action@9b463a337f7113e586abb33353eb4507177f5919 # v12
         with:
           config_file: .checkov.ci.yml
           directory: iac-dist
