@@ -3,7 +3,7 @@ RedshiftStoredProcedureErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
     LogGroupName: !Sub /aws/stepfunction/dap-consolidated-stage-layer-to-redshift
-    FilterPattern: '{ $.details.output = "*FAILED*" && $.details.output = "*Error*" && $.details.error = "*Error*" }'
+    FilterPattern: '{ ($.details.output = "*FAILED*") && ($.details.output = "*Error*") }'
     MetricTransformations:
       - MetricNamespace: DAP/Redshift/Logs
         MetricName: RedshiftStoredProcedureErrors
