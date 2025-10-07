@@ -1,0 +1,28 @@
+# Redshift Stored Procedure Error Metric Filter
+RedshiftStoredProcedureErrorMetricFilter:
+  Type: AWS::Logs::MetricFilter
+  Properties:
+    LogGroupName: !Sub /aws/stepfunction/dap-consolidated-stage-layer-to-redshift
+    FilterPattern: '{ $.details.output = "*FAILED*" && $.details.output = "*Error*" && $.details.error = "*Error*" }'
+    MetricTransformations:
+      - MetricNamespace: DAP/Redshift/Logs
+        MetricName: RedshiftStoredProcedureErrors
+        MetricValue: '1'
+        DefaultValue: 0
+
+# Redshift Stored Procedure Error Alarm
+RedshiftStoredProcedureErrorAlarm:
+  Type: AWS::CloudWatch::Alarm
+  Properties:
+    AlarmName: !Sub ${Environment}-dap-redshift-stored-procedure-error-alarm
+    AlarmDescription: Alarm when Redshift stored procedure errors are detected in logs
+    MetricName: RedshiftStoredProcedureErrors
+    Namespace: DAP/Redshift/Logs
+    Statistic: Sum
+    Period: 300
+    EvaluationPeriods: 1
+    Threshold: 1
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    AlarmActions:
+      - !Ref DAPNotificationsTopic
+    TreatMissingData: notBreaching
