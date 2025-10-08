@@ -5,7 +5,6 @@ import { mockClient } from 'aws-sdk-client-mock';
 
 const loggerInfoSpy = jest.spyOn(logger, 'info').mockImplementation(() => undefined);
 const loggerErrorSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
-const loggerDebugSpy = jest.spyOn(logger, 'debug').mockImplementation(() => undefined);
 
 const mockFirehoseClient = mockClient(FirehoseClient);
 
@@ -30,10 +29,6 @@ test('valid event', async () => {
 
   expect(response.batchItemFailures).toHaveLength(0);
   expect(mockFirehoseClient.calls()).toHaveLength(1);
-  expect(loggerDebugSpy).toHaveBeenCalledWith('Successfully processed audit event', {
-    componentId: 'test-component-id',
-    eventId: 'test-id',
-  });
 });
 
 test('event with invalid timestamp', async () => {
@@ -101,14 +96,6 @@ test('batch error handling', async () => {
   expect(response.batchItemFailures).toHaveLength(2);
   expect(response.batchItemFailures.map(failure => failure.itemIdentifier)).toEqual(expect.arrayContaining(['1', '3']));
   expect(mockFirehoseClient.calls()).toHaveLength(3);
-  expect(loggerDebugSpy).toHaveBeenCalledWith('Successfully processed audit event', {
-    componentId: 'UNKNOWN',
-    eventId: 'test-id',
-  });
-  expect(loggerDebugSpy).toHaveBeenCalledWith('Successfully processed audit event', {
-    componentId: 'UNKNOWN',
-    eventId: 'test-id',
-  });
   expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering data to DAP's Kinesis Firehose:", {
     error: expect.any(Error),
   });

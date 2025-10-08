@@ -36,10 +36,6 @@ const processRecord = async (record: SQSRecord): Promise<boolean> => {
     const buffer = getBodyAsBuffer(record.body);
     const firehoseRequest = getFirehoseCommand(buffer);
     await sendMessageToKinesisFirehose(firehoseRequest);
-    logger.debug('Successfully processed audit event', {
-      eventId: auditEvent.event_id,
-      componentId: auditEvent.component_id ?? 'UNKNOWN',
-    });
     return true;
   } catch (e) {
     logger.error('Error processing record', { error: e });
