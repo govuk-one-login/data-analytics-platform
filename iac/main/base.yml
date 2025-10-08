@@ -3,10 +3,6 @@ Description: Data and Analytics Stack
 Transform: AWS::Serverless-2016-10-31
 
 Outputs:
-  TXMAQueueURL:
-    Description: 'TxMA queue URL'
-    Value: !If [UsePlaceholderTxMAQueue, !Ref EventConsumerQueue, '']
-
   TXMABucket:
     Description: 'Name of raw bucket'
     Value: !Ref RawLayerBucket
@@ -90,6 +86,8 @@ Mappings:
       dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
     integration:
       dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
+    production-preview:
+      dynatraceSecretArn: unused
     production:
       dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceProductionVariables
 
@@ -119,10 +117,7 @@ Conditions:
     - !Condition IsDev
     - !Condition IsProduction
     - !Condition IsProductionPreview
-  UsePlaceholderTxMAQueue: !Or
-    - !Condition IsDev
-    - !Condition IsBuild
-    - !Condition IsProductionPreview
+
   # is this an environment that uses secure pipelines for deployments (production-preview does a direct sam deploy)
   # used to determine if extra policies need to be added to the secure pipelines deploy role in pipeline.yml
   IsSecurePipelinesEnvironment: !Not [!Condition IsProductionPreview]
@@ -147,8 +142,6 @@ Globals:
     Timeout: 30
     CodeUri: dist/
     MemorySize: 1024
-    Architectures:
-      - arm64
     Environment:
       Variables:
         NODE_OPTIONS: '--enable-source-maps'

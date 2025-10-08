@@ -269,6 +269,8 @@ RunFlywayCommandLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed
   Type: AWS::Serverless::Function
   Properties:
+    Architectures:
+      - x86_64
     FunctionName: run-flyway-command
     Handler: run-flyway-command.handler
     Policies:
@@ -314,6 +316,11 @@ RunFlywayCommandLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
+  Metadata:
+    cfn-lint:
+      config:
+        ignore_checks:
+          - E3032
 
 FlywayFilesBucket:
   Type: AWS::S3::Bucket
@@ -444,6 +451,8 @@ RedshiftCreateSnapshotLambda:
   Properties:
     FunctionName: redshift-create-snapshot
     Handler: redshift-create-snapshot.handler
+    Architectures:
+      - arm64
     Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:

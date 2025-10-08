@@ -200,7 +200,7 @@ const setUpSuccessfulFetch = (): void => {
         new URLSearchParams({
           grant_type: 'authorization_code',
           client_id: COGNITO_CLIENT_ID,
-          redirect_uri: `https://${EVENT.requestContext.domainName}`,
+          redirect_uri: `https://${EVENT.requestContext.domainName}${EVENT.requestContext.http.path}`,
           code: CODE,
         }),
       );

@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-APP_NAMES=("main" "quicksight-access")
+APP_NAMES=("main" "quicksight-access" "core")
 
 ROOT=$(pwd)
 DIST="$ROOT/iac-dist"

@@ -147,6 +147,8 @@ S3NotificationsLoggerLambda:
   Properties:
     FunctionName: !Sub s3-notifications-logger-${Environment}
     Handler: s3-notifications-logger.handler
+    Architectures:
+      - arm64
     Policies:
       - AWSLambdaBasicExecutionRole
     ReservedConcurrentExecutions: 10
@@ -210,6 +212,8 @@ TestSupportLambda:
   Properties:
     FunctionName: !Sub test-support-${Environment}
     Handler: test-support.handler
+    Architectures:
+      - arm64
     Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:

@@ -6,6 +6,9 @@ on:
       lowercase-environment:
         type: string
         required: true
+      core-iac-changed:
+        type: string
+        required: true
 
 jobs:
   test-and-validate:
@@ -16,13 +19,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           fetch-depth: 0 # check out full history
       - name: Validate ahead of main
         run: scripts/validate-branch-ahead.sh
 
-  # manual sam deploy is only for production-preview
+  # manual sam deploy is only for production-preview and dev
   # all other environments use secure pipelines and the deploy-to-aws workflow
   validate-sam-deploy-environment:
     runs-on: ubuntu-latest
@@ -30,7 +33,7 @@ jobs:
       - name: Validate input environment
         env:
           ENVIRONMENT: ${{ inputs.lowercase-environment }}
-        run: if [ "$ENVIRONMENT" = "production-preview" ]; then true; else false; fi
+        run: if [ "$ENVIRONMENT" = "production-preview" ] || [ "$ENVIRONMENT" = "dev" ]; then true; else false; fi
 
   get-deployment-role:
     needs: [test-and-validate, validate-branch-ahead, validate-sam-deploy-environment]
@@ -44,6 +47,8 @@ jobs:
         run: |
           if [ "$ENVIRONMENT" = "production-preview" ]; then
             NAME="PRODUCTION_PREVIEW_ENVIRONMENT_DEPLOY_ROLE_ARN"
+          elif [ "$ENVIRONMENT" = "dev" ]; then
+            NAME="DEV_ENVIRONMENT_DEPLOY_ROLE_ARN"
           else
             exit 1
           fi
@@ -59,9 +64,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Node setup
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -72,14 +77,14 @@ jobs:
       - name: Build SAM template
         run: npm run iac:build -- main
       - name: SAM setup
-        uses: aws-actions/setup-sam@v2
+        uses: aws-actions/setup-sam@f664fad9e12492edfc187a31f575537dfbb0ff63 # v2
         with:
           use-installer: true
           version: 1.134.0
       - name: SAM build
         run: sam build
       - name: Assume AWS role
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[needs.get-deployment-role.outputs.name] }}
@@ -99,9 +104,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Node setup
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -112,14 +117,14 @@ jobs:
       - name: Build SAM template
         run: npm run iac:build -- quicksight-access
       - name: SAM setup
-        uses: aws-actions/setup-sam@v2
+        uses: aws-actions/setup-sam@f664fad9e12492edfc187a31f575537dfbb0ff63 # v2
         with:
           use-installer: true
           version: 1.134.0
       - name: SAM build
         run: sam build
       - name: Assume AWS role
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[needs.get-deployment-role.outputs.name] }}
@@ -128,3 +133,44 @@ jobs:
           AWS_RETRY_MODE: adaptive
           PARAMETER_OVERRIDES: 'Environment=${{ inputs.lowercase-environment }} VpcStackName=none CodeSigningConfigArn=none PermissionsBoundary=none TestRoleArn=none'
         run: sam deploy --region eu-west-2 --stack-name dap-quicksight-access --parameter-overrides "$PARAMETER_OVERRIDES" --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset
+
+  deploy-core-application:
+    needs: [get-deployment-role]
+    if: ${{ inputs.core-iac-changed == 'true' }}
+   # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    permissions:
+      id-token: write
+      contents: read
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Node setup
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install node packages
+        run: npm ci
+      - name: Build lambdas
+        run: npm run build
+      - name: Build SAM template
+        run: npm run iac:build -- core
+      - name: SAM setup
+        uses: aws-actions/setup-sam@f664fad9e12492edfc187a31f575537dfbb0ff63 # v2
+        with:
+          use-installer: true
+          version: 1.134.0
+      - name: SAM build
+        run: sam build
+      - name: Assume AWS role
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets[needs.get-deployment-role.outputs.name] }}
+      - name: Deploy stack
+        env:
+          AWS_RETRY_MODE: adaptive
+          PARAMETER_OVERRIDES: 'Environment=${{ inputs.lowercase-environment }} VpcStackName=none CodeSigningConfigArn=none PermissionsBoundary=none TestRoleArn=none'
+        run: sam deploy --region eu-west-2 --stack-name dap-core --parameter-overrides "$PARAMETER_OVERRIDES" --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset

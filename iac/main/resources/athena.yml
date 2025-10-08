@@ -72,6 +72,8 @@ AthenaGetConfigLambda:
   Properties:
     FunctionName: !Sub athena-get-config-${Environment}
     Handler: athena-get-config.handler
+    Architectures:
+      - arm64
     Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
@@ -101,6 +103,8 @@ AthenaGetStatementLambda:
   Properties:
     FunctionName: !Sub athena-get-statement-${Environment}
     Handler: athena-get-statement.handler
+    Architectures:
+      - arm64
     Policies:
       - AWSLambdaBasicExecutionRole
       - Statement:
