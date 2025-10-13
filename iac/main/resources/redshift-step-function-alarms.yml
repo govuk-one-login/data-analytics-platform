@@ -18,6 +18,7 @@ RedshiftErrorNotificationLambda:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
         SNS_TOPIC_ARN: !Ref DAPNotificationsTopic
+        ENVIRONMENT: !Ref Environment
     Tags:
       Environment: !Ref Environment
     VpcConfig:
