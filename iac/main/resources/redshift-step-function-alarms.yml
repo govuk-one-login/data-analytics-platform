@@ -32,7 +32,7 @@ RedshiftErrorNotificationLambda:
 RedshiftErrorSubscriptionFilter:
   Type: AWS::Logs::SubscriptionFilter
   Properties:
-    LogGroupName: /aws/stepfunctions/dap-consolidated-stage-layer-to-redshift
+    LogGroupName: /aws/stepfunction/dap-consolidated-stage-layer-to-redshift
     FilterPattern: '{ ($.details.output = "*FAILED*") && ($.details.output = "*Error*") }'
     DestinationArn: !GetAtt RedshiftErrorNotificationLambda.Arn
 
