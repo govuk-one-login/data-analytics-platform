@@ -14,6 +14,11 @@ RedshiftErrorNotificationLambda:
             Action:
               - sns:Publish
             Resource: !Ref DAPNotificationsTopic
+          - Effect: Allow
+            Action:
+              - kms:GenerateDataKey
+              - kms:Decrypt
+            Resource: !GetAtt KmsKey.Arn
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
