@@ -43,4 +43,4 @@ RedshiftErrorLambdaInvokePermission:
     FunctionName: !Ref RedshiftErrorNotificationLambda
     Action: lambda:InvokeFunction
     Principal: logs.amazonaws.com
-    SourceArn: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/stepfunctions/dap-consolidated-stage-layer-to-redshift:*
+    SourceArn: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/stepfunction/dap-consolidated-stage-layer-to-redshift:*
