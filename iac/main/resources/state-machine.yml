@@ -766,7 +766,7 @@ RawStageTransformProcessPythonGlueJob:
 RawStageTransformProcessLogGroup:
   Type: AWS::Logs::LogGroup
   Properties:
-    LogGroupName: !Sub /aws/glue/python-jobs/${Environment}-dap-raw-stage-transform-process
+    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
