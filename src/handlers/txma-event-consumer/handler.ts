@@ -17,15 +17,10 @@ export const handler = async (event: SQSEvent, context: Context): Promise<SQSBat
 };
 
 const processRecords = async (records: SQSRecord[]): Promise<SQSRecord[]> => {
-  const { validRecords, failedRecords, validEvents } = validateRecords(records);
+  const { validRecords, failedRecords } = validateRecords(records);
   if (validRecords.length === 0) return failedRecords;
   try {
     await sendToFirehose(validRecords);
-    logger.debug('Successfully delivered events to firehose', {
-      count: validEvents.length,
-      eventId: validEvents.map(event => event.event_id),
-      componentId: validEvents.map(event => event.component_id || 'UNKNOWN'),
-    });
     return failedRecords;
   } catch (error) {
     logger.error("Error delivering batch data to DAP's Kinesis Firehose:", { error });
