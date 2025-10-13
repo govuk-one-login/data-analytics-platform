@@ -13,7 +13,6 @@ RedshiftErrorNotificationLambda:
             Action:
               - sns:Publish
             Resource: !Ref DAPNotificationsTopic
-    ReservedConcurrentExecutions: 5
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
