@@ -16,18 +16,22 @@ interface RedshiftErrorDetails {
 
 export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
   try {
+    logger.info('Inside handler: ', JSON.stringify(event));
+
     // Decode the CloudWatch Logs data
     const compressed = Buffer.from(event.awslogs.data, 'base64');
     const decompressed = gunzipSync(compressed);
     const logData: CloudWatchLogsDecodedData = JSON.parse(decompressed.toString());
+    logger.info('logData: ', logData);
 
     for (const logEvent of logData.logEvents) {
       const message = JSON.parse(logEvent.message);
+      logger.info('for loop message: ', message);
 
       // Extract error details from the Step Functions log
       if (message.details?.output) {
         const output: RedshiftErrorDetails = JSON.parse(message.details.output);
-
+        logger.info('message.details?.output: ', message.details.output);
         if (output.Status === 'FAILED' && output.Error) {
           // Format detailed error message
           const errorMessage = `
@@ -44,7 +48,7 @@ ${output.Error}
 **Execution ARN:** ${message.execution_arn || 'N/A'}
 **Timestamp:** ${new Date(logEvent.timestamp).toISOString()}
           `.trim();
-
+          logger.info('errorMessage to be sent to slack: ', errorMessage);
           // Send to SNS
           await snsClient.send(
             new PublishCommand({

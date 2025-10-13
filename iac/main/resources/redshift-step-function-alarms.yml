@@ -1,7 +1,8 @@
 # Lambda function to process Redshift errors and send detailed notifications
 RedshiftErrorNotificationLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
-  # checkov:skip=CKV_AWS_115:Not setting concurrent execution limits,
+  # checkov:skip=CKV_AWS_115: Not setting concurrent execution limits,
+  # checkov:skip=CKV_AWS_117: Simple publish to SNS, doesnt need and wont work with VPC
   Type: AWS::Serverless::Function
   Properties:
     FunctionName: !Sub ${Environment}-dap-redshift-error-notification
@@ -20,13 +21,6 @@ RedshiftErrorNotificationLambda:
         ENVIRONMENT: !Ref Environment
     Tags:
       Environment: !Ref Environment
-    VpcConfig:
-      SecurityGroupIds:
-        - !Ref LambdaSecurityGroup
-      SubnetIds:
-        - !Ref SubnetForDAP1
-        - !Ref SubnetForDAP2
-        - !Ref SubnetForDAP3
 
 # CloudWatch subscription filter to trigger Lambda on Redshift errors
 RedshiftErrorSubscriptionFilter:
