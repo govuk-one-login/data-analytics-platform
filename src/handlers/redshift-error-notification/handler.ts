@@ -32,6 +32,8 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
       if (message.details?.output) {
         const output: RedshiftErrorDetails = JSON.parse(message.details.output);
         logger.info('message.details?.output: ', message.details.output);
+        logger.info('output.Status: ', output.Status);
+        logger.info('output.Error: ', output.Error);
         if (output.Status === 'FAILED' && output.Error) {
           // Format detailed error message
           const errorMessage = `
