@@ -31,6 +31,7 @@ RedshiftErrorNotificationLambda:
 # CloudWatch subscription filter to trigger Lambda on Redshift errors
 RedshiftErrorSubscriptionFilter:
   Type: AWS::Logs::SubscriptionFilter
+  DependsOn: RedshiftErrorLambdaInvokePermission
   Properties:
     LogGroupName: /aws/stepfunction/dap-consolidated-stage-layer-to-redshift
     FilterPattern: '{ ($.details.output = "*FAILED*") && ($.details.output = "*Error*") }'
