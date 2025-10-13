@@ -29,9 +29,9 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
       logger.info('for loop message: ', message);
 
       // Extract error details from the Step Functions log
-      if (message.details?.output) {
-        const output: RedshiftErrorDetails = JSON.parse(message.details.output);
-        logger.info('message.details?.output: ', message.details.output);
+      if (message.sql_output) {
+        const output: RedshiftErrorDetails = message.sql_output;
+        logger.info('sql_output object: ', JSON.stringify(output));
         logger.info('output.Status: ', output.Status);
         logger.info('output.Error: ', output.Error);
         if (output.Status === 'FAILED' && output.Error) {
