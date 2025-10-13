@@ -1,9 +1,10 @@
 import { CloudWatchLogsEvent, CloudWatchLogsDecodedData } from 'aws-lambda';
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+import { PublishCommand } from '@aws-sdk/client-sns';
+import { Logger } from '@aws-lambda-powertools/logger';
 import { gunzipSync } from 'zlib';
+import { snsClient } from '../../shared/clients';
 
-const snsClient = new SNSClient({ region: process.env.AWS_REGION });
-export const logger = getLogger('lambda/redshift-error-notification');
+const logger = new Logger({ serviceName: 'redshift-error-notification' });
 
 interface RedshiftErrorDetails {
   Error: string;
