@@ -1,28 +1,46 @@
-# Redshift Stored Procedure Error Metric Filter
-RedshiftStoredProcedureErrorMetricFilter:
-  Type: AWS::Logs::MetricFilter
+# Lambda function to process Redshift errors and send detailed notifications
+RedshiftErrorNotificationLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+  # checkov:skip=CKV_AWS_115:Not setting concurrent execution limits,
+  Type: AWS::Serverless::Function
   Properties:
-    LogGroupName: !Sub /aws/stepfunction/dap-consolidated-stage-layer-to-redshift
-    FilterPattern: '{ ($.details.output = "*FAILED*") && ($.details.output = "*Error*") }'
-    MetricTransformations:
-      - MetricNamespace: DAP/Redshift/Logs
-        MetricName: RedshiftStoredProcedureErrors
-        MetricValue: '1'
-        DefaultValue: 0
+    FunctionName: !Sub ${Environment}-dap-redshift-error-notification
+    Handler: redshift-error-notification.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - sns:Publish
+            Resource: !Ref DAPNotificationsTopic
+    ReservedConcurrentExecutions: 5
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        SNS_TOPIC_ARN: !Ref DAPNotificationsTopic
+    Tags:
+      Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
 
-# Redshift Stored Procedure Error Alarm
-RedshiftStoredProcedureErrorAlarm:
-  Type: AWS::CloudWatch::Alarm
+# CloudWatch subscription filter to trigger Lambda on Redshift errors
+RedshiftErrorSubscriptionFilter:
+  Type: AWS::Logs::SubscriptionFilter
   Properties:
-    AlarmName: !Sub ${Environment}-dap-redshift-stored-procedure-error-alarm
-    AlarmDescription: Alarm when Redshift stored procedure errors are detected in logs
-    MetricName: RedshiftStoredProcedureErrors
-    Namespace: DAP/Redshift/Logs
-    Statistic: Sum
-    Period: 300
-    EvaluationPeriods: 1
-    Threshold: 1
-    ComparisonOperator: GreaterThanOrEqualToThreshold
-    AlarmActions:
-      - !Ref DAPNotificationsTopic
-    TreatMissingData: notBreaching
+    LogGroupName: /aws/stepfunctions/dap-consolidated-stage-layer-to-redshift
+    FilterPattern: '{ ($.details.output = "*FAILED*") && ($.details.output = "*Error*") }'
+    DestinationArn: !GetAtt RedshiftErrorNotificationLambda.Arn
+
+# Permission for CloudWatch Logs to invoke the Lambda
+RedshiftErrorLambdaInvokePermission:
+  Type: AWS::Lambda::Permission
+  Properties:
+    FunctionName: !Ref RedshiftErrorNotificationLambda
+    Action: lambda:InvokeFunction
+    Principal: logs.amazonaws.com
+    SourceArn: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/stepfunctions/dap-consolidated-stage-layer-to-redshift:*
