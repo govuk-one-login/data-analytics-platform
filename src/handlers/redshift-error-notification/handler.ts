@@ -1,8 +1,15 @@
 import { CloudWatchLogsEvent, CloudWatchLogsDecodedData } from 'aws-lambda';
-import { PublishCommand } from '@aws-sdk/client-sns';
+import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { gunzipSync } from 'zlib';
-import { snsClient } from '../../shared/clients';
 import { getLogger } from '../../shared/powertools';
+
+// Create SNS client with timeout
+const snsClient = new SNSClient({
+  region: process.env.AWS_REGION,
+  requestHandler: {
+    requestTimeout: 10000, // 10 seconds
+  },
+});
 
 const logger = getLogger('lambda/redshift-error-notification');
 
@@ -55,14 +62,24 @@ ${output.Error}
 **Timestamp:** ${new Date(logEvent.timestamp).toISOString()}
           `.trim();
             logger.info('errorMessage to be sent to slack: ', errorMessage);
+            logger.info('About to send SNS message to topic: ', process.env.SNS_TOPIC_ARN);
+
             // Send to SNS
-            await snsClient.send(
-              new PublishCommand({
+            try {
+              logger.info('Creating PublishCommand...');
+              const command = new PublishCommand({
                 TopicArn: process.env.SNS_TOPIC_ARN,
                 Message: errorMessage,
                 Subject: 'DAP Redshift Stored Procedure Failure',
-              }),
-            );
+              });
+
+              logger.info('Sending SNS command...');
+              const result = await snsClient.send(command);
+              logger.info('SNS publish successful: ', result);
+            } catch (snsError) {
+              logger.error('SNS publish failed: ', snsError);
+              throw snsError;
+            }
           }
         }
       }
