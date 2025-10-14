@@ -43,9 +43,12 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
         if (parsedOutput.sql_output) {
           const output: RedshiftErrorDetails = parsedOutput.sql_output;
           logger.info('sql_output object: ', JSON.stringify(output));
-          logger.info('output.Status: ', output.Status);
-          logger.info('output.Error: ', output.Error);
           if (output.Status === 'FAILED' && output.Error) {
+            // Create deduplication ID based on error message to prevent duplicates
+            const deduplicationId = output.Error.replace(/[^a-zA-Z0-9_-]/g, '').substring(0, 128);
+
+            logger.info('deduplicationId: ', deduplicationId);
+
             // Format as AWS Chatbot custom notification
             const customNotification = {
               version: '1.0',
@@ -61,21 +64,18 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
             logger.info('About to send SNS message to topic: ', process.env.SNS_TOPIC_ARN);
 
             // Send to SNS
-            try {
-              logger.info('Creating PublishCommand...');
-              const command = new PublishCommand({
-                TopicArn: process.env.SNS_TOPIC_ARN,
-                Message: errorMessage,
-                Subject: 'DAP Redshift Stored Procedure Failure',
-              });
+            logger.info('Creating PublishCommand...');
+            const command = new PublishCommand({
+              TopicArn: process.env.SNS_TOPIC_ARN,
+              Message: errorMessage,
+              Subject: 'DAP Redshift Stored Procedure Failure',
+              MessageDeduplicationId: deduplicationId,
+              MessageGroupId: 'redshift-errors',
+            });
 
-              logger.info('Sending SNS command...');
-              const result = await snsClient.send(command);
-              logger.info('SNS publish successful: ', result);
-            } catch (snsError) {
-              logger.error('SNS publish failed: ', snsError);
-              throw snsError;
-            }
+            logger.info('Sending SNS command...');
+            const result = await snsClient.send(command);
+            logger.info('SNS publish successful: ', result);
           }
         }
       }
