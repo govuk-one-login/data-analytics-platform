@@ -47,20 +47,18 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
           logger.info('output.Error: ', output.Error);
           if (output.Status === 'FAILED' && output.Error) {
             // Format detailed error message
-            const errorMessage = `
-🚨 **Redshift Stored Procedure Failure**
+            const errorMessage = `🚨 REDSHIFT STORED PROCEDURE FAILURE
 
-**Step Function:** dap-consolidated-stage-layer-to-redshift-processing
-**Database:** ${output.Database}
-**Workgroup:** ${output.WorkgroupName}
-**Query:** ${output.QueryString}
+Step Function: dap-consolidated-stage-layer-to-redshift-processing
+Database: ${output.Database}
+Workgroup: ${output.WorkgroupName}
+Query: ${output.QueryString}
 
-**Error Details:**
+Error Details:
 ${output.Error}
 
-**Execution ARN:** ${message.execution_arn || 'N/A'}
-**Timestamp:** ${new Date(logEvent.timestamp).toISOString()}
-          `.trim();
+Execution ARN: ${message.execution_arn || 'N/A'}
+Timestamp: ${new Date(logEvent.timestamp).toISOString()}`;
             logger.info('errorMessage to be sent to slack: ', errorMessage);
             logger.info('About to send SNS message to topic: ', process.env.SNS_TOPIC_ARN);
 
