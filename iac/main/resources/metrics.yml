@@ -1,9 +1,7 @@
 DAPNotificationsTopic:
   Type: AWS::SNS::Topic
   Properties:
-    TopicName: !Sub ${AWS::StackName}-alerts-notification-topic.fifo
-    FifoTopic: true
-    ContentBasedDeduplication: true
+    TopicName: !Sub ${AWS::StackName}-alerts-notification-topic
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 DAPNotificationsTopicSubscribePolicy:

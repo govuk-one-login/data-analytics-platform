@@ -64,7 +64,6 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
               TopicArn: process.env.SNS_TOPIC_ARN,
               Message: errorMessage,
               Subject: 'DAP Redshift Stored Procedure Failure',
-              MessageGroupId: 'redshift-errors',
             });
 
             logger.info('Sending SNS command...');
