@@ -7,7 +7,7 @@ EventConsumerQueue:
   Properties:
     QueueName: !Sub ${Environment}-placeholder-txma-event-queue
     RedrivePolicy: 
-      deadLetterTargetArn: !GetAtt EventConsumerDlq
+      deadLetterTargetArn: !GetAtt EventConsumerDlq.Arn
       maxReceiveCount: 1
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
@@ -17,8 +17,6 @@ EventConsumerDlq:
   Properties:
     QueueName: !Sub ${Environment}-placeholder-txma-event-dlq
     KmsMasterKeyId: !GetAtt KmsKey.Arn
-
-EventConsumerLambda:
 
 EventConsumerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
