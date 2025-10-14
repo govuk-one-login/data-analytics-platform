@@ -52,8 +52,8 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
               source: 'custom',
               content: {
                 textType: 'client-markdown',
-                title: '🚨 **Redshift Stored Procedure Failure**',
-                description: `**Database:** ${output.Database}\n**Query:** ${output.QueryString}\n\n**Error:** ${output.Error}\n\n**Execution:** ${message.execution_arn || 'N/A'}`,
+                title: ':Alert: Redshift Stored Procedure Failure :Alert:',
+                description: `*Database:* ${output.Database}\n*Query:* ${output.QueryString}\n\n*Error:* ${output.Error}\n\n*Execution:* \`${message.execution_arn || 'N/A'}\``,
               },
             };
             const errorMessage = JSON.stringify(customNotification);
