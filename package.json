@@ -24,6 +24,7 @@
     "@aws-sdk/client-sfn": "^3.888.0",
     "@aws-sdk/client-sqs": "^3.888.0",
     "@aws-sdk/client-sns": "^3.888.0",
+    "@aws-sdk/client-ssm": "^3.888.0",
     "@aws-sdk/types": "^3.821.0",
     "@eslint/js": "^9.35.0",
     "@faker-js/faker": "^10.0.0",
