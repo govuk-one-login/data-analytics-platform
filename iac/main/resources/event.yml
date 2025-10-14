@@ -138,3 +138,11 @@ IAMRoleKinesisFirehose:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
                 - logs:PutLogEvents
+
+EventConsumerQueueTestUrl:
+  Condition: IsDevOrBuild
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: !Sub /tests/${AWS::StackName}/dapTXMAConsumerSQSQueueUrl
+    Type: String
+    Value: !GetAtt EventConsumerQueue.QueueUrl
