@@ -6,7 +6,7 @@ import { getIntegrationTestEnv } from '../helpers/utils/utils';
 describe('Raw to Stage Integration Tests', () => {
   // TODO: Add test implementation
 });
-// Create test event
+// Create test event - Set uuid()
 // Push test event into queue
 // Wait until test event is processed
 // Verify S3 contains expected object
