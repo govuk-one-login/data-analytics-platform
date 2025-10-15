@@ -1,5 +1,5 @@
 import { CloudWatchLogsEvent } from 'aws-lambda';
-import { gzipSync } from 'zlib';
+import { gzipSync } from 'node:zlib';
 
 interface MockLogMessage {
   details?: {
