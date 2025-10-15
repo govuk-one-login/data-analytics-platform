@@ -1,5 +1,4 @@
 import { S3Client } from '@aws-sdk/client-s3';
-import { SNSClient } from '@aws-sdk/client-sns';
 import { CloudWatchLogsClient } from '@aws-sdk/client-cloudwatch-logs';
 import { AWS_CLIENT_BASE_CONFIG } from './constants';
 import { LambdaClient } from '@aws-sdk/client-lambda';
@@ -39,8 +38,6 @@ export const redshiftServerlessClient = new RedshiftServerlessClient(AWS_CLIENT_
 export const s3Client = new S3Client(AWS_CLIENT_BASE_CONFIG);
 
 export const secretsManagerClient = new SecretsManagerClient(AWS_CLIENT_BASE_CONFIG);
-
-export const snsClient = new SNSClient(AWS_CLIENT_BASE_CONFIG);
 
 export const sqsClient = new SQSClient(AWS_CLIENT_BASE_CONFIG);
 
