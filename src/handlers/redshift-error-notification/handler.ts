@@ -29,13 +29,26 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
     const logData: CloudWatchLogsDecodedData = JSON.parse(decompressed.toString());
 
     for (const logEvent of logData.logEvents) {
-      const message = JSON.parse(logEvent.message);
+      let message;
+      let parsedOutput;
+
+      try {
+        message = JSON.parse(logEvent.message);
+      } catch (parseError) {
+        logger.error('Failed to parse log event message', { error: parseError, message: logEvent.message });
+        continue;
+      }
 
       // Extract error details from the Step Functions log
       if (message.details?.output) {
-        const parsedOutput = JSON.parse(message.details.output);
+        try {
+          parsedOutput = JSON.parse(message.details.output);
+        } catch (parseError) {
+          logger.error('Failed to parse details.output', { error: parseError, output: message.details.output });
+          continue;
+        }
 
-        if (parsedOutput.sql_output) {
+        if (parsedOutput?.sql_output) {
           const output: RedshiftErrorDetails = parsedOutput.sql_output;
           if (output.Status === 'FAILED' && output.Error) {
             // Format as AWS Chatbot custom notification
