@@ -30,6 +30,9 @@ EventConsumerLambda:
             Action: firehose:PutRecord
             Resource: !GetAtt KinesisFirehose.Arn
           - Effect: Allow
+            Action: firehose:PutRecordBatch
+            Resource: !GetAtt KinesisFirehose.Arn
+          - Effect: Allow
             Action: kms:decrypt
             Resource: !If [IsDevOrBuild, !GetAtt KmsKey.Arn, '{{resolve:ssm:TxMAKMSKeyARN}}']
     Environment:
@@ -37,6 +40,7 @@ EventConsumerLambda:
       Variables:
         FIREHOSE_STREAM_NAME: !Sub '${Environment}-${DeliveryStreamName}'
         ENVIRONMENT: !Ref Environment
+    ReservedConcurrentExecutions: 100
     Tags:
       Environment: !Ref Environment
     VpcConfig:
