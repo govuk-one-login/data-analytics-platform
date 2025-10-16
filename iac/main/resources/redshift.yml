@@ -497,3 +497,50 @@ RedshiftCreateSnapshotLambdaPermission:
     Action: lambda:InvokeFunction
     Principal: events.amazonaws.com
     SourceArn: !GetAtt RedshiftCreateSnapshotScheduledRule.Arn
+
+# Lambda function to process Redshift errors and send detailed notifications
+RedshiftErrorNotificationLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed for lambda driven by SQS
+  # checkov:skip=CKV_AWS_115: Not setting concurrent execution limits,
+  # checkov:skip=CKV_AWS_117: Simple publish to SNS, doesnt need and wont work with VPC
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub ${Environment}-dap-redshift-error-notification
+    Handler: redshift-error-notification.handler
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - sns:Publish
+            Resource: !Ref DAPNotificationsTopic
+          - Effect: Allow
+            Action:
+              - kms:GenerateDataKey
+              - kms:Decrypt
+            Resource: !GetAtt KmsKey.Arn
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        SNS_TOPIC_ARN: !Ref DAPNotificationsTopic
+        ENVIRONMENT: !Ref Environment
+    Tags:
+      Environment: !Ref Environment
+
+# CloudWatch subscription filter to trigger Lambda on Redshift errors
+RedshiftErrorSubscriptionFilter:
+  Type: AWS::Logs::SubscriptionFilter
+  DependsOn: RedshiftErrorLambdaInvokePermission
+  Properties:
+    LogGroupName: /aws/stepfunction/dap-consolidated-stage-layer-to-redshift
+    FilterPattern: '{ ($.details.output = "*FAILED*") && ($.details.output = "*Error*") }'
+    DestinationArn: !GetAtt RedshiftErrorNotificationLambda.Arn
+
+# Permission for CloudWatch Logs to invoke the Lambda
+RedshiftErrorLambdaInvokePermission:
+  Type: AWS::Lambda::Permission
+  Properties:
+    FunctionName: !Ref RedshiftErrorNotificationLambda
+    Action: lambda:InvokeFunction
+    Principal: logs.amazonaws.com
+    SourceArn: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/stepfunction/dap-consolidated-stage-layer-to-redshift:*
