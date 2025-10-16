@@ -6,6 +6,16 @@ EventConsumerQueue:
   Condition: IsDevOrBuild
   Properties:
     QueueName: !Sub ${Environment}-placeholder-txma-event-queue
+    RedrivePolicy:
+      deadLetterTargetArn: !GetAtt EventConsumerDlq.Arn
+      maxReceiveCount: 1
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+EventConsumerDlq:
+  Type: AWS::SQS::Queue
+  Condition: IsDevOrBuild
+  Properties:
+    QueueName: !Sub ${Environment}-placeholder-txma-event-dlq
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 EventConsumerLambda:
