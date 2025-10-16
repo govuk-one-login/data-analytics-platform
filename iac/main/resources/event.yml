@@ -6,7 +6,7 @@ EventConsumerQueue:
   Condition: IsDevOrBuild
   Properties:
     QueueName: !Sub ${Environment}-placeholder-txma-event-queue
-    RedrivePolicy: 
+    RedrivePolicy:
       deadLetterTargetArn: !GetAtt EventConsumerDlq.Arn
       maxReceiveCount: 1
     KmsMasterKeyId: !GetAtt KmsKey.Arn
