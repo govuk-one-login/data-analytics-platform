@@ -1,15 +1,8 @@
 import { CloudWatchLogsEvent, CloudWatchLogsDecodedData } from 'aws-lambda';
-import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
+import { PublishCommand } from '@aws-sdk/client-sns';
 import { gunzipSync } from 'node:zlib';
 import { getLogger } from '../../shared/powertools';
-
-// Create SNS client with timeout
-const snsClient = new SNSClient({
-  region: process.env.AWS_REGION,
-  requestHandler: {
-    requestTimeout: 10000, // 10 seconds
-  },
-});
+import { getEnvironmentVariable } from '../../shared/utils/utils';
 
 const logger = getLogger('lambda/redshift-error-notification');
 
@@ -52,7 +45,7 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
 
             // Send to SNS
             const command = new PublishCommand({
-              TopicArn: process.env.SNS_TOPIC_ARN,
+              TopicArn: getEnvironmentVariable('SNS_TOPIC_ARN'),
               Message: errorMessage,
               Subject: 'DAP Redshift Stored Procedure Failure',
             });
