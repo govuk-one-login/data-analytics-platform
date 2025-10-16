@@ -187,7 +187,7 @@ RedshiftServerlessNamespace:
 RedshiftServerlessWorkgroup:
   Type: 'AWS::RedshiftServerless::Workgroup'
   Properties:
-    BaseCapacity: 128
+    BaseCapacity: 256
     EnhancedVpcRouting: false
     # MaxCapacity: 96 //Commented as it is not yet supported via CFN
     NamespaceName: !Ref RedshiftServerlessNamespace
