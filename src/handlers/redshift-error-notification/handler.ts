@@ -3,6 +3,7 @@ import { PublishCommand } from '@aws-sdk/client-sns';
 import { gunzipSync } from 'node:zlib';
 import { getLogger } from '../../shared/powertools';
 import { getEnvironmentVariable } from '../../shared/utils/utils';
+import { snsClient } from '../../shared/clients';
 
 const logger = getLogger('lambda/redshift-error-notification');
 
