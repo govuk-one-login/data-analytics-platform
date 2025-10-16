@@ -1,6 +1,6 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import { CloudWatchLogsClient } from '@aws-sdk/client-cloudwatch-logs';
-import { AWS_CLIENT_BASE_CONFIG } from './constants';
+import { AWS_CLIENT_BASE_CONFIG, AWS_REGION } from './constants';
 import { LambdaClient } from '@aws-sdk/client-lambda';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { FirehoseClient } from '@aws-sdk/client-firehose';
@@ -13,6 +13,7 @@ import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-
 import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import { EventBridgeClient } from '@aws-sdk/client-eventbridge';
 import { RedshiftServerlessClient } from '@aws-sdk/client-redshift-serverless';
+import { SNSClient } from '@aws-sdk/client-sns';
 
 export const athenaClient = new AthenaClient(AWS_CLIENT_BASE_CONFIG);
 
@@ -42,3 +43,10 @@ export const secretsManagerClient = new SecretsManagerClient(AWS_CLIENT_BASE_CON
 export const sqsClient = new SQSClient(AWS_CLIENT_BASE_CONFIG);
 
 export const sfnClient = new SFNClient(AWS_CLIENT_BASE_CONFIG);
+
+export const snsClient = new SNSClient({
+  region: AWS_REGION,
+  requestHandler: {
+    requestTimeout: 10000, // 10 seconds
+  },
+});
