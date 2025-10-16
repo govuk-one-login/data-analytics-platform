@@ -11,3 +11,8 @@ WHERE user_journey_event_key IN (
         ON fct.event_key = de.event_key
     WHERE de.event_name = 'AUTH_PASSWORD_RESET_REQUESTED'
 );
+
+
+UPDATE conformed_refactored.batch_events_refactored 
+SET    max_run_date='1999-01-01 00:00:00'
+WHERE  event_name='AUTH_PASSWORD_RESET_REQUESTED';
