@@ -1,15 +1,9 @@
-name: ✳️ Deploy to the dev environment
+name: ✳️ Deploy to the dev environment (DONT USE)
 
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
-    inputs:
-      skip-s3-upload:
-        type: boolean
-        required: false
-        description: Skip uploading athena files to S3
+      - dpt-2176
 
 jobs:
   test-and-validate:
@@ -40,10 +34,10 @@ jobs:
       id-token: write
       contents: read
     secrets: inherit
-    uses: ./.github/workflows/sam-deploy.yml
+    uses: ./.github/workflows/deploy-to-aws.yml
     with:
       core-iac-changed: ${{ needs.check-core-iac-changes.outputs.core-iac-changed }}
-      lowercase-environment: dev
+      environment: DEV
 
   upload-athena-files:
     if: inputs.skip-s3-upload != true
