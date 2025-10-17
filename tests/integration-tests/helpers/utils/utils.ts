@@ -9,3 +9,15 @@ export const getIntegrationTestEnv = (name: IntegrationTestEnv['name']) => {
 
   return env;
 };
+
+export function generateTimestamp(): number {
+  return Math.floor(Date.now() / 1000);
+}
+
+export function generateTimestampInMs(): number {
+  return Date.now();
+}
+
+export function generateTimestampFormatted(): string {
+  return new Date().toISOString();
+}
