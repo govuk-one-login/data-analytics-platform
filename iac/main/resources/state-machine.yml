@@ -402,6 +402,7 @@ DataQualityPythonGlueJob:
     Command:
       Name: pythonshell
       PythonVersion: '3.9'
+      GlueVersion: '4.0'
       ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/data_quality_metrics_script/data_quality_metrics_generation.py
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-data-quality-metrics-generation
