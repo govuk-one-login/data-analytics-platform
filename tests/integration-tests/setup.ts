@@ -11,6 +11,7 @@ const formatTestStackSsmParam = (parameterName: string) => `/tests/${STACK_NAME}
 
 const ssmMappings = {
   DAP_TXMA_CONSUMER_SQS_QUEUE_URL: formatTestStackSsmParam('dapTXMAConsumerSQSQueueUrl'),
+  ATHENA_WORKGROUP: formatTestStackSsmParam('dapAthenaWorkgroup'),
 };
 
 const setEnvVarsFromSsm = async (ssmMappings: Record<string, string>) => {
