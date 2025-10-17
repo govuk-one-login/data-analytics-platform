@@ -75,7 +75,10 @@ TXMAEventConsumerFunctionDurationAlarm:
 GlueStageLayerTableMissingMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+    LogGroupName: !If
+      - IsDev
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-${Environment}-dap-glue-scripts-execution-role/output
     FilterPattern: '{ $.message = "Error querying glue data catalog" }'
     MetricTransformations:
       - MetricNamespace: DAP/RawToStage/Logs
@@ -102,7 +105,10 @@ GlueStageLayerTableMissingAlarm:
 GlueRawLayerQueryErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+    LogGroupName: !If
+      - IsDev
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-${Environment}-dap-glue-scripts-execution-role/output
     FilterPattern: '{ $.message = "Error reading Athena table" }'
     MetricTransformations:
       - MetricNamespace: DAP/RawToStage/Logs
@@ -129,7 +135,10 @@ GlueRawLayerQueryErrorAlarm:
 GlueStageLayerInsertErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+    LogGroupName: !If
+      - IsDev
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-${Environment}-dap-glue-scripts-execution-role/output
     FilterPattern: '{ $.message = "Error writing to Athena table" }'
     MetricTransformations:
       - MetricNamespace: DAP/RawToStage/Logs
@@ -156,7 +165,10 @@ GlueStageLayerInsertErrorAlarm:
 GlueReadConfigErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+    LogGroupName: !If
+      - IsDev
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-${Environment}-dap-glue-scripts-execution-role/output
     FilterPattern: '{ $.message = "Error reading JSON from S3" }'
     MetricTransformations:
       - MetricNamespace: DAP/RawToStage/Logs
@@ -183,7 +195,10 @@ GlueReadConfigErrorAlarm:
 GlueWriteToS3ErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+    LogGroupName: !If
+      - IsDev
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-${Environment}-dap-glue-scripts-execution-role/output
     FilterPattern: '{ $.message = "Error writing JSON to S3:" }'
     MetricTransformations:
       - MetricNamespace: DAP/RawToStage/Logs
@@ -210,7 +225,10 @@ GlueWriteToS3ErrorAlarm:
 GlueReadFileFromS3ErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+    LogGroupName: !If
+      - IsDev
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-${Environment}-dap-glue-scripts-execution-role/output
     FilterPattern: '{ $.message = "Error reading file from S3" }'
     MetricTransformations:
       - MetricNamespace: DAP/RawToStage/Logs
@@ -237,7 +255,10 @@ GlueReadFileFromS3ErrorAlarm:
 GlueStageLayerGenericInsertErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+    LogGroupName: !If
+      - IsDev
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-${Environment}-dap-glue-scripts-execution-role/output
     FilterPattern: '{ $.message = "Exception Error writing to Stage layer" }'
     MetricTransformations:
       - MetricNamespace: DAP/RawToStage/Logs
@@ -264,7 +285,10 @@ GlueStageLayerGenericInsertErrorAlarm:
 GenericValueExceptionErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+    LogGroupName: !If
+      - IsDev
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-${Environment}-dap-glue-scripts-execution-role/output
     FilterPattern: '{ $.message = "Value Error: *" }'
     MetricTransformations:
       - MetricNamespace: DAP/RawToStage/Logs
@@ -291,7 +315,10 @@ GenericValueExceptionErrorAlarm:
 GenericExceptionErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+    LogGroupName: !If
+      - IsDev
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-${Environment}-dap-glue-scripts-execution-role/output
     FilterPattern: '{ $.message = "Exception Error: *" }'
     MetricTransformations:
       - MetricNamespace: DAP/RawToStage/Logs
