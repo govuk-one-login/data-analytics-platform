@@ -127,3 +127,11 @@ AthenaGetStatementLambda:
         - !Ref SubnetForDAP1
         - !Ref SubnetForDAP2
         - !Ref SubnetForDAP3
+
+AthenaWorkgroupName:
+  Condition: IsDevOrBuild
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: !Sub /tests/${AWS::StackName}/dapAthenaWorkgroup
+    Type: String
+    Value: !Ref AthenaWorkGroup

@@ -30,7 +30,7 @@ describe('Raw to Stage Integration Tests', () => {
   test('Events should be present in Athena raw table', async () => {
     for (const event of happyPathEventList) {
       // Query Athena to check if event exists in raw table
-      const database = `${process.env.ENVIRONMENT}-txma-raw`;
+      const database = getIntegrationTestEnv('ATHENA_WORKGROUP');
       const query = `SELECT * FROM "${database}"."txma-refactored" WHERE event_id = '${event.event_id}'`;
       const results = await executeAthenaQuery(query, database);
       expect(results.length).toBe(1); // Event should exist exactly once in raw table
