@@ -739,6 +739,8 @@ RawStageTransformProcessPythonGlueJob:
       PythonVersion: '3.9'
       ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_process_glue_job.py
     GlueVersion: '4.0'
+    NumberOfWorkers: 3
+    WorkerType: 'G.2X'
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
       '--LOG_LEVEL': 'INFO'
