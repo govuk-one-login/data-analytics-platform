@@ -761,7 +761,6 @@ RawStageTransformProcessPythonGlueJob:
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0
-    MaxCapacity: 1
     SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-raw-stage-transform-process
     Role: !Ref GlueScriptsExecutionRole
