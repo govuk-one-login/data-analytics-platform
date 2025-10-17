@@ -135,3 +135,19 @@ AthenaWorkgroupName:
     Name: !Sub /tests/${AWS::StackName}/dapAthenaWorkgroup
     Type: String
     Value: !Ref AthenaWorkGroup
+
+AthenaRawLayerDatabaseName:
+  Condition: IsDevOrBuild
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: !Sub /tests/${AWS::StackName}/dapAthenaRawLayerDatabase
+    Type: String
+    Value: !Sub ${Environment}-txma-raw
+
+AthenaStageLayerDatabaseName:
+  Condition: IsDevOrBuild
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: !Sub /tests/${AWS::StackName}/dapAthenaStageLayerDatabase
+    Type: String
+    Value: !Sub ${Environment}-txma-stage

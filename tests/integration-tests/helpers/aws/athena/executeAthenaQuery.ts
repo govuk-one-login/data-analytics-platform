@@ -5,6 +5,7 @@ import {
   GetQueryResultsCommand,
   Row,
 } from '@aws-sdk/client-athena';
+import { getIntegrationTestEnv } from '../../utils/utils';
 
 export async function executeAthenaQuery(query: string, database: string): Promise<Row[]> {
   const client = new AthenaClient({});
@@ -12,7 +13,7 @@ export async function executeAthenaQuery(query: string, database: string): Promi
   const startCommand = new StartQueryExecutionCommand({
     QueryString: query,
     QueryExecutionContext: { Database: database },
-    WorkGroup: process.env.ATHENA_WORKGROUP || `${process.env.ENVIRONMENT}-dap-txma-processing`,
+    WorkGroup: getIntegrationTestEnv('ATHENA_WORKGROUP'),
   });
 
   const startResult = await client.send(startCommand);
