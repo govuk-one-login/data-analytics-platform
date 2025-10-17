@@ -5,7 +5,7 @@ const config: JestConfigWithTsJest = {
   preset: 'ts-jest',
   verbose: true,
   testMatch: ['**/tests/integration-tests/test-suites/**/*.spec.ts'],
-  setupFiles: ['<rootDir>/setup.ts'],
+  globalSetup: '<rootDir>/setup.ts',
   testTimeout: 600000,
   maxWorkers: 4,
   maxConcurrency: 2,
