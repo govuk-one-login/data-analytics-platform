@@ -117,7 +117,6 @@ Conditions:
     - !Condition IsDev
     - !Condition IsProduction
     - !Condition IsProductionPreview
-
   # is this an environment that uses secure pipelines for deployments (production-preview does a direct sam deploy)
   # used to determine if extra policies need to be added to the secure pipelines deploy role in pipeline.yml
   IsSecurePipelinesEnvironment: !Not [!Condition IsProductionPreview]
