@@ -742,6 +742,8 @@ RawStageTransformProcessPythonGlueJob:
     NumberOfWorkers: 3
     WorkerType: 'G.2X'
     DefaultArguments:
+      '--enable-auto-scaling': 'true'
+      '--enable-metrics': 'true'
       '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
       '--LOG_LEVEL': 'INFO'
       '--additional-python-modules': 'awswrangler,aws_lambda_powertools'
