@@ -40,5 +40,7 @@ describe('Raw to Stage Integration Tests', () => {
 
   test.each(testEvent)('Put $auditEvent.event_name event on DAP sqs queue for DAP testing', async params => {
     await addMessageToQueue(params.auditEvent, getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL'));
+    // eslint-disable-next-line no-console
+    console.log('Event added to queue:', JSON.stringify(params.auditEvent, null, 2));
   });
 });
