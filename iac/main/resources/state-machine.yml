@@ -738,7 +738,12 @@ RawStageTransformProcessPythonGlueJob:
       Name: pythonshell
       PythonVersion: '3.9'
       ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_process_glue_job.py
+    GlueVersion: '4.0'
+    NumberOfWorkers: 3
+    WorkerType: 'G.2X'
     DefaultArguments:
+      '--enable-auto-scaling': 'true'
+      '--enable-metrics': 'true'
       '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
       '--LOG_LEVEL': 'INFO'
       '--additional-python-modules': 'awswrangler,aws_lambda_powertools'
@@ -758,7 +763,6 @@ RawStageTransformProcessPythonGlueJob:
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0
-    MaxCapacity: 1
     SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-raw-stage-transform-process
     Role: !Ref GlueScriptsExecutionRole
