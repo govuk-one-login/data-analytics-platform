@@ -255,7 +255,10 @@ GlueReadFileFromS3ErrorAlarm:
 GlueStageLayerGenericInsertErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+    LogGroupName: !If
+      - IsDev
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-${Environment}-dap-glue-scripts-execution-role/output
     FilterPattern: '{ $.message = "Exception Error writing to Stage layer" }'
     MetricTransformations:
       - MetricNamespace: DAP/RawToStage/Logs
@@ -282,7 +285,10 @@ GlueStageLayerGenericInsertErrorAlarm:
 GenericValueExceptionErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+    LogGroupName: !If
+      - IsDev
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-${Environment}-dap-glue-scripts-execution-role/output
     FilterPattern: '{ $.message = "Value Error: *" }'
     MetricTransformations:
       - MetricNamespace: DAP/RawToStage/Logs
@@ -309,7 +315,10 @@ GenericValueExceptionErrorAlarm:
 GenericExceptionErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
-    LogGroupName: !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+    LogGroupName: !If
+      - IsDev
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-role/${Environment}-dap-glue-scripts-execution-role/output
+      - !Sub /aws-glue/python-jobs/${Environment}-dap-glue-security-configuration-${Environment}-dap-glue-scripts-execution-role/output
     FilterPattern: '{ $.message = "Exception Error: *" }'
     MetricTransformations:
       - MetricNamespace: DAP/RawToStage/Logs
