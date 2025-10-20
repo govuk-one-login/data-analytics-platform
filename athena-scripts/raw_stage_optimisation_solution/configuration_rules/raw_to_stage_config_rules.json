@@ -69,7 +69,8 @@
     "parse_json_list": [
       "extensions",
       "user",
-      "txma"
+      "txma",
+      "restricted"
     ]
   },
   "stage_schema": {

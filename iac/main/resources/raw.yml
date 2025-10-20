@@ -182,6 +182,8 @@ TxmaRefactoredTable:
             Type: string
           - Name: extensions
             Type: string
+          - Name: restricted
+            Type: string
           - Name: txma
             Type: string
         Compressed: true
