@@ -5,5 +5,6 @@ export interface IntegrationTestEnv {
     | 'STACK_NAME'
     | 'ATHENA_WORKGROUP'
     | 'RAW_LAYER_DATABASE'
-    | 'STAGE_LAYER_DATABASE';
+    | 'STAGE_LAYER_DATABASE'
+    | 'RAW_TO_STAGE_STEP_FUNCTION';
 }

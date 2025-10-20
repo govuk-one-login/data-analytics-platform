@@ -14,6 +14,7 @@ const ssmMappings = {
   ATHENA_WORKGROUP: formatTestStackSsmParam('dapAthenaWorkgroup'),
   RAW_LAYER_DATABASE: formatTestStackSsmParam('dapAthenaRawLayerDatabase'),
   STAGE_LAYER_DATABASE: formatTestStackSsmParam('dapAthenaStageLayerDatabase'),
+  RAW_TO_STAGE_STEP_FUNCTION: formatTestStackSsmParam('rawToStageStepFunction'),
 };
 
 const setEnvVarsFromSsm = async (ssmMappings: Record<string, string>) => {
