@@ -1,3 +1,4 @@
+build-etl:local
 npm run test
 
 # git-lfs hook
