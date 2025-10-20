@@ -1,4 +1,4 @@
-build-etl:local
+npm run build-etl:local
 npm run test
 #just add to be able to push
 # git-lfs hook
