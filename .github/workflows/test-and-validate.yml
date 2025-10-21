@@ -60,4 +60,4 @@ jobs:
         with:
           python-version: '3.11'
       - name: Build release distributions
-        run: scripts/build-and-deploy-etl.sh ${{ inputs.environment }}local
+        run: scripts/build-and-deploy-etl.sh dev local
