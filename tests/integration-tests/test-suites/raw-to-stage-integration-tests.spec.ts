@@ -13,7 +13,7 @@ describe('Raw to Stage Integration Tests', () => {
   // Run raw to stage ETL job
   // Query Athena to validate the events appear in the stage layer tables correctly
   // Delete test data in afterAll()
-
+  let stepFunctionSucceeded = true;
   beforeAll(
     async () => {
       for (const event of happyPathEventList) {
@@ -27,10 +27,17 @@ describe('Raw to Stage Integration Tests', () => {
 
       const rawToStageStepFunction = getIntegrationTestEnv('RAW_TO_STAGE_STEP_FUNCTION');
 
-      executeStepFunction(rawToStageStepFunction);
+      try {
+        await executeStepFunction(rawToStageStepFunction);
+        stepFunctionSucceeded = true;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Step Function failed to complete within 3 minutes:', error);
+        stepFunctionSucceeded = false;
+      }
     },
-    2 * 60 * 1000,
-  ); // 2 minute timeout to account for the 1 minute wait
+    10 * 60 * 1000,
+  ); // 10 minute timeout to account for the 3 minute wait + 3 minute step function timeout + buffer
 
   test('Happy path events should be present in Athena raw layer table', async () => {
     for (const event of happyPathEventList) {
@@ -43,6 +50,10 @@ describe('Raw to Stage Integration Tests', () => {
   });
 
   test('Happy path events should be present in Athena stage layer table', async () => {
+    if (!stepFunctionSucceeded) {
+      throw new Error('Step function did not complete successfully. Cannot validate stage layer data.');
+    }
+
     const stageLayerDatabase = getIntegrationTestEnv('STAGE_LAYER_DATABASE');
 
     for (const event of happyPathEventList) {
@@ -53,18 +64,26 @@ describe('Raw to Stage Integration Tests', () => {
   });
 
   test('Happy path events should be present in Athena stage layer key values table', async () => {
+    if (!stepFunctionSucceeded) {
+      throw new Error('Step function did not complete successfully. Cannot validate stage layer key values data.');
+    }
+
     const stageLayerDatabase = getIntegrationTestEnv('STAGE_LAYER_DATABASE');
 
     for (const event of happyPathEventList) {
       const stageLayerKeyValuesQuery = `SELECT * FROM "${stageLayerDatabase}"."txma_stage_layer_key_values" WHERE event_id = '${event.event_id}'`;
       const stageLayerKeyValuesResults = await executeAthenaQuery(stageLayerKeyValuesQuery, stageLayerDatabase);
+
       // Check extensions fields
       if (event.extensions) {
+        // eslint-disable-next-line no-console
+        console.log('Looking for extensions:', JSON.stringify(event.extensions, null, 2));
+
         for (const [key, value] of Object.entries(event.extensions)) {
           const extensionRow = stageLayerKeyValuesResults.find(
             row =>
               (row as Record<string, unknown>)['parent_column_name'] === 'extensions' &&
-              (row as Record<string, unknown>)['key'] === key &&
+              (row as Record<string, unknown>)['key'] === `extensions.${key}` &&
               (row as Record<string, unknown>)['value'] === String(value),
           );
           expect(extensionRow).toBeDefined();
@@ -73,11 +92,14 @@ describe('Raw to Stage Integration Tests', () => {
 
       // Check txma fields
       if (event.txma) {
+        // eslint-disable-next-line no-console
+        console.log('Looking for txma:', JSON.stringify(event.txma, null, 2));
+
         for (const [key, value] of Object.entries(event.txma)) {
           const txmaRow = stageLayerKeyValuesResults.find(
             row =>
               (row as Record<string, unknown>)['parent_column_name'] === 'txma' &&
-              (row as Record<string, unknown>)['key'] === key &&
+              (row as Record<string, unknown>)['key'] === `txma.${key}` &&
               (row as Record<string, unknown>)['value'] === String(value),
           );
           expect(txmaRow).toBeDefined();
