@@ -13,6 +13,9 @@ on:
 
 jobs:
   test-and-validate:
+    permissions:
+      id-token: write
+      contents: read
     secrets: inherit
     uses: ./.github/workflows/test-and-validate.yml
 
@@ -55,4 +58,3 @@ jobs:
     uses: ./.github/workflows/upload-athena-files.yml
     with:
       environment: DEV
-
