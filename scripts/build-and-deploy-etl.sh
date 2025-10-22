@@ -4,6 +4,7 @@ lowercase_environment=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 runtype=$(echo "$2" | tr '[:upper:]' '[:lower:]')
 ROOT=$(pwd)
 
+echo "Run type is $runtype"
 cd $ROOT/raw-to-stage
 
 #install all dependencies

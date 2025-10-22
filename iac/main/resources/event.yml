@@ -6,6 +6,16 @@ EventConsumerQueue:
   Condition: IsDevOrBuild
   Properties:
     QueueName: !Sub ${Environment}-placeholder-txma-event-queue
+    RedrivePolicy:
+      deadLetterTargetArn: !GetAtt EventConsumerDlq.Arn
+      maxReceiveCount: 1
+    KmsMasterKeyId: !GetAtt KmsKey.Arn
+
+EventConsumerDlq:
+  Type: AWS::SQS::Queue
+  Condition: IsDevOrBuild
+  Properties:
+    QueueName: !Sub ${Environment}-placeholder-txma-event-dlq
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 EventConsumerLambda:
@@ -73,7 +83,7 @@ KinesisFirehose:
         LogGroupName: !Sub ${Environment}-${DeliveryStreamName}
         LogStreamName: !Sub ${Environment}-${DeliveryStreamName}
       BufferingHints:
-        IntervalInSeconds: !If [IsBuild, 60, 900]
+        IntervalInSeconds: !If [IsDevOrBuild, 60, 900]
         SizeInMBs: 128
       RoleARN: !GetAtt IAMRoleKinesisFirehose.Arn
       Prefix: '!{partitionKeyFromQuery:datasource}-refactored/year=!{partitionKeyFromQuery:year}/month=!{partitionKeyFromQuery:month}/day=!{partitionKeyFromQuery:day}/'
@@ -128,3 +138,11 @@ IAMRoleKinesisFirehose:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
                 - logs:PutLogEvents
+
+EventConsumerQueueTestUrl:
+  Condition: IsDevOrBuild
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: !Sub /tests/${AWS::StackName}/dapTXMAConsumerSQSQueueUrl
+    Type: String
+    Value: !GetAtt EventConsumerQueue.QueueUrl
