@@ -1,5 +1,4 @@
-// Helper to build expected stage layer row structure matching Athena query results
-export const buildExpectedStageLayerRow = (data: {
+type StageLayerInput = {
   event_id: string;
   client_id: string;
   component_id: string;
@@ -16,7 +15,10 @@ export const buildExpectedStageLayerRow = (data: {
   processed_time: number;
   processed_dt: number;
   event_name: string;
-}) => [
+};
+
+// Helper to build expected stage layer row structure matching Athena query results
+export const buildExpectedStageLayerRow = (data: StageLayerInput) => [
   // Header row
   {
     Data: [

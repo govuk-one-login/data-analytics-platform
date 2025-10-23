@@ -1,14 +1,14 @@
+type KeyValuesInput = {
+  event_id: string;
+  parent_column_name: string;
+  key: string;
+  value: string;
+  processed_time: number;
+  processed_dt: number;
+};
+
 // Helper to build expected stage layer key values structure
-export const buildExpectedStageLayerKeyValues = (
-  keyValuePairs: Array<{
-    event_id: string;
-    parent_column_name: string;
-    key: string;
-    value: string;
-    processed_time: number;
-    processed_dt: number;
-  }>,
-) => [
+export const buildExpectedStageLayerKeyValues = (keyValuePairs: KeyValuesInput[]) => [
   // Header row
   {
     Data: [

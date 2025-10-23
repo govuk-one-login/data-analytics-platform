@@ -1,4 +1,4 @@
-export const buildExpectedRawLayerRow = (data: {
+type RawLayerInput = {
   event_id: string;
   event_name: string;
   component_id: string;
@@ -11,7 +11,9 @@ export const buildExpectedRawLayerRow = (data: {
   extensions: string;
   txma: string;
   datecreated: string;
-}) => [
+};
+
+export const buildExpectedRawLayerRow = (data: RawLayerInput) => [
   // Header row
   {
     Data: [
