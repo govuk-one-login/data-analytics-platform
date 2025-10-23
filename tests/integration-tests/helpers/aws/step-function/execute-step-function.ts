@@ -18,7 +18,7 @@ export async function executeStepFunction(stateMachineArn: string): Promise<stri
 
     while (status === 'RUNNING') {
       if (Date.now() - startTime > timeoutMs) {
-        throw new Error(`Step Function execution timed out after 3 minutes. Execution ARN: ${executionArn}`);
+        throw new Error(`Step Function execution timed out after 10 minutes. Execution ARN: ${executionArn}`);
       }
 
       await new Promise(resolve => setTimeout(resolve, 5000));
