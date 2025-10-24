@@ -22,7 +22,7 @@ WORKDIR /test-app
 
 COPY --from=builder /build-app/node_modules ./node_modules
 COPY package.json package-lock.json tsconfig.json ./
-COPY src ./src
+COPY common ./common
 COPY tests ./tests
 COPY tests/run-tests.sh /
 

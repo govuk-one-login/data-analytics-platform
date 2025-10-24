@@ -5,7 +5,7 @@ import { setEnvVarsFromSsm } from './helpers/config/ssm-config';
 import { getIntegrationTestEnv } from './helpers/utils/utils';
 import { pollForRawLayerData, pollForStageLayerData } from './helpers/utils/poll-for-data';
 import { happyPathEventList } from './test-events/happy-path-event-list';
-import { AuditEvent } from '../../src/shared/types/event';
+import { AuditEvent } from '../../common/types/event';
 
 export default async () => {
   const setupStartTime = Date.now();
