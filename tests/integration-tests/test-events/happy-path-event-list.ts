@@ -27,7 +27,7 @@ const processed_time = generateProcessedTime();
 
 export const happyPathEventList = [
   {
-    AuditEvent: constructDCMAWAsyncBiometricTokenIssuedDAPEvent(
+    auditEvent: constructDCMAWAsyncBiometricTokenIssuedDAPEvent(
       timestamp,
       timestamp_formatted,
       event_timestamp_ms,
@@ -36,7 +36,7 @@ export const happyPathEventList = [
       'testUserId',
       'testJourneyId',
     ),
-    RawLayerEvent: constructDCMAWAsyncBiometricTokenIssuedExpectedRawLayerRow(
+    rawLayerEvent: constructDCMAWAsyncBiometricTokenIssuedExpectedRawLayerRow(
       timestamp,
       timestamp_formatted,
       event_timestamp_ms,
@@ -46,7 +46,7 @@ export const happyPathEventList = [
       'testJourneyId',
       datecreated,
     ),
-    StageLayerEvent: constructDCMAWAsyncBiometricTokenIssuedExpectedStageLayerRow(
+    stageLayerEvent: constructDCMAWAsyncBiometricTokenIssuedExpectedStageLayerRow(
       timestamp,
       timestamp_formatted,
       event_timestamp_ms,
@@ -60,7 +60,7 @@ export const happyPathEventList = [
       processed_dt,
       processed_time,
     ),
-    StageLayerKeyValues: constructDCMAWAsyncBiometricTokenIssuedExpectedStageLayerKeyValues(
+    stageLayerKeyValues: constructDCMAWAsyncBiometricTokenIssuedExpectedStageLayerKeyValues(
       processed_dt,
       processed_time,
     ),

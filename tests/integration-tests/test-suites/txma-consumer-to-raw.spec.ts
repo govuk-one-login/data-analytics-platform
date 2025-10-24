@@ -9,8 +9,8 @@ describe('TxMA consumer lambda to raw layer integration tests', () => {
   test('Happy path events should be present in Athena raw layer table', async () => {
     const testEventPairs = getTestEventPairs();
     for (const eventPair of testEventPairs) {
-      const event = eventPair.AuditEvent;
-      const expectedResults = eventPair.RawLayerEvent;
+      const event = eventPair.auditEvent;
+      const expectedResults = eventPair.rawLayerEvent;
       const rawLayerDatabase = getIntegrationTestEnv('RAW_LAYER_DATABASE');
       const query = `SELECT * FROM "${rawLayerDatabase}"."txma-refactored" WHERE event_id = '${event.event_id}'`;
       const results = await executeAthenaQuery(query, rawLayerDatabase);

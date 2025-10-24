@@ -11,8 +11,8 @@ describe('Raw to Stage Integration Tests', () => {
     const testEventPairs = getTestEventPairs();
 
     for (const eventPair of testEventPairs) {
-      const event = eventPair.AuditEvent;
-      const expectedResults = eventPair.StageLayerEvent;
+      const event = eventPair.auditEvent;
+      const expectedResults = eventPair.stageLayerEvent;
       const stageLayerQuery = `SELECT * FROM "${stageLayerDatabase}"."txma_stage_layer" WHERE event_id = '${event.event_id}'`;
       const stageLayerResults = await executeAthenaQuery(stageLayerQuery, stageLayerDatabase);
       // Use flexible matching for processed_time field
@@ -35,8 +35,8 @@ describe('Raw to Stage Integration Tests', () => {
     const testEventPairs = getTestEventPairs();
 
     for (const eventPair of testEventPairs) {
-      const event = eventPair.AuditEvent;
-      const expectedResults = eventPair.StageLayerKeyValues;
+      const event = eventPair.auditEvent;
+      const expectedResults = eventPair.stageLayerKeyValues;
       const stageLayerKeyValuesQuery = `SELECT * FROM "${stageLayerDatabase}"."txma_stage_layer_key_values" WHERE event_id = '${event.event_id}'`;
       const stageLayerKeyValuesResults = await executeAthenaQuery(stageLayerKeyValuesQuery, stageLayerDatabase);
       // Use flexible matching for processed_time and row ordering
