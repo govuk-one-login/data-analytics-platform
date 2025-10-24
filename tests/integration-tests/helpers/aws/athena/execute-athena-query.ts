@@ -7,7 +7,7 @@ import {
 } from '@aws-sdk/client-athena';
 import { getIntegrationTestEnv } from '../../utils/utils';
 
-export async function executeAthenaQuery(query: string, database: string): Promise<Row[]> {
+export const executeAthenaQuery = async (query: string, database: string): Promise<Row[]> => {
   const client = new AthenaClient({});
 
   const startCommand = new StartQueryExecutionCommand({
@@ -37,4 +37,4 @@ export async function executeAthenaQuery(query: string, database: string): Promi
   const resultsResponse = await client.send(resultsCommand);
 
   return resultsResponse.ResultSet?.Rows || [];
-}
+};

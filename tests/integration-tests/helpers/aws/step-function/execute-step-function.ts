@@ -1,6 +1,6 @@
 import { SFNClient, StartExecutionCommand, DescribeExecutionCommand } from '@aws-sdk/client-sfn';
 
-export async function executeStepFunction(stateMachineArn: string): Promise<string> {
+export const executeStepFunction = async (stateMachineArn: string): Promise<string> => {
   const client = new SFNClient({});
 
   try {
@@ -35,4 +35,4 @@ export async function executeStepFunction(stateMachineArn: string): Promise<stri
   } finally {
     client.destroy();
   }
-}
+};

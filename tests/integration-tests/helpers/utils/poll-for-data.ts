@@ -6,17 +6,17 @@ interface PollOptions {
   pollIntervalMs?: number;
 }
 
-export async function pollForRawLayerData(eventIds: string[], options: PollOptions = {}): Promise<void> {
+export const pollForRawLayerData = async (eventIds: string[], options: PollOptions = {}): Promise<void> => {
   const database = getIntegrationTestEnv('RAW_LAYER_DATABASE');
   const tableName = 'txma-refactored';
   await pollForData(eventIds, database, tableName, 'raw layer', options);
-}
+};
 
-export async function pollForStageLayerData(eventIds: string[], options: PollOptions = {}): Promise<void> {
+export const pollForStageLayerData = async (eventIds: string[], options: PollOptions = {}): Promise<void> => {
   const database = getIntegrationTestEnv('STAGE_LAYER_DATABASE');
   const tableName = 'txma_stage_layer';
   await pollForData(eventIds, database, tableName, 'stage layer', options);
-}
+};
 
 async function pollForData(
   eventIds: string[],
