@@ -21,7 +21,7 @@ describe('Raw to Stage Integration Tests', () => {
         expect.objectContaining({
           Data: expect.arrayContaining([
             ...expectedResults[1].Data.slice(0, 13), // All fields before processed_time
-            { VarCharValue: expect.any(String) }, // processed_time can be any string
+            { VarCharValue: expect.stringMatching(/^\d+$/) }, // processed_time must be numeric timestamp
             expectedResults[1].Data[14], // processed_dt should match
             expectedResults[1].Data[15], // event_name should match
           ]),
@@ -50,7 +50,7 @@ describe('Raw to Stage Integration Tests', () => {
                 expectedRow.Data[1], // parent_column_name
                 expectedRow.Data[2], // key
                 expectedRow.Data[3], // value
-                { VarCharValue: expect.any(String) }, // processed_time
+                { VarCharValue: expect.stringMatching(/^\d+$/) }, // processed_time
                 expectedRow.Data[5], // processed_dt
               ],
             }),
