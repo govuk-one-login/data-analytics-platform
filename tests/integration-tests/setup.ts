@@ -20,7 +20,7 @@ export default async () => {
     console.log('🚀 Starting integration test setup...');
     const processedEvents: AuditEvent[] = [];
     for (const eventPair of happyPathEventList) {
-      const event = eventPair.AuditEvent;
+      const event = eventPair.auditEvent;
       await addMessageToQueue(event, getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL'));
       processedEvents.push(event);
     }
