@@ -5,7 +5,7 @@ import { setEnvVarsFromSsm } from './helpers/config/ssm-config';
 import { getIntegrationTestEnv } from './helpers/utils/utils';
 import { pollForRawLayerData, pollForStageLayerData } from './helpers/utils/poll-for-data';
 import { happyPathEventList } from './test-events/happy-path-event-list';
-import { AuditEvent } from '../../src/shared/types/event';
+import { AuditEvent } from '../../common/types/event';
 
 export default async () => {
   const setupStartTime = Date.now();
@@ -20,7 +20,7 @@ export default async () => {
     console.log('🚀 Starting integration test setup...');
     const processedEvents: AuditEvent[] = [];
     for (const eventPair of happyPathEventList) {
-      const event = eventPair.AuditEvent;
+      const event = eventPair.auditEvent;
       await addMessageToQueue(event, getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL'));
       processedEvents.push(event);
     }
