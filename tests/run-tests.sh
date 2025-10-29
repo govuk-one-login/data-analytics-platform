@@ -21,5 +21,9 @@ else
   exit 1
 fi
 
-cp tests/integration-tests/reports/junit.xml $TEST_REPORT_ABSOLUTE_DIR/junit.xml
+if [ -f "tests/integration-tests/reports/junit.xml" ]; then
+  cp tests/integration-tests/reports/junit.xml $TEST_REPORT_ABSOLUTE_DIR/junit.xml
+else
+  echo "Warning: junit.xml report not found"
+fi
 exit $TESTS_EXIT_CODE
