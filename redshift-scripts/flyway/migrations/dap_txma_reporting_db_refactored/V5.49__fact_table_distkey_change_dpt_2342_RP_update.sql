@@ -1,0 +1,5 @@
+ALTER TABLE conformed_refactored.fact_user_journey_event_refactored
+ALTER DISTKEY user_journey_event_key;
+
+
+ANALYZE conformed_refactored.fact_user_journey_event_refactored;
