@@ -5,7 +5,8 @@ import { executeStepFunction } from './helpers/aws/step-function/execute-step-fu
 import { setEnvVarsFromSsm } from './helpers/config/ssm-config';
 import { getIntegrationTestEnv } from './helpers/utils/utils';
 import { pollForRawLayerData, pollForStageLayerData } from './helpers/utils/poll-for-data';
-import { happyPathEventList } from './test-events/happy-path-event-list';
+import { happyPathEventList } from './test-events/happy-path-events/happy-path-event-list';
+import { edgeCaseEventList } from './test-events/edge-case-events/edge-case-event-list';
 import { AuditEvent } from '../../common/types/event';
 
 export default async () => {
@@ -19,7 +20,14 @@ export default async () => {
 
     console.log('🚀 Starting integration test setup...');
     const processedEvents: AuditEvent[] = [];
+    // Process happy path events
     for (const eventPair of happyPathEventList) {
+      const event = eventPair.auditEvent;
+      await addMessageToQueue(event, getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL'));
+      processedEvents.push(event);
+    }
+    // Process edge case events
+    for (const eventPair of edgeCaseEventList) {
       const event = eventPair.auditEvent;
       await addMessageToQueue(event, getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL'));
       processedEvents.push(event);
@@ -27,9 +35,27 @@ export default async () => {
     console.log(`✓ Sent ${processedEvents.length} events to SQS queue `);
 
     // Store both events and event pairs globally for tests to access
-    (global as { testEvents?: AuditEvent[]; testEventPairs?: typeof happyPathEventList }).testEvents = processedEvents;
-    (global as { testEvents?: AuditEvent[]; testEventPairs?: typeof happyPathEventList }).testEventPairs =
-      happyPathEventList;
+    (
+      global as {
+        testEvents?: AuditEvent[];
+        testEventPairs?: typeof happyPathEventList;
+        edgeCaseEventPairs?: typeof edgeCaseEventList;
+      }
+    ).testEvents = processedEvents;
+    (
+      global as {
+        testEvents?: AuditEvent[];
+        testEventPairs?: typeof happyPathEventList;
+        edgeCaseEventPairs?: typeof edgeCaseEventList;
+      }
+    ).testEventPairs = happyPathEventList;
+    (
+      global as {
+        testEvents?: AuditEvent[];
+        testEventPairs?: typeof happyPathEventList;
+        edgeCaseEventPairs?: typeof edgeCaseEventList;
+      }
+    ).edgeCaseEventPairs = edgeCaseEventList;
 
     console.log('⏳ Waiting for events to appear in raw layer...');
     const rawLayerStartTime = Date.now();

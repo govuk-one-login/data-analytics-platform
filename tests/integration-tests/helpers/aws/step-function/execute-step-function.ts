@@ -7,7 +7,7 @@ import {
   StopExecutionCommand,
 } from '@aws-sdk/client-sfn';
 
-export const executeStepFunction = async (stateMachineArn: string): Promise<string> => {
+export const executeStepFunction = async (stateMachineArn: string, input?: object): Promise<string> => {
   const client = new SFNClient({});
 
   try {
@@ -19,7 +19,7 @@ export const executeStepFunction = async (stateMachineArn: string): Promise<stri
 
     const startCommand = new StartExecutionCommand({
       stateMachineArn,
-      name: executionName,
+      input: input ? JSON.stringify(input) : undefined,
     });
 
     const startResult = await client.send(startCommand);
