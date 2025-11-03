@@ -62,6 +62,10 @@ Parameters:
     Description: Workspace ID for GDS Slack
     Type: String
     Default: T8GT9416G
+  CustomKmsKeyArn:
+    Description: ARN of custom KMS key for encryption
+    Type: String
+    Default: none
 
 Mappings:
   DAPNotificationsSlackChannelIds:
@@ -126,6 +130,10 @@ Conditions:
   IsADMEnvironment: !Or
     - !Condition IsProduction
     - !Condition IsProductionPreview
+  CreateCustomKMSKeyPolicy: !Not
+    - !Equals
+      - !Ref CustomKmsKeyArn
+      - none
 
 Globals:
   Function:
