@@ -15,6 +15,11 @@ export const executeAthenaQuery = async (query: string, database: string): Promi
     QueryString: query,
     QueryExecutionContext: { Database: database },
     WorkGroup: getIntegrationTestEnv('ATHENA_WORKGROUP'),
+    ResultReuseConfiguration: {
+      ResultReuseByAgeConfiguration: {
+        Enabled: false,
+      },
+    },
   });
 
   const startResult = await client.send(startCommand);
