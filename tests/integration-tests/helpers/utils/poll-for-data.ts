@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { executeAthenaQuery } from '../aws/athena/execute-athena-query';
 import { getIntegrationTestEnv } from './utils';
 
@@ -27,14 +28,29 @@ async function pollForData(
 ): Promise<void> {
   const { maxWaitTimeMs = 5 * 60 * 1000, pollIntervalMs = 10000 } = options;
 
+  console.log(`Starting to poll for ${eventIds.length} events in ${layerName}`);
+  console.log(`Database: ${database}, Table: ${tableName}`);
+  console.log(`Event IDs: ${eventIds.join(', ')}`);
+  console.log(`Max wait time: ${maxWaitTimeMs}ms, Poll interval: ${pollIntervalMs}ms`);
+
   const startTime = Date.now();
+  let attemptCount = 0;
 
   while (Date.now() - startTime < maxWaitTimeMs) {
+    attemptCount++;
+    const elapsedTime = Date.now() - startTime;
+    console.log(`\nAttempt ${attemptCount} (${Math.round(elapsedTime / 1000)}s elapsed)`);
+
     const foundEventIds = await checkEventsInTable(eventIds, database, tableName);
 
     if (foundEventIds.length === eventIds.length) {
+      console.log(`✓ All events found after ${attemptCount} attempts in ${Math.round(elapsedTime / 1000)}s`);
       return;
     }
+
+    const missingIds = eventIds.filter(id => !foundEventIds.includes(id));
+    console.log(`Found ${foundEventIds.length}/${eventIds.length} events. Missing: ${missingIds.join(', ')}`);
+
     await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
   }
 
@@ -53,12 +69,23 @@ async function checkEventsInTable(eventIds: string[], database: string, tableNam
   const query = `SELECT DISTINCT event_id FROM "${database}"."${tableName}" WHERE event_id IN (${eventIdList})`;
 
   try {
+    // First check if table has any data at all
+    const countQuery = `SELECT COUNT(*) FROM "${database}"."${tableName}" LIMIT 10`;
+    console.log(`Checking table row count: ${countQuery}`);
+    const countResults = await executeAthenaQuery(countQuery, database);
+    console.log(`Table row count results:`, countResults);
+
+    console.log(`Executing main query: ${query}`);
     const results = await executeAthenaQuery(query, database);
-    return results
+    console.log(`Query returned ${results.length} rows:`, JSON.stringify(results, null, 2));
+    const foundIds = results
       .slice(1)
       .map(row => row.Data?.[0]?.VarCharValue)
       .filter(Boolean) as string[];
+    console.log(`Found event IDs: ${foundIds.join(', ')}`);
+    return foundIds;
   } catch (error) {
+    console.error(`Query failed:`, error);
     return [];
   }
 }
