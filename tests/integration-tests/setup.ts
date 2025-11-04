@@ -36,7 +36,7 @@ export default async () => {
     console.log('⏳ Waiting for events to appear in raw layer...');
     const rawLayerStartTime = Date.now();
     const eventIds = processedEvents.map(event => event.event_id);
-    await pollForRawLayerData(eventIds, { maxWaitTimeMs: 3 * 60 * 1000 }); // 3 minute max wait
+    await pollForRawLayerData(eventIds, { maxWaitTimeMs: 5 * 60 * 1000 }); // 5 minute max wait
     const rawLayerDuration = Date.now() - rawLayerStartTime;
     // eslint-disable-next-line no-console
     console.log(`✓ Raw layer processing completed in ${Math.round(rawLayerDuration / 1000)}s`);

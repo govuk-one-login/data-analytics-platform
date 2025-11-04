@@ -26,6 +26,7 @@ async function pollForData(
   options: PollOptions = {},
 ): Promise<void> {
   const { maxWaitTimeMs = 5 * 60 * 1000, pollIntervalMs = 10000 } = options;
+
   const startTime = Date.now();
 
   while (Date.now() - startTime < maxWaitTimeMs) {
