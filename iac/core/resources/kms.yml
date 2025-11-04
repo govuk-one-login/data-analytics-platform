@@ -1,6 +1,5 @@
 LogsKmsKey:
   Type: AWS::KMS::Key
-  Condition: CreateCustomKMSKeyPolicy
   Properties:
     EnableKeyRotation: true
     KeyPolicy:
@@ -30,7 +29,6 @@ LogsKmsKey:
 
 LogsKmsKeyAlias:
   Type: AWS::KMS::Alias
-  Condition: CreateCustomKMSKeyPolicy
   Properties:
     AliasName: !Sub alias/${AWS::StackName}/${Environment}/logs-kms-key
     TargetKeyId: !Ref LogsKmsKey
@@ -40,7 +38,4 @@ LogsKmsKeyArnParameter:
   Properties:
     Name: LogsKmsKeyArn
     Type: String
-    Value: !If
-      - CreateCustomKMSKeyPolicy
-      - !GetAtt LogsKmsKey.Arn
-      - !Ref CustomKmsKeyArn
+    Value: !GetAtt LogsKmsKey.Arn
