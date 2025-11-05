@@ -69,13 +69,7 @@ async function checkEventsInTable(eventIds: string[], database: string, tableNam
   const query = `SELECT DISTINCT event_id FROM "${database}"."${tableName}" WHERE event_id IN (${eventIdList})`;
 
   try {
-    // First check if table has any data at all
-    const countQuery = `SELECT COUNT(*) FROM "${database}"."${tableName}"`;
-    console.log(`Checking table row count: ${countQuery}`);
-    const countResults = await executeAthenaQuery(countQuery, database);
-    console.log(`Table row count results:`, countResults);
-
-    console.log(`Executing main query: ${query}`);
+    console.log(`Executing query: ${query}`);
     const results = await executeAthenaQuery(query, database);
     console.log(`Query returned ${results.length} rows:`, JSON.stringify(results, null, 2));
     const foundIds = results
