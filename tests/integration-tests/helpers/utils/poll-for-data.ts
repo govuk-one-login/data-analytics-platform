@@ -65,10 +65,20 @@ async function pollForData(
 }
 
 async function checkEventsInTable(eventIds: string[], database: string, tableName: string): Promise<string[]> {
-  const eventIdList = eventIds.map(id => `'${id}'`).join(',');
-  const query = `SELECT DISTINCT event_id FROM "${database}"."${tableName}" WHERE event_id IN (${eventIdList})`;
-
   try {
+    // Check if table exists first
+    const tableCheckQuery = `SHOW TABLES IN "${database}" LIKE '${tableName}'`;
+    console.log(`Checking if table exists: ${tableCheckQuery}`);
+    const tableExists = await executeAthenaQuery(tableCheckQuery, database);
+
+    if (tableExists.length <= 1) {
+      console.log(`Table ${tableName} does not exist in database ${database}`);
+      return [];
+    }
+
+    const eventIdList = eventIds.map(id => `'${id}'`).join(',');
+    const query = `SELECT DISTINCT event_id FROM "${database}"."${tableName}" WHERE event_id IN (${eventIdList})`;
+
     console.log(`Executing query: ${query}`);
     const results = await executeAthenaQuery(query, database);
     console.log(`Query returned ${results.length} rows:`, JSON.stringify(results, null, 2));
