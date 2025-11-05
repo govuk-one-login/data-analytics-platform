@@ -67,7 +67,7 @@ async function pollForData(
 async function checkEventsInTable(eventIds: string[], database: string, tableName: string): Promise<string[]> {
   try {
     // Check if table exists first
-    const tableCheckQuery = `SHOW TABLES IN "${database}" LIKE '${tableName}'`;
+    const tableCheckQuery = `SHOW TABLES IN ${database} LIKE '${tableName}'`;
     console.log(`Checking if table exists: ${tableCheckQuery}`);
     const tableExists = await executeAthenaQuery(tableCheckQuery, database);
 
