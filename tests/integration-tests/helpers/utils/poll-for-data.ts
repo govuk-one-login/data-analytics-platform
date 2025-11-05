@@ -67,13 +67,17 @@ async function checkEventsInTable(eventIds: string[], database: string, tableNam
   const query = `SELECT DISTINCT event_id FROM "${database}"."${tableName}" WHERE event_id IN (${eventIdList})`;
 
   try {
+    console.log(`Executing query: ${query}`);
     const results = await executeAthenaQuery(query, database);
+    console.log(`Query succeeded. Raw results:`, JSON.stringify(results, null, 2));
+    
     const foundIds = results
       .slice(1)
       .map(row => row.Data?.[0]?.VarCharValue)
       .filter(Boolean) as string[];
     return foundIds;
   } catch (error) {
+    console.log(`Query failed:`, error);
     console.log(`Table ${tableName} not ready yet, continuing to poll...`);
     return [];
   }
