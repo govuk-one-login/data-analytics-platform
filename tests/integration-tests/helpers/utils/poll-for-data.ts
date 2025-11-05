@@ -68,7 +68,7 @@ async function checkEventsInTable(eventIds: string[], database: string, tableNam
 
   try {
     // First check if table has any data at all
-    const countQuery = `SELECT COUNT(*) FROM "${database}"."${tableName}" LIMIT 10`;
+    const countQuery = `SELECT COUNT(*) FROM "${database}"."${tableName}"`;
     console.log(`Checking table row count: ${countQuery}`);
     const countResults = await executeAthenaQuery(countQuery, database);
     console.log(`Table row count results:`, countResults);
