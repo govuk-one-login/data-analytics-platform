@@ -26,7 +26,6 @@ export default async () => {
     }
     console.log(`✓ Sent ${processedEvents.length} events to SQS queue`);
 
-    // Store both events and event pairs globally for tests to access
     (global as { testEvents?: AuditEvent[]; testEventPairs?: typeof happyPathEventList }).testEvents = processedEvents;
     (global as { testEvents?: AuditEvent[]; testEventPairs?: typeof happyPathEventList }).testEventPairs =
       happyPathEventList;

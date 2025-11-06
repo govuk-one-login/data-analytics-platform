@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { executeAthenaQuery } from '../aws/athena/execute-athena-query';
 import { getIntegrationTestEnv } from './utils';
 
@@ -70,7 +69,7 @@ async function checkEventsInTable(eventIds: string[], database: string, tableNam
     console.log(`Executing query: ${query}`);
     const results = await executeAthenaQuery(query, database);
     console.log(`Query succeeded. Raw results:`, JSON.stringify(results, null, 2));
-    
+
     const foundIds = results
       .slice(1)
       .map(row => row.Data?.[0]?.VarCharValue)
