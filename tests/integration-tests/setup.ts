@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { AWS_REGION, STACK_NAME } from '../shared-test-code/constants';
 import { addMessageToQueue } from './helpers/aws/sqs/add-message-to-queue';
 import { executeStepFunction } from './helpers/aws/step-function/execute-step-function';
@@ -25,6 +26,7 @@ export default async () => {
     }
     console.log(`✓ Sent ${processedEvents.length} events to SQS queue`);
 
+    // Store both events and event pairs globally for tests to access
     (global as { testEvents?: AuditEvent[]; testEventPairs?: typeof happyPathEventList }).testEvents = processedEvents;
     (global as { testEvents?: AuditEvent[]; testEventPairs?: typeof happyPathEventList }).testEventPairs =
       happyPathEventList;
