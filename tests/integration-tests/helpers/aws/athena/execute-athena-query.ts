@@ -28,7 +28,6 @@ export const executeAthenaQuery = async (query: string, database: string): Promi
     status = statusResult.QueryExecution?.Status?.State || 'FAILED';
     console.log(statusResult.QueryExecution?.Status?.AthenaError?.ErrorMessage);
     console.log(statusResult.QueryExecution?.Status?.AthenaError?.ErrorType);
-
   }
 
   if (status !== 'SUCCEEDED') {

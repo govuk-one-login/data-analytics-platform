@@ -24,6 +24,7 @@ export const executeStepFunction = async (stateMachineArn: string): Promise<stri
       await new Promise(resolve => setTimeout(resolve, 5000));
       const statusCommand = new DescribeExecutionCommand({ executionArn });
       const statusResult = await client.send(statusCommand);
+      console.log(statusResult.error)
       status = statusResult.status || 'FAILED';
     }
 
