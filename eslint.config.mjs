@@ -16,7 +16,7 @@ export default [
       },
     },
     rules: {
-      'no-console': 'off',
+      'no-console': 'error',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { args: 'none', caughtErrors: 'none' }],
     },
