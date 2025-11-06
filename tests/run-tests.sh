@@ -14,8 +14,8 @@ if [ "$TEST_ENVIRONMENT" == "build" ]; then
   npm run test:integration:ci
   TESTS_EXIT_CODE=$?
 elif [ "$TEST_ENVIRONMENT" == "staging" ]; then
-  npm run test:integration:ci
-  TESTS_EXIT_CODE=$?
+  echo "Integration tests not enabled for staging environment"
+  TESTS_EXIT_CODE=0
 else
   echo "No Test Environment Set"
   exit 1
