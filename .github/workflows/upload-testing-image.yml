@@ -3,12 +3,12 @@ name: Upload testing image to ECR
 on:
   push:
     branches:
-      - DPT-2132-fix-pipeline
+      - main
     paths:
       - tests/**
   workflow_dispatch:
     branches:
-      - DPT-2132-fix-pipeline
+      - main
 
 env:
   AWS_REGION: eu-west-2
