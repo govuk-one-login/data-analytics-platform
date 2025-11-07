@@ -81,6 +81,6 @@ const abortRunningExecutions = async (client: SFNClient, stateMachineArn: string
     }
   }
 
-  // Wait a moment for aborts to take effect
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  // Wait for aborts to take effect and Glue jobs to fully stop
+  await new Promise(resolve => setTimeout(resolve, 10000));
 };

@@ -60,11 +60,11 @@ export const constructDCMAWAsyncBiometricTokenIssuedExpectedRawLayerRow = (
     client_id: client_id,
     timestamp: timestamp,
     timestamp_formatted,
-    user: `{"govuk_signin_journey_id":"${journey_id}","session_id":"mySessionId","user_id":"${user_id}"}`,
+    user: `{"govuk_signin_journey_id":"${journey_id}","user_id":"${user_id}","session_id":"mySessionId"}`,
     event_timestamp_ms: event_timestamp_ms,
     event_timestamp_ms_formatted,
     extensions: '{"documenttype":"NFC_PASSPORT"}',
-    txma: `{"enrichment":[{"service":"client_id_enrichment","event_id":"${event_id}","count":0}]}`,
+    txma: `{"enrichment":[{"event_id":"${event_id}","service":"client_id_enrichment","count":"0"}]}`,
     datecreated: datecreated,
   });
 
