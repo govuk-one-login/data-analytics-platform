@@ -34,13 +34,8 @@ async function pollForData(
   await new Promise(resolve => setTimeout(resolve, 30000));
 
   const startTime = Date.now();
-  let attemptCount = 0;
 
   while (Date.now() - startTime < maxWaitTimeMs) {
-    attemptCount++;
-    const elapsedTime = Date.now() - startTime;
-    console.log(`\nAttempt ${attemptCount} (${Math.round(elapsedTime / 1000)}s elapsed)`);
-
     const foundEventIds = await checkEventsInTable(eventIds, database, tableName);
 
     if (foundEventIds.length === eventIds.length) {
@@ -67,18 +62,13 @@ async function checkEventsInTable(eventIds: string[], database: string, tableNam
   const query = `SELECT DISTINCT event_id FROM "${database}"."${tableName}" WHERE event_id IN (${eventIdList})`;
 
   try {
-    console.log(`Executing query: ${query}`);
     const results = await executeAthenaQuery(query, database);
-    console.log(`Query succeeded. Raw results:`, JSON.stringify(results, null, 2));
-
     const foundIds = results
       .slice(1)
       .map(row => row.Data?.[0]?.VarCharValue)
       .filter(Boolean) as string[];
     return foundIds;
   } catch (error) {
-    console.log(`Query failed:`, error);
-    console.log(`Table ${tableName} not ready yet, continuing to poll...`);
     return [];
   }
 }
