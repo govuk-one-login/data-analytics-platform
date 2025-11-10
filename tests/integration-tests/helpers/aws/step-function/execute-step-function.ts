@@ -17,12 +17,6 @@ export const executeStepFunction = async (stateMachineArn: string): Promise<stri
     // Generate unique execution name
     const executionName = `integration-test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    // Check for and abort any running executions
-    await abortRunningExecutions(client, stateMachineArn);
-
-    // Generate unique execution name
-    const executionName = `integration-test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
     const startCommand = new StartExecutionCommand({
       stateMachineArn,
       name: executionName,
@@ -44,9 +38,6 @@ export const executeStepFunction = async (stateMachineArn: string): Promise<stri
       await new Promise(resolve => setTimeout(resolve, 5000));
       const statusCommand = new DescribeExecutionCommand({ executionArn });
       const statusResult = await client.send(statusCommand);
-      if (statusResult.error) {
-        console.log('Step Function Error:', statusResult.error);
-      }
       if (statusResult.error) {
         console.log('Step Function Error:', statusResult.error);
       }
