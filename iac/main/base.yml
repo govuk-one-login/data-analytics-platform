@@ -58,7 +58,7 @@ Parameters:
     Description: Workspace ID for GDS Slack
     Type: String
     Default: T8GT9416G
-  CommitSha:
+  ArtifactCommitSha:
     Description: Commit SHA for this deployment
     Type: String
     Default: none

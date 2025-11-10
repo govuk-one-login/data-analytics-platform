@@ -55,9 +55,9 @@ if [ "$runtype" != "local" ]; then
   if [ -n "$ARTIFACT_BUCKET_NAME" ]; then
     echo "Uploading files to artifact bucket with commit SHA as name"
     for file in $(find "$FILES_ROOT" -type f); do
-      key="${COMMIT_SHA}/$(basename "$file")"
+      key="template-resources/${COMMIT_SHA}/$(basename "$file")"
       aws --region="$REGION" s3api put-object --bucket "$ARTIFACT_BUCKET_NAME" --key "$key" --body "$file" --metadata "Commit-Sha=${COMMIT_SHA},Commit-Message=${COMMIT_MESSAGE_CLEAN}" > /dev/null
     done
-    aws --region="$REGION" s3api put-object --bucket "$ARTIFACT_BUCKET_NAME" --key "${COMMIT_SHA}/raw_to_stage_process_glue_job.py" --body "$ETL_ROOT/raw_to_stage_process_glue_job.py" --metadata "Commit-Sha=${COMMIT_SHA},Commit-Message=${COMMIT_MESSAGE_CLEAN}" > /dev/null
+    aws --region="$REGION" s3api put-object --bucket "$ARTIFACT_BUCKET_NAME" --key "template-resources/${COMMIT_SHA}/raw_to_stage_process_glue_job.py" --body "$ETL_ROOT/raw_to_stage_process_glue_job.py" --metadata "Commit-Sha=${COMMIT_SHA},Commit-Message=${COMMIT_MESSAGE_CLEAN}" > /dev/null
   fi
 fi
