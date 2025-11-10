@@ -169,7 +169,11 @@ RawStageTransformProcessPythonGlueJob:
       ScriptLocation:
         !Join [
           '',
-          [s3://demo-dap-githubartifactsourcebucket-qqlbqh8q9cui/template-resources/, !Ref ArtifactCommitSha, /raw_to_stage_process_glue_job.py],
+          [
+            s3://demo-dap-githubartifactsourcebucket-qqlbqh8q9cui/template-resources/,
+            !Ref ArtifactCommitSha,
+            /raw_to_stage_process_glue_job.py,
+          ],
         ]
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process-demo
