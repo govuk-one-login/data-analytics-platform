@@ -457,7 +457,7 @@ DataAnalyticsQuicksightSyncRole:
   Type: AWS::IAM::Role
   Condition: IsProduction
   Properties:
-    RoleName: !Sub data-analytics-quicksight-sync-role
+    RoleName: !Sub data-analytics-quicksight-sync-role-demo
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
