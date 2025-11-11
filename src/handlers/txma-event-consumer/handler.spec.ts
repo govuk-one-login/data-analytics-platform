@@ -43,7 +43,31 @@ test('event with invalid timestamp', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(0);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event', { componentId: 'UNKNOWN', eventId: 'test-id' });
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event', {
+    componentId: 'UNKNOWN',
+    eventId: 'test-id',
+    errors: ['Timestamp is larger than expected value'],
+  });
+});
+
+test('event with multiple validation errors', async () => {
+  mockFirehoseClient.resolves({});
+
+  const validEvent = JSON.stringify({
+    event_name: 11111,
+    timestamp: 123456789101112,
+    event_id: 'test-id',
+  });
+  const sqsEvent = mockSQSEvent(validEvent);
+  const response = await handler(sqsEvent, mockLambdaContext);
+
+  expect(response.batchItemFailures).toHaveLength(1);
+  expect(mockFirehoseClient.calls()).toHaveLength(0);
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event', {
+    componentId: 'UNKNOWN',
+    eventId: 'test-id',
+    errors: ['Event name is missing from audit event or is invalid', 'Timestamp is larger than expected value'],
+  });
 });
 
 test('invalid events', async () => {
@@ -69,6 +93,35 @@ test('missing stream name', async () => {
   expect(mockFirehoseClient.calls()).toHaveLength(0);
   expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose:", {
     error: expect.any(Error),
+  });
+});
+
+test('multiple valid events, one invalid event', async () => {
+  mockFirehoseClient.resolves({});
+
+  const validEvent = JSON.stringify({
+    event_name: 'AUTH_AUTH_CODE_ISSUED',
+    timestamp: 1234567890,
+    event_id: 'test-id',
+    component_id: 'test-component-id',
+  });
+
+  const invalidEvent = JSON.stringify({
+    event_name: 124,
+    timestamp: 1234567890,
+    event_id: 'test-id',
+    component_id: 'test-component-id',
+  });
+
+  const sqsEvent = mockSQSEvent(validEvent, validEvent, invalidEvent, validEvent);
+  const response = await handler(sqsEvent, mockLambdaContext);
+
+  expect(response.batchItemFailures).toHaveLength(1);
+  expect(mockFirehoseClient.calls()).toHaveLength(1);
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event', {
+    componentId: 'test-component-id',
+    eventId: 'test-id',
+    errors: ['Event name is missing from audit event or is invalid'],
   });
 });
 

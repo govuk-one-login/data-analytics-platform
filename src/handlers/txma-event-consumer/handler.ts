@@ -1,7 +1,7 @@
 import type { Context, SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import { getEnvironmentVariable } from '../../shared/utils/utils';
 import { getLogger } from '../../shared/powertools';
-import { AuditEvent, isValidAuditEvent } from '../../../common/types/event';
+import { AuditEvent, validateAuditEvent } from '../../../common/types/event';
 import { parseJson } from '../../shared/objects/parse-json';
 import { getBodyAsBuffer } from '../../shared/objects/get-string-as-buffer';
 import { firehosePutRecordBatch } from '../../shared/firehose/put-batch-record';
@@ -33,15 +33,17 @@ const validateRecords = (records: SQSRecord[]) => {
     (acc, record) => {
       try {
         const auditEvent = parseJson(record.body) as AuditEvent;
-        if (isValidAuditEvent(auditEvent)) {
-          acc.validRecords.push(record);
-          acc.validEvents.push(auditEvent);
-        } else {
+        const errors = validateAuditEvent(auditEvent);
+
+        if (errors.length > 0) {
           logger.error('Invalid audit event', {
-            eventId: (auditEvent as AuditEvent).event_id ?? 'UNKNOWN',
-            componentId: (auditEvent as AuditEvent).component_id ?? 'UNKNOWN',
+            eventId: auditEvent.event_id ?? 'UNKNOWN',
+            componentId: auditEvent.component_id ?? 'UNKNOWN',
+            errors: [...errors],
           });
           acc.failedRecords.push(record);
+        } else {
+          acc.validRecords.push(record);
         }
       } catch (e) {
         logger.error('Error processing record', { error: e });
@@ -49,7 +51,7 @@ const validateRecords = (records: SQSRecord[]) => {
       }
       return acc;
     },
-    { validRecords: [] as SQSRecord[], failedRecords: [] as SQSRecord[], validEvents: [] as AuditEvent[] },
+    { validRecords: [] as SQSRecord[], failedRecords: [] as SQSRecord[] },
   );
 };
 
