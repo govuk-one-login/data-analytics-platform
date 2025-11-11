@@ -24,7 +24,7 @@ export default async () => {
       await addMessageToQueue(event, getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL'));
       processedEvents.push(event);
     }
-    console.log(`✓ Sent ${processedEvents.length} events to SQS queue`);
+    console.log(`✓ Sent ${processedEvents.length} events to SQS queue `);
 
     // Store both events and event pairs globally for tests to access
     (global as { testEvents?: AuditEvent[]; testEventPairs?: typeof happyPathEventList }).testEvents = processedEvents;
