@@ -1,6 +1,7 @@
 import { getIntegrationTestEnv } from '../helpers/utils/utils';
 import { executeAthenaQuery } from '../helpers/aws/athena/execute-athena-query';
 import { happyPathEventList } from '../test-events/happy-path-event-list';
+import { normalizeJsonInResults } from '../helpers/utils/normalize-json';
 
 // Get events that were processed during setup
 const getTestEventPairs = () => (global as { testEventPairs?: typeof happyPathEventList }).testEventPairs || [];
@@ -14,8 +15,11 @@ describe('TxMA consumer lambda to raw layer integration tests', () => {
       const rawLayerDatabase = getIntegrationTestEnv('RAW_LAYER_DATABASE');
       const query = `SELECT * FROM "${rawLayerDatabase}"."txma-refactored" WHERE event_id = '${event.event_id}'`;
       const results = await executeAthenaQuery(query, rawLayerDatabase);
+      // Normalize JSON strings to ignore property order
+      const normalizedResults = normalizeJsonInResults(results);
+      const normalizedExpected = normalizeJsonInResults(expectedResults);
       // Compare expected with actual
-      expect(results).toEqual(expectedResults);
+      expect(normalizedResults).toEqual(normalizedExpected);
     }
   });
 });
