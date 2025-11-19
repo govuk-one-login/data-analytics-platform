@@ -68,7 +68,7 @@ export default async () => {
     console.log('⚙️ Executing ETL step function...');
     const stepFunctionStartTime = Date.now();
 
-    await executeStepFunction(rawToStageStepFunction);
+    await executeStepFunction(rawToStageStepFunction, undefined, 'integration-test-setup');
     const stepFunctionDuration = Date.now() - stepFunctionStartTime;
     console.log(`✓ Step Function completed in ${Math.round(stepFunctionDuration / 1000)}s`);
 
