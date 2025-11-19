@@ -7,7 +7,11 @@ import {
   StopExecutionCommand,
 } from '@aws-sdk/client-sfn';
 
-export const executeStepFunction = async (stateMachineArn: string, input?: object): Promise<string> => {
+export const executeStepFunction = async (
+  stateMachineArn: string,
+  input?: object,
+  prefix?: string,
+): Promise<{ executionArn: string; status: string; error?: string; cause?: string }> => {
   const client = new SFNClient({});
 
   try {
@@ -15,10 +19,12 @@ export const executeStepFunction = async (stateMachineArn: string, input?: objec
     await abortRunningExecutions(client, stateMachineArn);
 
     // Generate unique execution name
-    const executionName = `integration-test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const randomSuffix = Math.random().toString(36).substr(2, 9);
+    const executionName = prefix ? `${prefix}-${randomSuffix}` : `integration-test-${randomSuffix}`;
 
     const startCommand = new StartExecutionCommand({
       stateMachineArn,
+      name: executionName,
       input: input ? JSON.stringify(input) : undefined,
     });
 
@@ -44,11 +50,41 @@ export const executeStepFunction = async (stateMachineArn: string, input?: objec
       status = statusResult.status || 'FAILED';
     }
 
+    const describeCommand = new DescribeExecutionCommand({ executionArn });
+    const details = await client.send(describeCommand);
+
     if (status !== 'SUCCEEDED') {
-      throw new Error(`State machine execution failed with status: ${status}`);
+      let glueJobId: string | undefined;
+      let logGroupName: string | undefined;
+
+      if (details.cause) {
+        try {
+          const causeObj = JSON.parse(details.cause);
+          glueJobId = causeObj.Id;
+          logGroupName = causeObj.LogGroupName;
+        } catch {
+          // Ignore parse errors
+        }
+      }
+
+      throw new Error(
+        JSON.stringify({
+          status,
+          error: details.error,
+          cause: details.cause,
+          executionArn,
+          glueJobId,
+          logGroupName,
+        }),
+      );
     }
 
-    return executionArn;
+    return {
+      executionArn,
+      status,
+      error: details.error,
+      cause: details.cause,
+    };
   } finally {
     client.destroy();
   }
