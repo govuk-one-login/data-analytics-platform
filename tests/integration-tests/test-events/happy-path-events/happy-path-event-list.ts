@@ -5,7 +5,7 @@ import {
   generateDateCreatedPartition,
   generateProcessedDt,
   generateProcessedTime,
-} from '../helpers/utils/utils';
+} from '../../helpers/utils/utils';
 import {
   constructDCMAWAsyncBiometricTokenIssuedDAPEvent,
   constructDCMAWAsyncBiometricTokenIssuedExpectedRawLayerRow,

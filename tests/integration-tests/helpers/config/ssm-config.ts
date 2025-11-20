@@ -9,6 +9,7 @@ const ssmMappings = {
   RAW_LAYER_DATABASE: formatTestStackSsmParam('dapAthenaRawLayerDatabase'),
   STAGE_LAYER_DATABASE: formatTestStackSsmParam('dapAthenaStageLayerDatabase'),
   RAW_TO_STAGE_STEP_FUNCTION: formatTestStackSsmParam('rawToStageStepFunction'),
+  GLUE_LOG_GROUP: formatTestStackSsmParam('glueLogGroup'),
 };
 
 export const setEnvVarsFromSsm = async (mappings: Record<string, string> = ssmMappings) => {
