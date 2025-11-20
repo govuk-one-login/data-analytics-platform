@@ -23,14 +23,14 @@
                     "Next": "RunningInstanceDetected"
                 }
             ],
-            "Default": "adm_refresh_update"
+            "Default": "adm_refresh_update_first"
         },
         "RunningInstanceDetected": {
             "Type": "Fail",
             "Error": "RunningInstanceDetected"
         },
-        "adm_refresh_update": {
-            "Comment": "Invoke Redshift ADM Refresh update script",
+        "adm_refresh_update_first": {
+            "Comment": "Invoke first ADM Refresh update script",
             "Type": "Task",
             "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
             "ResultPath": "$.sql_output",
@@ -38,17 +38,17 @@
                 "WorkgroupName": "${RedshiftWorkgroup}",
                 "Database": "${RedshiftDatabaseName}",
                 "SecretArn": "${RedshiftSecretArn}",
-                "Sql": "call presentation_refactored.refresh_adm_views_by_so(1,14); call presentation_refactored.refresh_adm_views_by_so(15,25)"
+                "Sql": "call presentation_refactored.refresh_adm_views_by_so(1,14)"
             },
-            "Next": "wait_on_adm_refresh_update"
+            "Next": "wait_on_adm_refresh_update_first"
         },
-        "wait_on_adm_refresh_update": {
+        "wait_on_adm_refresh_update_first": {
             "Comment": "Wait before status check",
             "Type": "Wait",
             "Seconds": 120,
-            "Next": "refresh_adm_update_status_check"
+            "Next": "refresh_adm_update_first_status_check"
         },
-        "refresh_adm_update_status_check": {
+        "refresh_adm_update_first_status_check": {
             "Comment": "Check Task Status",
             "Type": "Task",
             "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
@@ -56,10 +56,56 @@
             "Parameters": {
                 "Id.$": "$.sql_output.Id"
             },
-            "Next": "is_adm_refresh_update_complete"
+            "Next": "is_adm_refresh_update_first_complete"
         },
-        "is_adm_refresh_update_complete": {
-            "Comment": "check if ADM Refresh update step is complete",
+        "is_adm_refresh_update_first_complete": {
+            "Comment": "check if first ADM Refresh update step is complete",
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable": "$.sql_output.Status",
+                    "StringEquals": "FAILED",
+                    "Next": "adm_refresh_update_failure"
+                },
+                {
+                    "Variable": "$.sql_output.Status",
+                    "StringEquals": "FINISHED",
+                    "Next": "adm_refresh_update_second"
+                }
+            ],
+            "Default": "wait_on_adm_refresh_update_first"
+        },
+        "adm_refresh_update_second": {
+            "Comment": "Invoke second ADM Refresh update script",
+            "Type": "Task",
+            "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
+            "ResultPath": "$.sql_output",
+            "Parameters": {
+                "WorkgroupName": "${RedshiftWorkgroup}",
+                "Database": "${RedshiftDatabaseName}",
+                "SecretArn": "${RedshiftSecretArn}",
+                "Sql": "call presentation_refactored.refresh_adm_views_by_so(15,25)"
+            },
+            "Next": "wait_on_adm_refresh_update_second"
+        },
+        "wait_on_adm_refresh_update_second": {
+            "Comment": "Wait before status check",
+            "Type": "Wait",
+            "Seconds": 120,
+            "Next": "refresh_adm_update_second_status_check"
+        },
+        "refresh_adm_update_second_status_check": {
+            "Comment": "Check Task Status",
+            "Type": "Task",
+            "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
+            "ResultPath": "$.sql_output",
+            "Parameters": {
+                "Id.$": "$.sql_output.Id"
+            },
+            "Next": "is_adm_refresh_update_second_complete"
+        },
+        "is_adm_refresh_update_second_complete": {
+            "Comment": "check if second ADM Refresh update step is complete",
             "Type": "Choice",
             "Choices": [
                 {
@@ -73,7 +119,7 @@
                     "Next": "StopProcessing"
                 }
             ],
-            "Default": "wait_on_adm_refresh_update"
+            "Default": "wait_on_adm_refresh_update_second"
         },
         "adm_refresh_update_failure": {
             "Type": "Fail",
