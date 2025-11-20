@@ -17,7 +17,7 @@ export const validateAuditEvent = (auditEvent: AuditEvent): string[] => {
       condition: typeof auditEvent.event_name !== 'string' || auditEvent.event_name.length === 0,
     },
     {
-      errorMessage: 'Timestamp is larger than expected value',
+      errorMessage: 'Timestamp is not in expected format',
       condition: !isValidTimestamp(auditEvent.timestamp),
     },
     {
@@ -37,5 +37,5 @@ export const validateAuditEvent = (auditEvent: AuditEvent): string[] => {
 
 const isValidTimestamp = (timestamp: number) => {
   const date = new Date(timestamp);
-  return !isNaN(date.getTime()) && timestamp < 1e13; // not a timestamp in ms;
+  return !isNaN(date.getTime()) && timestamp < 1e12; // not a timestamp in ms;
 };
