@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { executeAthenaQuery } from '../aws/athena/execute-athena-query';
 import { getIntegrationTestEnv } from './utils';
 
@@ -27,14 +28,22 @@ async function pollForData(
 ): Promise<void> {
   const { maxWaitTimeMs = 5 * 60 * 1000, pollIntervalMs = 10000 } = options;
 
+  console.log(`Polling for ${eventIds.length} events in ${layerName}`);
+
+  // Wait 30 seconds before starting to poll
+  await new Promise(resolve => setTimeout(resolve, 30000));
+
   const startTime = Date.now();
 
   while (Date.now() - startTime < maxWaitTimeMs) {
     const foundEventIds = await checkEventsInTable(eventIds, database, tableName);
 
     if (foundEventIds.length === eventIds.length) {
+      const elapsedTime = Math.round((Date.now() - startTime) / 1000);
+      console.log(`✓ All events found in ${elapsedTime}s`);
       return;
     }
+
     await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
   }
 
@@ -54,10 +63,11 @@ async function checkEventsInTable(eventIds: string[], database: string, tableNam
 
   try {
     const results = await executeAthenaQuery(query, database);
-    return results
+    const foundIds = results
       .slice(1)
       .map(row => row.Data?.[0]?.VarCharValue)
       .filter(Boolean) as string[];
+    return foundIds;
   } catch (error) {
     return [];
   }
