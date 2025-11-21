@@ -24,7 +24,8 @@ export const generateTimestampFormatted = (): string => {
 
 export const generateDateCreatedPartition = (): string => {
   const now = new Date();
-  return `year=${now.getFullYear()}/month=${now.getMonth() + 1}/day=${now.getDate()}`;
+  const day = now.getDate().toString().padStart(2, '0');
+  return `year=${now.getFullYear()}/month=${now.getMonth() + 1}/day=${day}`;
 };
 
 export const generateProcessedDt = (): number => {
