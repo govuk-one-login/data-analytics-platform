@@ -35,7 +35,7 @@ test('event with invalid timestamp', async () => {
 
   const validEvent = JSON.stringify({
     event_name: 'AUTH_AUTH_CODE_ISSUED',
-    timestamp: 123456789101112,
+    timestamp: 1234567891011,
     event_id: 'test-id',
   });
   const sqsEvent = mockSQSEvent(validEvent);
@@ -46,7 +46,7 @@ test('event with invalid timestamp', async () => {
   expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event', {
     componentId: 'UNKNOWN',
     eventId: 'test-id',
-    errors: ['Timestamp is larger than expected value'],
+    errors: ['Timestamp is not in expected format'],
   });
 });
 
@@ -66,7 +66,7 @@ test('event with multiple validation errors', async () => {
   expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event', {
     componentId: 'UNKNOWN',
     eventId: 'test-id',
-    errors: ['Event name is missing from audit event or is invalid', 'Timestamp is larger than expected value'],
+    errors: ['Event name is missing from audit event or is invalid', 'Timestamp is not in expected format'],
   });
 });
 
