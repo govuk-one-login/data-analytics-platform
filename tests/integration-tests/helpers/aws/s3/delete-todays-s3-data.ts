@@ -1,5 +1,5 @@
 import { S3Client, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
-import { rawdataS3BucketName, envName } from '../../../../helpers/envHelper';
+import { getIntegrationTestEnv } from '../../utils/utils';
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'eu-west-2' });
 
@@ -30,13 +30,13 @@ const s3Operation = async (bucketName: string, prefix: string, deleteFiles = fal
 };
 
 export const listRawLayerTodaysData = async (): Promise<string[]> => {
-  return (await s3Operation(rawdataS3BucketName(), getTodaysPrefix('txma-refactored'))) as string[];
+  return (await s3Operation(getIntegrationTestEnv('RAW_LAYER_BUCKET'), getTodaysPrefix('txma-refactored'))) as string[];
 };
 
 export const deleteRawLayerTodaysData = async (): Promise<number> => {
-  const env = envName();
-  if (env !== 'dev' && env !== 'build') {
-    throw new Error(`Data deletion not allowed in environment: ${env}`);
-  }
-  return (await s3Operation(rawdataS3BucketName(), getTodaysPrefix('txma-refactored'), true)) as number;
+  return (await s3Operation(
+    getIntegrationTestEnv('RAW_LAYER_BUCKET'),
+    getTodaysPrefix('txma-refactored'),
+    true,
+  )) as number;
 };
