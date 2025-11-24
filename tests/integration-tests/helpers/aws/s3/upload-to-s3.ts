@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { rawdataS3BucketName } from '../../../../helpers/envHelper';
 import { gzip } from 'zlib';
 import { promisify } from 'util';
+import { getIntegrationTestEnv } from '../../utils/utils';
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'eu-west-2' });
 const gzipAsync = promisify(gzip);
@@ -17,11 +17,12 @@ export const uploadEventToRawLayer = async (event: Record<string, unknown>): Pro
 
   await s3Client.send(
     new PutObjectCommand({
-      Bucket: rawdataS3BucketName(),
+      Bucket: getIntegrationTestEnv('RAW_LAYER_BUCKET'),
       Key: key,
       Body: compressed,
       ContentType: 'application/gzip',
       ContentEncoding: 'gzip',
+      ServerSideEncryption: 'AES256',
     }),
   );
 };
@@ -36,7 +37,7 @@ export const deleteEventFromRawLayer = async (eventId: string): Promise<void> =>
 
   await s3Client.send(
     new DeleteObjectCommand({
-      Bucket: rawdataS3BucketName(),
+      Bucket: getIntegrationTestEnv('RAW_LAYER_BUCKET'),
       Key: key,
     }),
   );

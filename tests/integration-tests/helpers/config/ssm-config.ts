@@ -7,6 +7,7 @@ const ssmMappings = {
   DAP_TXMA_CONSUMER_SQS_QUEUE_URL: formatTestStackSsmParam('dapTXMAConsumerSQSQueueUrl'),
   ATHENA_WORKGROUP: formatTestStackSsmParam('dapAthenaWorkgroup'),
   RAW_LAYER_DATABASE: formatTestStackSsmParam('dapAthenaRawLayerDatabase'),
+  RAW_LAYER_BUCKET: formatTestStackSsmParam('dapRawLayerBucket'),
   STAGE_LAYER_DATABASE: formatTestStackSsmParam('dapAthenaStageLayerDatabase'),
   RAW_TO_STAGE_STEP_FUNCTION: formatTestStackSsmParam('rawToStageStepFunction'),
   GLUE_LOG_GROUP: formatTestStackSsmParam('glueLogGroup'),
