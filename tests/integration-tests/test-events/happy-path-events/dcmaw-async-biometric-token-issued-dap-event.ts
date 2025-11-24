@@ -1,8 +1,8 @@
-import { AuditEvent } from '../../../common/types/event';
+import { AuditEvent } from '../../../../common/types/event';
 import { randomUUID } from 'crypto';
-import { buildExpectedRawLayerRow } from '../helpers/builders/raw-layer-row-builder';
-import { buildExpectedStageLayerRow } from '../helpers/builders/stage-layer-row-builder';
-import { buildExpectedStageLayerKeyValues } from '../helpers/builders/stage-layer-key-values-builder';
+import { buildExpectedRawLayerRow } from '../../helpers/builders/raw-layer-row-builder';
+import { buildExpectedStageLayerRow } from '../../helpers/builders/stage-layer-row-builder';
+import { buildExpectedStageLayerKeyValues } from '../../helpers/builders/stage-layer-key-values-builder';
 
 const event_id = randomUUID();
 
