@@ -206,3 +206,11 @@ TxmaRefactoredTable:
         'projection.datecreated.interval': 1
         'projection.datecreated.interval.unit': 'DAYS'
         'storage.location.template': !Join ['', ['s3://', !Ref RawLayerBucket, '/txma-refactored/${datecreated}/']]
+
+RawLayerBucketName:
+  Condition: IsDevOrBuild
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: !Sub /tests/${AWS::StackName}/dapRawLayerBucket
+    Type: String
+    Value: !Sub ${Environment}-dap-raw-layer
