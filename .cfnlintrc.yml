@@ -1,2 +1,3 @@
 ignore_checks:
   - W3045 # W3045 Consider using AWS::S3::BucketPolicy instead of AccessControl
+  - E3001 # CloudFormation can use tags on redshift resources
