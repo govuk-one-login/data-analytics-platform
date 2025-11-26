@@ -11,7 +11,6 @@ import { AuditEvent } from '../../common/types/event';
 
 export default async () => {
   const setupStartTime = Date.now();
-  (global as { testStartTime?: number }).testStartTime = setupStartTime;
 
   try {
     process.env.STACK_NAME = process.env.STACK_NAME ?? STACK_NAME;
@@ -80,11 +79,9 @@ export default async () => {
     console.log(`✓ Stage layer processing completed in ${Math.round(stageLayerDuration / 1000)}s`);
 
     const totalSetupDuration = Date.now() - setupStartTime;
-    (global as { setupDuration?: number }).setupDuration = Date.now() - setupStartTime;
     console.log(`🎉 Integration test setup completed successfully in ${Math.round(totalSetupDuration / 1000)}s`);
   } catch (error) {
     const setupDuration = Date.now() - setupStartTime;
-    (global as { setupDuration?: number }).setupDuration = Date.now() - setupStartTime;
     console.error(`❌ Integration test setup failed after ${Math.round(setupDuration / 1000)}s:`, error);
     throw error;
   }

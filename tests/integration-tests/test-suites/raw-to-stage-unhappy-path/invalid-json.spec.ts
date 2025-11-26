@@ -28,6 +28,7 @@ describe('Invalid JSON Tests', () => {
         'testJourneyId',
       );
       uploadedEventId = invalidEvent.event_id as string;
+      const testStartTime = Date.now();
 
       // eslint-disable-next-line no-console
       console.log(`\n📝 Testing: ${_}`);
@@ -36,7 +37,6 @@ describe('Invalid JSON Tests', () => {
       await uploadEventToRawLayer(invalidEvent);
 
       const rawToStageStepFunction = getIntegrationTestEnv('RAW_TO_STAGE_STEP_FUNCTION');
-      const testStartTime = Date.now();
 
       // eslint-disable-next-line no-console
       console.log('⚙️ Executing step function (expecting failure)...');
