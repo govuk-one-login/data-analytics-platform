@@ -44,9 +44,6 @@ export const executeStepFunction = async (
       await new Promise(resolve => setTimeout(resolve, 5000));
       const statusCommand = new DescribeExecutionCommand({ executionArn });
       const statusResult = await client.send(statusCommand);
-      if (statusResult.error) {
-        console.log('Step Function Error:', statusResult.error);
-      }
       status = statusResult.status || 'FAILED';
     }
 
