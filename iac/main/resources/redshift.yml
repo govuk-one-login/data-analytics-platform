@@ -183,9 +183,11 @@ RedshiftServerlessNamespace:
     LogExports:
       - useractivitylog
     NamespaceName: !Sub '${Environment}-redshift-serverless-ns'
-    Tags:
-      - Key: BackupFrequency
-        Value: Daily
+    Tags: !If
+      - IsProduction
+      - !Ref AWS::NoValue
+      - - Key: BackupFrequency
+          Value: Daily
 
 RedshiftServerlessWorkgroup:
   Type: 'AWS::RedshiftServerless::Workgroup'

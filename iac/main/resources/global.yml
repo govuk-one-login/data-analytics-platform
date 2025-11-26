@@ -50,9 +50,6 @@ GlobalLogBucketPolicy:
               aws:SourceArn: !Sub arn:aws:s3:::${Environment}-dap-*
             StringEquals:
               aws:SourceAccount: !Ref AWS::AccountId
-  Tags:
-    - Key: BackupFrequency
-      Value: Bihourly
 
 GlobalNonEventBucket:
   Type: 'AWS::S3::Bucket'
@@ -76,6 +73,11 @@ GlobalNonEventBucket:
     NotificationConfiguration:
       EventBridgeConfiguration:
         EventBridgeEnabled: true
+    Tags: !If
+      - IsProduction
+      - !Ref AWS::NoValue
+      - - Key: BackupFrequency
+          Value: Bihourly
 
 GlobalNonEventBucketPolicy:
   Type: AWS::S3::BucketPolicy
