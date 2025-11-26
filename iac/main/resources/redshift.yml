@@ -186,8 +186,7 @@ RedshiftServerlessNamespace:
     Tags: !If
       - IsProduction
       - !Ref AWS::NoValue
-      - 
-        - Key: BackupFrequency
+      - - Key: BackupFrequency
           Value: Daily
 
 RedshiftServerlessWorkgroup:

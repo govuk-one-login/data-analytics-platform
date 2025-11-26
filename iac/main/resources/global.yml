@@ -76,8 +76,7 @@ GlobalNonEventBucket:
     Tags: !If
       - IsProduction
       - !Ref AWS::NoValue
-      -
-        - Key: BackupFrequency
+      - - Key: BackupFrequency
           Value: Bihourly
 
 GlobalNonEventBucketPolicy:
