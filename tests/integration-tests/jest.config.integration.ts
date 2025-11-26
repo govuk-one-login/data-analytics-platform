@@ -6,6 +6,8 @@ const config: JestConfigWithTsJest = {
   verbose: true,
   testMatch: ['**/tests/integration-tests/test-suites/**/*.spec.ts'],
   globalSetup: '<rootDir>/setup.ts',
+  globalTeardown: '<rootDir>/teardown.ts',
+  testSequencer: '<rootDir>/jest-sequencer.mjs',
   testTimeout: 600000,
   maxWorkers: 4,
   maxConcurrency: 2,
