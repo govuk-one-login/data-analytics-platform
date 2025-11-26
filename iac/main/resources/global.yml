@@ -79,7 +79,6 @@ GlobalNonEventBucket:
       - - Key: BackupFrequency
           Value: Bihourly
 
-
 GlobalNonEventBucketPolicy:
   Type: AWS::S3::BucketPolicy
   Properties:
