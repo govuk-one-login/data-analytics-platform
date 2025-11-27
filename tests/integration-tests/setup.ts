@@ -7,6 +7,7 @@ import { getIntegrationTestEnv } from './helpers/utils/utils';
 import { pollForRawLayerData, pollForStageLayerData } from './helpers/utils/poll-for-data';
 import { happyPathEventList } from './test-events/happy-path-events/happy-path-event-list';
 import { edgeCaseEventList } from './test-events/edge-case-events/edge-case-event-list';
+import { txmaUnhappyPathEventList } from './test-events/txma-consumer-unhappy-path-events/txma-consumer-unhappy-event-list';
 import { AuditEvent } from '../../common/types/event';
 
 export default async () => {
@@ -32,7 +33,12 @@ export default async () => {
       await addMessageToQueue(event, getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL'));
       processedEvents.push(event);
     }
-    console.log(`✓ Sent ${processedEvents.length} events to SQS queue `);
+    // Process unhappy path events (sent to queue but not polled for in raw/stage layers)
+    for (const eventPair of txmaUnhappyPathEventList) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await addMessageToQueue(eventPair.auditEvent as any, getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL'));
+    }
+    console.log(`✓ Sent ${processedEvents.length + txmaUnhappyPathEventList.length} events to SQS queue `);
 
     // Store both events and event pairs globally for tests to access
     (
@@ -40,6 +46,7 @@ export default async () => {
         testEvents?: AuditEvent[];
         testEventPairs?: typeof happyPathEventList;
         edgeCaseEventPairs?: typeof edgeCaseEventList;
+        unhappyPathEventPairs?: typeof txmaUnhappyPathEventList;
       }
     ).testEvents = processedEvents;
     (
@@ -47,6 +54,7 @@ export default async () => {
         testEvents?: AuditEvent[];
         testEventPairs?: typeof happyPathEventList;
         edgeCaseEventPairs?: typeof edgeCaseEventList;
+        unhappyPathEventPairs?: typeof txmaUnhappyPathEventList;
       }
     ).testEventPairs = happyPathEventList;
     (
@@ -54,8 +62,17 @@ export default async () => {
         testEvents?: AuditEvent[];
         testEventPairs?: typeof happyPathEventList;
         edgeCaseEventPairs?: typeof edgeCaseEventList;
+        unhappyPathEventPairs?: typeof txmaUnhappyPathEventList;
       }
     ).edgeCaseEventPairs = edgeCaseEventList;
+    (
+      global as {
+        testEvents?: AuditEvent[];
+        testEventPairs?: typeof happyPathEventList;
+        edgeCaseEventPairs?: typeof edgeCaseEventList;
+        unhappyPathEventPairs?: typeof txmaUnhappyPathEventList;
+      }
+    ).unhappyPathEventPairs = txmaUnhappyPathEventList;
 
     console.log('⏳ Waiting for events to appear in raw layer...');
     const rawLayerStartTime = Date.now();
