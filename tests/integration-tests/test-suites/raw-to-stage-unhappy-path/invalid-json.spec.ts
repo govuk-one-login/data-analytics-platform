@@ -28,6 +28,7 @@ describe('Invalid JSON Tests', () => {
         'testJourneyId',
       );
       uploadedEventId = invalidEvent.event_id as string;
+      const testStartTime = Date.now();
 
       // eslint-disable-next-line no-console
       console.log(`\n📝 Testing: ${_}`);
@@ -36,38 +37,52 @@ describe('Invalid JSON Tests', () => {
       await uploadEventToRawLayer(invalidEvent);
 
       const rawToStageStepFunction = getIntegrationTestEnv('RAW_TO_STAGE_STEP_FUNCTION');
-      const testStartTime = Date.now();
 
       // eslint-disable-next-line no-console
       console.log('⚙️ Executing step function (expecting failure)...');
 
       await retryOnConcurrentRun(async () => {
+        let executionDetails;
         try {
           await executeStepFunction(rawToStageStepFunction, undefined, `unhappy-path-${uploadedEventId}`);
           throw new Error('Step function should have failed but succeeded');
         } catch (error) {
-          const executionDetails = JSON.parse((error as Error).message);
+          const errorMessage = (error as Error).message;
 
-          if (executionDetails.status !== 'FAILED') {
-            throw new Error(`Expected FAILED status, got: ${executionDetails.status}`);
+          // Let ConcurrentRunsExceededException bubble up for retry
+          if (errorMessage.includes('ConcurrentRunsExceededException')) {
+            throw error;
           }
 
-          // eslint-disable-next-line no-console
-          console.log('✓ Step function failed as expected');
-
-          if (executionDetails.glueJobId) {
-            // eslint-disable-next-line no-console
-            console.log('🔍 Fetching ERROR logs...');
-            const logGroupName = getIntegrationTestEnv('GLUE_LOG_GROUP');
-            const logs = await fetchGlueErrorLogs(logGroupName, executionDetails.glueJobId, testStartTime);
-            const expectedError = 'Exception Error within function parse_json';
-            if (!logs.includes(expectedError)) {
-              throw new Error(`Expected error message not found in logs:\n${logs}`);
-            }
-            // eslint-disable-next-line no-console
-            console.log(`✓ Found expected error message: "${expectedError}"`);
-          }
+          executionDetails = JSON.parse(errorMessage);
         }
+
+        // Verify step function failed with States.TaskFailed
+        if (executionDetails.status !== 'FAILED') {
+          throw new Error(`Expected FAILED status, got: ${executionDetails.status}`);
+        }
+        if (executionDetails.error !== 'States.TaskFailed') {
+          throw new Error(`Expected States.TaskFailed error, got: ${executionDetails.error}`);
+        }
+
+        // eslint-disable-next-line no-console
+        console.log(`✓ Step Function Error: ${executionDetails.error}`);
+
+        // Verify Glue job ran and fetch logs
+        if (!executionDetails.glueJobId) {
+          throw new Error('No Glue job ID found - job may not have executed');
+        }
+
+        // eslint-disable-next-line no-console
+        console.log('🔍 Fetching ERROR logs...');
+        const logGroupName = getIntegrationTestEnv('GLUE_LOG_GROUP');
+        const logs = await fetchGlueErrorLogs(logGroupName, executionDetails.glueJobId, testStartTime);
+        const expectedError = 'Exception Error within function parse_json';
+        if (!logs.includes(expectedError)) {
+          throw new Error(`Expected error message not found in logs:\n${logs}`);
+        }
+        // eslint-disable-next-line no-console
+        console.log(`✓ Found expected error message: "${expectedError}"`);
       });
     },
     300 * 1000, // 5 minute timeout for step function failure
@@ -80,7 +95,6 @@ describe('Invalid JSON Tests', () => {
       await deleteEventFromRawLayer(uploadedEventId);
       uploadedEventId = undefined;
     }
-    // Wait 10s between tests to reduce concurrent Glue runs
     await new Promise(resolve => setTimeout(resolve, 10000));
-  });
+  }, 30000);
 });
