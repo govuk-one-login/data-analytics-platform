@@ -8,7 +8,6 @@ const config: JestConfigWithTsJest = {
   testPathIgnorePatterns: ['<rootDir>/test-suites/raw-to-stage-unhappy-path/'],
   globalSetup: '<rootDir>/setup.ts',
   globalTeardown: '<rootDir>/teardown.ts',
-  testSequencer: '<rootDir>/jest-sequencer.mjs',
   testTimeout: 600000,
   maxWorkers: 4,
   maxConcurrency: 2,
