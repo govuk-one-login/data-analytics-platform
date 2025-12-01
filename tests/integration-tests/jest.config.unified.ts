@@ -3,7 +3,6 @@ import type { JestConfigWithTsJest } from 'ts-jest';
 const config: JestConfigWithTsJest = {
   preset: 'ts-jest',
   verbose: true,
-  testSequencer: '<rootDir>/jest-sequencer.mjs',
   projects: [
     {
       displayName: 'happy-edge-cases',

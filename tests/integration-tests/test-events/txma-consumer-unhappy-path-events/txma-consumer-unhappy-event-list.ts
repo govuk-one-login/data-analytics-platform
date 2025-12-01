@@ -11,7 +11,7 @@ const event_timestamp_ms_formatted = generateTimestampFormatted();
 
 export const txmaUnhappyPathEventList = [
   {
-    eventType: 'NoEventNameField',
+    description: 'Event with no event_name field',
     auditEvent: constructNoEventNameFieldEvent(
       timestamp,
       timestamp_formatted,
@@ -23,7 +23,7 @@ export const txmaUnhappyPathEventList = [
     ),
   },
   {
-    eventType: 'NoTimestampField',
+    description: 'Event with no timestamp field',
     auditEvent: constructNoTimestampFieldEvent(
       timestamp,
       timestamp_formatted,
@@ -35,7 +35,7 @@ export const txmaUnhappyPathEventList = [
     ),
   },
   {
-    eventType: 'TimestampAsString',
+    description: 'Event with timestamp as string',
     auditEvent: constructTimestampAsStringEvent(
       timestamp,
       timestamp_formatted,
@@ -47,7 +47,7 @@ export const txmaUnhappyPathEventList = [
     ),
   },
   {
-    eventType: 'TimestampInMs',
+    description: 'Event with timestamp in milliseconds',
     auditEvent: constructTimestampInMsEvent(
       timestamp,
       timestamp_formatted,

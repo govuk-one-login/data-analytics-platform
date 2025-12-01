@@ -5,6 +5,7 @@ const config: JestConfigWithTsJest = {
   preset: 'ts-jest',
   verbose: true,
   testMatch: ['**/tests/integration-tests/test-suites/**/*.spec.ts'],
+  testPathIgnorePatterns: ['<rootDir>/test-suites/raw-to-stage-unhappy-path/'],
   globalSetup: '<rootDir>/setup.ts',
   globalTeardown: '<rootDir>/teardown.ts',
   testSequencer: '<rootDir>/jest-sequencer.mjs',

@@ -22,6 +22,8 @@ export const executeStepFunction = async (
     const randomSuffix = Math.random().toString(36).substr(2, 9);
     const executionName = prefix ? `${prefix}-${randomSuffix}` : `integration-test-${randomSuffix}`;
 
+    console.log(`⚙️ Starting step function execution: ${executionName}`);
+
     const startCommand = new StartExecutionCommand({
       stateMachineArn,
       name: executionName,
@@ -97,7 +99,6 @@ const abortRunningExecutions = async (client: SFNClient, stateMachineArn: string
   const runningExecutions = listResult.executions || [];
 
   if (runningExecutions.length === 0) {
-    console.log('✓ No running executions found');
     return;
   }
 

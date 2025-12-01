@@ -93,7 +93,7 @@
     "test:integration": "jest -c ./tests/integration-tests/jest.config.unified.ts --runInBand",
     "test:integration:ci": "jest -c ./tests/integration-tests/jest.config.unified.ts --runInBand",
     "test:integration:happy-edge": "jest -c ./tests/integration-tests/jest.config.integration.ts --runInBand",
-    "test:integration:unhappy": "jest -c ./tests/integration-tests/jest.config.unhappy-path.ts --runInBand"
+    "test:integration:raw-to-stage-unhappy": "jest -c ./tests/integration-tests/jest.config.raw-to-stage-unhappy-path.ts --runInBand"
   },
   "lint-staged": {
     "*": "prettier --write",
