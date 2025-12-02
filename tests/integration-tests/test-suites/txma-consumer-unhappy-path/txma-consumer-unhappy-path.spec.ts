@@ -1,4 +1,4 @@
-import { checkEventLog } from '../../helpers/aws/cloudwatch/check-invalid-event-log';
+import { checkEventLog } from '../../helpers/aws/cloudwatch/check-event-log';
 import { executeAthenaQuery } from '../../helpers/aws/athena/execute-athena-query';
 import { getIntegrationTestEnv } from '../../helpers/utils/utils';
 

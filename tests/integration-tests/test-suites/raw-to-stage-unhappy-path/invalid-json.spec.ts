@@ -4,9 +4,9 @@ import { generateTimestamp, generateTimestampFormatted, generateTimestampInMs } 
 import { executeStepFunction } from '../../helpers/aws/step-function/execute-step-function';
 import { fetchGlueErrorLogs } from '../../helpers/aws/cloudwatch/fetch-glue-logs';
 import { retryOnConcurrentRun } from '../../helpers/utils/retry-on-concurrent-run';
-import { constructCreateAccountDeformedJsonTxmaEvent } from '../../test-events/unhappy-path-events/invalid-json-txma-event';
-import { constructInvalidExtensionsEvent } from '../../test-events/unhappy-path-events/invalid-json-extensions-event';
-import { constructCreateAccountDeformedJsonUserEvent } from '../../test-events/unhappy-path-events/invalid-json-user-event';
+import { constructCreateAccountDeformedJsonTxmaEvent } from '../../test-events/raw-to-stage-unhappy-path-events/invalid-json-txma-event';
+import { constructInvalidExtensionsEvent } from '../../test-events/raw-to-stage-unhappy-path-events/invalid-json-extensions-event';
+import { constructCreateAccountDeformedJsonUserEvent } from '../../test-events/raw-to-stage-unhappy-path-events/invalid-json-user-event';
 
 describe('Invalid JSON Tests', () => {
   let uploadedEventId: string | undefined;
