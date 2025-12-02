@@ -133,10 +133,11 @@ Integration tests verify the data pipeline from SQS ingestion through to the sta
 Prerequisites to running integration tests:
 * Set up ~/.aws/config file with the correct AWS credentials
 * Environment variables `STACK_NAME` and `AWS_REGION` set (or defaults to values in `tests/shared-test-code/constants.ts`)
-```sh
-export AWS_PROFILE=data-dap-{environment}
-aws sso login
-```
+* Login to AWS:
+  ```sh
+  export AWS_PROFILE=data-dap-{environment}
+  aws sso login
+  ```
 
 To run integration tests:
 ```sh
