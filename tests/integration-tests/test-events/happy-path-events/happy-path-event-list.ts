@@ -12,6 +12,12 @@ import {
   constructDCMAWAsyncBiometricTokenIssuedExpectedStageLayerRow,
   constructDCMAWAsyncBiometricTokenIssuedExpectedStageLayerKeyValues,
 } from './dcmaw-async-biometric-token-issued-dap-event';
+import {
+  constructDCMAWCriStartEvent,
+  constructDCMAWCriStartExpectedRawLayerRow,
+  constructDCMAWCriStartExpectedExpectedStageLayerRow,
+  constructDCMAWCriStartExpectedStageLayerKeyValues,
+} from './dcmaw-cri-start-dap-event';
 
 const timestamp = generateTimestamp();
 const timestamp_formatted = generateTimestampFormatted();
@@ -64,5 +70,30 @@ export const happyPathEventList = [
       processed_dt,
       processed_time,
     ),
+  },
+  {
+    auditEvent: constructDCMAWCriStartEvent(timestamp, event_timestamp_ms),
+    rawLayerEvent: constructDCMAWCriStartExpectedRawLayerRow(
+      timestamp,
+      timestamp_formatted,
+      event_timestamp_ms,
+      event_timestamp_ms_formatted,
+      datecreated,
+    ),
+    stageLayerEvent: constructDCMAWCriStartExpectedExpectedStageLayerRow(
+      timestamp,
+      timestamp_formatted,
+      event_timestamp_ms,
+      event_timestamp_ms_formatted,
+      'testClientId',
+      'testUserId',
+      'testJourneyId',
+      year,
+      month,
+      day,
+      processed_dt,
+      processed_time,
+    ),
+    stageLayerKeyValues: constructDCMAWCriStartExpectedStageLayerKeyValues(processed_dt, processed_time),
   },
 ];
