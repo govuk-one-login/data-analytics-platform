@@ -11,32 +11,20 @@ const getTodaysPrefix = (basePath: string): string => {
   return `${basePath}/year=${year}/month=${month}/day=${day}/`;
 };
 
-const s3Operation = async (bucketName: string, prefix: string, deleteFiles = false): Promise<string[] | number> => {
+const deleteS3Objects = async (bucketName: string, prefix: string): Promise<number> => {
   const listCommand = new ListObjectsV2Command({ Bucket: bucketName, Prefix: prefix });
   const result = await s3Client.send(listCommand);
 
-  if (!result.Contents?.length) return deleteFiles ? 0 : [];
+  if (!result.Contents?.length) return 0;
 
-  if (deleteFiles) {
-    for (const object of result.Contents) {
-      if (object.Key) {
-        await s3Client.send(new DeleteObjectCommand({ Bucket: bucketName, Key: object.Key }));
-      }
+  for (const object of result.Contents) {
+    if (object.Key) {
+      await s3Client.send(new DeleteObjectCommand({ Bucket: bucketName, Key: object.Key }));
     }
-    return result.Contents.length;
   }
-
-  return result.Contents.map(obj => obj.Key!).filter(Boolean);
-};
-
-export const listRawLayerTodaysData = async (): Promise<string[]> => {
-  return (await s3Operation(getIntegrationTestEnv('RAW_LAYER_BUCKET'), getTodaysPrefix('txma-refactored'))) as string[];
+  return result.Contents.length;
 };
 
 export const deleteRawLayerTodaysData = async (): Promise<number> => {
-  return (await s3Operation(
-    getIntegrationTestEnv('RAW_LAYER_BUCKET'),
-    getTodaysPrefix('txma-refactored'),
-    true,
-  )) as number;
+  return deleteS3Objects(getIntegrationTestEnv('RAW_LAYER_BUCKET'), getTodaysPrefix('txma-refactored'));
 };
