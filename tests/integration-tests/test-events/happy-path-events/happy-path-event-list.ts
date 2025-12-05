@@ -72,7 +72,12 @@ export const happyPathEventList = [
     ),
   },
   {
-    auditEvent: constructDCMAWCriStartEvent(timestamp, event_timestamp_ms),
+    auditEvent: constructDCMAWCriStartEvent(
+      timestamp,
+      timestamp_formatted,
+      event_timestamp_ms,
+      event_timestamp_ms_formatted,
+    ),
     rawLayerEvent: constructDCMAWCriStartExpectedRawLayerRow(
       timestamp,
       timestamp_formatted,
@@ -85,15 +90,12 @@ export const happyPathEventList = [
       timestamp_formatted,
       event_timestamp_ms,
       event_timestamp_ms_formatted,
-      'testClientId',
-      'testUserId',
-      'testJourneyId',
       year,
       month,
       day,
       processed_dt,
       processed_time,
     ),
-    stageLayerKeyValues: constructDCMAWCriStartExpectedStageLayerKeyValues(processed_dt, processed_time),
+    stageLayerKeyValues: constructDCMAWCriStartExpectedStageLayerKeyValues(),
   },
 ];

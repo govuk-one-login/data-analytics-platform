@@ -2,14 +2,14 @@ type RawLayerInput = {
   event_id: string;
   event_name: string;
   component_id: string;
-  client_id: string;
+  client_id: string | null;
   timestamp: number;
-  timestamp_formatted: string;
-  user: string;
+  timestamp_formatted: string | null;
+  user: string | null;
   event_timestamp_ms: number;
-  event_timestamp_ms_formatted: string;
-  extensions: string;
-  txma: string;
+  event_timestamp_ms_formatted: string | null;
+  extensions: string | null;
+  txma: string | null;
   datecreated: string;
 };
 
@@ -37,10 +37,10 @@ export const buildExpectedRawLayerRow = (data: RawLayerInput) => [
     Data: [
       ...Object.values(data)
         .slice(0, 9)
-        .map(value => ({ VarCharValue: String(value) })),
-      { VarCharValue: data.extensions },
+        .map(value => (value === null ? {} : { VarCharValue: String(value) })),
+      data.extensions === null ? {} : { VarCharValue: data.extensions },
       {}, // restricted field is always empty in raw layer
-      { VarCharValue: data.txma },
+      data.txma === null ? {} : { VarCharValue: data.txma },
       { VarCharValue: data.datecreated },
     ],
   },
