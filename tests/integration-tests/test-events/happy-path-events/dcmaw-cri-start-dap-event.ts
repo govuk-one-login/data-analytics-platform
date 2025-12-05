@@ -5,12 +5,19 @@ import { buildExpectedStageLayerRow } from '../../helpers/builders/stage-layer-r
 
 const event_id = randomUUID();
 
-export const constructDCMAWCriStartEvent = (timestamp: number, event_timestamp_ms: number): AuditEvent => ({
+export const constructDCMAWCriStartEvent = (
+  timestamp: number,
+  timestamp_formatted: string,
+  event_timestamp_ms: number,
+  event_timestamp_ms_formatted: string,
+): AuditEvent => ({
   event_id: event_id,
   event_name: 'DCMAW_CRI_START',
   component_id: '106sdhzkl1rus2fcuj2w',
   timestamp: timestamp,
+  timestamp_formatted: timestamp_formatted,
   event_timestamp_ms: event_timestamp_ms,
+  event_timestamp_ms_formatted: event_timestamp_ms_formatted,
 });
 
 // Expected raw layer row data based on actual query results
@@ -25,14 +32,14 @@ export const constructDCMAWCriStartExpectedRawLayerRow = (
     event_id: event_id,
     event_name: 'DCMAW_CRI_START',
     component_id: '106sdhzkl1rus2fcuj2w',
-    client_id: 'null',
+    client_id: null,
     timestamp: timestamp,
-    timestamp_formatted,
-    user: `null`,
+    timestamp_formatted: timestamp_formatted,
+    user: null,
     event_timestamp_ms: event_timestamp_ms,
-    event_timestamp_ms_formatted,
-    extensions: 'null',
-    txma: 'null',
+    event_timestamp_ms_formatted: event_timestamp_ms_formatted,
+    extensions: null,
+    txma: null,
     datecreated: datecreated,
   });
 
@@ -42,9 +49,6 @@ export const constructDCMAWCriStartExpectedExpectedStageLayerRow = (
   timestamp_formatted: string,
   event_timestamp_ms: number,
   event_timestamp_ms_formatted: string,
-  client_id: string,
-  user_id: string,
-  journey_id: string,
   year: number,
   month: number,
   day: number,
@@ -53,15 +57,15 @@ export const constructDCMAWCriStartExpectedExpectedStageLayerRow = (
 ) =>
   buildExpectedStageLayerRow({
     event_id: event_id,
-    client_id: 'null',
+    client_id: null,
     component_id: '106sdhzkl1rus2fcuj2w',
     timestamp: timestamp,
-    timestamp_formatted,
-    user_govuk_signin_journey_id: journey_id,
-    user_user_id: user_id,
+    timestamp_formatted: timestamp_formatted,
+    user_govuk_signin_journey_id: null,
+    user_user_id: null,
     partition_event_name: 'DCMAW_CRI_START',
     event_timestamp_ms: event_timestamp_ms,
-    event_timestamp_ms_formatted,
+    event_timestamp_ms_formatted: event_timestamp_ms_formatted,
     year: year,
     month: month,
     day: day,
@@ -71,4 +75,4 @@ export const constructDCMAWCriStartExpectedExpectedStageLayerRow = (
   });
 
 // Expected stage layer key values data
-export const constructDCMAWCriStartExpectedStageLayerKeyValues = (processed_dt: number, processed_time: number) => [];
+export const constructDCMAWCriStartExpectedStageLayerKeyValues = () => undefined;
