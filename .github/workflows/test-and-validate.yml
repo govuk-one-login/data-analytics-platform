@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v5
       - name: Node setup
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v4
         with:
           node-version: 22
           cache: npm
@@ -30,14 +30,14 @@ jobs:
       - name: Script formatting checks
         run: npm run scripts:format:check
       - name: SAM setup
-        uses: aws-actions/setup-sam@f664fad9e12492edfc187a31f575537dfbb0ff63 # v2
+        uses: aws-actions/setup-sam@c71dd89d980e49367c70391e8ada4353f52f2800 # v2
         with:
           use-installer: true
           version: 1.134.0
       - name: IaC linting checks
         run: npm run iac:lint
       - name: Checkov actions scan
-        uses: bridgecrewio/checkov-action@4f9f1bef9f759c19c966f39c0638ea427d776f4d # v12
+        uses: bridgecrewio/checkov-action@02a4c5d6a02367e5ea493c34c26b094302fd3f61 # v12
         with:
           config_file: .checkov.ci.yml
           directory: iac-dist
@@ -55,8 +55,8 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v5
+      - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v5
         with:
           python-version: '3.11'
       - name: Build release distributions
