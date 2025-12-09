@@ -203,6 +203,11 @@ RedshiftServerlessWorkgroup:
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
     WorkgroupName: !Sub '${Environment}-redshift-serverless-workgroup'
+    Tags: !If
+      - IsProduction
+      - !Ref AWS::NoValue
+      - - Key: BackupFrequency
+          Value: Daily
   Metadata:
     cfn-lint:
       config:
