@@ -7,7 +7,7 @@ type StageLayerInput = {
   user_govuk_signin_journey_id: string | null;
   user_user_id: string | null;
   partition_event_name: string;
-  event_timestamp_ms: number;
+  event_timestamp_ms: number | null;
   event_timestamp_ms_formatted: string | null;
   year: number;
   month: number;

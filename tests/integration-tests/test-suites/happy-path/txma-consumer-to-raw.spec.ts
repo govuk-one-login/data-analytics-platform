@@ -8,8 +8,8 @@ const getTestEventPairs = () => (global as { testEventPairs?: typeof happyPathEv
 
 describe('TxMA consumer lambda to raw layer integration tests', () => {
   test.each(getTestEventPairs())(
-    'Event $auditEvent.event_name ($auditEvent.event_id) should be present in Athena raw layer table',
-    async ({ auditEvent, rawLayerEvent }) => {
+    'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
+    async ({ testEventNumber, auditEvent, rawLayerEvent }) => {
       const rawLayerDatabase = getIntegrationTestEnv('RAW_LAYER_DATABASE');
       const query = `SELECT * FROM "${rawLayerDatabase}"."txma-refactored" WHERE event_id = '${auditEvent.event_id}'`;
       const results = await executeAthenaQuery(query, rawLayerDatabase);
