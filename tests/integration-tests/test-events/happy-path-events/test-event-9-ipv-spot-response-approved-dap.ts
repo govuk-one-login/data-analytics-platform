@@ -210,3 +210,79 @@ export const constructIpvSpotResponseApprovedTestEvent9ExpectedStageLayerKeyValu
       processed_dt: processed_dt,
     },
   ]);
+
+// Test Event 9: Expected conformed layer data
+export const constructIpvSpotResponseApprovedTestEvent9ExpectedConformedData = (date: string) => ({
+  fact: { event_id: event_id, component_id: '97yng2ww2jml3tnyl3hx' },
+  dimUserJourney: { user_govuk_signin_journey_id: null },
+  dimEvent: { event_name: 'IPV_SPOT_RESPONSE_APPROVED' },
+  dimJourneyChannel: { channel_name: 'Web' },
+  dimDate: { date: date },
+  extensions: [
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'crosscore_request_reference',
+      event_attribute_value: '16dd705a-d206-44ac-a36c-d1d67f4705f0',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'decision',
+      event_attribute_value: 'CONTINUE',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'emailfraudcheckresponse.decision.decision',
+      event_attribute_value: 'CONTINUE',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'emailfraudcheckresponse.decision.decisionreasons[0]',
+      event_attribute_value: 'Low or No email Risk',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'emailfraudcheckresponse.decision.fraudrisk',
+      event_attribute_value: '150 Low',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'emailfraudcheckresponse.decision.score',
+      event_attribute_value: '273',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'emailfraudcheckresponse.domain.countryname',
+      event_attribute_value: 'United Kingdom',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'emailfraudcheckresponse.domain.exists',
+      event_attribute_value: 'Yes',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'emailfraudcheckresponse.domain.risklevel',
+      event_attribute_value: 'Low',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'emailfraudcheckresponse.email.country',
+      event_attribute_value: 'GB',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'emailfraudcheckresponse.email.exists',
+      event_attribute_value: 'Yes',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'emailfraudcheckresponse.email.status',
+      event_attribute_value: 'Verified',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'journey_type',
+      event_attribute_value: 'REGISTRATION',
+    },
+  ],
+});

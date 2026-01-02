@@ -93,3 +93,19 @@ export const constructAuthMfaMethodAddStartedTestEvent12ExpectedStageLayerKeyVal
       processed_dt: processed_dt,
     },
   ]);
+
+// Test Event 12: Expected conformed layer data
+export const constructAuthMfaMethodAddStartedTestEvent12ExpectedConformedData = (date: string) => ({
+  fact: { event_id: event_id, component_id: 'tj8gzybtwf2qko4hjkxa' },
+  dimUserJourney: { user_govuk_signin_journey_id: null },
+  dimEvent: { event_name: 'AUTH_MFA_METHOD_ADD_STARTED' },
+  dimJourneyChannel: { channel_name: 'General' },
+  dimDate: { date: date },
+  extensions: [
+    {
+      parent_attribute_name: 'txma',
+      event_attribute_name: 'configversion',
+      event_attribute_value: '1.3.63',
+    },
+  ],
+});

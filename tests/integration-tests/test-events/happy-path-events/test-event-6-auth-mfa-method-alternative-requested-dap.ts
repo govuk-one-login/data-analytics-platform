@@ -94,3 +94,18 @@ export const constructAuthMfaMethodAlternativeRequestedTestEvent6ExpectedStageLa
 
 // Test Event 6: Expected stage layer key values data
 export const constructAuthMfaMethodAlternativeRequestedTestEvent6ExpectedStageLayerKeyValues = () => undefined;
+
+// Test Event 6: Expected conformed layer data
+export const constructAuthMfaMethodAlternativeRequestedTestEvent6ExpectedConformedData = (
+  journey_id: string,
+  user_id: string,
+  date: string,
+) => ({
+  fact: { event_id: event_id, component_id: 'cj1ewiw8knw1i71dot5m' },
+  dimUserJourney: { user_govuk_signin_journey_id: journey_id },
+  dimEvent: { event_name: 'AUTH_MFA_METHOD_ALTERNATIVE_REQUESTED' },
+  dimUser: { user_id: user_id },
+  dimJourneyChannel: { channel_name: 'General' },
+  dimDate: { date: date },
+  extensions: [],
+});

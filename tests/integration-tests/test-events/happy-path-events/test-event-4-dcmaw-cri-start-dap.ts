@@ -86,3 +86,10 @@ export const constructDCMAWCriStartTestEvent4ExpectedStageLayerRow = (
 
 // Test Event 4: Expected stage layer key values data
 export const constructDCMAWCriStartTestEvent4ExpectedStageLayerKeyValues = () => undefined;
+
+// Test Event 4: Expected conformed layer data
+export const constructDCMAWCriStartTestEvent4ExpectedConformedData = (journey_id: string) => ({
+  fact: { event_id: event_id, component_id: '106sdhzkl1rus2fcuj2w' },
+  dimUserJourney: { user_govuk_signin_journey_id: journey_id },
+  extensions: [],
+});

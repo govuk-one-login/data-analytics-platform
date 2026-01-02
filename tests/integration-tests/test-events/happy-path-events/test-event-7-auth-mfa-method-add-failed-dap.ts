@@ -93,3 +93,55 @@ export const constructAuthMfaMethodAddFailedTestEvent7ExpectedStageLayerKeyValue
       processed_dt: processed_dt,
     },
   ]);
+
+// Test Event 7: Expected fact journey table data
+export const constructAuthMfaMethodAddFailedTestEvent7ExpectedFactJourneyTable = (
+  event_timestamp_ms: number,
+  event_timestamp_ms_formatted: string,
+  processed_date: string,
+  created_by: string,
+  modified_by: string,
+  processed_time: number,
+) => ({
+  event_id: event_id,
+  event_time: null,
+  component_id: 'i043s47s5z217sznedtk',
+  event_count: null,
+  processed_date: processed_date,
+  created_by: created_by,
+  modified_by: modified_by,
+  event_timestamp_ms: event_timestamp_ms,
+  event_timestamp_ms_formatted: event_timestamp_ms_formatted,
+  processed_time: processed_time,
+});
+
+// Test Event 7: Expected event extensions table data
+export const constructAuthMfaMethodAddFailedTestEvent7ExpectedEventExtensions = (
+  created_by: string,
+  modified_by: string,
+) => [
+  {
+    parent_attribute_name: 'extensions',
+    event_attribute_name: 'redirect_uri',
+    event_attribute_value: 'https://b8yoclcdj8.example.com/callback',
+    event_id: event_id,
+    created_by: created_by,
+    modified_by: modified_by,
+  },
+];
+
+// Test Event 7: Expected conformed layer data
+export const constructAuthMfaMethodAddFailedTestEvent7ExpectedConformedData = (date: string) => ({
+  fact: { event_id: event_id, component_id: 'i043s47s5z217sznedtk' },
+  dimUserJourney: { user_govuk_signin_journey_id: null },
+  dimEvent: { event_name: 'AUTH_MFA_METHOD_ADD_FAILED' },
+  dimJourneyChannel: { channel_name: 'General' },
+  dimDate: { date: date },
+  extensions: [
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'redirect_uri',
+      event_attribute_value: 'https://b8yoclcdj8.example.com/callback',
+    },
+  ],
+});

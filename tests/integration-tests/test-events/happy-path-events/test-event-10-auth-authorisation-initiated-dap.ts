@@ -156,3 +156,46 @@ export const constructAuthAuthorisationInitiatedTestEvent10ExpectedStageLayerKey
       processed_dt: processed_dt,
     },
   ]);
+
+// Test Event 10: Expected conformed layer data
+export const constructAuthAuthorisationInitiatedTestEvent10ExpectedConformedData = () => ({
+  fact: { event_id: event_id, component_id: 'm1kw1pm464p4hcek2j8s' },
+  dimUserJourney: { user_govuk_signin_journey_id: null },
+  extensions: [
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'evidence[0].checkdetails[0].biometricverificationprocesslevel',
+      event_attribute_value: '2',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'evidence[0].checkdetails[0].checkmethod',
+      event_attribute_value: '0p7nl0a1',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'evidence[0].checkdetails[0].identitycheckpolicy',
+      event_attribute_value: 'published',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'evidence[0].strengthscore',
+      event_attribute_value: '4',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'evidence[0].type',
+      event_attribute_value: 'IdentityCheck',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'evidence[0].validityscore',
+      event_attribute_value: '1',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'evidence[0].verificationscore',
+      event_attribute_value: '2',
+    },
+  ],
+});

@@ -88,3 +88,18 @@ export const constructIPVAsyncCriVcConsumedTestEvent5ExpectedStageLayerRow = (
 
 // Test Event 5: Expected stage layer key values data
 export const constructIPVAsyncCriVcConsumedTestEvent5ExpectedStageLayerKeyValues = () => undefined;
+
+// Test Event 5: Expected conformed layer data
+export const constructIPVAsyncCriVcConsumedTestEvent5ExpectedConformedData = (
+  journey_id: string,
+  user_id: string,
+  date: string,
+) => ({
+  fact: { event_id: event_id, component_id: 'we53dkaadezkw05yurte' },
+  dimUserJourney: { user_govuk_signin_journey_id: journey_id },
+  dimEvent: { event_name: 'IPV_ASYNC_CRI_VC_CONSUMED' },
+  dimUser: { user_id: user_id },
+  dimJourneyChannel: { channel_name: 'Web' },
+  dimDate: { date: date },
+  extensions: [],
+});
