@@ -9,4 +9,5 @@ export interface IntegrationTestEnv {
     | 'STAGE_LAYER_DATABASE'
     | 'RAW_TO_STAGE_STEP_FUNCTION'
     | 'GLUE_LOG_GROUP';
+  // | 'REDSHIFT_WORKGROUP';
 }

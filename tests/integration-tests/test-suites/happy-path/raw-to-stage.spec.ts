@@ -31,7 +31,7 @@ describe('Raw to Stage Integration Tests', () => {
   describe('Stage Layer Key Values Table', () => {
     test.each(getTestEventPairs())(
       'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
-      async ({ testEventNumber, auditEvent, stageLayerKeyValues }) => {
+      async ({ auditEvent, stageLayerKeyValues }) => {
         const stageLayerDatabase = getIntegrationTestEnv('STAGE_LAYER_DATABASE');
         const stageLayerKeyValuesQuery = `SELECT * FROM "${stageLayerDatabase}"."txma_stage_layer_key_values" WHERE event_id = '${auditEvent.event_id}' ORDER BY parent_column_name, key`;
         const stageLayerKeyValuesResults = await executeAthenaQuery(stageLayerKeyValuesQuery, stageLayerDatabase);
@@ -42,7 +42,7 @@ describe('Raw to Stage Integration Tests', () => {
 
           expect(stageLayerKeyValuesResults.slice(1)).toEqual(
             expect.arrayContaining(
-              stageLayerKeyValues.slice(1).map(expectedRow => ({
+              stageLayerKeyValues.slice(1).map((expectedRow: { Data: { VarCharValue: string }[] }) => ({
                 Data: [
                   expectedRow.Data[0], // event_id
                   expectedRow.Data[1], // parent_column_name

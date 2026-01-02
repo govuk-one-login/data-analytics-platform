@@ -85,3 +85,25 @@ export const constructAuthMfaMethodAddStartedTestEvent11ExpectedStageLayerRow = 
 
 // Test Event 11: Expected stage layer key values data
 export const constructAuthMfaMethodAddStartedTestEvent11ExpectedStageLayerKeyValues = () => undefined;
+
+// Test Event 11: Expected conformed layer data
+export const constructAuthMfaMethodAddStartedTestEvent11ExpectedConformedData = (date: string) => ({
+  fact: { event_id: event_id, component_id: '76staij516zlid81z3di' },
+  dimUserJourney: { user_govuk_signin_journey_id: null },
+  dimEvent: { event_name: 'AUTH_MFA_METHOD_ADD_STARTED' },
+  dimJourneyChannel: { channel_name: 'General' },
+  dimDate: { date: date },
+  extensions: [
+    {
+      parent_attribute_name: 'restricted',
+      event_attribute_name: 'device_information.encoded',
+      event_attribute_value:
+        'fazn0menm2xnkf70m60uduq20ea22yxo1u8m2cffcy2n8y0hj5ng10nbw12ktw07rdax6z8y90zlpwoznn8wd7zbcy80qymp2fhozhpm3b0446j3bwvj5pc6jdf3ybbk7vc7esotp4wyppa5y0m4wdq8bdamm62w4ckacflui4y6ffevf6709cozsdealcyiwqov1wdw',
+    },
+    {
+      parent_attribute_name: 'restricted',
+      event_attribute_name: 'domain_name',
+      event_attribute_value: 'mzp7ru09sm7iwkzdh9ep673jrqo089ze1la5ou72ose9u7mj3fyeco0ks4cvdrka',
+    },
+  ],
+});
