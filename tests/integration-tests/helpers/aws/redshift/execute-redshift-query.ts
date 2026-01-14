@@ -7,12 +7,17 @@ import {
 
 export const executeRedshiftQuery = async (query: string): Promise<Record<string, string | number>[]> => {
   const client = new RedshiftDataClient({});
-  const workgroupName = 'build-redshift-serverless-workgroup';
+  const workgroupName = process.env.REDSHIFT_WORKGROUP_NAME;
+  const database = 'dap_txma_reporting_db_refactored';
+
+  if (!workgroupName) {
+    throw new Error('REDSHIFT_WORKGROUP_NAME environment variable is required');
+  }
 
   const executeCommand = new ExecuteStatementCommand({
     Sql: query,
     WorkgroupName: workgroupName,
-    Database: 'dap_txma_reporting_db_refactored',
+    Database: database,
   });
 
   const executeResult = await client.send(executeCommand);

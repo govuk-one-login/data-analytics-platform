@@ -75,5 +75,14 @@ export const constructDCMAWCriStartTestEvent1ExpectedConformedData = (date: stri
   dimUserJourney: {
     user_govuk_signin_journey_id: null,
   },
+  dimEvent: {
+    event_name: 'DCMAW_CRI_START',
+  },
+  dimJourneyChannel: {
+    channel_name: 'App',
+  },
+  dimDate: {
+    date: date,
+  },
   extensions: [],
 });

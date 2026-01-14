@@ -5,11 +5,12 @@ import { executeStepFunction } from './helpers/aws/step-function/execute-step-fu
 import { setEnvVarsFromSsm } from './helpers/config/ssm-config';
 import { getIntegrationTestEnv } from './helpers/utils/utils';
 import { pollForRawLayerData, pollForStageLayerData } from './helpers/utils/poll-for-athena-data';
-// import { pollForFactJourneyData } from './helpers/utils/poll-for-redshift-data';
 import { happyPathEventList } from './test-events/happy-path-events/happy-path-event-list';
 import { edgeCaseEventList } from './test-events/edge-case-events/edge-case-event-list';
 import { txmaUnhappyPathEventList } from './test-events/txma-consumer-unhappy-path-events/txma-consumer-unhappy-event-list';
 import { AuditEvent } from '../../common/types/event';
+import { grantRedshiftAccess } from './helpers/aws/redshift/grant-access';
+import { pollForFactJourneyData } from './helpers/utils/poll-for-redshift-data';
 
 export default async () => {
   const setupStartTime = Date.now();
@@ -19,6 +20,10 @@ export default async () => {
     process.env.AWS_REGION = process.env.AWS_REGION ?? AWS_REGION;
 
     await setEnvVarsFromSsm();
+
+    console.log('🔐 Granting Redshift permissions...');
+    await grantRedshiftAccess(getIntegrationTestEnv('REDSHIFT_WORKGROUP_NAME'));
+    console.log('✓ Redshift permissions granted');
 
     console.log('🚀 Starting integration test setup...');
     const processedEvents: AuditEvent[] = [];
@@ -96,11 +101,11 @@ export default async () => {
     const stageLayerDuration = Date.now() - stageLayerStartTime;
     console.log(`✓ Stage layer processing completed in ${Math.round(stageLayerDuration / 1000)}s`);
 
-    // console.log('⏳ Waiting for events to appear in fact journey table...');
-    // const factJourneyStartTime = Date.now();
-    // await pollForFactJourneyData(eventIds, { maxWaitTimeMs: 2 * 60 * 1000 }); // 2 minute max wait
-    // const factJourneyDuration = Date.now() - factJourneyStartTime;
-    // console.log(`✓ Fact journey processing completed in ${Math.round(factJourneyDuration / 1000)}s`);
+    console.log('⏳ Waiting for events to appear in fact journey table...');
+    const factJourneyStartTime = Date.now();
+    await pollForFactJourneyData(eventIds, { maxWaitTimeMs: 2 * 60 * 1000 }); // 2 minute max wait
+    const factJourneyDuration = Date.now() - factJourneyStartTime;
+    console.log(`✓ Fact journey processing completed in ${Math.round(factJourneyDuration / 1000)}s`);
 
     const totalSetupDuration = Date.now() - setupStartTime;
     console.log(`🎉 Integration test setup completed successfully in ${Math.round(totalSetupDuration / 1000)}s`);

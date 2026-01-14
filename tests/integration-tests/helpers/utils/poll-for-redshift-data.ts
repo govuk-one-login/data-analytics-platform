@@ -38,10 +38,11 @@ export const pollForFactJourneyData = async (eventIds: string[], options: PollOp
 
 async function checkEventsInRedshift(eventIds: string[]): Promise<string[]> {
   const eventIdList = eventIds.map(id => `'${id}'`).join(',');
-  const query = `SELECT DISTINCT event_id FROM conformed_refactored.fact_user_journey_event_refactored WHERE event_id IN (${eventIdList})`;
+  const query = `SELECT DISTINCT event_id FROM "dap_txma_reporting_db_refactored"."conformed_refactored"."fact_user_journey_event_refactored" WHERE event_id IN (${eventIdList})`;
 
   try {
-    return await executeRedshiftQuery(query, 'dap_txma_reporting_db_refactored');
+    const results = await executeRedshiftQuery(query);
+    return results.map(row => row.event_id as string);
   } catch (error) {
     return [];
   }

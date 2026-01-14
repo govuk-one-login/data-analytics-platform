@@ -158,9 +158,18 @@ export const constructAuthAuthorisationInitiatedTestEvent10ExpectedStageLayerKey
   ]);
 
 // Test Event 10: Expected conformed layer data
-export const constructAuthAuthorisationInitiatedTestEvent10ExpectedConformedData = () => ({
+export const constructAuthAuthorisationInitiatedTestEvent10ExpectedConformedData = (date: string) => ({
   fact: { event_id: event_id, component_id: 'm1kw1pm464p4hcek2j8s' },
   dimUserJourney: { user_govuk_signin_journey_id: null },
+  dimEvent: {
+    event_name: 'AUTH_AUTHORISATION_INITIATED',
+  },
+  dimJourneyChannel: {
+    channel_name: 'General',
+  },
+  dimDate: {
+    date: date,
+  },
   extensions: [
     {
       parent_attribute_name: 'extensions',

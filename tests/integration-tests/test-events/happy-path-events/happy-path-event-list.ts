@@ -196,7 +196,7 @@ export const happyPathEventList = [
       processed_time,
     ),
     stageLayerKeyValues: constructDCMAWCriStartTestEvent2ExpectedStageLayerKeyValues(),
-    conformedEvent: constructDCMAWCriStartTestEvent2ExpectedConformedData(),
+    conformedEvent: constructDCMAWCriStartTestEvent2ExpectedConformedData(date),
   },
   {
     testEventNumber: 3,
@@ -228,7 +228,7 @@ export const happyPathEventList = [
       processed_time,
     ),
     stageLayerKeyValues: constructDCMAWCriStartTestEvent3ExpectedStageLayerKeyValues(),
-    conformedEvent: constructDCMAWCriStartTestEvent3ExpectedConformedData(),
+    conformedEvent: constructDCMAWCriStartTestEvent3ExpectedConformedData(date),
   },
   {
     testEventNumber: 4,
@@ -263,7 +263,7 @@ export const happyPathEventList = [
       processed_time,
     ),
     stageLayerKeyValues: constructDCMAWCriStartTestEvent4ExpectedStageLayerKeyValues(),
-    conformedEvent: constructDCMAWCriStartTestEvent4ExpectedConformedData('testJourneyId'),
+    conformedEvent: constructDCMAWCriStartTestEvent4ExpectedConformedData('testJourneyId', date),
   },
   {
     testEventNumber: 5,
@@ -468,7 +468,7 @@ export const happyPathEventList = [
       processed_dt,
       processed_time,
     ),
-    conformedEvent: constructAuthAuthorisationInitiatedTestEvent10ExpectedConformedData(),
+    conformedEvent: constructAuthAuthorisationInitiatedTestEvent10ExpectedConformedData(date),
   },
   {
     testEventNumber: 11,
