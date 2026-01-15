@@ -356,7 +356,9 @@ RedshiftTestRolePolicy:
         - Effect: 'Allow'
           Action:
             - 'redshift-data:ExecuteStatement'
-          Resource: !GetAtt RedshiftServerlessWorkgroup.Workgroup.WorkgroupArn
+          Resource:
+            - !GetAtt RedshiftServerlessWorkgroup.Workgroup.WorkgroupArn
+            - !GetAtt RedshiftServerlessNamespace.Namespace.NamespaceArn
         - Effect: 'Allow'
           Action:
             - 'redshift-data:DescribeStatement'
@@ -369,10 +371,6 @@ RedshiftTestRolePolicy:
           Action: 'kms:Decrypt'
           Resource: !GetAtt KmsKey.Arn
     Roles:
-      - Fn::If:
-          - IsDev
-          - PL-secure-pipelines-pipeline-TestRole-0ac4f1a0d400
-          - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsBuild
           - PL-dap-build-deploy-TestRole-02569a5d3e58
