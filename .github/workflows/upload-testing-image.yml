@@ -3,12 +3,12 @@ name: Upload testing image to ECR
 on:
   push:
     branches:
-      - main
+      - DPT-1941
     paths:
       - tests/**
   workflow_dispatch:
     branches:
-      - main
+      - DPT-1941
 
 env:
   AWS_REGION: eu-west-2
