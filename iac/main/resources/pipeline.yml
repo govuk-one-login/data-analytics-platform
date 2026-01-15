@@ -356,9 +356,7 @@ RedshiftTestRolePolicy:
         - Effect: 'Allow'
           Action:
             - 'redshift-data:ExecuteStatement'
-          Resource:
-            - !GetAtt RedshiftServerlessWorkgroup.Workgroup.WorkgroupArn
-            - !GetAtt RedshiftServerlessNamespace.Namespace.NamespaceArn
+          Resource: '*'
         - Effect: 'Allow'
           Action:
             - 'redshift-data:DescribeStatement'
