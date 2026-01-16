@@ -1,15 +1,25 @@
 import { getIntegrationTestEnv } from '../../helpers/utils/utils';
 import { executeAthenaQuery } from '../../helpers/aws/athena/execute-athena-query';
 import { happyPathEventList } from '../../test-events/happy-path-events/happy-path-event-list';
+import { pollForStageLayerData } from '../../helpers/utils/poll-for-athena-data';
+import { AuditEvent } from '../../../../common/types/event';
 
 // Get events that were processed during setup
 const getTestEventPairs = () => (global as { testEventPairs?: typeof happyPathEventList }).testEventPairs || [];
 
 describe('Raw to Stage Integration Tests', () => {
+  beforeAll(
+    async () => {
+      const testEvents = (global as { testEvents?: AuditEvent[] }).testEvents || [];
+      const eventIds = testEvents.map(event => event.event_id);
+      await pollForStageLayerData(eventIds, { maxWaitTimeMs: 2 * 60 * 1000 });
+    },
+    3 * 60 * 1000,
+  );
   describe('Stage Layer Table', () => {
     test.each(getTestEventPairs())(
       'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
-      async ({ testEventNumber, auditEvent, stageLayerEvent }) => {
+      async ({ auditEvent, stageLayerEvent }) => {
         const stageLayerDatabase = getIntegrationTestEnv('STAGE_LAYER_DATABASE');
         const stageLayerQuery = `SELECT * FROM "${stageLayerDatabase}"."txma_stage_layer" WHERE event_id = '${auditEvent.event_id}'`;
         const stageLayerResults = await executeAthenaQuery(stageLayerQuery, stageLayerDatabase);

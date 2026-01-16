@@ -30,9 +30,6 @@ async function pollForData(
 
   console.log(`Polling for ${eventIds.length} events in ${layerName}`);
 
-  // Wait 30 seconds before starting to poll
-  await new Promise(resolve => setTimeout(resolve, 30000));
-
   const startTime = Date.now();
 
   while (Date.now() - startTime < maxWaitTimeMs) {

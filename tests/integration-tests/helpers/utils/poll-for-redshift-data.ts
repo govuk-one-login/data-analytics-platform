@@ -11,8 +11,6 @@ export const pollForFactJourneyData = async (eventIds: string[], options: PollOp
 
   console.log(`Polling for ${eventIds.length} events in fact journey`);
 
-  await new Promise(resolve => setTimeout(resolve, 30000));
-
   const startTime = Date.now();
 
   while (Date.now() - startTime < maxWaitTimeMs) {

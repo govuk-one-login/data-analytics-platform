@@ -4,13 +4,12 @@ import { addMessageToQueue } from './helpers/aws/sqs/add-message-to-queue';
 import { executeStepFunction } from './helpers/aws/step-function/execute-step-function';
 import { setEnvVarsFromSsm } from './helpers/config/ssm-config';
 import { getIntegrationTestEnv } from './helpers/utils/utils';
-import { pollForRawLayerData, pollForStageLayerData } from './helpers/utils/poll-for-athena-data';
+import { pollForRawLayerData } from './helpers/utils/poll-for-athena-data';
 import { happyPathEventList } from './test-events/happy-path-events/happy-path-event-list';
 import { edgeCaseEventList } from './test-events/edge-case-events/edge-case-event-list';
 import { txmaUnhappyPathEventList } from './test-events/txma-consumer-unhappy-path-events/txma-consumer-unhappy-event-list';
 import { AuditEvent } from '../../common/types/event';
 import { grantRedshiftAccess } from './helpers/aws/redshift/grant-access';
-import { pollForFactJourneyData } from './helpers/utils/poll-for-redshift-data';
 
 export default async () => {
   const setupStartTime = Date.now();
@@ -27,22 +26,24 @@ export default async () => {
 
     console.log('🚀 Starting integration test setup...');
     const processedEvents: AuditEvent[] = [];
+    const queueUrl = getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL');
+
     // Process happy path events
     for (const eventPair of happyPathEventList) {
       const event = eventPair.auditEvent;
-      await addMessageToQueue(event, getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL'));
+      await addMessageToQueue(event, queueUrl);
       processedEvents.push(event);
     }
     // Process edge case events
     for (const eventPair of edgeCaseEventList) {
       const event = eventPair.auditEvent;
-      await addMessageToQueue(event, getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL'));
+      await addMessageToQueue(event, queueUrl);
       processedEvents.push(event);
     }
     // Process unhappy path events (sent to queue but not polled for in raw/stage layers)
     for (const eventPair of txmaUnhappyPathEventList) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await addMessageToQueue(eventPair.auditEvent as any, getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL'));
+      await addMessageToQueue(eventPair.auditEvent as any, queueUrl);
     }
     console.log(`✓ Sent ${processedEvents.length + txmaUnhappyPathEventList.length} events to SQS queue `);
 
@@ -94,18 +95,6 @@ export default async () => {
     await executeStepFunction(rawToStageStepFunction, undefined, 'integration-test-setup');
     const stepFunctionDuration = Date.now() - stepFunctionStartTime;
     console.log(`✓ Step Function completed in ${Math.round(stepFunctionDuration / 1000)}s`);
-
-    console.log('⏳ Waiting for events to appear in stage layer...');
-    const stageLayerStartTime = Date.now();
-    await pollForStageLayerData(eventIds, { maxWaitTimeMs: 2 * 60 * 1000 }); // 2 minute max wait
-    const stageLayerDuration = Date.now() - stageLayerStartTime;
-    console.log(`✓ Stage layer processing completed in ${Math.round(stageLayerDuration / 1000)}s`);
-
-    console.log('⏳ Waiting for events to appear in fact journey table...');
-    const factJourneyStartTime = Date.now();
-    await pollForFactJourneyData(eventIds, { maxWaitTimeMs: 2 * 60 * 1000 }); // 2 minute max wait
-    const factJourneyDuration = Date.now() - factJourneyStartTime;
-    console.log(`✓ Fact journey processing completed in ${Math.round(factJourneyDuration / 1000)}s`);
 
     const totalSetupDuration = Date.now() - setupStartTime;
     console.log(`🎉 Integration test setup completed successfully in ${Math.round(totalSetupDuration / 1000)}s`);

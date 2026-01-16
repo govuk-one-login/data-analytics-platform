@@ -1,4 +1,6 @@
 import { executeRedshiftQuery } from '../../helpers/aws/redshift/execute-redshift-query';
+import { pollForFactJourneyData } from '../../helpers/utils/poll-for-redshift-data';
+import { AuditEvent } from '../../../../common/types/event';
 
 const getTestEventPairs = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -6,6 +8,14 @@ const getTestEventPairs = () => {
 };
 
 describe('Stage to Conform Integration Tests', () => {
+  beforeAll(
+    async () => {
+      const testEvents = (global as { testEvents?: AuditEvent[] }).testEvents || [];
+      const eventIds = testEvents.map(event => event.event_id);
+      await pollForFactJourneyData(eventIds, { maxWaitTimeMs: 2 * 60 * 1000 });
+    },
+    3 * 60 * 1000,
+  );
   describe('Fact User Journey Event Table', () => {
     test.each(getTestEventPairs())(
       'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
@@ -22,7 +32,7 @@ describe('Stage to Conform Integration Tests', () => {
         expect(fact.event_id).toBe(conformedEvent.fact.event_id);
         expect(fact.component_id).toBe(conformedEvent.fact.component_id);
       },
-      10000,
+      15000,
     );
   });
 
@@ -45,7 +55,7 @@ describe('Stage to Conform Integration Tests', () => {
           conformedEvent.dimUserJourney.user_govuk_signin_journey_id,
         );
       },
-      10000,
+      15000,
     );
   });
 
@@ -59,7 +69,7 @@ describe('Stage to Conform Integration Tests', () => {
         expect(results.length).toBe(conformedEvent.extensions?.length || 0);
         expect(results).toEqual(expect.arrayContaining(conformedEvent.extensions || []));
       },
-      10000,
+      15000,
     );
   });
 
@@ -76,7 +86,7 @@ describe('Stage to Conform Integration Tests', () => {
         const dimEventResults = await executeRedshiftQuery(dimEventQuery);
         expect(dimEventResults[0]?.event_name).toBe(conformedEvent.dimEvent.event_name);
       },
-      10000,
+      15000,
     );
   });
 
@@ -97,7 +107,7 @@ describe('Stage to Conform Integration Tests', () => {
         const dimUserResults = await executeRedshiftQuery(dimUserQuery);
         expect(dimUserResults[0]?.user_id).toBe(conformedEvent.dimUser.user_id);
       },
-      10000,
+      15000,
     );
   });
 
@@ -114,7 +124,7 @@ describe('Stage to Conform Integration Tests', () => {
         const dimJourneyChannelResults = await executeRedshiftQuery(dimJourneyChannelQuery);
         expect(dimJourneyChannelResults[0]?.channel_name).toBe(conformedEvent.dimJourneyChannel.channel_name);
       },
-      10000,
+      15000,
     );
   });
 
@@ -131,7 +141,7 @@ describe('Stage to Conform Integration Tests', () => {
         const dimDateResults = await executeRedshiftQuery(dimDateQuery);
         expect(dimDateResults[0]?.date).toBe(conformedEvent.dimDate.date);
       },
-      10000,
+      15000,
     );
   });
 });
