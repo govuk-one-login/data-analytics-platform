@@ -121,3 +121,34 @@ export const constructAuthEmailFraudCheckResponseReceivedTestEvent8ExpectedStage
       processed_dt: processed_dt,
     },
   ]);
+
+// Test Event 8: Expected conformed layer data
+export const constructAuthEmailFraudCheckResponseReceivedTestEvent8ExpectedConformedData = (date: string) => ({
+  fact: { event_id: event_id, component_id: 'zygiwnzbjy3edxx4e9a0' },
+  dimUserJourney: { user_govuk_signin_journey_id: null },
+  dimEvent: { event_name: 'AUTH_EMAIL_FRAUD_CHECK_RESPONSE_RECEIVED' },
+  dimJourneyChannel: { channel_name: 'General' },
+  dimDate: { date: date },
+  extensions: [
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'journey-type',
+      event_attribute_value: 'MFA_BACKUP',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'mfa-method',
+      event_attribute_value: 'primary',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'mfa-type',
+      event_attribute_value: 'APP',
+    },
+    {
+      parent_attribute_name: 'extensions',
+      event_attribute_name: 'phone_number_country_code',
+      event_attribute_value: '1',
+    },
+  ],
+});

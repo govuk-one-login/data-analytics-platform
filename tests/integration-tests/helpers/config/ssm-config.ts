@@ -11,6 +11,8 @@ const ssmMappings = {
   STAGE_LAYER_DATABASE: formatTestStackSsmParam('dapAthenaStageLayerDatabase'),
   RAW_TO_STAGE_STEP_FUNCTION: formatTestStackSsmParam('rawToStageStepFunction'),
   GLUE_LOG_GROUP: formatTestStackSsmParam('glueLogGroup'),
+  REDSHIFT_SECRET_ARN: formatTestStackSsmParam('redshiftSecretArn'),
+  REDSHIFT_WORKGROUP_NAME: formatTestStackSsmParam('redshiftWorkgroupName'),
 };
 
 export const setEnvVarsFromSsm = async (mappings: Record<string, string> = ssmMappings) => {

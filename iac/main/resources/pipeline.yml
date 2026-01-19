@@ -344,3 +344,32 @@ CDNPolicy:
           - IsProduction
           - PL-dap-production-deploy-DeployRole-068116bf8a2e
           - Ref: 'AWS::NoValue'
+
+RedshiftTestRolePolicy:
+  Type: 'AWS::IAM::ManagedPolicy'
+  Condition: UseTestingContainers
+  Properties:
+    Description: 'Policy for test role to access Redshift'
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: 'Allow'
+          Action:
+            - 'redshift-data:ExecuteStatement'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 'redshift-data:DescribeStatement'
+            - 'redshift-data:GetStatementResult'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action: 'secretsmanager:GetSecretValue'
+          Resource: !Ref RedshiftSecret
+        - Effect: 'Allow'
+          Action: 'kms:Decrypt'
+          Resource: !GetAtt KmsKey.Arn
+    Roles:
+      - Fn::If:
+          - IsBuild
+          - PL-dap-build-deploy-TestRole-02569a5d3e58
+          - Ref: 'AWS::NoValue'

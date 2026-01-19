@@ -11,9 +11,11 @@ import {
   constructDCMAWAsyncBiometricTokenIssuedExpectedRawLayerRow,
   constructDCMAWAsyncBiometricTokenIssuedExpectedStageLayerRow,
   constructDCMAWAsyncBiometricTokenIssuedExpectedStageLayerKeyValues,
+  constructDCMAWAsyncBiometricTokenIssuedExpectedConformedData,
 } from './dcmaw-async-biometric-token-issued-dap-event';
 import {
   constructDCMAWCriStartTestEvent1,
+  constructDCMAWCriStartTestEvent1ExpectedConformedData,
   constructDCMAWCriStartTestEvent1ExpectedRawLayerRow,
   constructDCMAWCriStartTestEvent1ExpectedStageLayerKeyValues,
   constructDCMAWCriStartTestEvent1ExpectedStageLayerRow,
@@ -23,66 +25,77 @@ import {
   constructDCMAWCriStartTestEvent2ExpectedRawLayerRow,
   constructDCMAWCriStartTestEvent2ExpectedStageLayerKeyValues,
   constructDCMAWCriStartTestEvent2ExpectedStageLayerRow,
+  constructDCMAWCriStartTestEvent2ExpectedConformedData,
 } from './test-event-2-dcmaw-cri-start-dap';
 import {
   constructDCMAWCriStartTestEvent3,
   constructDCMAWCriStartTestEvent3ExpectedRawLayerRow,
   constructDCMAWCriStartTestEvent3ExpectedStageLayerKeyValues,
   constructDCMAWCriStartTestEvent3ExpectedStageLayerRow,
+  constructDCMAWCriStartTestEvent3ExpectedConformedData,
 } from './test-event-3-dcmaw-cri-start-dap';
 import {
   constructDCMAWCriStartTestEvent4,
   constructDCMAWCriStartTestEvent4ExpectedRawLayerRow,
   constructDCMAWCriStartTestEvent4ExpectedStageLayerKeyValues,
   constructDCMAWCriStartTestEvent4ExpectedStageLayerRow,
+  constructDCMAWCriStartTestEvent4ExpectedConformedData,
 } from './test-event-4-dcmaw-cri-start-dap';
 import {
   constructIPVAsyncCriVcConsumedTestEvent5,
   constructIPVAsyncCriVcConsumedTestEvent5ExpectedRawLayerRow,
   constructIPVAsyncCriVcConsumedTestEvent5ExpectedStageLayerKeyValues,
   constructIPVAsyncCriVcConsumedTestEvent5ExpectedStageLayerRow,
+  constructIPVAsyncCriVcConsumedTestEvent5ExpectedConformedData,
 } from './test-event-5-ipv-async-cri-vc-consumed-dap';
 import {
   constructAuthMfaMethodAlternativeRequestedTestEvent6,
   constructAuthMfaMethodAlternativeRequestedTestEvent6ExpectedRawLayerRow,
   constructAuthMfaMethodAlternativeRequestedTestEvent6ExpectedStageLayerKeyValues,
   constructAuthMfaMethodAlternativeRequestedTestEvent6ExpectedStageLayerRow,
+  constructAuthMfaMethodAlternativeRequestedTestEvent6ExpectedConformedData,
 } from './test-event-6-auth-mfa-method-alternative-requested-dap';
 import {
   constructAuthMfaMethodAddFailedTestEvent7,
   constructAuthMfaMethodAddFailedTestEvent7ExpectedRawLayerRow,
   constructAuthMfaMethodAddFailedTestEvent7ExpectedStageLayerKeyValues,
   constructAuthMfaMethodAddFailedTestEvent7ExpectedStageLayerRow,
+  constructAuthMfaMethodAddFailedTestEvent7ExpectedConformedData,
 } from './test-event-7-auth-mfa-method-add-failed-dap';
 import {
   constructAuthEmailFraudCheckResponseReceivedTestEvent8,
   constructAuthEmailFraudCheckResponseReceivedTestEvent8ExpectedRawLayerRow,
   constructAuthEmailFraudCheckResponseReceivedTestEvent8ExpectedStageLayerKeyValues,
   constructAuthEmailFraudCheckResponseReceivedTestEvent8ExpectedStageLayerRow,
+  constructAuthEmailFraudCheckResponseReceivedTestEvent8ExpectedConformedData,
 } from './test-event-8-auth-email-fraud-check-response-received-dap';
 import {
   constructIpvSpotResponseApprovedTestEvent9,
   constructIpvSpotResponseApprovedTestEvent9ExpectedRawLayerRow,
   constructIpvSpotResponseApprovedTestEvent9ExpectedStageLayerKeyValues,
   constructIpvSpotResponseApprovedTestEvent9ExpectedStageLayerRow,
+  constructIpvSpotResponseApprovedTestEvent9ExpectedConformedData,
 } from './test-event-9-ipv-spot-response-approved-dap';
 import {
   constructAuthAuthorisationInitiatedTestEvent10,
   constructAuthAuthorisationInitiatedTestEvent10ExpectedRawLayerRow,
   constructAuthAuthorisationInitiatedTestEvent10ExpectedStageLayerKeyValues,
   constructAuthAuthorisationInitiatedTestEvent10ExpectedStageLayerRow,
+  constructAuthAuthorisationInitiatedTestEvent10ExpectedConformedData,
 } from './test-event-10-auth-authorisation-initiated-dap';
 import {
   constructAuthMfaMethodAddStartedTestEvent11,
   constructAuthMfaMethodAddStartedTestEvent11ExpectedRawLayerRow,
   constructAuthMfaMethodAddStartedTestEvent11ExpectedStageLayerKeyValues,
   constructAuthMfaMethodAddStartedTestEvent11ExpectedStageLayerRow,
+  constructAuthMfaMethodAddStartedTestEvent11ExpectedConformedData,
 } from './test-event-11-auth-mfa-method-add-started-dap';
 import {
   constructAuthMfaMethodAddStartedTestEvent12,
   constructAuthMfaMethodAddStartedTestEvent12ExpectedRawLayerRow,
   constructAuthMfaMethodAddStartedTestEvent12ExpectedStageLayerKeyValues,
   constructAuthMfaMethodAddStartedTestEvent12ExpectedStageLayerRow,
+  constructAuthMfaMethodAddStartedTestEvent12ExpectedConformedData,
 } from './test-event-12-auth-mfa-method-add-started-dap';
 
 const timestamp = generateTimestamp();
@@ -94,6 +107,7 @@ const now = new Date();
 const year = now.getFullYear();
 const month = now.getMonth() + 1;
 const day = now.getDate();
+const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 const processed_dt = generateProcessedDt();
 const processed_time = generateProcessedTime();
 
@@ -137,6 +151,7 @@ export const happyPathEventList = [
       processed_dt,
       processed_time,
     ),
+    conformedEvent: constructDCMAWAsyncBiometricTokenIssuedExpectedConformedData('testUserId', 'testJourneyId', date),
   },
   {
     testEventNumber: 1,
@@ -152,6 +167,7 @@ export const happyPathEventList = [
       processed_time,
     ),
     stageLayerKeyValues: constructDCMAWCriStartTestEvent1ExpectedStageLayerKeyValues(),
+    conformedEvent: constructDCMAWCriStartTestEvent1ExpectedConformedData(date),
   },
   {
     testEventNumber: 2,
@@ -180,6 +196,7 @@ export const happyPathEventList = [
       processed_time,
     ),
     stageLayerKeyValues: constructDCMAWCriStartTestEvent2ExpectedStageLayerKeyValues(),
+    conformedEvent: constructDCMAWCriStartTestEvent2ExpectedConformedData(date),
   },
   {
     testEventNumber: 3,
@@ -211,6 +228,7 @@ export const happyPathEventList = [
       processed_time,
     ),
     stageLayerKeyValues: constructDCMAWCriStartTestEvent3ExpectedStageLayerKeyValues(),
+    conformedEvent: constructDCMAWCriStartTestEvent3ExpectedConformedData(date),
   },
   {
     testEventNumber: 4,
@@ -245,6 +263,7 @@ export const happyPathEventList = [
       processed_time,
     ),
     stageLayerKeyValues: constructDCMAWCriStartTestEvent4ExpectedStageLayerKeyValues(),
+    conformedEvent: constructDCMAWCriStartTestEvent4ExpectedConformedData('testJourneyId', date),
   },
   {
     testEventNumber: 5,
@@ -279,6 +298,7 @@ export const happyPathEventList = [
       processed_time,
     ),
     stageLayerKeyValues: constructIPVAsyncCriVcConsumedTestEvent5ExpectedStageLayerKeyValues(),
+    conformedEvent: constructIPVAsyncCriVcConsumedTestEvent5ExpectedConformedData('testJourneyId', 'testUserId', date),
   },
   {
     testEventNumber: 6,
@@ -316,6 +336,11 @@ export const happyPathEventList = [
       processed_time,
     ),
     stageLayerKeyValues: constructAuthMfaMethodAlternativeRequestedTestEvent6ExpectedStageLayerKeyValues(),
+    conformedEvent: constructAuthMfaMethodAlternativeRequestedTestEvent6ExpectedConformedData(
+      'testJourneyId',
+      'testUserId',
+      date,
+    ),
   },
   {
     testEventNumber: 7,
@@ -347,6 +372,7 @@ export const happyPathEventList = [
       processed_dt,
       processed_time,
     ),
+    conformedEvent: constructAuthMfaMethodAddFailedTestEvent7ExpectedConformedData(date),
   },
   {
     testEventNumber: 8,
@@ -378,6 +404,7 @@ export const happyPathEventList = [
       processed_dt,
       processed_time,
     ),
+    conformedEvent: constructAuthEmailFraudCheckResponseReceivedTestEvent8ExpectedConformedData(date),
   },
   {
     testEventNumber: 9,
@@ -409,6 +436,7 @@ export const happyPathEventList = [
       processed_dt,
       processed_time,
     ),
+    conformedEvent: constructIpvSpotResponseApprovedTestEvent9ExpectedConformedData(date),
   },
   {
     testEventNumber: 10,
@@ -440,6 +468,7 @@ export const happyPathEventList = [
       processed_dt,
       processed_time,
     ),
+    conformedEvent: constructAuthAuthorisationInitiatedTestEvent10ExpectedConformedData(date),
   },
   {
     testEventNumber: 11,
@@ -468,6 +497,7 @@ export const happyPathEventList = [
       processed_time,
     ),
     stageLayerKeyValues: constructAuthMfaMethodAddStartedTestEvent11ExpectedStageLayerKeyValues(),
+    conformedEvent: constructAuthMfaMethodAddStartedTestEvent11ExpectedConformedData(date),
   },
   {
     testEventNumber: 12,
@@ -499,5 +529,6 @@ export const happyPathEventList = [
       processed_dt,
       processed_time,
     ),
+    conformedEvent: constructAuthMfaMethodAddStartedTestEvent12ExpectedConformedData(date),
   },
 ];
