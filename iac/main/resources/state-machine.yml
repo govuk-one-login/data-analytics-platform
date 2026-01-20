@@ -887,6 +887,13 @@ ADMConsolidatedModelProcessingLogGroup:
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
+ADMV3RefreshLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: /aws/stepfunction/dap-consolidated-conformed-layer-to-adm-v3
+    KmsKeyId: !GetAtt KmsKey.Arn
+    RetentionInDays: 30
+
 RedshiftConsolidatedModelProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
   Properties:
@@ -904,9 +911,31 @@ RedshiftConsolidatedModelProcessingStateMachine:
       RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
       RedshiftDatabaseName: dap_txma_reporting_db_refactored
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
-      ADMProcessingStepFunctionArn:
-        !If [IsADMEnvironment, !Ref ADMConsolidatedModelProcessingStateMachine, !Ref 'AWS::NoValue']
+      ADMProcessingStepFunctionArn: !If
+        - IsADMEnvironment
+        - !Ref ADMConsolidatedModelProcessingStateMachine
+        - !Ref 'AWS::NoValue'
       IsADMEnvironment: !If [IsADMEnvironment, true, false]
+
+ADMV3RefreshStateMachine:
+  Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+  Condition: IsADMEnvironment
+  Properties:
+    DefinitionUri: statemachine/txma_adm_v3_refresh_processing.asl.json
+    Name: !Sub ${Environment}-dap-consolidated-conformed-layer-to-adm-processing-v3
+    Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
+    Logging:
+      Destinations:
+        - CloudWatchLogsLogGroup:
+            LogGroupArn: !GetAtt ADMV3RefreshLogGroup.Arn
+      IncludeExecutionData: true
+      Level: ALL
+    DefinitionSubstitutions:
+      S3MetaDataBucketName: !Ref ELTMetadataBucket
+      RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
+      RedshiftDatabaseName: dap_txma_reporting_db_refactored
+      StateMachineResultsBucket: !Ref StateMachineResultsBucket
+      RedshiftSecretArn: !Ref RedshiftSecret
 
 ADMConsolidatedModelProcessingStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
@@ -927,6 +956,7 @@ ADMConsolidatedModelProcessingStateMachine:
       RedshiftDatabaseName: dap_txma_reporting_db_refactored
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
       RedshiftSecretArn: !Ref RedshiftSecret
+      ADMV3RefreshStepFunctionArn: !Ref ADMV3RefreshStateMachine
 
 SplunkMigratedRawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job

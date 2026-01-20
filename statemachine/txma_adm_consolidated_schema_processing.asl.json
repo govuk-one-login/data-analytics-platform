@@ -38,7 +38,7 @@
                 "WorkgroupName": "${RedshiftWorkgroup}",
                 "Database": "${RedshiftDatabaseName}",
                 "SecretArn": "${RedshiftSecretArn}",
-                "Sql": "call presentation_refactored.refresh_adm_views_by_so(1,6)"
+                "Sql": "CALL presentation_refactored.refresh_adm_views_cascade_part_a_test()"
             },
             "Next": "wait_on_adm_refresh_update_first"
         },
@@ -84,7 +84,7 @@
                 "WorkgroupName": "${RedshiftWorkgroup}",
                 "Database": "${RedshiftDatabaseName}",
                 "SecretArn": "${RedshiftSecretArn}",
-                "Sql": "call presentation_refactored.refresh_adm_views_by_so(7,14)"
+                "Sql": "CALL presentation_refactored.refresh_adm_views_cascade_part_b_test()"
             },
             "Next": "wait_on_adm_refresh_update_second"
         },
@@ -116,57 +116,34 @@
                 {
                     "Variable": "$.sql_output.Status",
                     "StringEquals": "FINISHED",
-                    "Next": "adm_refresh_update_third"
+                    "Next": "trigger_adm_refresh_v3_step_function"
                 }
             ],
             "Default": "wait_on_adm_refresh_update_second"
         },
-      "adm_refresh_update_third": {
-        "Comment": "Invoke Third ADM Refresh update script",
-        "Type": "Task",
-        "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
-        "ResultPath": "$.sql_output",
-        "Parameters": {
-          "WorkgroupName": "${RedshiftWorkgroup}",
-          "Database": "${RedshiftDatabaseName}",
-          "SecretArn": "${RedshiftSecretArn}",
-          "Sql": "call presentation_refactored.refresh_adm_views_by_so(15,25)"
+        "trigger_adm_refresh_v3_step_function": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::states:startExecution.sync:2",
+            "Parameters": {
+                "StateMachineArn": "${ADMV3RefreshStepFunctionArn}",
+                "Input": {
+                    "StatePayload": "Triggered from stage to redshift consolidated step function",
+                    "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+                }
+            },
+            "Next": "StopProcessing",
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "States.TaskFailed",
+                        "States.Timeout"
+                    ],
+                    "BackoffRate": 2,
+                    "MaxAttempts": 3,
+                    "IntervalSeconds": 30
+                }
+            ]
         },
-        "Next": "wait_on_adm_refresh_update_third"
-      },
-      "wait_on_adm_refresh_update_third": {
-        "Comment": "Wait before status check",
-        "Type": "Wait",
-        "Seconds": 120,
-        "Next": "refresh_adm_update_third_status_check"
-      },
-      "refresh_adm_update_third_status_check": {
-        "Comment": "Check Task Status",
-        "Type": "Task",
-        "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
-        "ResultPath": "$.sql_output",
-        "Parameters": {
-          "Id.$": "$.sql_output.Id"
-        },
-        "Next": "is_adm_refresh_update_third_complete"
-      },
-      "is_adm_refresh_update_third_complete": {
-        "Comment": "check if third ADM Refresh update step is complete",
-        "Type": "Choice",
-        "Choices": [
-          {
-            "Variable": "$.sql_output.Status",
-            "StringEquals": "FAILED",
-            "Next": "adm_refresh_update_failure"
-          },
-          {
-            "Variable": "$.sql_output.Status",
-            "StringEquals": "FINISHED",
-            "Next": "StopProcessing"
-          }
-        ],
-        "Default": "wait_on_adm_refresh_update_third"
-      },
         "adm_refresh_update_failure": {
             "Type": "Fail",
             "Cause": "Failure within ADM Refresh Update step",

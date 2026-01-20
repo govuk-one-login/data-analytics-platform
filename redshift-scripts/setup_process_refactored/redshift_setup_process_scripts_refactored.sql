@@ -92,6 +92,12 @@ GRANT EXECUTE ON procedure conformed_refactored.fact_user_journey_event_refactor
 GRANT EXECUTE ON procedure conformed_refactored.redshift_date_dim(VARCHAR,VARCHAR) TO "IAMR:{env}-dap-redshift-processing-role";
 GRANT EXECUTE ON procedure conformed_refactored.update_event_batch_table() TO "IAMR:{env}-dap-redshift-processing-role";
 GRANT EXECUTE ON procedure presentation_refactored.refresh_adm_views() TO "IAMR:{env}-dap-redshift-processing-role";
+GRANT EXECUTE ON procedure analytical_data_model.sp_refresh_adm() TO "IAMR:{env}-dap-redshift-processing-role";
+GRANT EXECUTE ON procedure analytical_data_model.sp_refresh_adm_views() TO "IAMR:{env}-dap-redshift-processing-role";
+GRANT EXECUTE ON procedure analytical_data_model.sp_run_adm_pipeline() TO "IAMR:production-dap-redshift-processing-role";
+
+
+
 /*
 Database object privileges to group
 */
@@ -109,5 +115,6 @@ GRANT ALL ON DATABASE "dap_txma_reporting_db_refactored" TO GROUP dap_elt_proces
 GRANT ALL ON SCHEMA "audit_refactored" TO GROUP dap_elt_processing;
 GRANT ALL ON SCHEMA "conformed_refactored" TO GROUP dap_elt_processing;
 GRANT ALL ON SCHEMA "presentation_refactored" TO GROUP dap_elt_processing;
+GRANT ALL on SCHEMA "analytical_data_model" to group dap_elt_processing
 
 GRANT ALL ON ALL TABLES IN SCHEMA "audit_refactored" TO GROUP dap_elt_processing;
