@@ -43,7 +43,7 @@ test('event with invalid timestamp', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(0);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event', {
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event:', {
     componentId: 'UNKNOWN',
     eventId: 'test-id',
     errors: ['Timestamp is not in expected format'],
@@ -63,7 +63,7 @@ test('event with multiple validation errors', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(0);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event', {
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event:', {
     componentId: 'UNKNOWN',
     eventId: 'test-id',
     errors: ['Event name is missing from audit event or is invalid', 'Timestamp is not in expected format'],
@@ -118,7 +118,7 @@ test('multiple valid events, one invalid event', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(1);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event', {
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event:', {
     componentId: 'test-component-id',
     eventId: 'test-id',
     errors: ['Event name is missing from audit event or is invalid'],
