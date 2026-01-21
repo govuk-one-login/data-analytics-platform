@@ -37,6 +37,7 @@
             "Parameters": {
                 "WorkgroupName": "${RedshiftWorkgroup}",
                 "Database": "${RedshiftDatabaseName}",
+                "SecretArn": "${RedshiftSecretArn}",
                 "Sql": "call analytical_data_model.sp_run_adm_pipeline()"
             },
             "Next": "wait_on_adm_refresh"
