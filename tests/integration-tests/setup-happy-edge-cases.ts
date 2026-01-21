@@ -84,6 +84,8 @@ export default async () => {
     console.log('⏳ Waiting for events to appear in raw layer...');
     const rawLayerStartTime = Date.now();
     const eventIds = processedEvents.map(event => event.event_id);
+    // Wait 15 seconds for Lambda to start processing before polling
+    await new Promise(resolve => setTimeout(resolve, 15000));
     await pollForRawLayerData(eventIds, { maxWaitTimeMs: 5 * 60 * 1000 }); // 5 minute max wait
     const rawLayerDuration = Date.now() - rawLayerStartTime;
     console.log(`✓ Raw layer processing completed in ${Math.round(rawLayerDuration / 1000)}s`);
