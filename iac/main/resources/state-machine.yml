@@ -694,6 +694,7 @@ StepFunctionRedshiftProcessRole:
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-processing'
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-stage-layer-to-redshift-processing'
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-conformed-layer-to-adm-processing'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-conformed-layer-to-adm-processing-v3'
               Action:
                 - states:ListExecutions
                 - states:StartExecution
