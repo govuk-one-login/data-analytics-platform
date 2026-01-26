@@ -345,30 +345,69 @@ CDNPolicy:
           - PL-dap-production-deploy-DeployRole-068116bf8a2e
           - Ref: 'AWS::NoValue'
 
-RedshiftTestRolePolicy:
+IntegrationTestRolePolicy:
   Type: 'AWS::IAM::ManagedPolicy'
   Condition: UseTestingContainers
   Properties:
-    Description: 'Policy for test role to access Redshift'
+    Description: 'Policy for test role to run integration tests'
     PolicyDocument:
       Version: '2012-10-17'
       Statement:
-        - Effect: 'Allow'
+        - Sid: 'Redshift'
+          Effect: 'Allow'
           Action:
             - 'redshift-data:ExecuteStatement'
             - 'redshift-serverless:GetCredentials'
-          Resource: '*'
-        - Effect: 'Allow'
-          Action:
             - 'redshift-data:DescribeStatement'
             - 'redshift-data:GetStatementResult'
           Resource: '*'
-        - Effect: 'Allow'
-          Action: 'secretsmanager:GetSecretValue'
-          Resource: !Ref RedshiftSecret
-        - Effect: 'Allow'
-          Action: 'kms:Decrypt'
-          Resource: !GetAtt KmsKey.Arn
+        - Sid: 'Athena'
+          Effect: 'Allow'
+          Action:
+            - 'athena:StartQueryExecution'
+            - 'athena:GetQueryExecution'
+            - 'athena:GetQueryResults'
+            - 'athena:GetWorkGroup'
+          Resource:
+            - !Sub 'arn:aws:athena:*:${AWS::AccountId}:workgroup/*'
+            - !Sub 'arn:aws:athena:*:${AWS::AccountId}:datacatalog/*'
+        - Sid: 'S3'
+          Effect: 'Allow'
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+            - 's3:DeleteObject'
+            - 's3:ListBucket'
+            - 's3:GetBucketLocation'
+          Resource:
+            - 'arn:aws:s3:::*-dap-*'
+            - 'arn:aws:s3:::*-dap-*/*'
+            - !Sub 'arn:aws:s3:::aws-athena-query-results-*-${AWS::AccountId}'
+            - !Sub 'arn:aws:s3:::aws-athena-query-results-*-${AWS::AccountId}/*'
+        - Sid: 'Glue'
+          Effect: 'Allow'
+          Action:
+            - 'glue:GetTable'
+            - 'glue:GetTables'
+            - 'glue:GetDatabase'
+            - 'glue:GetDatabases'
+            - 'glue:CreateTable'
+            - 'glue:UpdateTable'
+            - 'glue:GetPartitions'
+          Resource:
+            - !Sub 'arn:aws:glue:*:${AWS::AccountId}:catalog'
+            - !Sub 'arn:aws:glue:*:${AWS::AccountId}:database/*'
+            - !Sub 'arn:aws:glue:*:${AWS::AccountId}:table/*/*'
+        - Sid: 'StepFunctions'
+          Effect: 'Allow'
+          Action:
+            - 'states:StartExecution'
+            - 'states:DescribeExecution'
+            - 'states:ListExecutions'
+            - 'states:StopExecution'
+          Resource:
+            - !Sub 'arn:aws:states:*:${AWS::AccountId}:stateMachine:*'
+            - !Sub 'arn:aws:states:*:${AWS::AccountId}:execution:*:*'
     Roles:
       - Fn::If:
           - IsBuild
