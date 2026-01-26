@@ -123,7 +123,7 @@
         },
         "trigger_adm_refresh_v3_step_function": {
             "Type": "Task",
-            "Resource": "arn:aws:states:::states:startExecution.sync:2",
+            "Resource": "arn:aws:states:::states:startExecution",
             "Parameters": {
                 "StateMachineArn": "${ADMV3RefreshStepFunctionArn}",
                 "Input": {
