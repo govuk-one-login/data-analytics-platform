@@ -327,6 +327,14 @@ TxmaRawConsolidatedSchemaToStageProcessStateMachineArnParameter:
     Type: String
     Value: !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-txma-raw-consolidated-schema-to-stage-process'
 
+StageToConformStepFunctionParameter:
+  Type: AWS::SSM::Parameter
+  Condition: IsDevOrBuild
+  Properties:
+    Name: !Sub /tests/${AWS::StackName}/stageToConformStepFunction
+    Type: String
+    Value: !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-stage-layer-to-redshift-processing'
+
 GlueLogGroupParameter:
   Type: AWS::SSM::Parameter
   Condition: IsDevOrBuild
