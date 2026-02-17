@@ -43,7 +43,7 @@ export const constructReplayTestEventWithAdditionalExtensions = (
 ): AuditEvent => {
   const replayed_timestamp_ms = Date.now();
   (global as { replayedTimestampMs?: number }).replayedTimestampMs = replayed_timestamp_ms;
-  
+
   return {
     event_id: originalEventId || event_id,
     event_name: 'AUTH_MFA_METHOD_ADD_FAILED',
