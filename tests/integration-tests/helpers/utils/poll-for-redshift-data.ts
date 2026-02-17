@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { executeRedshiftQuery } from '../aws/redshift/execute-redshift-query';
+import { DEFAULT_POLL_INTERVAL_MS, DEFAULT_MAX_WAIT_TIME_MS } from '../../constants';
 
 interface PollOptions {
   maxWaitTimeMs?: number;
@@ -7,7 +8,7 @@ interface PollOptions {
 }
 
 export const pollForFactJourneyData = async (eventIds: string[], options: PollOptions = {}): Promise<void> => {
-  const { maxWaitTimeMs = 5 * 60 * 1000, pollIntervalMs = 5000 } = options;
+  const { maxWaitTimeMs = DEFAULT_MAX_WAIT_TIME_MS, pollIntervalMs = DEFAULT_POLL_INTERVAL_MS } = options;
 
   console.log(`Polling for ${eventIds.length} events in fact journey`);
 

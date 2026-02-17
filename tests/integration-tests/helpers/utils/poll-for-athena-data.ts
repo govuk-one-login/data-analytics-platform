@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { executeAthenaQuery } from '../aws/athena/execute-athena-query';
 import { getIntegrationTestEnv } from './utils';
+import { DEFAULT_POLL_INTERVAL_MS, DEFAULT_MAX_WAIT_TIME_MS } from '../../constants';
 
 interface PollOptions {
   maxWaitTimeMs?: number;
@@ -32,7 +33,7 @@ async function pollForData(
   layerName: string,
   options: PollOptions = {},
 ): Promise<void> {
-  const { maxWaitTimeMs = 5 * 60 * 1000, pollIntervalMs = 5000 } = options;
+  const { maxWaitTimeMs = DEFAULT_MAX_WAIT_TIME_MS, pollIntervalMs = DEFAULT_POLL_INTERVAL_MS } = options;
 
   console.log(`Polling for ${eventIds.length} events in ${layerName}`);
 
@@ -83,7 +84,7 @@ async function pollForReplayData(
   layerName: string,
   options: PollOptions = {},
 ): Promise<void> {
-  const { maxWaitTimeMs = 5 * 60 * 1000, pollIntervalMs = 5000 } = options;
+  const { maxWaitTimeMs = DEFAULT_MAX_WAIT_TIME_MS, pollIntervalMs = DEFAULT_POLL_INTERVAL_MS } = options;
 
   console.log(`Polling for ${replayIds.length} replay events in ${layerName}`);
 

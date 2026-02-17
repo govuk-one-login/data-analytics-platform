@@ -1,5 +1,11 @@
 /* eslint-disable no-console */
 import { execSync } from 'child_process';
+import {
+  DEFAULT_POLL_INTERVAL_MS,
+  GLUE_JOB_TIMEOUT_MS,
+  GLUE_JOB_STATUS_RUNNING,
+  GLUE_JOB_STATUS_SUCCEEDED,
+} from '../../../constants';
 
 export const executeGlueJob = async (
   jobName: string,
@@ -14,23 +20,23 @@ export const executeGlueJob = async (
 
     console.log(`✓ Glue job started with ID: ${JobRunId}`);
 
-    let status = 'RUNNING';
+    let status = GLUE_JOB_STATUS_RUNNING;
     const startTime = Date.now();
-    const timeoutMs = 10 * 60 * 1000;
+    const timeoutMs = GLUE_JOB_TIMEOUT_MS;
 
-    while (status === 'RUNNING') {
+    while (status === GLUE_JOB_STATUS_RUNNING) {
       if (Date.now() - startTime > timeoutMs) {
         throw new Error(`Glue job timed out after 10 minutes. Job Run ID: ${JobRunId}`);
       }
 
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, DEFAULT_POLL_INTERVAL_MS));
       const getCommand = `aws glue get-job-run --job-name ${jobName} --run-id ${JobRunId}`;
       const getResult = execSync(getCommand, { encoding: 'utf-8' });
       const jobRun = JSON.parse(getResult);
       status = jobRun.JobRun.JobRunState;
     }
 
-    if (status !== 'SUCCEEDED') {
+    if (status !== GLUE_JOB_STATUS_SUCCEEDED) {
       throw new Error(`Glue job failed with status: ${status}. Job Run ID: ${JobRunId}`);
     }
 

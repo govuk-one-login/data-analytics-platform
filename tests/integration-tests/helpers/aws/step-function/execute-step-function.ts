@@ -6,6 +6,13 @@ import {
   ListExecutionsCommand,
   StopExecutionCommand,
 } from '@aws-sdk/client-sfn';
+import {
+  DEFAULT_POLL_INTERVAL_MS,
+  STEP_FUNCTION_TIMEOUT_MS,
+  STEP_FUNCTION_STATUS_RUNNING,
+  STEP_FUNCTION_STATUS_SUCCEEDED,
+  ABORT_WAIT_TIME_MS,
+} from '../../../constants';
 
 export const executeStepFunction = async (
   stateMachineArn: string,
@@ -34,16 +41,16 @@ export const executeStepFunction = async (
     const executionArn = startResult.executionArn!;
 
     // Wait for execution to complete with 10-minute timeout
-    let status = 'RUNNING';
+    let status = STEP_FUNCTION_STATUS_RUNNING;
     const startTime = Date.now();
-    const timeoutMs = 10 * 60 * 1000; // 10 minutes
+    const timeoutMs = STEP_FUNCTION_TIMEOUT_MS;
 
-    while (status === 'RUNNING') {
+    while (status === STEP_FUNCTION_STATUS_RUNNING) {
       if (Date.now() - startTime > timeoutMs) {
         throw new Error(`Step Function execution timed out after 10 minutes. Execution ARN: ${executionArn}`);
       }
 
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, DEFAULT_POLL_INTERVAL_MS));
       const statusCommand = new DescribeExecutionCommand({ executionArn });
       const statusResult = await client.send(statusCommand);
       status = statusResult.status || 'FAILED';
@@ -52,7 +59,7 @@ export const executeStepFunction = async (
     const describeCommand = new DescribeExecutionCommand({ executionArn });
     const details = await client.send(describeCommand);
 
-    if (status !== 'SUCCEEDED') {
+    if (status !== STEP_FUNCTION_STATUS_SUCCEEDED) {
       let glueJobId: string | undefined;
       let logGroupName: string | undefined;
 
@@ -116,5 +123,5 @@ const abortRunningExecutions = async (client: SFNClient, stateMachineArn: string
   }
 
   // Wait for aborts to take effect and Glue jobs to fully stop
-  await new Promise(resolve => setTimeout(resolve, 10000));
+  await new Promise(resolve => setTimeout(resolve, ABORT_WAIT_TIME_MS));
 };
