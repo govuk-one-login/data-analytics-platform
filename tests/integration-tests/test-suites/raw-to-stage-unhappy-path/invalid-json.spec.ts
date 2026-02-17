@@ -11,7 +11,11 @@ import { constructCreateAccountDeformedJsonUserEvent } from '../../test-events/r
 describe('Invalid JSON Tests', () => {
   let uploadedEventId: string | undefined;
 
-  test.each([
+  // Skip in dev - pythonshell Glue jobs don't write detailed logs to CloudWatch in dev
+  const shouldSkip = process.env.STACK_NAME === 'dap' || process.env.AWS_PROFILE?.includes('dev');
+  const testFn = shouldSkip ? test.skip : test;
+
+  testFn.each([
     ['txma field', constructCreateAccountDeformedJsonTxmaEvent],
     ['extensions field', constructInvalidExtensionsEvent],
     ['user field', constructCreateAccountDeformedJsonUserEvent],

@@ -1,6 +1,9 @@
 import { AuditEvent } from '../../../../common/types/event';
 import { randomUUID } from 'crypto';
 
+export const getReplayEventId = (): string => (global as { replayEventId?: string }).replayEventId!;
+export const getReplayId = (): string => (global as { replayId?: string }).replayId!;
+
 const event_id = randomUUID();
 const replay_id = randomUUID();
 
@@ -95,7 +98,11 @@ export const constructReplayTestEventExpectedConformedData = (eventId: string, d
   ],
 });
 
-export const constructReplayTestEventExpectedConformedDataAfterReplay = (eventId: string, date: string) => ({
+export const constructReplayTestEventExpectedConformedDataAfterReplay = (
+  eventId: string,
+  date: string,
+  replayId: string,
+) => ({
   fact: {
     event_id: eventId,
     component_id: 'https://signin.account.gov.uk',
@@ -131,8 +138,20 @@ export const constructReplayTestEventExpectedConformedDataAfterReplay = (eventId
       event_attribute_name: 'reason',
       event_attribute_value: 'INVALID_CODE',
     },
+    {
+      parent_attribute_name: 'txma',
+      event_attribute_name: 'configversion',
+      event_attribute_value: '1.1.74',
+    },
+    {
+      parent_attribute_name: 'txma',
+      event_attribute_name: 'event_replay.replay_id',
+      event_attribute_value: replayId,
+    },
+    {
+      parent_attribute_name: 'txma',
+      event_attribute_name: 'event_replay.replayed_timestamp_ms',
+      event_attribute_value: '1768233730645',
+    },
   ],
 });
-
-export const getReplayEventId = () => event_id;
-export const getReplayId = () => replay_id;

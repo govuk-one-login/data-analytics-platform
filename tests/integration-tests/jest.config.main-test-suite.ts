@@ -6,7 +6,7 @@ const config: JestConfigWithTsJest = {
   verbose: true,
   testMatch: ['**/tests/integration-tests/test-suites/**/*.spec.ts'],
   testPathIgnorePatterns: ['<rootDir>/test-suites/raw-to-stage-unhappy-path/'],
-  globalSetup: '<rootDir>/setup-happy-edge-cases.ts',
+  globalSetup: '<rootDir>/setup-main-test-suite.ts',
   globalTeardown: '<rootDir>/teardown.ts',
   testTimeout: 600000,
   maxWorkers: 4,

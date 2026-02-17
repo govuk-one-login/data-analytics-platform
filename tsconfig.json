@@ -3,13 +3,14 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "module": "commonjs",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noImplicitAny": true,
     "outDir": "./dist/",
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "target": "es2022",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["jest", "node"]
   }
 }

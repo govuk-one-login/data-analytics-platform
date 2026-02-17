@@ -90,11 +90,10 @@
     "scripts:format:check": "prettier --check scripts",
     "scripts:format:fix": "prettier --write scripts",
     "husky:install": "husky",
-    "test:integration": "jest -c ./tests/integration-tests/jest.config.unified.ts --runInBand",
-    "test:integration:ci": "jest -c ./tests/integration-tests/jest.config.unified.ts --runInBand",
-    "test:integration:happy-edge": "jest -c ./tests/integration-tests/jest.config.happy-edge-cases.ts --runInBand",
-    "test:integration:raw-to-stage-unhappy": "jest -c ./tests/integration-tests/jest.config.raw-to-stage-unhappy-path.ts --runInBand",
-    "test:integration:event-replay": "jest -c ./tests/integration-tests/jest.config.event-replay.ts --runInBand"
+    "test:integration": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/integration-tests/jest.config.unified.ts --runInBand",
+    "test:integration:ci": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/integration-tests/jest.config.unified.ts --runInBand",
+    "test:integration:main": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/integration-tests/jest.config.main-test-suite.ts --runInBand",
+    "test:integration:raw-to-stage-unhappy": "jest -c ./tests/integration-tests/jest.config.raw-to-stage-unhappy-path.ts --runInBand"
   },
   "lint-staged": {
     "*": "prettier --write",

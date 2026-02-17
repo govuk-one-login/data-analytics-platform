@@ -3,7 +3,7 @@ import { executeGlueJob } from '../../helpers/aws/glue/execute-glue-job';
 import { executeAthenaQuery } from '../../helpers/aws/athena/execute-athena-query';
 import { executeRedshiftQuery } from '../../helpers/aws/redshift/execute-redshift-query';
 import { executeStepFunction } from '../../helpers/aws/step-function/execute-step-function';
-import { pollForStageLayerData, pollForRawLayerReplayData } from '../../helpers/utils/poll-for-athena-data';
+import { pollForRawLayerReplayData } from '../../helpers/utils/poll-for-athena-data';
 import { pollForFactJourneyData } from '../../helpers/utils/poll-for-redshift-data';
 import { uploadReplayConfigToS3 } from '../../helpers/aws/s3/upload-replay-config';
 import {
@@ -16,23 +16,19 @@ import {
   constructReplayTestEventWithAdditionalExtensions,
   constructReplayTestEventExpectedConformedData,
   constructReplayTestEventExpectedConformedDataAfterReplay,
-  getReplayId,
 } from '../../test-events/replay-events/replay-event';
 
 const eventId = (global as { replayEventId?: string }).replayEventId!;
-const replayId = getReplayId();
+let replayId: string;
 
 describe('Event Replay Integration Test', () => {
-  // eslint-disable-next-line no-console
-  console.log(`Event Replay Test - event_id: ${eventId}, replay_id: ${replayId}`);
-
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
   const day = now.getDate();
   const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   const expectedInitialConformedData = constructReplayTestEventExpectedConformedData(eventId, date);
-  const expectedReplayConformedData = constructReplayTestEventExpectedConformedDataAfterReplay(eventId, date);
+  const expectedReplayConformedData = constructReplayTestEventExpectedConformedDataAfterReplay(eventId, date, replayId);
 
   test('Initial event appears in conform layer with expected extensions', async () => {
     const factQuery = `
@@ -56,7 +52,7 @@ describe('Event Replay Integration Test', () => {
   }, 30000);
 
   test(
-    'Event replay updates stage layer with replayed event',
+    'Event replay updates stage and conform layers with additional extensions',
     async () => {
       const queueUrl = getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL');
       const timestamp = generateTimestamp();
@@ -64,7 +60,9 @@ describe('Event Replay Integration Test', () => {
       const event_timestamp_ms = generateTimestampInMs();
       const event_timestamp_ms_formatted = generateTimestampFormatted();
 
-      const replayEvent = constructReplayTestEventWithAdditionalExtensions(
+      await new Promise(resolve => setTimeout(resolve, 75000));
+
+      const replayEventToSend = constructReplayTestEventWithAdditionalExtensions(
         timestamp,
         timestamp_formatted,
         event_timestamp_ms,
@@ -72,15 +70,10 @@ describe('Event Replay Integration Test', () => {
         eventId,
       );
 
-      // eslint-disable-next-line no-console
-      console.log(`Sending replay event - event_id: ${eventId}, replay_id: ${replayId}`);
-      // eslint-disable-next-line no-console
-      console.log('⏳ Waiting 75 seconds to ensure events are in different batches...');
-      await new Promise(resolve => setTimeout(resolve, 75000)); // Wait 75s to ensure different batch
-      await addMessageToQueue(replayEvent, queueUrl);
-      await new Promise(resolve => setTimeout(resolve, 15000));
+      await addMessageToQueue(replayEventToSend, queueUrl);
+      replayId = (replayEventToSend.txma as { event_replay: { replay_id: string } }).event_replay.replay_id;
 
-      // Poll for replay event in raw layer before running Glue job
+      await new Promise(resolve => setTimeout(resolve, 15000));
       await pollForRawLayerReplayData([replayId], { maxWaitTimeMs: 2 * 60 * 1000 });
 
       const metadataBucket = getIntegrationTestEnv('RAW_LAYER_BUCKET').replace('-dap-raw-layer', '-dap-elt-metadata');
@@ -92,22 +85,13 @@ describe('Event Replay Integration Test', () => {
       await executeGlueJob(glueJobName, {
         '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/raw_to_stage_replay_config.json',
       });
-      await pollForStageLayerData([eventId], { maxWaitTimeMs: 2 * 60 * 1000 });
 
       const stageQuery = `SELECT * FROM "${stageDatabase}"."txma_stage_layer" WHERE event_id = '${eventId}'`;
       const stageResults = await executeAthenaQuery(stageQuery, stageDatabase);
       expect(stageResults.length).toBeGreaterThan(0);
 
-      // Run stage-to-conform step function after confirming replayed event is in stage layer
       const stageToConformStepFunction = getIntegrationTestEnv('STAGE_TO_CONFORM_STEP_FUNCTION');
       await executeStepFunction(stageToConformStepFunction, undefined, 'replay-stage-to-conform');
-    },
-    7 * 60 * 1000,
-  );
-
-  test(
-    'Event replay updates conform layer with additional extensions',
-    async () => {
       await pollForFactJourneyData([eventId], { maxWaitTimeMs: 2 * 60 * 1000 });
 
       const countQuery = `
@@ -128,6 +112,6 @@ describe('Event Replay Integration Test', () => {
       expect(extensionsResults.length).toBe(expectedReplayConformedData.extensions.length);
       expect(extensionsResults).toEqual(expect.arrayContaining(expectedReplayConformedData.extensions));
     },
-    3 * 60 * 1000,
+    10 * 60 * 1000,
   );
 });

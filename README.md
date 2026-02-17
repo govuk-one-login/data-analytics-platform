@@ -124,11 +124,16 @@ npm run test:cov
 
 #### Integration tests
 
-Integration tests verify the data pipeline from SQS ingestion through to the stage layer (stage to conform tests planned to be added). These are enabled to run in _dev_ or _build_ environments. They use [Jest](https://jestjs.io) with a global setup file ([setup-happy-edge-cases.ts](tests/integration-tests/setup-happy-edge-cases.ts)) that:
+Integration tests verify the data pipeline from SQS ingestion through to the conform layer. These are enabled to run in _dev_ or _build_ environment. They use [Jest](https://jestjs.io) and are organized into two test projects that run concurrently. The main test suite uses a shared global setup file ([setup-main-test-suite.ts](tests/integration-tests/setup-main-test-suite.ts)) that processes all test events through the pipeline before tests run, while the raw-to-stage unhappy path tests execute the Step Function individually within each test to verify error handling.
+
+The main test suite global setup:
 1. Sends test events to the TxMA SQS queue
 2. Waits for events to appear in the raw layer
 3. Executes the raw-to-stage ETL Step Function
 4. Waits for transformed data in the stage layer
+5. Waits for transformed data in the conform layer
+
+The raw-to-stage unhappy path tests setup ([setup-raw-to-stage-unhappy-path.ts](tests/integration-tests/setup-raw-to-stage-unhappy-path.ts)) only loads environment variables, as each test writes malformed data directly to the raw S3 layer and executes the Step Function individually (expecting it to fail).
 
 Prerequisites to running integration tests:
 * Set up ~/.aws/config file with the correct AWS credentials
@@ -144,31 +149,40 @@ To run integration tests:
 npm run test:integration
 ```
 
-The tests use three event categories:
-* **Happy path events**: Valid events that should process successfully
-* **Edge case events**: Boundary conditions and unusual but valid scenarios
-* **Unhappy path events**: Invalid events to verify error handling
+Running `npm run test:integration` executes all integration tests concurrently in two projects:
+
+1. **Main test suite** (uses shared global setup for efficiency):
+    
+   **Happy path tests**
+   * `test-suites/happy-path/txma-consumer-to-raw.spec.ts` - Verifies valid TxMA events are consumed from SQS and written to raw S3 layer
+   * `test-suites/happy-path/raw-to-stage.spec.ts` - Validates raw-to-stage ETL transforms raw JSON to stage layer format
+   * `test-suites/happy-path/stage-conform.spec.ts` - Tests stage-to-conform ETL transformation to final reporting structure
+
+   **Edge case tests**
+   * `test-suites/raw-to-stage-edge-cases/empty-client-id.spec.ts` - Tests handling of events with empty client_id fields
+   * `test-suites/raw-to-stage-edge-cases/null-extensions-excluded.spec.ts` - Verifies null extension fields are properly excluded
+   
+   **TxMA unhappy path test**
+   * `test-suites/txma-consumer-unhappy-path/txma-consumer-unhappy-path.spec.ts` - Tests error handling in txma-consumer lambda for invalid events (missing fields, malformed timestamps)
+
+   **Event replay test**
+   * `test-suites/event-replay/event-replay.spec.ts` - Verifies replayed events update existing records rather than creating duplicates. The test waits 75 seconds between sending the initial and replay events to ensure they are processed in different batches, simulating production behavior where replayed events arrive separately
+
+2. **Raw-to-stage-unhappy-path project** (executes Step Function individually per test):
+   * `test-suites/raw-to-stage-unhappy-path/invalid-json.spec.ts` - Verifies the raw-to-stage ETL Step Function fails for events with malformed JSON
 
 Test events are defined in `tests/integration-tests/test-events/`.
 
 You can run specific test categories:
 ```sh
-npm run test:integration:happy-edge             # Run all tests except raw-to-stage unhappy path
+npm run test:integration:main                     # Run main test suite (happy path, edge cases, txma unhappy path, event replay)
 npm run test:integration:raw-to-stage-unhappy   # Run only raw-to-stage unhappy path tests
+npm run test:integration -- event-replay        # Run only event replay tests
 ```
 
-The `test:integration:happy-edge` command runs:
-* `test-suites/happy-path/txma-consumer-to-raw.spec.ts` - Tests for txma-consumer processing events from SQS to raw layer
-* `test-suites/happy-path/raw-to-stage.spec.ts` - Tests for raw-to-stage ETL processing from raw to stage layer
-* `test-suites/raw-to-stage-edge-cases/` - Tests for edge cases like empty client IDs and null extensions
-* `test-suites/txma-consumer-unhappy-path/` - Tests for invalid events in the txma-consumer (e.g., missing fields, invalid timestamps)
+These tests are split into two projects based on their execution patterns. The main test suite executes the ETL Step Function once in the global setup file, processing all events before any tests run. The raw-to-stage unhappy path tests execute the Step Function individually within each test (expecting failures for invalid data), making them take longer to run.
 
-The `test:integration:raw-to-stage-unhappy` command runs:
-* `test-suites/raw-to-stage-unhappy-path/` - Tests for invalid JSON handling in the raw-to-stage ETL process
-
-These tests are split because they use different execution patterns. The happy-edge tests execute the ETL Step Function once in the global setup file, processing all events before any tests run. The raw-to-stage unhappy path tests execute the Step Function individually within each test, making them take longer to run.
-
-Running `npm run test:integration` will run all tests concurrently without conflicts, as the Step Function executions are isolated between the different test suites. The full test suite typically takes approximately 10-11 minutes to complete, including ~6 minutes for the global setup and ~4 minutes for test execution. Tests automatically clean up all test data from S3 and Athena after completion.
+Running `npm run test:integration` will run all tests concurrently in two projects. The Step Function executions are isolated between the different test suites. The full test suite typically takes approximately 14 minutes to complete. Tests automatically clean up all test data from S3 and Athena after completion.
 
 #### Test reports
 

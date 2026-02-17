@@ -32,7 +32,7 @@ async function pollForData(
   layerName: string,
   options: PollOptions = {},
 ): Promise<void> {
-  const { maxWaitTimeMs = 5 * 60 * 1000, pollIntervalMs = 10000 } = options;
+  const { maxWaitTimeMs = 5 * 60 * 1000, pollIntervalMs = 5000 } = options;
 
   console.log(`Polling for ${eventIds.length} events in ${layerName}`);
 
@@ -83,7 +83,7 @@ async function pollForReplayData(
   layerName: string,
   options: PollOptions = {},
 ): Promise<void> {
-  const { maxWaitTimeMs = 5 * 60 * 1000, pollIntervalMs = 10000 } = options;
+  const { maxWaitTimeMs = 5 * 60 * 1000, pollIntervalMs = 5000 } = options;
 
   console.log(`Polling for ${replayIds.length} replay events in ${layerName}`);
 
