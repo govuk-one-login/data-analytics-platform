@@ -18,16 +18,14 @@ const ssmMappings = {
 
 export const setEnvVarsFromSsm = async (mappings: Record<string, string> = ssmMappings) => {
   for (const [k, v] of Object.entries(mappings)) {
-    if (!process.env[k]) {
-      try {
-        const value = await retrieveSsmParameterValue(v, 'eu-west-2');
-        if (!value) {
-          throw new Error(`SSM parameter ${v} returned empty value`);
-        }
-        process.env[k] = value;
-      } catch (error) {
-        throw new Error(`Failed to retrieve SSM parameter ${v} for ${k}: ${error}`);
+    try {
+      const value = await retrieveSsmParameterValue(v, 'eu-west-2');
+      if (!value) {
+        throw new Error(`SSM parameter ${v} returned empty value`);
       }
+      process.env[k] = value;
+    } catch (error) {
+      throw new Error(`Failed to retrieve SSM parameter ${v} for ${k}: ${error}`);
     }
   }
 

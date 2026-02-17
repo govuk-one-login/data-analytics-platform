@@ -5,15 +5,15 @@ const config: JestConfigWithTsJest = {
   verbose: true,
   projects: [
     {
-      displayName: 'happy-edge-cases',
+      displayName: 'main-test-suite',
       coveragePathIgnorePatterns: ['/dist/'],
       preset: 'ts-jest',
       testMatch: ['**/tests/integration-tests/test-suites/**/*.spec.ts'],
       testPathIgnorePatterns: ['<rootDir>/test-suites/raw-to-stage-unhappy-path/'],
-      globalSetup: '<rootDir>/setup-happy-edge-cases.ts',
+      globalSetup: '<rootDir>/setup-main-test-suite.ts',
       globalTeardown: '<rootDir>/teardown.ts',
       testTimeout: 600000,
-      maxWorkers: 4,
+      maxWorkers: 6,
     },
     {
       displayName: 'raw-to-stage-unhappy-path',
@@ -22,7 +22,7 @@ const config: JestConfigWithTsJest = {
       testMatch: ['**/tests/integration-tests/test-suites/raw-to-stage-unhappy-path/**/*.spec.ts'],
       globalSetup: '<rootDir>/setup-raw-to-stage-unhappy-path.ts',
       testTimeout: 600000,
-      maxWorkers: 1, // Run tests sequentially since each test executes its own Step Function
+      maxWorkers: 2,
     },
   ],
   reporters: [

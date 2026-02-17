@@ -5,7 +5,15 @@ import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
 const redshiftClient = new RedshiftDataClient({});
 const stsClient = new STSClient({});
 
+let permissionsGranted = false;
+
 export async function grantRedshiftAccess(workgroupName: string): Promise<void> {
+  // Skip if already granted in this test run
+  if (permissionsGranted) {
+    console.log('✓ Redshift permissions already granted (cached)');
+    return;
+  }
+
   const database = 'dap_txma_reporting_db_refactored';
   const identity = await stsClient.send(new GetCallerIdentityCommand({}));
 
@@ -30,7 +38,7 @@ export async function grantRedshiftAccess(workgroupName: string): Promise<void> 
 
   let initStatus = 'SUBMITTED';
   while (initStatus === 'SUBMITTED' || initStatus === 'PICKED' || initStatus === 'STARTED') {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
     const statusResult = await redshiftClient.send(new DescribeStatementCommand({ Id: initQuery.Id! }));
     initStatus = statusResult.Status!;
   }
@@ -65,7 +73,7 @@ export async function grantRedshiftAccess(workgroupName: string): Promise<void> 
     const statementId = result.Id!;
     let status = 'SUBMITTED';
     while (status === 'SUBMITTED' || status === 'PICKED' || status === 'STARTED') {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
       const statusResult = await redshiftClient.send(new DescribeStatementCommand({ Id: statementId }));
       status = statusResult.Status!;
 
@@ -82,4 +90,6 @@ export async function grantRedshiftAccess(workgroupName: string): Promise<void> 
 
     console.log(`Grant successful: ${statementId}`);
   }
+
+  permissionsGranted = true;
 }
