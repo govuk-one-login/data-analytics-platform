@@ -16,6 +16,7 @@ import {
   constructReplayTestEventWithAdditionalExtensions,
   constructReplayTestEventExpectedConformedData,
   constructReplayTestEventExpectedConformedDataAfterReplay,
+  getReplayedTimestampMs,
 } from '../../test-events/replay-events/replay-event';
 
 const eventId = (global as { replayEventId?: string }).replayEventId!;
@@ -71,11 +72,13 @@ describe('Event Replay Integration Test', () => {
 
       await addMessageToQueue(replayEventToSend, queueUrl);
       replayId = (replayEventToSend.txma as { event_replay: { replay_id: string } }).event_replay.replay_id;
+      const replayedTimestampMs = getReplayedTimestampMs();
 
       const expectedReplayConformedData = constructReplayTestEventExpectedConformedDataAfterReplay(
         eventId,
         date,
         replayId,
+        replayedTimestampMs.toString(),
       );
 
       await new Promise(resolve => setTimeout(resolve, 15000));

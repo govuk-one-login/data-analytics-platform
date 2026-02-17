@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 
 export const getReplayEventId = (): string => (global as { replayEventId?: string }).replayEventId!;
 export const getReplayId = (): string => (global as { replayId?: string }).replayId!;
+export const getReplayedTimestampMs = (): number => (global as { replayedTimestampMs?: number }).replayedTimestampMs!;
 
 const event_id = randomUUID();
 const replay_id = randomUUID();
@@ -37,32 +38,39 @@ export const constructReplayTestEventWithAdditionalExtensions = (
   event_timestamp_ms: number,
   event_timestamp_ms_formatted: string,
   originalEventId?: string,
-): AuditEvent => ({
-  event_id: originalEventId || event_id,
-  event_name: 'AUTH_MFA_METHOD_ADD_FAILED',
-  client_id: 'testClientId',
-  component_id: 'https://signin.account.gov.uk',
-  timestamp: timestamp,
-  timestamp_formatted: timestamp_formatted,
-  event_timestamp_ms: event_timestamp_ms,
-  event_timestamp_ms_formatted: event_timestamp_ms_formatted,
-  user: {
-    govuk_signin_journey_id: 'testJourneyId',
-    user_id: 'testUserId',
-  },
-  extensions: {
-    mfa_type: 'SMS',
-    notification_type: 'MFA_SMS',
-    reason: 'INVALID_CODE',
-  },
-  txma: {
-    event_replay: {
-      replay_id: replay_id,
-      replayed_timestamp_ms: 1768233730645,
+  originalTimestamp?: number,
+  originalTimestampFormatted?: string,
+): AuditEvent => {
+  const replayed_timestamp_ms = Date.now();
+  (global as { replayedTimestampMs?: number }).replayedTimestampMs = replayed_timestamp_ms;
+  
+  return {
+    event_id: originalEventId || event_id,
+    event_name: 'AUTH_MFA_METHOD_ADD_FAILED',
+    client_id: 'testClientId',
+    component_id: 'https://signin.account.gov.uk',
+    timestamp: originalTimestamp || timestamp,
+    timestamp_formatted: originalTimestampFormatted || timestamp_formatted,
+    event_timestamp_ms: event_timestamp_ms,
+    event_timestamp_ms_formatted: event_timestamp_ms_formatted,
+    user: {
+      govuk_signin_journey_id: 'testJourneyId',
+      user_id: 'testUserId',
     },
-    configversion: '1.1.74',
-  },
-});
+    extensions: {
+      mfa_type: 'SMS',
+      notification_type: 'MFA_SMS',
+      reason: 'INVALID_CODE',
+    },
+    txma: {
+      event_replay: {
+        replay_id: replay_id,
+        replayed_timestamp_ms: replayed_timestamp_ms,
+      },
+      configversion: '1.1.74',
+    },
+  };
+};
 
 export const constructReplayTestEventExpectedConformedData = (eventId: string, date: string) => ({
   fact: {
@@ -102,6 +110,7 @@ export const constructReplayTestEventExpectedConformedDataAfterReplay = (
   eventId: string,
   date: string,
   replayId: string,
+  replayedTimestampMs: string,
 ) => ({
   fact: {
     event_id: eventId,
@@ -151,7 +160,7 @@ export const constructReplayTestEventExpectedConformedDataAfterReplay = (
     {
       parent_attribute_name: 'txma',
       event_attribute_name: 'event_replay.replayed_timestamp_ms',
-      event_attribute_value: '1768233730645',
+      event_attribute_value: replayedTimestampMs,
     },
   ],
 });
