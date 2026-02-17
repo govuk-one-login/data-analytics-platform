@@ -7,8 +7,13 @@ const ssmMappings = {
   DAP_TXMA_CONSUMER_SQS_QUEUE_URL: formatTestStackSsmParam('dapTXMAConsumerSQSQueueUrl'),
   ATHENA_WORKGROUP: formatTestStackSsmParam('dapAthenaWorkgroup'),
   RAW_LAYER_DATABASE: formatTestStackSsmParam('dapAthenaRawLayerDatabase'),
+  RAW_LAYER_BUCKET: formatTestStackSsmParam('dapRawLayerBucket'),
   STAGE_LAYER_DATABASE: formatTestStackSsmParam('dapAthenaStageLayerDatabase'),
   RAW_TO_STAGE_STEP_FUNCTION: formatTestStackSsmParam('rawToStageStepFunction'),
+  STAGE_TO_CONFORM_STEP_FUNCTION: formatTestStackSsmParam('stageToConformStepFunction'),
+  GLUE_LOG_GROUP: formatTestStackSsmParam('glueLogGroup'),
+  REDSHIFT_SECRET_ARN: formatTestStackSsmParam('redshiftSecretArn'),
+  REDSHIFT_WORKGROUP_NAME: formatTestStackSsmParam('redshiftWorkgroupName'),
 };
 
 export const setEnvVarsFromSsm = async (mappings: Record<string, string> = ssmMappings) => {

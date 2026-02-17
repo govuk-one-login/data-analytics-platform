@@ -1,14 +1,14 @@
 type StageLayerInput = {
   event_id: string;
-  client_id: string;
+  client_id: string | null;
   component_id: string;
   timestamp: number;
-  timestamp_formatted: string;
-  user_govuk_signin_journey_id: string;
-  user_user_id: string;
+  timestamp_formatted: string | null;
+  user_govuk_signin_journey_id: string | null;
+  user_user_id: string | null;
   partition_event_name: string;
-  event_timestamp_ms: number;
-  event_timestamp_ms_formatted: string;
+  event_timestamp_ms: number | null;
+  event_timestamp_ms_formatted: string | null;
   year: number;
   month: number;
   day: number;
@@ -42,6 +42,6 @@ export const buildExpectedStageLayerRow = (data: StageLayerInput) => [
   },
   // Data row
   {
-    Data: Object.values(data).map(value => ({ VarCharValue: String(value) })),
+    Data: Object.values(data).map(value => (value === null ? {} : { VarCharValue: String(value) })),
   },
 ];

@@ -124,12 +124,58 @@ npm run test:cov
 
 #### Integration tests
 
-TODO
+Integration tests verify the data pipeline from SQS ingestion through to the stage layer (stage to conform tests planned to be added). These are enabled to run in _dev_ or _build_ environments. They use [Jest](https://jestjs.io) with a global setup file ([setup-happy-edge-cases.ts](tests/integration-tests/setup-happy-edge-cases.ts)) that:
+1. Sends test events to the TxMA SQS queue
+2. Waits for events to appear in the raw layer
+3. Executes the raw-to-stage ETL Step Function
+4. Waits for transformed data in the stage layer
+
+Prerequisites to running integration tests:
+* Set up ~/.aws/config file with the correct AWS credentials
+* Environment variables `STACK_NAME` and `AWS_REGION` set (or defaults to values in `tests/shared-test-code/constants.ts`)
+* Login to AWS:
+  ```sh
+  export AWS_PROFILE=data-dap-{environment}
+  aws sso login
+  ```
+
+To run integration tests:
+```sh
+npm run test:integration
+```
+
+The tests use three event categories:
+* **Happy path events**: Valid events that should process successfully
+* **Edge case events**: Boundary conditions and unusual but valid scenarios
+* **Unhappy path events**: Invalid events to verify error handling
+
+Test events are defined in `tests/integration-tests/test-events/`.
+
+You can run specific test categories:
+```sh
+npm run test:integration:happy-edge             # Run all tests except raw-to-stage unhappy path
+npm run test:integration:raw-to-stage-unhappy   # Run only raw-to-stage unhappy path tests
+```
+
+The `test:integration:happy-edge` command runs:
+* `test-suites/happy-path/txma-consumer-to-raw.spec.ts` - Tests for txma-consumer processing events from SQS to raw layer
+* `test-suites/happy-path/raw-to-stage.spec.ts` - Tests for raw-to-stage ETL processing from raw to stage layer
+* `test-suites/raw-to-stage-edge-cases/` - Tests for edge cases like empty client IDs and null extensions
+* `test-suites/txma-consumer-unhappy-path/` - Tests for invalid events in the txma-consumer (e.g., missing fields, invalid timestamps)
+
+The `test:integration:raw-to-stage-unhappy` command runs:
+* `test-suites/raw-to-stage-unhappy-path/` - Tests for invalid JSON handling in the raw-to-stage ETL process
+
+These tests are split because they use different execution patterns. The happy-edge tests execute the ETL Step Function once in the global setup file, processing all events before any tests run. The raw-to-stage unhappy path tests execute the Step Function individually within each test, making them take longer to run.
+
+Running `npm run test:integration` will run all tests concurrently without conflicts, as the Step Function executions are isolated between the different test suites. The full test suite typically takes approximately 10-11 minutes to complete, including ~6 minutes for the global setup and ~4 minutes for test execution. Tests automatically clean up all test data from S3 and Athena after completion.
 
 #### Test reports
 
-After running unit or integration tests, a test report called `index.html` will be available in the [test-report](test-report) directory.
+After running unit tests, a test report called `index.html` will be available in the [test-report](test-report) directory.
 This behaviour is provided by [jest-stare](https://www.npmjs.com/package/jest-stare) and configured in `jest.config.js`.
+
+Integration tests generate JUnit XML reports using [jest-junit](https://www.npmjs.com/package/jest-junit), which are used by CI/CD pipelines (Secure Pipelines) to parse and display test results.
 
 ## Linting, formatting and validation
 

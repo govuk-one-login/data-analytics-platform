@@ -183,6 +183,11 @@ RedshiftServerlessNamespace:
     LogExports:
       - useractivitylog
     NamespaceName: !Sub '${Environment}-redshift-serverless-ns'
+    Tags: !If
+      - IsProduction
+      - !Ref AWS::NoValue
+      - - Key: BackupFrequency
+          Value: Daily
 
 RedshiftServerlessWorkgroup:
   Type: 'AWS::RedshiftServerless::Workgroup'
@@ -544,3 +549,19 @@ RedshiftErrorLambdaInvokePermission:
     Action: lambda:InvokeFunction
     Principal: logs.amazonaws.com
     SourceArn: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/stepfunction/dap-consolidated-stage-layer-to-redshift:*
+
+RedshiftSecretArnParameter:
+  Condition: IsDevOrBuild
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: !Sub /tests/${AWS::StackName}/redshiftSecretArn
+    Type: String
+    Value: !Ref RedshiftSecret
+
+RedshiftWorkgroupNameParameter:
+  Condition: IsDevOrBuild
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: !Sub /tests/${AWS::StackName}/redshiftWorkgroupName
+    Type: String
+    Value: !Ref RedshiftServerlessWorkgroup

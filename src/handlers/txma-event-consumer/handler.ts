@@ -36,7 +36,7 @@ const validateRecords = (records: SQSRecord[]) => {
         const errors = validateAuditEvent(auditEvent);
 
         if (errors.length > 0) {
-          logger.error('Invalid audit event', {
+          logger.error('Invalid audit event:', {
             eventId: auditEvent.event_id ?? 'UNKNOWN',
             componentId: auditEvent.component_id ?? 'UNKNOWN',
             errors: [...errors],
