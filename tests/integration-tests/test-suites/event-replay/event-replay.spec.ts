@@ -28,7 +28,6 @@ describe('Event Replay Integration Test', () => {
   const day = now.getDate();
   const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   const expectedInitialConformedData = constructReplayTestEventExpectedConformedData(eventId, date);
-  const expectedReplayConformedData = constructReplayTestEventExpectedConformedDataAfterReplay(eventId, date, replayId);
 
   test('Initial event appears in conform layer with expected extensions', async () => {
     const factQuery = `
@@ -72,6 +71,12 @@ describe('Event Replay Integration Test', () => {
 
       await addMessageToQueue(replayEventToSend, queueUrl);
       replayId = (replayEventToSend.txma as { event_replay: { replay_id: string } }).event_replay.replay_id;
+
+      const expectedReplayConformedData = constructReplayTestEventExpectedConformedDataAfterReplay(
+        eventId,
+        date,
+        replayId,
+      );
 
       await new Promise(resolve => setTimeout(resolve, 15000));
       await pollForRawLayerReplayData([replayId], { maxWaitTimeMs: 2 * 60 * 1000 });
