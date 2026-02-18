@@ -394,10 +394,13 @@ IntegrationTestRolePolicy:
             - 'glue:CreateTable'
             - 'glue:UpdateTable'
             - 'glue:GetPartitions'
+            - 'glue:StartJobRun'
+            - 'glue:GetJobRun'
           Resource:
             - !Sub 'arn:aws:glue:*:${AWS::AccountId}:catalog'
             - !Sub 'arn:aws:glue:*:${AWS::AccountId}:database/*'
             - !Sub 'arn:aws:glue:*:${AWS::AccountId}:table/*/*'
+            - !Sub 'arn:aws:glue:*:${AWS::AccountId}:job/*'
         - Sid: 'StepFunctions'
           Effect: 'Allow'
           Action:

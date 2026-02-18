@@ -12,7 +12,7 @@ describe('Invalid JSON Tests', () => {
   let uploadedEventId: string | undefined;
 
   // Only run in build environment - pythonshell Glue jobs don't write detailed logs to CloudWatch in dev
-  const isRunningInBuild = process.env.AWS_PROFILE?.includes('build');
+  const isRunningInBuild = process.env.AWS_PROFILE?.includes('build') || process.env.STACK_NAME?.includes('build');
   const testFn = isRunningInBuild ? test : test.skip;
 
   testFn.each([
