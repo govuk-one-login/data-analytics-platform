@@ -11,9 +11,9 @@ import { constructCreateAccountDeformedJsonUserEvent } from '../../test-events/r
 describe('Invalid JSON Tests', () => {
   let uploadedEventId: string | undefined;
 
-  // Only run in build environment - pythonshell Glue jobs don't write detailed logs to CloudWatch in dev
-  const isRunningInBuild = process.env.AWS_PROFILE?.includes('build') || process.env.STACK_NAME?.includes('build');
-  const testFn = isRunningInBuild ? test : test.skip;
+  // Skip only in dev - pythonshell Glue jobs don't write detailed logs to CloudWatch in dev
+  const isRunningInDev = process.env.AWS_PROFILE?.includes('dev');
+  const testFn = isRunningInDev ? test.skip : test;
 
   testFn.each([
     ['txma field', constructCreateAccountDeformedJsonTxmaEvent],
