@@ -130,14 +130,12 @@ export default async () => {
       }
     ).unhappyPathEventPairs = txmaUnhappyPathEventList;
 
-    const rawLayerStartTime = Date.now();
     const eventIds = processedEvents.map(event => event.event_id);
     // Wait 5 seconds for Lambda to start processing before polling
     await new Promise(resolve => setTimeout(resolve, 5000));
     await pollForRawLayerData(eventIds, { maxWaitTimeMs: 5 * 60 * 1000, pollIntervalMs: 5000 }); // 5 minute max wait, poll every 5s
 
     const rawToStageStepFunction = getIntegrationTestEnv('RAW_TO_STAGE_STEP_FUNCTION');
-    const stepFunctionStartTime = Date.now();
 
     await executeStepFunction(rawToStageStepFunction, undefined, 'integration-test-setup');
     await pollForStageLayerData(eventIds, { maxWaitTimeMs: 2 * 60 * 1000, pollIntervalMs: 5000 });

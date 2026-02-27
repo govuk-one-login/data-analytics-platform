@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { RedshiftDataClient, ExecuteStatementCommand, DescribeStatementCommand } from '@aws-sdk/client-redshift-data';
 import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
 

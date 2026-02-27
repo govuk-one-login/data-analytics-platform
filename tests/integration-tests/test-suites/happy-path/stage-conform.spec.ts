@@ -21,7 +21,7 @@ describe('Stage to Conform Integration Tests', () => {
     async () => {
       const testEvents = (global as { testEvents?: AuditEvent[] }).testEvents || [];
       const eventIds = testEvents.map(event => event.event_id);
-      
+
       // Wait for events to appear in conform layer
       await pollForFactJourneyData(eventIds, { maxWaitTimeMs: 2 * 60 * 1000 });
 

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { executeAthenaQuery } from '../aws/athena/execute-athena-query';
 import { getIntegrationTestEnv } from './utils';
 import { DEFAULT_POLL_INTERVAL_MS, DEFAULT_MAX_WAIT_TIME_MS } from '../../constants';
@@ -46,7 +45,6 @@ export const pollForRawLayerEventsWithTimestamps = async (
   const startTime = Date.now();
 
   while (Date.now() - startTime < maxWaitTimeMs) {
-
     const query = `
       SELECT event_id, timestamp
       FROM "${database}"."txma-refactored" 

@@ -1,11 +1,11 @@
 import { executeRedshiftQuery } from './execute-redshift-query';
 
 interface FactTableResult {
-  user_journey_key: any;
-  event_key: any;
-  user_key: any;
-  journey_channel_key: any;
-  date_key: any;
+  user_journey_key: number | null;
+  event_key: number | null;
+  user_key: number | null;
+  journey_channel_key: number | null;
+  date_key: number | null;
   event_id: string;
   event_time: string;
   count: number;
@@ -216,15 +216,21 @@ export async function loadConformLayerCache(eventIds: string[]): Promise<Conform
   const dateKeys = [...new Set(factResults.map(r => r.date_key).filter(k => k && !isNaN(k)))];
 
   // Query all dimension tables in parallel
-  const [dimUserJourneyResults, dimEventResults, dimUserResults, dimJourneyChannelResults, dimDateResults, extensionsResults] =
-    await Promise.all([
-      batchQueryDimUserJourney(userJourneyKeys),
-      batchQueryDimEvent(eventKeys),
-      batchQueryDimUser(userKeys),
-      batchQueryDimJourneyChannel(journeyChannelKeys),
-      batchQueryDimDate(dateKeys),
-      batchQueryExtensions(eventIds),
-    ]);
+  const [
+    dimUserJourneyResults,
+    dimEventResults,
+    dimUserResults,
+    dimJourneyChannelResults,
+    dimDateResults,
+    extensionsResults,
+  ] = await Promise.all([
+    batchQueryDimUserJourney(userJourneyKeys),
+    batchQueryDimEvent(eventKeys),
+    batchQueryDimUser(userKeys),
+    batchQueryDimJourneyChannel(journeyChannelKeys),
+    batchQueryDimDate(dateKeys),
+    batchQueryExtensions(eventIds),
+  ]);
 
   // Build caches
   const dimUserJourneyCache = new Map<number, DimUserJourneyRow>();
@@ -248,6 +254,7 @@ export async function loadConformLayerCache(eventIds: string[]): Promise<Conform
       extensionsCache.set(row.event_id, []);
     }
     // Exclude event_id from cached data (it's redundant as it's the map key)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { event_id, ...extensionData } = row;
     extensionsCache.get(row.event_id)!.push(extensionData as ExtensionRow);
   });
