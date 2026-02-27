@@ -10,8 +10,6 @@ interface PollOptions {
 export const pollForFactJourneyData = async (eventIds: string[], options: PollOptions = {}): Promise<void> => {
   const { maxWaitTimeMs = DEFAULT_MAX_WAIT_TIME_MS, pollIntervalMs = DEFAULT_POLL_INTERVAL_MS } = options;
 
-  console.log(`Polling for ${eventIds.length} events in fact journey`);
-
   const startTime = Date.now();
 
   while (Date.now() - startTime < maxWaitTimeMs) {
@@ -19,8 +17,6 @@ export const pollForFactJourneyData = async (eventIds: string[], options: PollOp
     const missingEventIds = eventIds.filter(id => !foundEventIds.includes(id));
 
     if (missingEventIds.length === 0) {
-      const elapsedTime = Math.round((Date.now() - startTime) / 1000);
-      console.log(`✓ All events found in ${elapsedTime}s`);
       return;
     }
 
@@ -29,9 +25,6 @@ export const pollForFactJourneyData = async (eventIds: string[], options: PollOp
 
   const finalFoundEventIds = await checkEventsInRedshift(eventIds);
   const missingEventIds = eventIds.filter(id => !finalFoundEventIds.includes(id));
-
-  console.error(`Found ${finalFoundEventIds.length} events, missing ${missingEventIds.length} events`);
-  console.error(`Missing IDs: ${JSON.stringify(missingEventIds)}`);
 
   throw new Error(
     `Timeout: ${eventIds.length - finalFoundEventIds.length}/${eventIds.length} events missing from fact journey after ${maxWaitTimeMs}ms. ` +

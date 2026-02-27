@@ -6,13 +6,13 @@ import { getIntegrationTestEnv } from '../../utils/utils';
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'eu-west-2' });
 const gzipAsync = promisify(gzip);
 
-export const uploadEventToRawLayer = async (event: Record<string, unknown>): Promise<void> => {
+export const uploadEventToRawLayer = async (event: Record<string, unknown>, customKey?: string): Promise<void> => {
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, '0');
   const day = String(today.getDate()).padStart(2, '0');
 
-  const key = `txma-refactored/year=${year}/month=${month}/day=${day}/${event.event_id}.json.gz`;
+  const key = customKey || `txma-refactored/year=${year}/month=${month}/day=${day}/${event.event_id}.json.gz`;
   const compressed = await gzipAsync(JSON.stringify(event));
 
   await s3Client.send(
