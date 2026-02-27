@@ -158,9 +158,12 @@ Running `npm run test:integration` executes all integration tests concurrently i
    * `test-suites/happy-path/raw-to-stage.spec.ts` - Validates raw-to-stage ETL transforms raw JSON to stage layer format
    * `test-suites/happy-path/stage-conform.spec.ts` - Tests stage-to-conform ETL transformation to final reporting structure
 
-   **Edge case tests**
+   **Raw to stage edge case tests**
    * `test-suites/raw-to-stage-edge-cases/empty-client-id.spec.ts` - Tests handling of events with empty client_id fields
    * `test-suites/raw-to-stage-edge-cases/null-extensions-excluded.spec.ts` - Verifies null extension fields are properly excluded
+   
+   **Stage to conform edge case tests**
+   * `test-suites/stage-to-conform-edge-cases/deduplication.spec.ts` - Verifies duplicate events with the same event_id are deduplicated in the conform layer, keeping only the earliest timestamp
    
    **TxMA unhappy path test**
    * `test-suites/txma-consumer-unhappy-path/txma-consumer-unhappy-path.spec.ts` - Tests error handling in txma-consumer lambda for invalid events (missing fields, malformed timestamps)
