@@ -22,7 +22,7 @@ const config: JestConfigWithTsJest = {
       testMatch: ['**/tests/integration-tests/test-suites/raw-to-stage-unhappy-path/**/*.spec.ts'],
       globalSetup: '<rootDir>/setup-raw-to-stage-unhappy-path.ts',
       testTimeout: 600000,
-      maxWorkers: 2,
+      maxWorkers: 1,
     },
   ],
   reporters: [
