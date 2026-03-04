@@ -3,7 +3,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "module": "commonjs",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "noImplicitAny": true,
     "outDir": "./dist/",
     "skipLibCheck": true,

@@ -10,7 +10,6 @@ let permissionsGranted = false;
 export async function grantRedshiftAccess(workgroupName: string): Promise<void> {
   // Skip if already granted in this test run
   if (permissionsGranted) {
-    console.log('✓ Redshift permissions already granted (cached)');
     return;
   }
 
@@ -24,10 +23,7 @@ export async function grantRedshiftAccess(workgroupName: string): Promise<void> 
 
   const username = `IAMR:${roleName}`;
 
-  console.log(`Granting access for: ${username}`);
-
   // Run a simple query first to ensure the federated user is created in Redshift
-  console.log('Creating user by running initial query...');
   const initQuery = await redshiftClient.send(
     new ExecuteStatementCommand({
       WorkgroupName: workgroupName,
@@ -42,7 +38,6 @@ export async function grantRedshiftAccess(workgroupName: string): Promise<void> 
     const statusResult = await redshiftClient.send(new DescribeStatementCommand({ Id: initQuery.Id! }));
     initStatus = statusResult.Status!;
   }
-  console.log(`User created with status: ${initStatus}`);
 
   const secretArn = process.env.REDSHIFT_SECRET_ARN;
   if (!secretArn) {
@@ -52,15 +47,12 @@ export async function grantRedshiftAccess(workgroupName: string): Promise<void> 
     );
   }
 
-  console.log(`Using secret ARN: ${secretArn}`);
-
   const grants = [
     `GRANT USAGE ON SCHEMA conformed_refactored TO "${username}";`,
     `GRANT SELECT ON ALL TABLES IN SCHEMA conformed_refactored TO "${username}";`,
   ];
 
   for (const grant of grants) {
-    console.log(`Executing: ${grant}`);
     const result = await redshiftClient.send(
       new ExecuteStatementCommand({
         WorkgroupName: workgroupName,
@@ -87,8 +79,6 @@ export async function grantRedshiftAccess(workgroupName: string): Promise<void> 
         throw new Error(`Query failed with status: ${status}. Error: ${error}`);
       }
     }
-
-    console.log(`Grant successful: ${statementId}`);
   }
 
   permissionsGranted = true;

@@ -17,6 +17,9 @@ import { txmaUnhappyPathEventList } from './test-events/txma-consumer-unhappy-pa
 import { constructReplayTestEvent } from './test-events/replay-events/replay-event';
 import { AuditEvent } from '../../common/types/event';
 import { grantRedshiftAccess } from './helpers/aws/redshift/grant-access';
+import { uploadEventToRawLayer } from './helpers/aws/s3/upload-to-s3';
+import { constructAuthAuthorisationInitiatedTestEvent10 } from './test-events/happy-path-events/test-event-10-auth-authorisation-initiated-dap';
+import { randomUUID } from 'crypto';
 
 export default async () => {
   const setupStartTime = Date.now();
@@ -26,12 +29,7 @@ export default async () => {
     process.env.AWS_REGION = process.env.AWS_REGION ?? AWS_REGION;
 
     await setEnvVarsFromSsm();
-
-    console.log('🔐 Granting Redshift permissions...');
     await grantRedshiftAccess(getIntegrationTestEnv('REDSHIFT_WORKGROUP_NAME'));
-    console.log('✓ Redshift permissions granted');
-
-    console.log('🚀 Starting integration test setup...');
     const processedEvents: AuditEvent[] = [];
     const queueUrl = getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL');
 
@@ -62,9 +60,40 @@ export default async () => {
     );
     await addMessageToQueue(replayEvent, queueUrl);
     processedEvents.push(replayEvent);
-    console.log(`Event Replay Setup - event_id: ${replayEvent.event_id}`);
 
-    console.log(`✓ Sent ${processedEvents.length + txmaUnhappyPathEventList.length} events to SQS queue `);
+    // Add deduplication test events (upload directly to S3)
+    const deduplicationEventId = randomUUID();
+    const baseTimestamp = generateTimestamp();
+    const timestamps = [baseTimestamp - 300, baseTimestamp];
+    const timestampsFormatted = timestamps.map(ts => new Date(ts * 1000).toISOString());
+    const eventTimestampMs = generateTimestampInMs();
+    const eventTimestampMsFormatted = generateTimestampFormatted();
+
+    // Create 2 duplicate events with same event_id but different timestamps (5 minutes apart)
+    for (let i = 0; i < timestamps.length; i++) {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const customKey = `txma-refactored/year=${year}/month=${month}/day=${day}/${deduplicationEventId}-${i}.json.gz`;
+
+      const event = {
+        ...constructAuthAuthorisationInitiatedTestEvent10(
+          timestamps[i],
+          timestampsFormatted[i],
+          eventTimestampMs,
+          eventTimestampMsFormatted,
+        ),
+        event_id: deduplicationEventId,
+      };
+      await uploadEventToRawLayer(event, customKey);
+    }
+
+    // Store deduplication data globally
+    (global as { deduplicationEventId?: string; deduplicationTimestamps?: string[] }).deduplicationEventId =
+      deduplicationEventId;
+    (global as { deduplicationEventId?: string; deduplicationTimestamps?: string[] }).deduplicationTimestamps =
+      timestampsFormatted;
 
     // Store events and event pairs globally for tests to access
     (global as { replayEventId?: string; replayId?: string }).replayEventId = replayEvent.event_id;
@@ -101,30 +130,16 @@ export default async () => {
       }
     ).unhappyPathEventPairs = txmaUnhappyPathEventList;
 
-    console.log('⏳ Waiting for events to appear in raw layer...');
-    const rawLayerStartTime = Date.now();
     const eventIds = processedEvents.map(event => event.event_id);
     // Wait 5 seconds for Lambda to start processing before polling
     await new Promise(resolve => setTimeout(resolve, 5000));
     await pollForRawLayerData(eventIds, { maxWaitTimeMs: 5 * 60 * 1000, pollIntervalMs: 5000 }); // 5 minute max wait, poll every 5s
-    const rawLayerDuration = Date.now() - rawLayerStartTime;
-    console.log(`✓ Raw layer processing completed in ${Math.round(rawLayerDuration / 1000)}s`);
 
     const rawToStageStepFunction = getIntegrationTestEnv('RAW_TO_STAGE_STEP_FUNCTION');
-    console.log('⚙️ Executing ETL step function...');
-    const stepFunctionStartTime = Date.now();
 
     await executeStepFunction(rawToStageStepFunction, undefined, 'integration-test-setup');
-    const stepFunctionDuration = Date.now() - stepFunctionStartTime;
-    console.log(`✓ Step Function completed in ${Math.round(stepFunctionDuration / 1000)}s`);
-
-    console.log('⏳ Waiting for initial events to appear in stage layer...');
     await pollForStageLayerData(eventIds, { maxWaitTimeMs: 2 * 60 * 1000, pollIntervalMs: 5000 });
-    console.log(`✓ Stage layer processing completed`);
-
-    console.log('⏳ Waiting for initial events to appear in conform layer...');
     await pollForFactJourneyData(eventIds, { maxWaitTimeMs: 5 * 60 * 1000, pollIntervalMs: 5000 });
-    console.log(`✓ Conform layer processing completed`);
 
     const totalSetupDuration = Date.now() - setupStartTime;
     console.log(`🎉 Integration test setup completed successfully in ${Math.round(totalSetupDuration / 1000)}s`);
