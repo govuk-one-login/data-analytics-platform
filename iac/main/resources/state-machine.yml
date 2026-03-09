@@ -441,7 +441,7 @@ DataQualityPythonGlueJob:
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0
-    SecurityConfiguration: !Ref GlueSecurityConfig
+    # SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-data-quality-metrics-generation
     Role: !Ref GlueScriptsExecutionRole
 
@@ -784,7 +784,7 @@ RawStageTransformProcessPythonGlueJob:
       MaxConcurrentRuns: 1
     MaxRetries: 0
     MaxCapacity: 1
-    SecurityConfiguration: !Ref GlueSecurityConfig
+    # SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-raw-stage-transform-process
     Role: !Ref GlueScriptsExecutionRole
 
@@ -878,7 +878,7 @@ DataQualityStageLayerOptimisedPythonGlueJob:
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0
-    SecurityConfiguration: !Ref GlueSecurityConfig
+    # SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-data-quality-new-stage-metrics-generation
     Role: !Ref GlueScriptsExecutionRole
 
@@ -1004,7 +1004,7 @@ SplunkMigratedRawStageTransformProcessPythonGlueJob:
       MaxConcurrentRuns: 1
     MaxRetries: 0
     MaxCapacity: 1
-    SecurityConfiguration: !Ref GlueSecurityConfig
+    # SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-splunk-migration-raw-stage-transform-process
     Role: !Ref GlueScriptsExecutionRole
 

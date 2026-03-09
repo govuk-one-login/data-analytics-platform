@@ -233,7 +233,7 @@ ReferenceDataRedshiftIngestionGlueJob:
     ExecutionProperty:
       MaxConcurrentRuns: 10
     MaxRetries: 0
-    SecurityConfiguration: !Ref GlueSecurityConfig
+    # SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-reference-data-redshift-ingestion-job
     Role: !Ref GlueScriptsExecutionRole
 
