@@ -197,7 +197,8 @@ S3BucketNotificationLambdaPermission:
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration
   Properties:
-    Name: !Sub ${Environment}-dap-glue-security-configuration
+    Name: !Sub ${Environment}-dap-glue-security-configuration-v2
+    Description: Security configuration for Glue jobs with KMS encryption
     # Force recreation after manual deletion
     EncryptionConfiguration:
       CloudWatchEncryption:
