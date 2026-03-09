@@ -214,6 +214,7 @@ GlueRedshiftConnection:
         SubnetId: !Ref SubnetForDAP3
 
 ReferenceDataRedshiftIngestionGlueJob:
+  # checkov:skip=CKV_AWS_195: Temporarily removing security configuration to fix drift
   Type: AWS::Glue::Job
   Properties:
     Command:
