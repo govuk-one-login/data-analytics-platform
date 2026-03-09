@@ -421,7 +421,6 @@ DataQualityMetricsGlueTable:
           SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
 
 DataQualityPythonGlueJob:
-  # checkov:skip=CKV_AWS_195: Temporarily removing security configuration to fix drift
   Type: AWS::Glue::Job
   Properties:
     Command:
@@ -442,7 +441,7 @@ DataQualityPythonGlueJob:
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0
-    # SecurityConfiguration: !Ref GlueSecurityConfig
+    SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-data-quality-metrics-generation
     Role: !Ref GlueScriptsExecutionRole
 
@@ -758,7 +757,6 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
           State: !If [IsDevOrBuild, DISABLED, ENABLED]
 
 RawStageTransformProcessPythonGlueJob:
-  # checkov:skip=CKV_AWS_195: Temporarily removing security configuration to fix drift
   Type: AWS::Glue::Job
   Properties:
     Command:
@@ -786,7 +784,7 @@ RawStageTransformProcessPythonGlueJob:
       MaxConcurrentRuns: 1
     MaxRetries: 0
     MaxCapacity: 1
-    # SecurityConfiguration: !Ref GlueSecurityConfig
+    SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-raw-stage-transform-process
     Role: !Ref GlueScriptsExecutionRole
 
