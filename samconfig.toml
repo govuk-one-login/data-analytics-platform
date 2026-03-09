@@ -1,7 +1,7 @@
 version = 0.1
 
 [default.deploy.parameters]
-stack_name = "di-data-dap"
+stack_name = "dap-v2"
 region = "eu-west-2"
 capabilities = "CAPABILITY_NAMED_IAM"
 parameter_overrides=[
