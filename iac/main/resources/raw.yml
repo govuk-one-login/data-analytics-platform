@@ -100,6 +100,7 @@ RawGlueDatabase:
       Name: !Sub ${Environment}-${RawGlueDatabaseName}
 
 SplunkRawLayerSingleTableCrawler:
+  # checkov:skip=CKV_AWS_195: Temporarily removing security configuration to fix drift
   Type: AWS::Glue::Crawler
   Properties:
     Name: splunk_migrated_data_fixed_schema

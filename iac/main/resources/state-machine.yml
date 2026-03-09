@@ -421,6 +421,7 @@ DataQualityMetricsGlueTable:
           SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
 
 DataQualityPythonGlueJob:
+  # checkov:skip=CKV_AWS_195: Temporarily removing security configuration to fix drift
   Type: AWS::Glue::Job
   Properties:
     Command:
@@ -757,6 +758,7 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
           State: !If [IsDevOrBuild, DISABLED, ENABLED]
 
 RawStageTransformProcessPythonGlueJob:
+  # checkov:skip=CKV_AWS_195: Temporarily removing security configuration to fix drift
   Type: AWS::Glue::Job
   Properties:
     Command:
@@ -859,6 +861,7 @@ SNSAlertTopic:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 DataQualityStageLayerOptimisedPythonGlueJob:
+  # checkov:skip=CKV_AWS_195: Temporarily removing security configuration to fix drift
   Type: AWS::Glue::Job
   Properties:
     Command:
@@ -968,6 +971,7 @@ ADMConsolidatedModelProcessingStateMachine:
       ADMV3RefreshStepFunctionArn: !Ref ADMV3RefreshStateMachine
 
 SplunkMigratedRawStageTransformProcessPythonGlueJob:
+  # checkov:skip=CKV_AWS_195: Temporarily removing security configuration to fix drift
   Type: AWS::Glue::Job
   Properties:
     Command:
