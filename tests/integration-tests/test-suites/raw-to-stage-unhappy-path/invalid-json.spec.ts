@@ -11,8 +11,6 @@ import { constructCreateAccountDeformedJsonUserEvent } from '../../test-events/r
 describe('Invalid JSON Tests', () => {
   let uploadedEventId: string | undefined;
 
-  const isRunningInDev = process.env.AWS_PROFILE?.includes('dev');
-
   test.each([
     ['txma field', constructCreateAccountDeformedJsonTxmaEvent],
     ['extensions field', constructInvalidExtensionsEvent],
