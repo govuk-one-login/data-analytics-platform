@@ -110,7 +110,7 @@ SplunkRawLayerSingleTableCrawler:
           Tables:
             - !Ref SplunkMigrationGlueTable
     DatabaseName: !Ref RawGlueDatabase
-    CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
+    # CrawlerSecurityConfiguration: !Ref GlueSecurityConfig
     RecrawlPolicy:
       RecrawlBehavior: CRAWL_EVERYTHING
     SchemaChangePolicy:
