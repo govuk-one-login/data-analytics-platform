@@ -194,22 +194,25 @@ S3BucketNotificationLambdaPermission:
     SourceAccount: !Sub ${AWS::AccountId}
     SourceArn: !GetAtt S3NotificationsLoggerEventBridgeRule.Arn
 
-GlueSecurityConfig:
-  Type: AWS::Glue::SecurityConfiguration
-  Properties:
-    Name: !Sub ${Environment}-dap-glue-security-configuration-v2
-    Description: Security configuration for Glue jobs with KMS encryption
-    # Force recreation after manual deletion
-    EncryptionConfiguration:
-      CloudWatchEncryption:
-        CloudWatchEncryptionMode: SSE-KMS
-        KmsKeyArn: !GetAtt KmsKey.Arn
-      JobBookmarksEncryption:
-        JobBookmarksEncryptionMode: CSE-KMS
-        KmsKeyArn: !GetAtt KmsKey.Arn
-      S3Encryptions:
-        - S3EncryptionMode: SSE-KMS
-          KmsKeyArn: !GetAtt KmsKey.Arn
+# GlueSecurityConfig temporarily removed for recreation
+# GlueSecurityConfig:
+#   Type: AWS::Glue::SecurityConfiguration
+#   UpdateReplacePolicy: Delete
+#   DeletionPolicy: Delete
+#   Properties:
+#     Name: !Sub ${Environment}-dap-glue-security-configuration
+#     Description: Security configuration for Glue jobs with KMS encryption - updated
+#     # Force recreation after manual deletion
+#     EncryptionConfiguration:
+#       CloudWatchEncryption:
+#         CloudWatchEncryptionMode: SSE-KMS
+#         KmsKeyArn: !GetAtt KmsKey.Arn
+#       JobBookmarksEncryption:
+#         JobBookmarksEncryptionMode: CSE-KMS
+#         KmsKeyArn: !GetAtt KmsKey.Arn
+#       S3Encryptions:
+#         - S3EncryptionMode: SSE-KMS
+#           KmsKeyArn: !GetAtt KmsKey.Arn
 
 TestSupportLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda is just for testing
