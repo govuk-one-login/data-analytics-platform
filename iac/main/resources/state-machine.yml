@@ -859,7 +859,6 @@ SNSAlertTopic:
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 DataQualityStageLayerOptimisedPythonGlueJob:
-  # checkov:skip=CKV_AWS_195: Temporarily removing security configuration to fix drift
   Type: AWS::Glue::Job
   Properties:
     Command:
@@ -879,7 +878,7 @@ DataQualityStageLayerOptimisedPythonGlueJob:
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0
-    # SecurityConfiguration: !Ref GlueSecurityConfig
+    SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-data-quality-new-stage-metrics-generation
     Role: !Ref GlueScriptsExecutionRole
 
@@ -969,7 +968,6 @@ ADMConsolidatedModelProcessingStateMachine:
       ADMV3RefreshStepFunctionArn: !Ref ADMV3RefreshStateMachine
 
 SplunkMigratedRawStageTransformProcessPythonGlueJob:
-  # checkov:skip=CKV_AWS_195: Temporarily removing security configuration to fix drift
   Type: AWS::Glue::Job
   Properties:
     Command:
@@ -1006,7 +1004,7 @@ SplunkMigratedRawStageTransformProcessPythonGlueJob:
       MaxConcurrentRuns: 1
     MaxRetries: 0
     MaxCapacity: 1
-    # SecurityConfiguration: !Ref GlueSecurityConfig
+    SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-splunk-migration-raw-stage-transform-process
     Role: !Ref GlueScriptsExecutionRole
 
