@@ -214,7 +214,6 @@ GlueRedshiftConnection:
         SubnetId: !Ref SubnetForDAP3
 
 ReferenceDataRedshiftIngestionGlueJob:
-  # checkov:skip=CKV_AWS_195: Temporarily removing security configuration to fix drift
   Type: AWS::Glue::Job
   Properties:
     Command:
@@ -234,7 +233,7 @@ ReferenceDataRedshiftIngestionGlueJob:
     ExecutionProperty:
       MaxConcurrentRuns: 10
     MaxRetries: 0
-    # SecurityConfiguration: !Ref GlueSecurityConfig
+    SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-reference-data-redshift-ingestion-job
     Role: !Ref GlueScriptsExecutionRole
 
