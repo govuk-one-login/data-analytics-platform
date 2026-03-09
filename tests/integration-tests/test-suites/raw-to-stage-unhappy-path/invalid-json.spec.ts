@@ -11,11 +11,9 @@ import { constructCreateAccountDeformedJsonUserEvent } from '../../test-events/r
 describe('Invalid JSON Tests', () => {
   let uploadedEventId: string | undefined;
 
-  // Skip only in dev - pythonshell Glue jobs don't write detailed logs to CloudWatch in dev
   const isRunningInDev = process.env.AWS_PROFILE?.includes('dev');
-  const testFn = isRunningInDev ? test.skip : test;
 
-  testFn.each([
+  test.each([
     ['txma field', constructCreateAccountDeformedJsonTxmaEvent],
     ['extensions field', constructInvalidExtensionsEvent],
     ['user field', constructCreateAccountDeformedJsonUserEvent],
@@ -63,7 +61,7 @@ describe('Invalid JSON Tests', () => {
           throw new Error(`Expected States.TaskFailed error, got: ${executionDetails.error}`);
         }
 
-        // Verify Glue job ran and fetch logs
+        // Verify Glue job ran and failed with JSON parsing error
         if (!executionDetails.glueJobId) {
           throw new Error('No Glue job ID found - job may not have executed');
         }

@@ -198,6 +198,7 @@ GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration
   Properties:
     Name: !Sub ${Environment}-dap-glue-security-configuration
+    # Force recreation after manual deletion
     EncryptionConfiguration:
       CloudWatchEncryption:
         CloudWatchEncryptionMode: SSE-KMS

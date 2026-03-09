@@ -83,7 +83,7 @@
     "test:integration": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/integration-tests/jest.config.unified.ts --runInBand",
     "test:integration:ci": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/integration-tests/jest.config.unified.ts --runInBand",
     "test:integration:main": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/integration-tests/jest.config.main-test-suite.ts --runInBand",
-    "test:integration:raw-to-stage-unhappy": "jest -c ./tests/integration-tests/jest.config.raw-to-stage-unhappy-path.ts --runInBand"
+    "test:integration:raw-to-stage-unhappy": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/integration-tests/jest.config.raw-to-stage-unhappy-path.ts --runInBand"
   },
   "lint-staged": {
     "*": "prettier --write",
