@@ -1,0 +1,15 @@
+{
+  "userPoolId": "eu-west-2_REPLACE_WITH_ACTUAL_POOL_ID",
+  "userName": "test-user",
+  "triggerSource": "PostAuthentication_Authentication",
+  "region": "eu-west-2",
+  "callerContext": {
+    "awsSdkVersion": "aws-sdk-unknown-unknown",
+    "clientId": "local-debug"
+  },
+  "request": {
+    "userAttributes": {},
+    "newDeviceUsed": false
+  },
+  "response": {}
+}
