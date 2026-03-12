@@ -1,0 +1,9 @@
+{
+  "datasource": "txma",
+  "S3MetaDataBucketName": "test-metadata-bucket",
+  "action": "GetConfig",
+  "configObject": {
+    "event_name": "AUTH_IPV_AUTHORISATION_REQUESTED",
+    "product_family": "txma"
+  }
+}
