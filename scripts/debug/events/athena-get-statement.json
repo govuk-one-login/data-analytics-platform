@@ -1,0 +1,14 @@
+{
+  "datasource": "txma",
+  "S3MetaDataBucketName": "dev-dap-elt-metadata",
+  "action": "GetPartitionQuery",
+  "configObject": {
+    "event_name": "test_event",
+    "product_family": "test_product",
+    "queryResult": {
+      "ResultSet": {
+        "Rows": []
+      }
+    }
+  }
+}

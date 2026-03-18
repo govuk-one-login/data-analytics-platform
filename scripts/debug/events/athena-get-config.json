@@ -1,0 +1,5 @@
+{
+  "datasource": "txma",
+  "S3MetaDataBucketName": "dev-dap-elt-metadata",
+  "configFilePrefix": "txma"
+}
