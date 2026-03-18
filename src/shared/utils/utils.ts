@@ -34,7 +34,7 @@ export const getRequiredParams = <T extends Record<string, any>, K extends keyof
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const encodeObject = (object: Record<string, any>): Uint8Array => {
-  return Buffer.from(JSON.stringify(object), 'utf-8');
+  return new Uint8Array(Buffer.from(JSON.stringify(object), 'utf-8'));
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

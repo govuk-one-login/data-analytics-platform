@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "messageId": "test-message-id",
+      "receiptHandle": "test-receipt-handle",
+      "body": "{\"event_id\":\"test-event-123\",\"event_name\":\"TEST_EVENT\",\"component_id\":\"TEST_COMPONENT\",\"timestamp\":1640995200,\"user\":{\"user_id\":\"test-user\"}}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1640995200000",
+        "SenderId": "test-sender-id",
+        "ApproximateFirstReceiveTimestamp": "1640995200000"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "test-md5",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:eu-west-2:123456789012:test-queue",
+      "awsRegion": "eu-west-2"
+    }
+  ]
+}
