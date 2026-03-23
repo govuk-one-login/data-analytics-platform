@@ -146,3 +146,105 @@ EventConsumerQueueTestUrl:
     Name: !Sub /tests/${AWS::StackName}/dapTXMAConsumerSQSQueueUrl
     Type: String
     Value: !GetAtt EventConsumerQueue.QueueUrl
+
+E2ETestProducerQueueKmsKey:
+  Type: AWS::KMS::Key
+  Condition: IsStaging
+  Properties:
+    EnableKeyRotation: true
+    KeyPolicy:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: Enable root access
+          Effect: Allow
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+          Action: kms:*
+          Resource: '*'
+        - Sid: Enable decrypt access for Event Processing
+          Effect: Allow
+          Principal:
+            AWS: '{{resolve:ssm:EventProcessingAccountRootArn}}'
+          Action:
+            - kms:Decrypt
+            - kms:GenerateDataKey
+            - kms:DescribeKey
+          Resource: '*'
+        - Sid: Allow Lambda service access
+          Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action:
+            - kms:GenerateDataKey
+            - kms:Encrypt
+            - kms:Decrypt
+          Resource: '*'
+
+E2ETestProducerQueueKmsKeyAlias:
+  Type: AWS::KMS::Alias
+  Condition: IsStaging
+  Properties:
+    AliasName: !Sub alias/${Environment}-dap-e2e-test-producer-queue-key
+    TargetKeyId: !Ref E2ETestProducerQueueKmsKey
+
+E2ETestProducerDeadLetterQueue:
+  Type: AWS::SQS::Queue
+  Condition: IsStaging
+  Properties:
+    QueueName: !Sub ${Environment}-dap-e2e-test-producer-dlq
+    KmsMasterKeyId: !GetAtt E2ETestProducerQueueKmsKey.Arn
+
+E2ETestProducerQueue:
+  Type: AWS::SQS::Queue
+  Condition: IsStaging
+  Properties:
+    QueueName: !Sub ${Environment}-dap-e2e-test-producer-queue
+    KmsMasterKeyId: !GetAtt E2ETestProducerQueueKmsKey.Arn
+    RedrivePolicy:
+      deadLetterTargetArn: !GetAtt E2ETestProducerDeadLetterQueue.Arn
+      maxReceiveCount: 5
+
+E2ETestProducerQueuePolicy:
+  Type: AWS::SQS::QueuePolicy
+  Condition: IsStaging
+  Properties:
+    Queues:
+      - !Ref E2ETestProducerQueue
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Sid: Allow Event Processing account to read from queue
+          Effect: Allow
+          Principal:
+            AWS: '{{resolve:ssm:EventProcessingAccountRootArn}}'
+          Action:
+            - sqs:ChangeMessageVisibility
+            - sqs:ReceiveMessage
+            - sqs:DeleteMessage
+            - sqs:GetQueueAttributes
+            - sqs:GetQueueUrl
+          Resource: !GetAtt E2ETestProducerQueue.Arn
+
+E2ETestProducerQueueUrlParameter:
+  Type: AWS::SSM::Parameter
+  Condition: IsStaging
+  Properties:
+    Name: !Sub /tests/${AWS::StackName}/dapE2ETestProducerQueueUrl
+    Type: String
+    Value: !Ref E2ETestProducerQueue
+
+E2ETestProducerQueueArnParameter:
+  Type: AWS::SSM::Parameter
+  Condition: IsStaging
+  Properties:
+    Name: DAPE2ETestProducerQueueArn
+    Type: String
+    Value: !GetAtt E2ETestProducerQueue.Arn
+
+E2ETestProducerQueueKmsKeyArnParameter:
+  Type: AWS::SSM::Parameter
+  Condition: IsStaging
+  Properties:
+    Name: DAPE2ETestProducerKmsKeyArn
+    Type: String
+    Value: !GetAtt E2ETestProducerQueueKmsKey.Arn
