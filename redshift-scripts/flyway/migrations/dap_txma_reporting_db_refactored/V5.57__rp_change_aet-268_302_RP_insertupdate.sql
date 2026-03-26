@@ -12,7 +12,7 @@ where client_id in ('gKJ2YINNmukQJV3C00-vXvZiAwM') ;
 --DHSC - Personal Information Management
 
 INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
-SELECT 'phyR5UdhgU2hhAZV7D-TJS_0Gns','Personal Information Management','DHSC - Personal Information Management','DHSC','DHSC'
+SELECT 'phyR5UdhgU2hhAZV7D-TJS_0Gns','Personal Information Management','DDHSC - Personal Information Management','DHSC','DHSC'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.REF_RELYING_PARTIES_refactored
