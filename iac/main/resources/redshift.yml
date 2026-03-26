@@ -551,7 +551,7 @@ RedshiftErrorLambdaInvokePermission:
     SourceArn: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/stepfunction/dap-consolidated-stage-layer-to-redshift:*
 
 RedshiftSecretArnParameter:
-  Condition: IsDevOrBuild
+  Condition: IsDevBuildOrStaging
   Type: AWS::SSM::Parameter
   Properties:
     Name: !Sub /tests/${AWS::StackName}/redshiftSecretArn
@@ -559,7 +559,7 @@ RedshiftSecretArnParameter:
     Value: !Ref RedshiftSecret
 
 RedshiftWorkgroupNameParameter:
-  Condition: IsDevOrBuild
+  Condition: IsDevBuildOrStaging
   Type: AWS::SSM::Parameter
   Properties:
     Name: !Sub /tests/${AWS::StackName}/redshiftWorkgroupName

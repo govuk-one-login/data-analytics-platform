@@ -113,6 +113,10 @@ Conditions:
   IsDevOrBuild: !Or
     - !Condition IsDev
     - !Condition IsBuild
+  IsDevBuildOrStaging: !Or
+    - !Condition IsDev
+    - !Condition IsBuild
+    - !Condition IsStaging
   IsQuicksightEnvironment: !Or
     - !Condition IsDev
     - !Condition IsProduction

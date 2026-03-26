@@ -129,7 +129,7 @@ AthenaGetStatementLambda:
         - !Ref SubnetForDAP3
 
 AthenaWorkgroupName:
-  Condition: IsDevOrBuild
+  Condition: IsDevBuildOrStaging
   Type: AWS::SSM::Parameter
   Properties:
     Name: !Sub /tests/${AWS::StackName}/dapAthenaWorkgroup
@@ -137,7 +137,7 @@ AthenaWorkgroupName:
     Value: !Ref AthenaWorkGroup
 
 AthenaRawLayerDatabaseName:
-  Condition: IsDevOrBuild
+  Condition: IsDevBuildOrStaging
   Type: AWS::SSM::Parameter
   Properties:
     Name: !Sub /tests/${AWS::StackName}/dapAthenaRawLayerDatabase
@@ -145,7 +145,7 @@ AthenaRawLayerDatabaseName:
     Value: !Sub ${Environment}-txma-raw
 
 AthenaStageLayerDatabaseName:
-  Condition: IsDevOrBuild
+  Condition: IsDevBuildOrStaging
   Type: AWS::SSM::Parameter
   Properties:
     Name: !Sub /tests/${AWS::StackName}/dapAthenaStageLayerDatabase
