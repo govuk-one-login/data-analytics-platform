@@ -208,7 +208,7 @@ TxmaRefactoredTable:
         'storage.location.template': !Join ['', ['s3://', !Ref RawLayerBucket, '/txma-refactored/${datecreated}/']]
 
 RawLayerBucketName:
-  Condition: IsDevOrBuild
+  Condition: IsDevBuildOrStaging
   Type: AWS::SSM::Parameter
   Properties:
     Name: !Sub /tests/${AWS::StackName}/dapRawLayerBucket
