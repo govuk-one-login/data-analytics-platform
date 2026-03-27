@@ -321,7 +321,7 @@ StepFunctionRole:
 
 TxmaRawConsolidatedSchemaToStageProcessStateMachineArnParameter:
   Type: AWS::SSM::Parameter
-  Condition: IsDevOrBuild
+  Condition: IsDevBuildOrStaging
   Properties:
     Name: !Sub /tests/${AWS::StackName}/rawToStageStepFunction
     Type: String
@@ -329,7 +329,7 @@ TxmaRawConsolidatedSchemaToStageProcessStateMachineArnParameter:
 
 StageToConformStepFunctionParameter:
   Type: AWS::SSM::Parameter
-  Condition: IsDevOrBuild
+  Condition: IsDevBuildOrStaging
   Properties:
     Name: !Sub /tests/${AWS::StackName}/stageToConformStepFunction
     Type: String
