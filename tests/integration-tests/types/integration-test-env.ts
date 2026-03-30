@@ -1,15 +1,3 @@
-export interface IntegrationTestEnv {
-  name:
-    | 'AWS_REGION'
-    | 'DAP_TXMA_CONSUMER_SQS_QUEUE_URL'
-    | 'STACK_NAME'
-    | 'ATHENA_WORKGROUP'
-    | 'RAW_LAYER_DATABASE'
-    | 'RAW_LAYER_BUCKET'
-    | 'STAGE_LAYER_DATABASE'
-    | 'RAW_TO_STAGE_STEP_FUNCTION'
-    | 'STAGE_TO_CONFORM_STEP_FUNCTION'
-    | 'GLUE_LOG_GROUP'
-    | 'REDSHIFT_WORKGROUP_NAME'
-    | 'REDSHIFT_SECRET_ARN';
-}
+import { SharedTestEnvName } from '../../shared-test-code/types/test-env';
+
+export type IntegrationTestEnvName = SharedTestEnvName | 'DAP_TXMA_CONSUMER_SQS_QUEUE_URL' | 'GLUE_LOG_GROUP';

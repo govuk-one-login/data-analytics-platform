@@ -1,4 +1,4 @@
-import { pollForFactJourneyData } from '../../helpers/utils/poll-for-redshift-data';
+import { pollForFactJourneyData } from '../../../shared-test-code/poll-for-redshift-data';
 import { AuditEvent } from '../../../../common/types/event';
 import { loadConformLayerCache, ConformLayerCache } from '../../helpers/aws/redshift/conform-layer-queries';
 

@@ -1,4 +1,4 @@
-import { checkStageLayerEventsWithTimestamps } from '../../helpers/utils/poll-for-athena-data';
+import { checkStageLayerEventsWithTimestamps } from '../../helpers/utils/poll-for-data';
 import {
   validateSingleFactEntry,
   validateNoDuplicateExtensions,

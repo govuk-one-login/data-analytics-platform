@@ -1,25 +1,12 @@
-import { IntegrationTestEnv } from '../../types/integration-test-env';
+import { getTestEnv } from '../../../shared-test-code/utils/get-test-env';
+import { IntegrationTestEnvName } from '../../types/integration-test-env';
 
-export const getIntegrationTestEnv = (name: IntegrationTestEnv['name']) => {
-  const env = process.env[name];
+export { generateTimestamp, generateTimestampFormatted } from '../../../shared-test-code/utils';
 
-  if (env === undefined || env === null) {
-    throw Error(`Missing environment variable: ${name}`);
-  }
-
-  return env;
-};
-
-export const generateTimestamp = (): number => {
-  return Math.floor(Date.now() / 1000);
-};
+export const getIntegrationTestEnv = (name: IntegrationTestEnvName): string => getTestEnv(name);
 
 export const generateTimestampInMs = (): number => {
   return Date.now();
-};
-
-export const generateTimestampFormatted = (): string => {
-  return new Date().toISOString();
 };
 
 export const generateDateCreatedPartition = (): string => {
@@ -38,6 +25,5 @@ export const generateProcessedDt = (): number => {
 };
 
 export const generateProcessedTime = (): number => {
-  // Use current timestamp - tests will need to handle the fact this won't match exactly
   return Math.floor(Date.now() / 1000);
 };

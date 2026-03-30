@@ -1,4 +1,4 @@
-import { executeRedshiftQuery } from './execute-redshift-query';
+import { executeRedshiftQuery } from '../../../../shared-test-code/aws/redshift/execute-redshift-query';
 
 interface FactTableResult {
   user_journey_key: number | null;

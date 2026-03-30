@@ -1,5 +1,5 @@
 import { getIntegrationTestEnv } from '../../helpers/utils/utils';
-import { executeAthenaQuery } from '../../helpers/aws/athena/execute-athena-query';
+import { executeAthenaQuery } from '../../../shared-test-code/aws/athena/execute-athena-query';
 import { edgeCaseEventList } from '../../test-events/edge-case-events/edge-case-event-list';
 
 // Get events that were processed during setup
