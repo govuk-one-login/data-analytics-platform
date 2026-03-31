@@ -180,7 +180,7 @@ QuicksightAccessUserPool:
         Name: last_login
         Mutable: true
         Required: false
-    DeletionProtection: ACTIVE
+    DeletionProtection: INACTIVE
 
 QuicksightAccessUserPoolClient:
   Type: AWS::Cognito::UserPoolClient
