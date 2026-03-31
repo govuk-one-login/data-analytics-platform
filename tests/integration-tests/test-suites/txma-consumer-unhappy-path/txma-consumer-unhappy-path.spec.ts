@@ -1,5 +1,5 @@
 import { checkEventLog } from '../../helpers/aws/cloudwatch/check-event-log';
-import { executeAthenaQuery } from '../../helpers/aws/athena/execute-athena-query';
+import { executeAthenaQuery } from '../../../shared-test-code/aws/athena/execute-athena-query';
 import { getIntegrationTestEnv } from '../../helpers/utils/utils';
 
 const setupStartTime = Date.now() - 30 * 60 * 1000; // 30 minutes before test start

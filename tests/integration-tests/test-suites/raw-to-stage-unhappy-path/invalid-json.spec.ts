@@ -1,7 +1,11 @@
 import { uploadEventToRawLayer, deleteEventFromRawLayer } from '../../helpers/aws/s3/upload-to-s3';
-import { getIntegrationTestEnv } from '../../helpers/utils/utils';
-import { generateTimestamp, generateTimestampFormatted, generateTimestampInMs } from '../../helpers/utils/utils';
-import { executeStepFunction } from '../../helpers/aws/step-function/execute-step-function';
+import {
+  getIntegrationTestEnv,
+  generateTimestamp,
+  generateTimestampFormatted,
+  generateTimestampInMs,
+} from '../../helpers/utils/utils';
+import { executeStepFunction } from '../../../shared-test-code/aws/step-function/execute-step-function';
 import { fetchGlueErrorLogs } from '../../helpers/aws/cloudwatch/fetch-glue-logs';
 import { retryOnConcurrentRun } from '../../helpers/utils/retry-on-concurrent-run';
 import { constructCreateAccountDeformedJsonTxmaEvent } from '../../test-events/raw-to-stage-unhappy-path-events/invalid-json-txma-event';

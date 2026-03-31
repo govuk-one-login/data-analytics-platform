@@ -1,22 +1,22 @@
 /* eslint-disable no-console */
 import { AWS_REGION, STACK_NAME } from '../shared-test-code/constants';
-import { addMessageToQueue } from './helpers/aws/sqs/add-message-to-queue';
-import { executeStepFunction } from './helpers/aws/step-function/execute-step-function';
-import { setEnvVarsFromSsm } from './helpers/config/ssm-config';
+import { addMessageToQueue } from '../shared-test-code/aws/sqs/add-message-to-queue';
+import { executeStepFunction } from '../shared-test-code/aws/step-function/execute-step-function';
+import { setIntegrationEnvVarsFromSsm } from './helpers/config/ssm-config';
 import {
   getIntegrationTestEnv,
   generateTimestamp,
   generateTimestampFormatted,
   generateTimestampInMs,
 } from './helpers/utils/utils';
-import { pollForRawLayerData, pollForStageLayerData } from './helpers/utils/poll-for-athena-data';
-import { pollForFactJourneyData } from './helpers/utils/poll-for-redshift-data';
+import { pollForRawLayerData, pollForStageLayerData } from '../shared-test-code/poll-for-athena-data';
+import { pollForFactJourneyData } from '../shared-test-code/poll-for-redshift-data';
 import { happyPathEventList } from './test-events/happy-path-events/happy-path-event-list';
 import { edgeCaseEventList } from './test-events/edge-case-events/edge-case-event-list';
 import { txmaUnhappyPathEventList } from './test-events/txma-consumer-unhappy-path-events/txma-consumer-unhappy-event-list';
 import { constructReplayTestEvent } from './test-events/replay-events/replay-event';
 import { AuditEvent } from '../../common/types/event';
-import { grantRedshiftAccess } from './helpers/aws/redshift/grant-access';
+import { grantRedshiftAccess } from '../shared-test-code/aws/redshift/grant-access';
 import { uploadEventToRawLayer } from './helpers/aws/s3/upload-to-s3';
 import { constructAuthAuthorisationInitiatedTestEvent10 } from './test-events/happy-path-events/test-event-10-auth-authorisation-initiated-dap';
 import { randomUUID } from 'crypto';
@@ -28,7 +28,7 @@ export default async () => {
     process.env.STACK_NAME = process.env.STACK_NAME ?? STACK_NAME;
     process.env.AWS_REGION = process.env.AWS_REGION ?? AWS_REGION;
 
-    await setEnvVarsFromSsm();
+    await setIntegrationEnvVarsFromSsm();
     await grantRedshiftAccess(getIntegrationTestEnv('REDSHIFT_WORKGROUP_NAME'));
     const processedEvents: AuditEvent[] = [];
     const queueUrl = getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL');
@@ -133,7 +133,7 @@ export default async () => {
     const eventIds = processedEvents.map(event => event.event_id);
     // Wait 5 seconds for Lambda to start processing before polling
     await new Promise(resolve => setTimeout(resolve, 5000));
-    await pollForRawLayerData(eventIds, { maxWaitTimeMs: 5 * 60 * 1000, pollIntervalMs: 5000 }); // 5 minute max wait, poll every 5s
+    await pollForRawLayerData(eventIds, { maxWaitTimeMs: 5 * 60 * 1000, pollIntervalMs: 5000 });
 
     const rawToStageStepFunction = getIntegrationTestEnv('RAW_TO_STAGE_STEP_FUNCTION');
 

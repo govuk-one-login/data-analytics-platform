@@ -1,5 +1,5 @@
-import { executeRedshiftQuery } from '../aws/redshift/execute-redshift-query';
-import { DEFAULT_POLL_INTERVAL_MS, DEFAULT_MAX_WAIT_TIME_MS } from '../../constants';
+import { executeRedshiftQuery } from './aws/redshift/execute-redshift-query';
+import { DEFAULT_POLL_INTERVAL_MS, DEFAULT_MAX_WAIT_TIME_MS } from './constants';
 
 interface PollOptions {
   maxWaitTimeMs?: number;

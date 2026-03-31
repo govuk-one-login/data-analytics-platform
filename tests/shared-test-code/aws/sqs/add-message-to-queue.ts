@@ -1,5 +1,5 @@
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import { AuditEvent } from '../../../../../common/types/event';
+import { AuditEvent } from '../../../../common/types/event';
 
 const sqsClient = new SQSClient({});
 
