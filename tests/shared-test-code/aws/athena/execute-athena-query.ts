@@ -8,7 +8,7 @@ import {
 } from '@aws-sdk/client-athena';
 import { getTestEnv } from '../../utils/get-test-env';
 
-export const executeAthenaQuery = async (query: string, database: string, maxWaitMs = 20000): Promise<Row[]> => {
+export const executeAthenaQuery = async (query: string, database: string, maxWaitMs = 60000): Promise<Row[]> => {
   const workgroup = getTestEnv('ATHENA_WORKGROUP');
   const maxRetries = 3;
   let lastError: Error | undefined;
