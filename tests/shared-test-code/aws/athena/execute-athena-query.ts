@@ -6,15 +6,16 @@ import {
   GetQueryResultsCommand,
   Row,
 } from '@aws-sdk/client-athena';
-import { getIntegrationTestEnv } from '../../utils/utils';
+import { getTestEnv } from '../../utils/get-test-env';
 
 export const executeAthenaQuery = async (query: string, database: string, maxWaitMs = 20000): Promise<Row[]> => {
+  const workgroup = getTestEnv('ATHENA_WORKGROUP');
   const maxRetries = 3;
   let lastError: Error | undefined;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      return await executeAthenaQueryWithTimeout(query, database, maxWaitMs);
+      return await executeAthenaQueryWithTimeout(query, database, workgroup, maxWaitMs);
     } catch (error) {
       lastError = error as Error;
       if (attempt < maxRetries && lastError.message.includes('timeout')) {
@@ -28,13 +29,18 @@ export const executeAthenaQuery = async (query: string, database: string, maxWai
   throw lastError;
 };
 
-const executeAthenaQueryWithTimeout = async (query: string, database: string, maxWaitMs: number): Promise<Row[]> => {
+const executeAthenaQueryWithTimeout = async (
+  query: string,
+  database: string,
+  workgroup: string,
+  maxWaitMs: number,
+): Promise<Row[]> => {
   const client = new AthenaClient({});
 
   const startCommand = new StartQueryExecutionCommand({
     QueryString: query,
     QueryExecutionContext: { Database: database },
-    WorkGroup: getIntegrationTestEnv('ATHENA_WORKGROUP'),
+    WorkGroup: workgroup,
   });
 
   const startResult = await client.send(startCommand);

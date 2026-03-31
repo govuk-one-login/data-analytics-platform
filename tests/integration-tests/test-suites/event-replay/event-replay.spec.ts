@@ -1,10 +1,10 @@
-import { addMessageToQueue } from '../../helpers/aws/sqs/add-message-to-queue';
+import { addMessageToQueue } from '../../../shared-test-code/aws/sqs/add-message-to-queue';
 import { executeGlueJob } from '../../helpers/aws/glue/execute-glue-job';
-import { executeAthenaQuery } from '../../helpers/aws/athena/execute-athena-query';
-import { executeRedshiftQuery } from '../../helpers/aws/redshift/execute-redshift-query';
-import { executeStepFunction } from '../../helpers/aws/step-function/execute-step-function';
-import { pollForRawLayerReplayData } from '../../helpers/utils/poll-for-athena-data';
-import { pollForFactJourneyData } from '../../helpers/utils/poll-for-redshift-data';
+import { executeAthenaQuery } from '../../../shared-test-code/aws/athena/execute-athena-query';
+import { executeRedshiftQuery } from '../../../shared-test-code/aws/redshift/execute-redshift-query';
+import { executeStepFunction } from '../../../shared-test-code/aws/step-function/execute-step-function';
+import { pollForRawLayerReplayData } from '../../helpers/utils/poll-for-data';
+import { pollForFactJourneyData } from '../../../shared-test-code/poll-for-redshift-data';
 import { uploadReplayConfigToS3 } from '../../helpers/aws/s3/upload-replay-config';
 import {
   getIntegrationTestEnv,

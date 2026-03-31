@@ -1,7 +1,7 @@
 import { getIntegrationTestEnv } from '../../helpers/utils/utils';
-import { executeAthenaQuery } from '../../helpers/aws/athena/execute-athena-query';
+import { executeAthenaQuery } from '../../../shared-test-code/aws/athena/execute-athena-query';
 import { happyPathEventList } from '../../test-events/happy-path-events/happy-path-event-list';
-import { pollForStageLayerData } from '../../helpers/utils/poll-for-athena-data';
+import { pollForStageLayerData } from '../../../shared-test-code/poll-for-athena-data';
 import { AuditEvent } from '../../../../common/types/event';
 import { Row } from '@aws-sdk/client-athena';
 

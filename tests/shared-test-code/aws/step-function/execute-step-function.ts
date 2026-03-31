@@ -12,7 +12,7 @@ import {
   STEP_FUNCTION_STATUS_RUNNING,
   STEP_FUNCTION_STATUS_SUCCEEDED,
   ABORT_WAIT_TIME_MS,
-} from '../../../constants';
+} from '../../constants';
 
 export const executeStepFunction = async (
   stateMachineArn: string,

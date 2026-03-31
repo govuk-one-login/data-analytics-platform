@@ -1,5 +1,5 @@
 import { getIntegrationTestEnv } from '../../helpers/utils/utils';
-import { executeAthenaQuery } from '../../helpers/aws/athena/execute-athena-query';
+import { executeAthenaQuery } from '../../../shared-test-code/aws/athena/execute-athena-query';
 import { happyPathEventList } from '../../test-events/happy-path-events/happy-path-event-list';
 import { normaliseJsonInResults } from '../../helpers/utils/normalise-json';
 import { Row } from '@aws-sdk/client-athena';
