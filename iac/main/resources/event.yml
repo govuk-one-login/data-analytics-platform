@@ -50,7 +50,6 @@ EventConsumerLambda:
       Variables:
         FIREHOSE_STREAM_NAME: !Sub '${Environment}-${DeliveryStreamName}'
         ENVIRONMENT: !Ref Environment
-    ReservedConcurrentExecutions: 250
     Tags:
       Environment: !Ref Environment
     VpcConfig:
@@ -66,6 +65,8 @@ EventConsumerEventSourceMapping:
   Properties:
     BatchSize: 10
     Enabled: true
+    ScalingConfig:
+      MaximumConcurrency: 300
     EventSourceArn: !If [IsDevOrBuild, !GetAtt EventConsumerQueue.Arn, '{{resolve:ssm:TxMAEventQueueARN}}']
     FunctionName: !GetAtt EventConsumerLambda.Arn
     FunctionResponseTypes:
