@@ -50,7 +50,7 @@ EventConsumerLambda:
       Variables:
         FIREHOSE_STREAM_NAME: !Sub '${Environment}-${DeliveryStreamName}'
         ENVIRONMENT: !Ref Environment
-    ReservedConcurrentExecutions: 100
+    ReservedConcurrentExecutions: 250
     Tags:
       Environment: !Ref Environment
     VpcConfig:
