@@ -176,4 +176,4 @@ jobs:
         env:
           AWS_RETRY_MODE: adaptive
           PARAMETER_OVERRIDES: 'Environment=${{ inputs.lowercase-environment }} VpcStackName=none CodeSigningConfigArn=none PermissionsBoundary=none TestRoleArn=none'
-        run: sam deploy --region eu-west-2 --stack-name dap-core --parameter-overrides "$PARAMETER_OVERRIDES" --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+        run: sam deploy --region eu-west-2 --stack-name dap-core --parameter-overrides "$PARAMETER_OVERRIDES" --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset
