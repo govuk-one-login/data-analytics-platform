@@ -187,6 +187,44 @@ These tests are split into two projects based on their execution patterns. The m
 
 Running `npm run test:integration` will run all tests concurrently in two projects. The Step Function executions are isolated between the different test suites. The full test suite typically takes approximately 14 minutes to complete. Tests automatically clean up all test data from S3 and Athena after completion.
 
+#### E2E tests
+
+E2E tests validate the full data pipeline from event ingestion through to the conform layer in the _staging_ environment. They send events through event-processing and verify the data arrives correctly in the conform layer, ensuring it has been processed successfully by both self serve and DAP.
+
+There are two types of BAU E2E tests:
+* **RP Onboarding** — verifies that a new relying party's events are correctly reflected in the Redshift dim and ref tables
+* **Event Onboarding** — verifies that a new event type is processed and lands in the conform layer correctly (coming soon)
+
+A daily E2E test to validate the full end-to-end flow will also be added in the future.
+
+###### RP Onboarding
+
+The RP onboarding test verifies that when a new relying party's events flow through the full pipeline, the correct entries appear in the Redshift `dim_relying_party_refactored` and `ref_relying_parties_refactored` tables.
+
+Prerequisites:
+* Set up ~/.aws/config file with the correct AWS credentials
+* Login to AWS:
+  ```sh
+  export AWS_PROFILE=data-dap-staging
+  aws sso login
+  ```
+
+Test configuration is in [tests/e2e-tests/config/rp-onboarding.config.ts](tests/e2e-tests/config/rp-onboarding.config.ts). Each entry specifies a `clientId` and the expected values for the dim and ref tables. To test a new RP, add an entry to the `rpOnboardingTestEvents` array — see the comments in that file for examples.
+
+There are two ways to run the test:
+
+```sh
+# Full run — sends events to SQS, waits for events to be processed by event-processing and self serve and arrive in the DAP raw layer, runs the step function and checks the tables in the DAP conform layer
+# Takes ~25 minutes due to event processing and ETL execution
+npm run test:e2e:rp-onboarding
+
+# Check only — skips event sending and step function execution, just queries Redshift
+# Use this to verify tables are already populated (e.g. after a previous full run)
+npm run test:e2e:rp-onboarding:check-only
+```
+
+The test output includes a comparison table showing expected vs actual values for each client_id. Mismatched columns are highlighted in red with a summary below the table.
+
 #### Test reports
 
 After running unit tests, a test report called `index.html` will be available in the [test-report](test-report) directory.
