@@ -18,6 +18,7 @@ export const executeStepFunction = async (
   stateMachineArn: string,
   input?: object,
   prefix?: string,
+  timeoutMs?: number,
 ): Promise<{ executionArn: string; status: string; error?: string; cause?: string }> => {
   const client = new SFNClient({});
 
@@ -26,7 +27,7 @@ export const executeStepFunction = async (
     await abortRunningExecutions(client, stateMachineArn);
 
     // Generate unique execution name
-    const randomSuffix = Math.random().toString(36).substr(2, 9);
+    const randomSuffix = Math.random().toString(36).substring(2, 11);
     const executionName = prefix ? `${prefix}-${randomSuffix}` : `integration-test-${randomSuffix}`;
 
     console.log(`⚙️ Starting step function execution: ${executionName}`);
@@ -40,14 +41,15 @@ export const executeStepFunction = async (
     const startResult = await client.send(startCommand);
     const executionArn = startResult.executionArn!;
 
-    // Wait for execution to complete with 10-minute timeout
     let status = STEP_FUNCTION_STATUS_RUNNING;
     const startTime = Date.now();
-    const timeoutMs = STEP_FUNCTION_TIMEOUT_MS;
+    const effectiveTimeoutMs = timeoutMs ?? STEP_FUNCTION_TIMEOUT_MS;
 
     while (status === STEP_FUNCTION_STATUS_RUNNING) {
-      if (Date.now() - startTime > timeoutMs) {
-        throw new Error(`Step Function execution timed out after 10 minutes. Execution ARN: ${executionArn}`);
+      if (Date.now() - startTime > effectiveTimeoutMs) {
+        throw new Error(
+          `Step Function execution timed out after ${Math.round(effectiveTimeoutMs / 60000)} minutes. Execution ARN: ${executionArn}`,
+        );
       }
 
       await new Promise(resolve => setTimeout(resolve, DEFAULT_POLL_INTERVAL_MS));
