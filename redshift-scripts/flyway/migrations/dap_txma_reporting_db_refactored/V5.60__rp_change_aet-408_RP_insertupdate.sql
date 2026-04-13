@@ -5,7 +5,7 @@ SELECT 'GIvJ8cn4v34SY4hdX-u09Tho2qs','Data Driven Insights Platform','MHCLG - Da
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.REF_RELYING_PARTIES_refactored
-    WHERE client_id = 'c2DL-h6T8YQcLDCTj1voXYipiZ8'
+    WHERE client_id = 'GIvJ8cn4v34SY4hdX-u09Tho2qs';
 );
 
 UPDATE conformed_refactored.dim_relying_party_refactored
