@@ -192,10 +192,9 @@ Running `npm run test:integration` will run all tests concurrently in two projec
 E2E tests validate the full data pipeline from event ingestion through to the conform layer in the _staging_ environment. They send events through event-processing and verify the data arrives correctly in the conform layer, ensuring it has been processed successfully by both self serve and DAP.
 
 There are two types of BAU E2E tests:
-* **RP Onboarding** — verifies that a new relying party's events are correctly reflected in the Redshift dim and ref tables
-* **Event Onboarding** — verifies that a new event type is processed and lands in the conform layer correctly (coming soon)
+* **RP Onboarding** — verifies that a new relying party's events are correctly reflected in the conform layer dim and ref tables
+* **Event Onboarding** — verifies that a new event type is processed and lands in the conform layer dim and fact journey tables correctly
 
-A daily E2E test to validate the full end-to-end flow will also be added in the future.
 
 ###### RP Onboarding
 
@@ -224,6 +223,37 @@ npm run test:e2e:rp-onboarding:check-only
 ```
 
 The test output includes a comparison table showing expected vs actual values for each client_id. Mismatched columns are highlighted in red with a summary below the table.
+
+###### Event Onboarding
+
+The event onboarding test verifies that when a new event type flows through the full pipeline, it lands correctly in the Redshift conform layer tables. The test sends the full raw event payload, and asserts that core fields (`event_id`, `component_id`, `event_name`, `user_govuk_signin_journey_id`, `date`) match in the conform layer. It also prints `user_id` (which is hashed upstream by event-processing), `channel_name`, and any extensions found for visibility.
+
+Prerequisites:
+* Set up ~/.aws/config file with the correct AWS credentials
+* Login to AWS:
+  ```sh
+  export AWS_PROFILE=data-dap-staging
+  aws sso login
+  ```
+
+Test configuration is in [tests/e2e-tests/config/event-onboarding.config.ts](tests/e2e-tests/config/event-onboarding.config.ts). Each entry is the full raw event payload — `event_id`, `timestamp` and `event_timestamp_ms` are generated automatically at send time. To test a new event type, add the raw event to the `eventOnboardingTestEvents` array — see the comments in that file for examples.
+
+There are two ways to run the test:
+
+```sh
+# Full run — sends events to SQS, waits for pipeline processing, then checks conform layer
+# Takes ~25 minutes due to event processing and ETL execution
+npm run test:e2e:event-onboarding
+```
+
+The full run output includes a comparison table showing expected vs actual values, with mismatched columns highlighted in red. Additional fields (user_id, channel_name, extensions) are printed below the table for reference.
+
+```sh
+# Check only by event_name — looks up the latest row for each event_name
+EVENT_ONBOARDING_EVENT_NAMES=EVCS_IDENTITY_REPLACED npm run test:e2e:event-onboarding:check-only
+```
+
+The check-only command prints the most recent conform layer row for each event name, including extensions.
 
 #### Test reports
 
