@@ -35,6 +35,7 @@ beforeEach(() => {
 });
 
 test('bad input events', async () => {
+  // Unit Test
   mockS3Client.resolves({});
 
   const missingBucket = {
@@ -70,6 +71,7 @@ test('bad input events', async () => {
 });
 
 test('missing bucket name', async () => {
+  // Unit Test
   process.env.METADATA_BUCKET_NAME = '';
 
   await expect(handler(TEST_EVENT)).rejects.toThrow('METADATA_BUCKET_NAME is not defined in this environment');
@@ -78,6 +80,7 @@ test('missing bucket name', async () => {
 });
 
 test('file parts parse error', async () => {
+  // Unit Test
   const badFilePath = 'bad/path.csv';
   const badFilePathEvent: RedshiftGetMetadataEvent = {
     fileMetadata: JSON.stringify({ bucket: METADATA_BUCKET_NAME, file_path: badFilePath }),
@@ -89,6 +92,7 @@ test('file parts parse error', async () => {
 });
 
 test('s3 error', async () => {
+  // Unit Test
   const error = 's3 error';
   mockS3Client.rejects(error);
 
@@ -98,6 +102,7 @@ test('s3 error', async () => {
 });
 
 test('json parse error', async () => {
+  // Unit Test
   const badJson = 'hi';
   mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: badJson }) });
 
@@ -109,6 +114,7 @@ test('json parse error', async () => {
 });
 
 test('config object errors', async () => {
+  // Unit Test
   const helloWorld = { hello: 'world' };
   mockS3Client
     .resolvesOnce({ Body: mockS3BodyStream({ stringValue: JSON.stringify(helloWorld, null, 2) }) })
@@ -139,6 +145,7 @@ test('config object errors', async () => {
 });
 
 test('success', async () => {
+  // Unit Test
   // test first of the file path parts (data_analytics) indirectly by only resolving for a GetObjectCommand with it properly within the Key
   mockS3Client
     .on(GetObjectCommand, {

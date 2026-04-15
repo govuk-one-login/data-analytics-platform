@@ -36,6 +36,7 @@ beforeEach(async () => {
 });
 
 test('missing required params', async () => {
+  // Unit Test
   mockS3Client.resolves({});
 
   const missingDatasource = { ...TEST_EVENT } as unknown as Partial<AthenaGetStatementEvent>;
@@ -65,6 +66,7 @@ test('missing required params', async () => {
 });
 
 test('unknown action', async () => {
+  // Unit Test
   mockS3Client.resolves({});
 
   const event: AthenaGetStatementEvent = {
@@ -76,6 +78,7 @@ test('unknown action', async () => {
 });
 
 test('missing environment', async () => {
+  // Unit Test
   mockS3Client.resolves({});
 
   delete process.env.ENVIRONMENT;
@@ -88,6 +91,7 @@ test('missing environment', async () => {
 });
 
 test('getinsertquery needs valid config object', async () => {
+  // Unit Test
   mockS3Client.resolves({});
 
   // different error here as it's caused by getRequiredParams
@@ -104,6 +108,7 @@ test('getinsertquery needs valid config object', async () => {
 });
 
 test('getpartitionquery does not need valid config object', async () => {
+  // Unit Test
   await setTestEvent('GetPartitionQuery');
   mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: 'hello' }) });
 
@@ -120,6 +125,7 @@ test('getpartitionquery does not need valid config object', async () => {
 });
 
 test('client error', async () => {
+  // Unit Test
   mockS3Client.rejects('S3 Error');
 
   await expect(handler(TEST_EVENT)).rejects.toThrow('S3 Error');
@@ -127,6 +133,7 @@ test('client error', async () => {
 });
 
 test('getinsertquery needs valid row and data', async () => {
+  // Unit Test
   mockS3Client.resolves({});
 
   const expectedError = 'Row number 1 or its Data at position 0 is missing or invalid';
@@ -141,6 +148,7 @@ test('getinsertquery needs valid row and data', async () => {
 });
 
 test('getpartitionquery does not need valid row and data', async () => {
+  // Unit Test
   await setTestEvent('GetPartitionQuery');
   mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: 'hello' }) });
 
@@ -157,6 +165,7 @@ test('getpartitionquery does not need valid row and data', async () => {
 });
 
 test('get insert query success', async () => {
+  // Unit Test
   // make the mock client reject on any call except one with the correct S3 bucket and key
   mockS3Client
     .rejects()
@@ -178,6 +187,7 @@ test('get insert query success', async () => {
 });
 
 test('get partition query success', async () => {
+  // Unit Test
   // make the mock client reject on any call except one with the correct S3 bucket and key
   mockS3Client
     .rejects()

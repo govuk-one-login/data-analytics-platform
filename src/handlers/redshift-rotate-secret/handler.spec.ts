@@ -49,6 +49,7 @@ beforeEach(() => {
 });
 
 test('no stage for rotation', async () => {
+  // Unit Test
   mockSecretsManager({ versions: { someVersion: ['AWSPENDING'] } });
 
   await expect(
@@ -60,6 +61,7 @@ test('no stage for rotation', async () => {
 });
 
 test('invalid step', async () => {
+  // Unit Test
   mockSecretsManager();
 
   await expect(
@@ -75,6 +77,7 @@ test('invalid step', async () => {
 });
 
 test('create secret pending already created', async () => {
+  // Unit Test
   mockSecretsManager();
 
   await handler({ Step: 'createSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN });
@@ -84,6 +87,7 @@ test('create secret pending already created', async () => {
 });
 
 test('create secret create pending', async () => {
+  // Unit Test
   mockSecretsManager({ pendingSecretError: true });
 
   await handler({ Step: 'createSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN });
@@ -93,6 +97,7 @@ test('create secret create pending', async () => {
 });
 
 test('set secret pending already set', async () => {
+  // Unit Test
   mockSecretsManager();
   mockDatabaseConnections({ AWSPENDING: { connection: true } });
 
@@ -103,6 +108,7 @@ test('set secret pending already set', async () => {
 });
 
 test('set secret current works', async () => {
+  // Unit Test
   mockSecretsManager();
   mockDatabaseConnections({ AWSCURRENT: { connection: true } });
 
@@ -113,6 +119,7 @@ test('set secret current works', async () => {
 });
 
 test('set secret previous works', async () => {
+  // Unit Test
   mockSecretsManager();
   mockDatabaseConnections({ AWSPREVIOUS: { connection: true } });
 
@@ -123,6 +130,7 @@ test('set secret previous works', async () => {
 });
 
 test('set secret none works', async () => {
+  // Unit Test
   mockSecretsManager();
   mockDatabaseConnections({});
 
@@ -135,6 +143,7 @@ test('set secret none works', async () => {
 });
 
 test('set secret error changing password', async () => {
+  // Unit Test
   const errorMessage = 'error setting password';
   mockSecretsManager();
   mockDatabaseConnections({ AWSCURRENT: { connection: true, rawError: errorMessage } });
@@ -148,6 +157,7 @@ test('set secret error changing password', async () => {
 });
 
 test('secret success', async () => {
+  // Unit Test
   mockSecretsManager();
   mockDatabaseConnections({ AWSPENDING: { connection: true } });
 
@@ -158,6 +168,7 @@ test('secret success', async () => {
 });
 
 test('secret bad secret', async () => {
+  // Unit Test
   mockSecretsManager({ pendingSecretError: true });
   mockDatabaseConnections({ AWSPENDING: { connection: true } });
 
@@ -170,6 +181,7 @@ test('secret bad secret', async () => {
 });
 
 test('secret bad connection', async () => {
+  // Unit Test
   mockSecretsManager();
   mockDatabaseConnections({});
 
@@ -182,6 +194,7 @@ test('secret bad connection', async () => {
 });
 
 test('finish secret already marked as current', async () => {
+  // Unit Test
   mockSecretsManager({ versions: { [CLIENT_REQUEST_TOKEN]: ['AWSCURRENT'] } });
 
   await handler({ Step: 'finishSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN });
@@ -191,6 +204,7 @@ test('finish secret already marked as current', async () => {
 });
 
 test('finish secret current version exists but is not this one', async () => {
+  // Unit Test
   mockSecretsManager({ versions: { [CLIENT_REQUEST_TOKEN]: ['AWSPENDING'], randomVersionId: ['AWSCURRENT'] } });
 
   await handler({ Step: 'finishSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN });
@@ -200,6 +214,7 @@ test('finish secret current version exists but is not this one', async () => {
 });
 
 test('finish secret no current version', async () => {
+  // Unit Test
   mockSecretsManager();
 
   await handler({ Step: 'finishSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN });
@@ -209,6 +224,7 @@ test('finish secret no current version', async () => {
 });
 
 test('secret to database connection', async () => {
+  // Unit Test
   // @ts-expect-error this incorrectly extends DatabaseAccess by overriding a private method but it's fine as it's a test
   const databaseAccess = new (class extends DatabaseAccess {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

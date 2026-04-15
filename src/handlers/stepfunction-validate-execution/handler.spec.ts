@@ -31,6 +31,7 @@ beforeEach(() => {
 });
 
 test('missing state machine arn', async () => {
+  // Unit Test
   process.env.STATE_MACHINE_ARN = '';
 
   const expectedErrorMessage = 'STATE_MACHINE_ARN is not defined in this environment';
@@ -46,6 +47,7 @@ test('missing state machine arn', async () => {
 });
 
 test('no executions', async () => {
+  // Unit Test
   mockSetup(new MockExecution({ executionArn: EXECUTION_ARN }));
 
   const response = await handler(TEST_EVENT);
@@ -58,6 +60,7 @@ test('no executions', async () => {
 });
 
 test('old execution with same id', async () => {
+  // Unit Test
   mockSetup(new MockExecution({ executionArn: EXECUTION_ARN }), new MockExecution({ status: 'SUCCEEDED' }));
 
   const response = await handler(TEST_EVENT);
@@ -70,6 +73,7 @@ test('old execution with same id', async () => {
 });
 
 test('running execution not with same id', async () => {
+  // Unit Test
   mockSetup(new MockExecution({ executionArn: EXECUTION_ARN }), new MockExecution({ messageGroupId: 'another id' }));
 
   const response = await handler(TEST_EVENT);
@@ -82,6 +86,7 @@ test('running execution not with same id', async () => {
 });
 
 test('running execution with same id started before', async () => {
+  // Unit Test
   mockSetup(
     new MockExecution({ executionArn: EXECUTION_ARN, startDate: new Date(1715177635433) }),
     new MockExecution({ startDate: new Date(1715177635400) }),
@@ -101,6 +106,7 @@ test('running execution with same id started before', async () => {
 });
 
 test('running execution with same id started after', async () => {
+  // Unit Test
   mockSetup(
     new MockExecution({ executionArn: EXECUTION_ARN, startDate: new Date(1715177635400) }),
     new MockExecution({ startDate: new Date(1715177635433) }),
@@ -116,6 +122,7 @@ test('running execution with same id started after', async () => {
 });
 
 test('multiple with same id and some before', async () => {
+  // Unit Test
   mockSetup(
     new MockExecution({ executionArn: EXECUTION_ARN, startDate: new Date(1715177635433) }),
     new MockExecution({ startDate: new Date(1715177635400) }), // started before with same id
@@ -137,6 +144,7 @@ test('multiple with same id and some before', async () => {
 });
 
 test('multiple with same id and none before', async () => {
+  // Unit Test
   mockSetup(
     new MockExecution({ executionArn: EXECUTION_ARN, startDate: new Date(1715177635433) }),
     new MockExecution({ startDate: new Date(1715177635440) }),
@@ -154,6 +162,7 @@ test('multiple with same id and none before', async () => {
 });
 
 test('sfn client error', async () => {
+  // Unit Test
   const errorMessage = 'sfn error';
   mockSFNClient.on(ListExecutionsCommand).rejects(errorMessage);
 

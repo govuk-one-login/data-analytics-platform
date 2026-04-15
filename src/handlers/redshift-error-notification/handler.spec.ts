@@ -59,6 +59,7 @@ describe('redshift-error-notification', () => {
   };
 
   it('should send EventBridge event for failed Redshift stored procedure', async () => {
+    // Unit Test
     const logMessage = {
       details: {
         output: JSON.stringify({
@@ -91,6 +92,7 @@ describe('redshift-error-notification', () => {
   });
 
   it('should not send notification for successful queries', async () => {
+    // Unit Test
     const logMessage = {
       details: {
         output: JSON.stringify({
@@ -109,6 +111,7 @@ describe('redshift-error-notification', () => {
   });
 
   it('should not send notification when no error details present', async () => {
+    // Unit Test
     const logMessage = {
       details: {
         output: JSON.stringify({
@@ -128,6 +131,7 @@ describe('redshift-error-notification', () => {
   });
 
   it('should handle missing details.output', async () => {
+    // Unit Test
     const logMessage = {
       details: {},
     };
@@ -139,6 +143,7 @@ describe('redshift-error-notification', () => {
   });
 
   it('should throw error when EventBridge publish fails', async () => {
+    // Unit Test
     mockSend.mockRejectedValue(new Error('EventBridge Error'));
 
     const logMessage = {

@@ -141,12 +141,14 @@ beforeEach(() => {
 });
 
 test('unknown command', async () => {
+  // Unit Test
   await expect(handler({ command: 'NotACommand', database: DATABASE })).rejects.toThrow(
     'Unknown command "NotACommand"',
   );
 });
 
 test('error getting files', async () => {
+  // Unit Test
   const errorMessage = 's3 error';
 
   mockS3Responses({ errorMessage });
@@ -159,6 +161,7 @@ test('error getting files', async () => {
 });
 
 test('error getting secret', async () => {
+  // Unit Test
   const errorMessage = 'secretsmanager error';
 
   mockS3Responses();
@@ -173,6 +176,7 @@ test('error getting secret', async () => {
 });
 
 test('flyway success', async () => {
+  // Unit Test
   mockS3Responses();
   mockSecretsManagerResponses();
 
@@ -192,6 +196,7 @@ test('flyway success', async () => {
 });
 
 test('flyway error', async () => {
+  // Unit Test
   mockS3Responses();
   mockSecretsManagerResponses();
 
@@ -212,6 +217,7 @@ test('flyway error', async () => {
 });
 
 test('spawn sync error', async () => {
+  // Unit Test
   const error = new Error('Command line error');
   const stderr = { error: 'spawn sync error' };
 
@@ -234,6 +240,7 @@ test('spawn sync error', async () => {
 });
 
 test('spawn sync uncaught error', async () => {
+  // Unit Test
   const error = new Error('Command line error');
 
   mockS3Responses();
@@ -251,6 +258,7 @@ test('spawn sync uncaught error', async () => {
 });
 
 test('getting files', async () => {
+  // Unit Test
   const contents = [
     { Key: 'flyway.conf' },
     { Key: 'lib/flyway-commandline-10.7.2-linux-x64.tar.gz' },
@@ -299,16 +307,19 @@ test('getting files', async () => {
 });
 
 test('clean enabled in non production environment', async () => {
+  // Unit Test
   process.env.ENVIRONMENT = 'dev';
   await testClean(false);
 });
 
 test('clean disabled in production environment', async () => {
+  // Unit Test
   process.env.ENVIRONMENT = 'production';
   await testClean(true);
 });
 
 test('empty bucket contents', async () => {
+  // Unit Test
   mockS3Client.on(ListObjectsV2Command, { Bucket: FLYWAY_FILES_BUCKET_NAME }).resolves({ Contents: [] });
   mockSecretsManagerResponses();
 
@@ -320,6 +331,7 @@ test('empty bucket contents', async () => {
 });
 
 test('JSON parse error in decodeOutput', async () => {
+  // Unit Test
   mockS3Responses();
   mockSecretsManagerResponses();
 
@@ -339,6 +351,7 @@ test('JSON parse error in decodeOutput', async () => {
 });
 
 test('null output buffer', async () => {
+  // Unit Test
   mockS3Responses();
   mockSecretsManagerResponses();
 
@@ -358,6 +371,7 @@ test('null output buffer', async () => {
 });
 
 test('write stream error', async () => {
+  // Unit Test
   mockS3Client.on(ListObjectsV2Command, { Bucket: FLYWAY_FILES_BUCKET_NAME }).resolves({
     Contents: [{ Key: 'test-file.sql' }],
   });
