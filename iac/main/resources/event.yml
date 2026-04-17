@@ -240,7 +240,7 @@ E2ETestObfuscationHmacSecretArnParameter:
   Properties:
     Name: !Sub /tests/${AWS::StackName}/obfuscationHmacSecretArn
     Type: String
-    Value: event-processing-self/ObfuscationHmac/dapPreview
+    Value: dap/e2e/ObfuscationHmacKey
 
 E2ETestProducerQueueArnParameter:
   Type: AWS::SSM::Parameter
