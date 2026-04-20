@@ -565,3 +565,5 @@ RedshiftWorkgroupNameParameter:
     Name: !Sub /tests/${AWS::StackName}/redshiftWorkgroupName
     Type: String
     Value: !Ref RedshiftServerlessWorkgroup
+
+
