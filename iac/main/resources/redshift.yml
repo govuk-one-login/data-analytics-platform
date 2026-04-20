@@ -517,8 +517,8 @@ RedshiftErrorNotificationLambda:
       - Statement:
           - Effect: Allow
             Action:
-              - sns:Publish
-            Resource: !Ref DAPNotificationsTopic
+              - events:PutEvents
+            Resource: !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/default'
           - Effect: Allow
             Action:
               - kms:GenerateDataKey
@@ -565,3 +565,39 @@ RedshiftWorkgroupNameParameter:
     Name: !Sub /tests/${AWS::StackName}/redshiftWorkgroupName
     Type: String
     Value: !Ref RedshiftServerlessWorkgroup
+
+# EventBridge rule to forward Redshift errors to SNS in same stack
+RedshiftErrorEventRule:
+  Type: AWS::Events::Rule
+  Properties:
+    Name: !Sub ${Environment}-dap-redshift-error-rule
+    Description: 'Forward Redshift errors to SNS'
+    EventPattern:
+      source: ['dap.redshift.errors']
+      detail-type: ['Redshift Error']
+    State: ENABLED
+    Targets:
+      - Arn: !Ref DAPNotificationsTopic
+        Id: 'RedshiftErrorSNSTarget'
+        InputTransformer:
+          InputPathsMap:
+            notification: '$.detail.notification'
+            subject: '$.detail.subject'
+          InputTemplate: '<notification>'
+
+RedshiftErrorEventRulePermission:
+  Type: AWS::SNS::TopicPolicy
+  Properties:
+    Topics:
+      - !Ref DAPNotificationsTopic
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: events.amazonaws.com
+          Action: sns:Publish
+          Resource: !Ref DAPNotificationsTopic
+          Condition:
+            StringEquals:
+              'aws:SourceArn': !GetAtt RedshiftErrorEventRule.Arn

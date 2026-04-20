@@ -1,9 +1,8 @@
 import { CloudWatchLogsEvent, CloudWatchLogsDecodedData } from 'aws-lambda';
-import { PublishCommand } from '@aws-sdk/client-sns';
-import { gunzipSync } from 'node:zlib';
+import { PutEventsCommand } from '@aws-sdk/client-eventbridge';
+import { gunzipSync, InputType } from 'node:zlib';
 import { getLogger } from '../../shared/powertools';
-import { getEnvironmentVariable } from '../../shared/utils/utils';
-import { snsClient } from '../../shared/clients';
+import { eventbridgeClient } from '../../shared/clients';
 
 const logger = getLogger('lambda/redshift-error-notification');
 
@@ -19,7 +18,7 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
   try {
     // Decode the CloudWatch Logs data
     const compressed = Buffer.from(event.awslogs.data, 'base64');
-    const decompressed = gunzipSync(compressed);
+    const decompressed = gunzipSync(compressed as InputType);
     const logData: CloudWatchLogsDecodedData = JSON.parse(decompressed.toString());
 
     for (const logEvent of logData.logEvents) {
@@ -42,22 +41,28 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
                 description: `*Database:* ${output.Database}\n*Query:* ${output.QueryString}\n\n*Error:* ${output.Error}\n\n*Execution:* \`${message.execution_arn || 'N/A'}\``,
               },
             };
-            const errorMessage = JSON.stringify(customNotification);
 
-            // Send to SNS
-            const command = new PublishCommand({
-              TopicArn: getEnvironmentVariable('SNS_TOPIC_ARN'),
-              Message: errorMessage,
-              Subject: 'DAP Redshift Stored Procedure Failure',
+            // Send to EventBridge
+            const command = new PutEventsCommand({
+              Entries: [
+                {
+                  Source: 'dap.redshift.errors',
+                  DetailType: 'Redshift Error',
+                  Detail: JSON.stringify({
+                    notification: customNotification,
+                    subject: 'DAP Redshift Stored Procedure Failure',
+                  }),
+                },
+              ],
             });
 
-            await snsClient.send(command);
+            await eventbridgeClient.send(command);
           }
         }
       }
     }
   } catch (error) {
-    logger.error('Error processing Redshift error notification:', error);
+    logger.error('Error processing Redshift error notification:', error as Error);
     throw error;
   }
 };
