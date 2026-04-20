@@ -234,6 +234,14 @@ E2ETestProducerQueueUrlParameter:
     Type: String
     Value: !Ref E2ETestProducerQueue
 
+E2ETestObfuscationHmacSecretArnParameter:
+  Type: AWS::SSM::Parameter
+  Condition: IsStaging
+  Properties:
+    Name: !Sub /tests/${AWS::StackName}/obfuscationHmacSecretArn
+    Type: String
+    Value: dap/e2e/ObfuscationHmacKey
+
 E2ETestProducerQueueArnParameter:
   Type: AWS::SSM::Parameter
   Condition: IsStaging
