@@ -16,37 +16,37 @@ interface RedshiftErrorDetails {
 
 export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
   logger.info('Handler invoked with event', { event });
-  
+
   try {
     // Decode the CloudWatch Logs data
     const compressed = Buffer.from(event.awslogs.data, 'base64');
     const decompressed = gunzipSync(compressed as InputType);
     const logData: CloudWatchLogsDecodedData = JSON.parse(decompressed.toString());
-    
+
     logger.info('Decoded log data', { logData });
 
     for (const logEvent of logData.logEvents) {
       logger.info('Processing log event', { logEvent });
-      
+
       const message = JSON.parse(logEvent.message);
       logger.info('Parsed message', { message });
 
       // Extract error details from the Step Functions log
       if (message.details?.output) {
         logger.info('Found details.output', { output: message.details.output });
-        
+
         const parsedOutput = JSON.parse(message.details.output);
         logger.info('Parsed output', { parsedOutput });
 
         if (parsedOutput.sql_output) {
           logger.info('Found sql_output', { sql_output: parsedOutput.sql_output });
-          
+
           const output: RedshiftErrorDetails = parsedOutput.sql_output;
           logger.info('Status and Error check', { status: output.Status, hasError: !!output.Error });
-          
+
           if (output.Status === 'FAILED' && output.Error) {
             logger.info('Conditions met - sending notification to EventBridge');
-            
+
             // Format as AWS Chatbot custom notification
             const customNotification = {
               version: '1.0',
