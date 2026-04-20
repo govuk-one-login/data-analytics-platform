@@ -15,7 +15,7 @@ interface RedshiftErrorDetails {
 }
 
 export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
-  console.log('Handler invoked with event:', JSON.stringify(event, null, 2));
+  logger.info('Handler invoked with event', { event });
   
   try {
     // Decode the CloudWatch Logs data
@@ -23,29 +23,29 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
     const decompressed = gunzipSync(compressed as InputType);
     const logData: CloudWatchLogsDecodedData = JSON.parse(decompressed.toString());
     
-    console.log('Decoded log data:', JSON.stringify(logData, null, 2));
+    logger.info('Decoded log data', { logData });
 
     for (const logEvent of logData.logEvents) {
-      console.log('Processing log event:', JSON.stringify(logEvent, null, 2));
+      logger.info('Processing log event', { logEvent });
       
       const message = JSON.parse(logEvent.message);
-      console.log('Parsed message:', JSON.stringify(message, null, 2));
+      logger.info('Parsed message', { message });
 
       // Extract error details from the Step Functions log
       if (message.details?.output) {
-        console.log('Found details.output:', message.details.output);
+        logger.info('Found details.output', { output: message.details.output });
         
         const parsedOutput = JSON.parse(message.details.output);
-        console.log('Parsed output:', JSON.stringify(parsedOutput, null, 2));
+        logger.info('Parsed output', { parsedOutput });
 
         if (parsedOutput.sql_output) {
-          console.log('Found sql_output:', JSON.stringify(parsedOutput.sql_output, null, 2));
+          logger.info('Found sql_output', { sql_output: parsedOutput.sql_output });
           
           const output: RedshiftErrorDetails = parsedOutput.sql_output;
-          console.log('Status:', output.Status, 'Error:', output.Error);
+          logger.info('Status and Error check', { status: output.Status, hasError: !!output.Error });
           
           if (output.Status === 'FAILED' && output.Error) {
-            console.log('Conditions met - sending notification to EventBridge');
+            logger.info('Conditions met - sending notification to EventBridge');
             
             // Format as AWS Chatbot custom notification
             const customNotification = {
@@ -72,22 +72,21 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
               ],
             });
 
-            console.log('Sending EventBridge command:', JSON.stringify(command, null, 2));
+            logger.info('Sending EventBridge command', { command });
             const result = await eventbridgeClient.send(command);
-            console.log('EventBridge response:', JSON.stringify(result, null, 2));
+            logger.info('EventBridge response', { result });
           } else {
-            console.log('Conditions not met - Status:', output.Status, 'Error present:', !!output.Error);
+            logger.info('Conditions not met', { status: output.Status, hasError: !!output.Error });
           }
         } else {
-          console.log('No sql_output found in parsed output');
+          logger.info('No sql_output found in parsed output');
         }
       } else {
-        console.log('No details.output found in message');
+        logger.info('No details.output found in message');
       }
     }
   } catch (error) {
-    console.error('Error in handler:', error);
-    logger.error('Error processing Redshift error notification:', error as Error);
+    logger.error('Error in handler', { error });
     throw error;
   }
 };
