@@ -49,6 +49,7 @@ describe('redshift-error-notification', () => {
     };
 
     const compressed = gzipSync(JSON.stringify(logData));
+
     return {
       awslogs: {
         data: compressed.toString('base64'),
@@ -73,6 +74,9 @@ describe('redshift-error-notification', () => {
     };
 
     const event = createMockEvent(logMessage);
+
+    console.log('Compressed log data:', event);
+
     await handler(event);
 
     expect(mockSend).toHaveBeenCalledTimes(1);
@@ -113,6 +117,7 @@ describe('redshift-error-notification', () => {
             Status: 'FAILED',
             QueryString: 'call conformed_refactored.update_dap_data_mart()',
           },
+          Error: "Some error occured but details are missing",
         }),
       },
     };
@@ -153,6 +158,7 @@ describe('redshift-error-notification', () => {
 
     const event = createMockEvent(logMessage);
 
+    console.log('Compressed log data:', event);
     await expect(handler(event)).rejects.toThrow('EventBridge Error');
   });
 });
