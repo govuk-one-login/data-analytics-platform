@@ -579,11 +579,49 @@ RedshiftErrorEventRule:
     Targets:
       - Arn: !Ref DAPNotificationsTopic
         Id: 'RedshiftErrorSNSTarget'
+        DeadLetterConfig:
+          Arn: !GetAtt RedshiftErrorDLQ.Arn
         InputTransformer:
           InputPathsMap:
-            notification: '$.detail.notification'
             subject: '$.detail.subject'
-          InputTemplate: '<notification>'
+            title: '$.detail.notification.content.title'
+            description: '$.detail.notification.content.description'
+          InputTemplate: |
+            {
+              "default": "<subject>",
+              "title": "<title>",
+              "message": "<description>"
+            }
+
+# Dead Letter Queue for failed EventBridge rule invocations
+RedshiftErrorDLQ:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: !Sub ${Environment}-dap-redshift-error-dlq
+    MessageRetentionPeriod: 1209600 # 14 days
+    KmsMasterKeyId: !Ref KmsKey
+    Tags:
+      - Key: Environment
+        Value: !Ref Environment
+
+# Policy to allow EventBridge to send messages to DLQ
+RedshiftErrorDLQPolicy:
+  Type: AWS::SQS::QueuePolicy
+  Properties:
+    Queues:
+      - !Ref RedshiftErrorDLQ
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: events.amazonaws.com
+          Action:
+            - sqs:SendMessage
+          Resource: !GetAtt RedshiftErrorDLQ.Arn
+          Condition:
+            StringEquals:
+              'aws:SourceArn': !GetAtt RedshiftErrorEventRule.Arn
 
 RedshiftErrorEventRulePermission:
   Type: AWS::SNS::TopicPolicy
