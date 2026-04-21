@@ -11,16 +11,17 @@ interface MockLogMessage {
 const mockSend = jest.fn();
 
 // Mock modules before any imports
-jest.doMock('@aws-sdk/client-sns', () => ({
-  SNSClient: jest.fn().mockImplementation(() => ({
+jest.doMock('@aws-sdk/client-eventbridge', () => ({
+  EventBridgeClient: jest.fn().mockImplementation(() => ({
     send: mockSend,
   })),
-  PublishCommand: jest.fn().mockImplementation(input => ({ input })),
+  PutEventsCommand: jest.fn().mockImplementation(input => ({ input })),
 }));
 
 jest.doMock('@aws-lambda-powertools/logger', () => ({
   Logger: jest.fn().mockImplementation(() => ({
     error: jest.fn(),
+    info: jest.fn(),
   })),
 }));
 
@@ -35,7 +36,6 @@ describe('redshift-error-notification', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockSend.mockResolvedValue({});
-    process.env.SNS_TOPIC_ARN = 'arn:aws:sns:eu-west-2:123456789012:test-topic';
     process.env.AWS_REGION = 'eu-west-2';
   });
 
@@ -50,6 +50,7 @@ describe('redshift-error-notification', () => {
     };
 
     const compressed = gzipSync(JSON.stringify(logData));
+
     return {
       awslogs: {
         data: compressed.toString('base64'),
@@ -57,7 +58,7 @@ describe('redshift-error-notification', () => {
     };
   };
 
-  it('should send SNS notification for failed Redshift stored procedure', async () => {
+  it('should send EventBridge event for failed Redshift stored procedure', async () => {
     const logMessage = {
       details: {
         output: JSON.stringify({
@@ -74,15 +75,19 @@ describe('redshift-error-notification', () => {
     };
 
     const event = createMockEvent(logMessage);
+
     await handler(event);
 
     expect(mockSend).toHaveBeenCalledTimes(1);
 
-    const publishCommand = mockSend.mock.calls[0][0];
-    expect(publishCommand.input.TopicArn).toBe(process.env.SNS_TOPIC_ARN);
-    expect(publishCommand.input.Subject).toBe('DAP Redshift Stored Procedure Failure');
-    expect(publishCommand.input.Message).toContain('Redshift Stored Procedure Failure');
-    expect(publishCommand.input.Message).toContain('Value too long for character type');
+    const putEventsCommand = mockSend.mock.calls[0][0];
+    expect(putEventsCommand.input.Entries).toHaveLength(1);
+    expect(putEventsCommand.input.Entries[0].Source).toBe('dap.redshift.errors');
+    expect(putEventsCommand.input.Entries[0].DetailType).toBe('Redshift Error');
+
+    const detail = JSON.parse(putEventsCommand.input.Entries[0].Detail);
+    expect(detail.subject).toBe('DAP Redshift Stored Procedure Failure');
+    expect(detail.notification.content.description).toContain('Value too long for character type');
   });
 
   it('should not send notification for successful queries', async () => {
@@ -111,6 +116,7 @@ describe('redshift-error-notification', () => {
             Status: 'FAILED',
             QueryString: 'call conformed_refactored.update_dap_data_mart()',
           },
+          Error: 'Some error occured but details are missing',
         }),
       },
     };
@@ -132,8 +138,8 @@ describe('redshift-error-notification', () => {
     expect(mockSend).not.toHaveBeenCalled();
   });
 
-  it('should throw error when SNS publish fails', async () => {
-    mockSend.mockRejectedValue(new Error('SNS Error'));
+  it('should throw error when EventBridge publish fails', async () => {
+    mockSend.mockRejectedValue(new Error('EventBridge Error'));
 
     const logMessage = {
       details: {
@@ -150,7 +156,6 @@ describe('redshift-error-notification', () => {
     };
 
     const event = createMockEvent(logMessage);
-
-    await expect(handler(event)).rejects.toThrow('SNS Error');
+    await expect(handler(event)).rejects.toThrow('EventBridge Error');
   });
 });
