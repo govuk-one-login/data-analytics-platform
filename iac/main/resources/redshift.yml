@@ -622,20 +622,3 @@ RedshiftErrorDLQPolicy:
           Condition:
             StringEquals:
               'aws:SourceArn': !GetAtt RedshiftErrorEventRule.Arn
-
-RedshiftErrorEventRulePermission:
-  Type: AWS::SNS::TopicPolicy
-  Properties:
-    Topics:
-      - !Ref DAPNotificationsTopic
-    PolicyDocument:
-      Version: '2012-10-17'
-      Statement:
-        - Effect: Allow
-          Principal:
-            Service: events.amazonaws.com
-          Action: sns:Publish
-          Resource: !Ref DAPNotificationsTopic
-          Condition:
-            StringEquals:
-              'aws:SourceArn': !GetAtt RedshiftErrorEventRule.Arn
