@@ -588,9 +588,17 @@ RedshiftErrorEventRule:
             description: '$.detail.notification.content.description'
           InputTemplate: |
             {
-              "default": "<subject>",
-              "title": "<title>",
-              "message": "<description>"
+              "version": "1.0",
+              "source": "custom",
+              "content" {
+                "textType": "client-markdown",
+                "title": "<title>",
+                "description": "<description>"
+                "nextSteps": [
+                  "Check the Redshift error logs in CloudWatch",
+                  "Investigate the cause of the error"
+                ]
+              }
             }
 
 # Dead Letter Queue for failed EventBridge rule invocations
