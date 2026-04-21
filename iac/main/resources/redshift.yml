@@ -581,25 +581,7 @@ RedshiftErrorEventRule:
         Id: 'RedshiftErrorSNSTarget'
         DeadLetterConfig:
           Arn: !GetAtt RedshiftErrorDLQ.Arn
-        InputTransformer:
-          InputPathsMap:
-            subject: '$.detail.subject'
-            title: '$.detail.notification.content.title'
-            description: '$.detail.notification.content.description'
-          InputTemplate: |
-            {
-              "version": "1.0",
-              "source": "custom",
-              "content" {
-                "textType": "client-markdown",
-                "title": "<title>",
-                "description": "<description>"
-                "nextSteps": [
-                  "Check the Redshift error logs in CloudWatch",
-                  "Investigate the cause of the error"
-                ]
-              }
-            }
+        InputPath: '$.detail.notification' 
 
 # Dead Letter Queue for failed EventBridge rule invocations
 RedshiftErrorDLQ:
