@@ -43,7 +43,6 @@ export const secretsManagerClient = new SecretsManagerClient(AWS_CLIENT_BASE_CON
 export const sqsClient = new SQSClient(AWS_CLIENT_BASE_CONFIG);
 
 export const sfnClient = new SFNClient(AWS_CLIENT_BASE_CONFIG);
-export const eventBridgeClient = new EventBridgeClient({});
 
 export const snsClient = new SNSClient({
   region: AWS_REGION,

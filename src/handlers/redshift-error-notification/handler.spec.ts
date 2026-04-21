@@ -156,8 +156,6 @@ describe('redshift-error-notification', () => {
     };
 
     const event = createMockEvent(logMessage);
-
-    console.log('Testing error handling with event:', JSON.stringify(event, null, 2));
     await expect(handler(event)).rejects.toThrow('EventBridge Error');
   });
 });
