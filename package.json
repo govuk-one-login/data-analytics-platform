@@ -87,7 +87,8 @@
     "test:e2e:rp-onboarding": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/e2e-tests/jest.config.rp-onboarding.ts --runInBand",
     "test:e2e:rp-onboarding:check-only": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/e2e-tests/jest.config.rp-onboarding-check-only.ts --runInBand",
     "test:e2e:event-onboarding": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/e2e-tests/jest.config.event-onboarding.ts --runInBand",
-    "test:e2e:event-onboarding:check-only": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/e2e-tests/jest.config.event-onboarding-check-only.ts --runInBand"
+    "test:e2e:event-onboarding:check-only": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/e2e-tests/jest.config.event-onboarding-check-only.ts --runInBand",
+    "test:e2e:regression": "NODE_OPTIONS='--experimental-vm-modules' jest -c ./tests/e2e-tests/jest.config.e2e-regression.ts --runInBand"
   },
   "lint-staged": {
     "*": "prettier --write",

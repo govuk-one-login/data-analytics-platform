@@ -1,7 +1,7 @@
-/* eslint-disable no-console */
-
 const red = (s: string) => `\x1b[31m${s}\x1b[0m`;
 const green = (s: string) => `\x1b[32m${s}\x1b[0m`;
+
+const write = (text: string) => process.stdout.write(text + '\n');
 
 export const printResults = (
   tableName: string,
@@ -54,5 +54,5 @@ export const printResults = (
   }
 
   lines.push('');
-  console.log(lines.join('\n'));
+  write(lines.join('\n'));
 };

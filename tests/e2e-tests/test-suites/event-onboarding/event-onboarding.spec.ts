@@ -18,7 +18,9 @@ describe('Event Onboarding E2E Tests', () => {
       expect(result.row).toBeDefined();
 
       const mismatches = printConformResults(String(eventConfig.event_name), event_id, expected, result);
-      expect(mismatches).toHaveLength(0);
+      if (mismatches.length > 0) {
+        throw new Error(`Mismatched fields: ${mismatches.join(', ')}`);
+      }
     }, 30000);
   }
 });
