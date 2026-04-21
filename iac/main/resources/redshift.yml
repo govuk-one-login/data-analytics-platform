@@ -581,7 +581,7 @@ RedshiftErrorEventRule:
         Id: 'RedshiftErrorSNSTarget'
         DeadLetterConfig:
           Arn: !GetAtt RedshiftErrorDLQ.Arn
-        InputPath: '$.detail.notification' 
+        InputPath: '$.detail.notification'
 
 # Dead Letter Queue for failed EventBridge rule invocations
 RedshiftErrorDLQ:
