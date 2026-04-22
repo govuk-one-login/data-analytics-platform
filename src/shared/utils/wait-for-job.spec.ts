@@ -17,6 +17,7 @@ class StatusHolder {
 }
 
 test('wait for job success', async () => {
+  // Unit Test
   const statusHolder = new StatusHolder(['pending', 'pending', 'done']);
   const result = await waitForJob<StatusHolder>({
     statusGetter: async () => statusHolder,
@@ -31,6 +32,7 @@ test('wait for job success', async () => {
 });
 
 test('wait for job failure', async () => {
+  // Unit Test
   const statusHolder = new StatusHolder(['pending', 'pending', 'failed']);
   const timeoutMs = 100;
   let onErrorExecuted = false;

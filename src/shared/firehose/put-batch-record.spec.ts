@@ -12,6 +12,7 @@ describe('firehosePutRecordBatch', () => {
   });
 
   it('should send PutRecordBatchCommand with correct parameters', async () => {
+    // Unit Test
     const mockOutput: PutRecordBatchCommandOutput = {
       FailedPutCount: 0,
       Encrypted: false,
@@ -39,6 +40,7 @@ describe('firehosePutRecordBatch', () => {
   });
 
   it('should throw error when firehose client fails', async () => {
+    // Unit Test
     const error = new Error('Firehose error');
     mockFirehoseClient.send.mockRejectedValue(error);
 

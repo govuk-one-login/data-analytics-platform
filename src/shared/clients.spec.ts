@@ -1,5 +1,6 @@
 describe('clients module', () => {
   test('firehose client retry function is executed during configuration', async () => {
+    // Unit Test
     const { ConfiguredRetryStrategy } = await import('@smithy/util-retry');
     const originalConstructor = ConfiguredRetryStrategy;
 

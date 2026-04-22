@@ -26,6 +26,7 @@ beforeEach(() => {
 
 describe('UserStatus class', () => {
   test('existsInOnlyOne returns true when user exists in only one service', () => {
+    // Unit Test
     const status1 = new UserStatus(true, false, []);
     const status2 = new UserStatus(false, true, []);
 
@@ -34,21 +35,25 @@ describe('UserStatus class', () => {
   });
 
   test('existenceMessage returns correct message for user in neither service', () => {
+    // Unit Test
     const status = new UserStatus(false, false, []);
     expect(status.existenceMessage()).toBe('User does not exist in Cognito or Quicksight');
   });
 
   test('existenceMessage returns correct message for user in both services', () => {
+    // Unit Test
     const status = new UserStatus(true, true, []);
     expect(status.existenceMessage()).toBe('User exists in Cognito and Quicksight');
   });
 
   test('existenceMessage returns correct message for user only in Cognito', () => {
+    // Unit Test
     const status = new UserStatus(true, false, []);
     expect(status.existenceMessage()).toBe('User exists in Cognito but not in Quicksight');
   });
 
   test('existenceMessage returns correct message for user only in Quicksight', () => {
+    // Unit Test
     const status = new UserStatus(false, true, []);
     expect(status.existenceMessage()).toBe('User exists in Quicksight but not in Cognito');
   });
@@ -56,6 +61,7 @@ describe('UserStatus class', () => {
 
 describe('getUserStatus function', () => {
   test('user exists in both services with groups', async () => {
+    // Unit Test
     mockCognitoClient.on(AdminGetUserCommand).resolves({ Username: TEST_USERNAME });
     mockQuickSightClient.on(DescribeUserCommand).resolves({ User: { UserName: TEST_USERNAME } });
     mockQuickSightClient.on(ListUserGroupsCommand).resolves({
@@ -70,6 +76,7 @@ describe('getUserStatus function', () => {
   });
 
   test('user does not exist in Cognito', async () => {
+    // Unit Test
     mockCognitoClient.on(AdminGetUserCommand).rejects(new UserNotFoundException({ message: 'User not found' }));
     mockQuickSightClient.on(DescribeUserCommand).resolves({ User: { UserName: TEST_USERNAME } });
     mockQuickSightClient.on(ListUserGroupsCommand).resolves({ GroupList: [] });
@@ -81,6 +88,7 @@ describe('getUserStatus function', () => {
   });
 
   test('user does not exist in QuickSight', async () => {
+    // Unit Test
     mockCognitoClient.on(AdminGetUserCommand).resolves({ Username: TEST_USERNAME });
     mockQuickSightClient.on(DescribeUserCommand).rejects(new ResourceNotFoundException({ message: 'User not found' }));
     mockQuickSightClient

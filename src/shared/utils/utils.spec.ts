@@ -18,6 +18,7 @@ import { mockS3BodyStream } from './test-utils';
 import type { Context, S3Event } from 'aws-lambda';
 
 test('get required params correctly errors', () => {
+  // Unit Test
   interface TestType {
     a?: string;
     c?: string;
@@ -46,6 +47,7 @@ test('get required params correctly errors', () => {
 });
 
 test('get required params preserves optional params', () => {
+  // Unit Test
   const requiredOnly = getRequiredParams({ Bucket: 'bucket-name' }, 'Bucket');
   expect(requiredOnly).toEqual({ Bucket: 'bucket-name' });
 
@@ -54,6 +56,7 @@ test('get required params preserves optional params', () => {
 });
 
 test('get required params errors if field present but null or undefined', () => {
+  // Unit Test
   const presentButNull = { Bucket: 'bucket-name', Prefix: null };
   expect(() => getRequiredParams(presentButNull, 'Bucket', 'Prefix')).toThrow(
     'Object is missing the following required fields: Prefix',
@@ -66,6 +69,7 @@ test('get required params errors if field present but null or undefined', () => 
 });
 
 test('get required params errors if object is null or undefined', () => {
+  // Unit Test
   expect(() => getRequiredParams(null as unknown as Record<string, unknown>, 'Bucket')).toThrow(
     'Object is null or undefined',
   );
@@ -76,6 +80,7 @@ test('get required params errors if object is null or undefined', () => {
 });
 
 test('encode and decode', () => {
+  // Unit Test
   const testObject = { a: 'b', c: true, d: 42 };
 
   const encoded = encodeObject(testObject);
@@ -88,12 +93,14 @@ test('encode and decode', () => {
 });
 
 test('parse s3 response as string', async () => {
+  // Unit Test
   await expect(parseS3ResponseAsString(mockS3Response('hi'))).resolves.toEqual('hi');
   await expect(parseS3ResponseAsString(mockS3Response(null))).rejects.toThrow('S3 response body was undefined');
   await expect(parseS3ResponseAsString(mockS3Response(undefined))).rejects.toThrow('S3 response body was undefined');
 });
 
 test('parse s3 response as object', async () => {
+  // Unit Test
   await expect(parseS3ResponseAsObject(mockS3Response('{}'))).resolves.toEqual({});
   await expect(parseS3ResponseAsObject(mockS3Response('[1,2,3]'))).resolves.toEqual([1, 2, 3]);
   const testObject = { a: 'b', c: true, d: 42 };
@@ -103,6 +110,7 @@ test('parse s3 response as object', async () => {
 });
 
 test('get environment variable', () => {
+  // Unit Test
   process.env.ENV_VAR = 'hello';
   expect(getEnvironmentVariable('ENV_VAR')).toEqual('hello');
 
@@ -116,6 +124,7 @@ test('get environment variable', () => {
 });
 
 test('get aws environment', () => {
+  // Unit Test
   const oldEnvironment = process.env.ENVIRONMENT;
 
   process.env.ENVIRONMENT = 'integration';
@@ -134,6 +143,7 @@ test('get aws environment', () => {
 });
 
 test('null undefined or empty', () => {
+  // Unit Test
   expect(isNullUndefinedOrEmpty(null)).toEqual(true);
   expect(isNullUndefinedOrEmpty(undefined)).toEqual(true);
   expect(isNullUndefinedOrEmpty([])).toEqual(true);
@@ -145,6 +155,7 @@ test('null undefined or empty', () => {
 });
 
 test('get account id', () => {
+  // Unit Test
   const accountId = '123456789012';
   const validArnValidAccountId = mockContext(`arn:aws:lambda:eu-west-2:${accountId}:function:LambdaFunctionName`);
   expect(getAccountId(validArnValidAccountId)).toEqual(accountId);
@@ -160,6 +171,7 @@ test('get account id', () => {
 });
 
 test('array partition', () => {
+  // Unit Test
   expect(arrayPartition([1, 2, 3, 4, 5, 6], 2)).toEqual(
     expect.arrayContaining([
       [1, 2],
@@ -183,12 +195,14 @@ test('array partition', () => {
 });
 
 test('ensure defined', () => {
+  // Unit Test
   const response = { one: 'one', two: undefined };
   expect(ensureDefined(() => response.one)).toEqual('one');
   expect(() => ensureDefined(() => response.two)).toThrow('two is undefined');
 });
 
 test('find or throw', () => {
+  // Unit Test
   expect(findOrThrow([1, 2, 3, 4], n => n === 2)).toEqual(2);
   expect(() => findOrThrow([1, 2, 3, 4], n => n === 8)).toThrow(
     'Unable to find element matching predicate (n)=>n === 8',
@@ -196,6 +210,7 @@ test('find or throw', () => {
 });
 
 test('get s3 event records', () => {
+  // Unit Test
   const asS3Event = (u: unknown): S3Event => u as S3Event;
   expect(() => getS3EventRecords(asS3Event({ Records: null }))).toThrow('Missing event or records');
   expect(() => getS3EventRecords(asS3Event({ Records: undefined }))).toThrow('Missing event or records');
