@@ -195,6 +195,9 @@ There are two types of BAU E2E tests:
 * **RP Onboarding** — verifies that a new relying party's events are correctly reflected in the conform layer dim and ref tables
 * **Event Onboarding** — verifies that a new event type is processed and lands in the conform layer dim and fact journey tables correctly
 
+There is also an E2E regression test:
+* **Regression** — verifies the full pipeline end-to-end for an existing event type, including user_id hashing and extension processing. This is not currently in the CI/CD pipeline and is intended to be run manually as and when needed
+
 
 ###### RP Onboarding
 
@@ -254,6 +257,32 @@ EVENT_ONBOARDING_EVENT_NAMES=EVCS_IDENTITY_REPLACED npm run test:e2e:event-onboa
 ```
 
 The check-only command prints the most recent conform layer row for each event name, including extensions.
+
+###### Regression
+
+The E2E regression test verifies the full data pipeline end-to-end for an existing event type. It sends a raw event through the pipeline and asserts that all fields land correctly in the Redshift conform layer, including fields that are transformed by the pipeline such as `user_id` (HMAC-hashed), `channel_name` (derived), and extensions (keys lowercased). Fields that pass through unchanged (`event_id`, `component_id`, `event_name`, `user_govuk_signin_journey_id`, `date`, `client_id`, `event_timestamp_ms`) are asserted directly from the input event.
+
+This test is **not currently in the CI/CD pipeline** due to the time taken by Firehose delivery and the Step Function execution in the staging environment. It is intended to be run manually as and when needed.
+
+Prerequisites:
+* Set up ~/.aws/config file with the correct AWS credentials
+* Login to AWS:
+  ```sh
+  export AWS_PROFILE=data-dap-staging
+  aws sso login
+  ```
+
+Test configuration is in [tests/e2e-tests/config/e2e-regression.config.ts](tests/e2e-tests/config/e2e-regression.config.ts). The config contains a single event payload and an `expected` block defining the values that are transformed or derived by the pipeline. `event_id`, `timestamp` and `event_timestamp_ms` are generated automatically at send time.
+
+To run the test:
+
+```sh
+# Full run — sends event to SQS, waits for Firehose delivery and raw layer arrival, executes the step function, then checks the conform layer
+# Takes ~30 minutes due to Firehose delivery, event processing and ETL execution
+npm run test:e2e:regression
+```
+
+The test output includes a comparison table showing expected vs actual values for all asserted fields, with mismatched columns highlighted in red.
 
 #### Test reports
 
