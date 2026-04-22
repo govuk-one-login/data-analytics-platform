@@ -7,6 +7,7 @@ const getTestEventPairs = () => (global as { edgeCaseEventPairs?: typeof edgeCas
 
 describe('Raw to Stage Integration Tests', () => {
   test(`Extensions and txma fields with values null or 'null' are excluded from the txma_stage_layer_key_values table`, async () => {
+    // Component Test
     const stageLayerDatabase = getIntegrationTestEnv('STAGE_LAYER_DATABASE');
     const testEventPairs = getTestEventPairs();
 

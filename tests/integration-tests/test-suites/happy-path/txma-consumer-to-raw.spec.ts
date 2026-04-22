@@ -39,6 +39,7 @@ describe('TxMA consumer lambda to raw layer integration tests', () => {
   test.each(getTestEventPairs())(
     'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
     async ({ auditEvent, rawLayerEvent }) => {
+      // Component Test
       const results = batchResults?.get(auditEvent.event_id) || [];
       // Normalize JSON strings to ignore property order
       const normalizedResults = normaliseJsonInResults(results);

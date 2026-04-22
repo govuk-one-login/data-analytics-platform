@@ -15,6 +15,7 @@ describe('Stage to Conform Deduplication Tests', () => {
   test(
     'Duplicate events appear in stage layer but only one appears in conform layer',
     async () => {
+      // Component Test
       const { eventId, timestamps } = getDeduplicationData();
 
       if (!eventId || !timestamps) {
