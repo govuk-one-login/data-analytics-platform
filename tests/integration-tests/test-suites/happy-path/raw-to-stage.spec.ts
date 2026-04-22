@@ -64,6 +64,7 @@ describe('Raw to Stage Integration Tests', () => {
     test.each(getTestEventPairs())(
       'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
       async ({ auditEvent, stageLayerEvent }) => {
+        // Component Test
         const stageLayerResults = stageLayerBatchResults?.get(auditEvent.event_id) || [];
 
         expect(stageLayerResults[0]).toEqual(stageLayerEvent[0]);
@@ -84,6 +85,7 @@ describe('Raw to Stage Integration Tests', () => {
     test.each(getTestEventPairs())(
       'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
       async ({ auditEvent, stageLayerKeyValues }) => {
+        // Component Test
         const stageLayerKeyValuesResults = stageLayerKeyValuesBatchResults?.get(auditEvent.event_id) || [];
 
         if (stageLayerKeyValues) {

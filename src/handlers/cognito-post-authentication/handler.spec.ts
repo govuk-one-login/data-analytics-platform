@@ -43,6 +43,7 @@ beforeEach(async () => {
 });
 
 test('success', async () => {
+  // Unit Test
   const now = Date.now();
   jest.useFakeTimers().setSystemTime(now);
   mockCognitoClient
@@ -57,6 +58,7 @@ test('success', async () => {
 });
 
 test('event error', async () => {
+  // Unit Test
   const expectedError = 'Object is missing the following required fields: userPoolId';
 
   await handler({ ...TEST_EVENT, userPoolId: undefined } as unknown as PostAuthenticationTriggerEvent);
@@ -69,6 +71,7 @@ test('event error', async () => {
 });
 
 test('cognito error', async () => {
+  // Unit Test
   const error = 'cognito error';
   mockCognitoClient.on(AdminUpdateUserAttributesCommand).rejectsOnce(error);
 

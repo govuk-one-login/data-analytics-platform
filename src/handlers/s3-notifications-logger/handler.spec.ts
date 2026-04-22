@@ -11,6 +11,7 @@ beforeEach(() => {
 });
 
 test('create event', async () => {
+  // Unit Test
   const event = JSON.parse(await getTestResource('eventbridge-s3-object-creation.json'));
 
   handler(event);
@@ -20,6 +21,7 @@ test('create event', async () => {
 });
 
 test('valid event', async () => {
+  // Unit Test
   const event = JSON.parse(await getTestResource('eventbridge-s3-object-deletion.json'));
 
   handler(event);
@@ -29,6 +31,7 @@ test('valid event', async () => {
 });
 
 test('invalid event or records', async () => {
+  // Unit Test
   handler(null as unknown as S3ObjectCreatedNotificationEvent);
   handler(undefined as unknown as S3ObjectCreatedNotificationEvent);
   handler({} as unknown as S3ObjectCreatedNotificationEvent);

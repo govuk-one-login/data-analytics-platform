@@ -14,6 +14,7 @@ describe('Event Onboarding E2E Tests', () => {
     const expected = deriveExpected(eventConfig, event_id, (global as { expectedDate?: string }).expectedDate || '');
 
     it(`${eventConfig.event_name} (${event_id})`, async () => {
+      // End-to-end Test
       const result = await queryConformLayer(event_id);
       expect(result.row).toBeDefined();
 

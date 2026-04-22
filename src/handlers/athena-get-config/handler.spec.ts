@@ -15,6 +15,7 @@ beforeAll(async () => {
 beforeEach(() => mockS3Client.reset());
 
 test('missing required params', async () => {
+  // Unit Test
   mockS3Client.resolves({});
 
   const missingDatasource = {
@@ -44,6 +45,7 @@ test('missing required params', async () => {
 });
 
 test('client error', async () => {
+  // Unit Test
   mockS3Client.rejects('S3 Error');
 
   await expect(handler(TEST_EVENT)).rejects.toThrow('S3 Error');
@@ -51,6 +53,7 @@ test('client error', async () => {
 });
 
 test('body is undefined', async () => {
+  // Unit Test
   mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: undefined }) });
 
   await expect(handler(TEST_EVENT)).rejects.toThrow('S3 response body was undefined');
@@ -58,6 +61,7 @@ test('body is undefined', async () => {
 });
 
 test('bad json', async () => {
+  // Unit Test
   mockS3Client.resolves({ Body: mockS3BodyStream({ stringValue: 'hi' }) });
 
   await expect(handler(TEST_EVENT)).rejects.toThrow(
@@ -67,6 +71,7 @@ test('bad json', async () => {
 });
 
 test('success', async () => {
+  // Unit Test
   // make the mock client reject on any call except one with the correct S3 bucket and key
   mockS3Client
     .rejects()

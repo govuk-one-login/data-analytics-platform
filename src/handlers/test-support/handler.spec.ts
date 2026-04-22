@@ -60,16 +60,19 @@ beforeEach(() => {
 });
 
 test('unknown environment', async () => {
+  // Unit Test
   const event = getEvent({ environment: 'NotAnEnv' });
   await expect(handler(event, CONTEXT)).rejects.toThrow('Unknown environment "NotAnEnv"');
 });
 
 test('unknown command', async () => {
+  // Unit Test
   const event = getEvent({ command: 'NotACommand' });
   await expect(handler(event, CONTEXT)).rejects.toThrow('Unknown command "NotACommand"');
 });
 
 test('missing input parameter', async () => {
+  // Unit Test
   mockLambdaClient.resolves({});
 
   const event = getEvent({ input: { FunctionName: 'my-lambda' } });
@@ -79,6 +82,7 @@ test('missing input parameter', async () => {
 });
 
 test('client failure', async () => {
+  // Unit Test
   mockLambdaClient.rejects('Lambda error');
 
   const event = getEvent({ input: { FunctionName: 'my-lambda', Payload: '{}' } });
@@ -88,6 +92,7 @@ test('client failure', async () => {
 });
 
 test('success', async () => {
+  // Unit Test
   mockLambdaClient.resolves({});
 
   const event = getEvent({ input: { FunctionName: 'my-lambda', Payload: '{}' } });
@@ -97,6 +102,7 @@ test('success', async () => {
 });
 
 test('lambda invoke custom response', async () => {
+  // Unit Test
   mockLambdaClient.resolves({
     LogResult:
       'U1RBUlQgUmVxdWVzdElkOiAyMzA5ZDEwNC1iYTkyLTRmOWEtYWFlNy1jYWFkYjY2MzE4MjUgVmVyc2lvbjogJExBVEVTVApFTkQgUmVxdWVzdElkOiAyMzA5ZDEwNC1iYTkyLTRmOWEtYWFlNy1jYWFkYjY2MzE4MjUKUkVQT1JUIFJlcXVlc3RJZDogMjMwOWQxMDQtYmE5Mi00ZjlhLWFhZTctY2FhZGI2NjMxODI1CUR1cmF0aW9uOiAxOC41MCBtcwlCaWxsZWQgRHVyYXRpb246IDE5IG1zCU1lbW9yeSBTaXplOiAxMjggTUIJTWF4IE1lbW9yeSBVc2VkOiA2NyBNQgkK',
@@ -130,6 +136,7 @@ REPORT RequestId: 2309d104-ba92-4f9a-aae7-caadb6631825\tDuration: 18.50 ms\tBill
 });
 
 test('lambda invoke custom response error', async () => {
+  // Unit Test
   mockLambdaClient.resolves({
     LogResult:
       'U1RBUlQgUmVxdWVzdElkOiA4ODNlYjdiYy05NmRiLTRjODMtOGE4YS02OGFkMzM3NmJjOTAgVmVyc2lvbjogJExBVEVTVAoyMDIzLTA1LTMwVDEyOjMzOjQwLjE0OVoJODgzZWI3YmMtOTZkYi00YzgzLThhOGEtNjhhZDMzNzZiYzkwCUVSUk9SCUludm9rZSBFcnJvciAJeyJlcnJvclR5cGUiOiJFcnJvciIsImVycm9yTWVzc2FnZSI6IkhlbGxvIHdvcmxkIGVycm9yIiwic3RhY2siOlsiRXJyb3I6IEhlbGxvIHdvcmxkIGVycm9yIiwiICAgIGF0IFJ1bnRpbWUuaGFuZGxlciAoZmlsZTovLy92YXIvdGFzay9pbmRleC5tanM6ODoxMSkiLCIgICAgYXQgUnVudGltZS5oYW5kbGVPbmNlTm9uU3RyZWFtaW5nIChmaWxlOi8vL3Zhci9ydW50aW1lL2luZGV4Lm1qczoxMDg2OjI5KSJdfQpFTkQgUmVxdWVzdElkOiA4ODNlYjdiYy05NmRiLTRjODMtOGE4YS02OGFkMzM3NmJjOTAKUkVQT1JUIFJlcXVlc3RJZDogODgzZWI3YmMtOTZkYi00YzgzLThhOGEtNjhhZDMzNzZiYzkwCUR1cmF0aW9uOiAyNy45NCBtcwlCaWxsZWQgRHVyYXRpb246IDI4IG1zCU1lbW9yeSBTaXplOiAxMjggTUIJTWF4IE1lbW9yeSBVc2VkOiA2NiBNQglJbml0IER1cmF0aW9uOiAxNDMuNzYgbXMJCg==',
@@ -171,6 +178,7 @@ REPORT RequestId: 883eb7bc-96db-4c83-8a8a-68ad3376bc90\tDuration: 27.94 ms\tBill
 });
 
 test('s3 handle text response', async () => {
+  // Unit Test
   const jsonFileContent = await getTestResource('raw-event.json');
   const eTag = '950275989e6e0a4789bda200e8054248';
   const lastModified = new Date(2023, 4, 30, 12, 30);
@@ -185,6 +193,7 @@ test('s3 handle text response', async () => {
 });
 
 test('s3 handle gzipped response', async () => {
+  // Unit Test
   const gzippedFile = await getTestResource('raw-event.gz', 'binary');
   const eTag = '950275989e6e0a4789bda200e8054248';
   const lastModified = new Date(2023, 4, 30, 12, 30);
@@ -200,6 +209,7 @@ test('s3 handle gzipped response', async () => {
 });
 
 test('athena success', async () => {
+  // Unit Test
   const queryExecutionId = '1234';
 
   mockAthenaClient
@@ -225,6 +235,7 @@ test('athena success', async () => {
 
 // todo use fake timers to avoid 1s test delay
 test('athena wait', async () => {
+  // Unit Test
   const queryExecutionId = '1234';
   const timeoutMs = 1000;
   const runningResponse = {
@@ -248,6 +259,7 @@ test('athena wait', async () => {
 });
 
 test('athena wait cancellation', async () => {
+  // Unit Test
   const queryExecutionId = '1234';
   const timeoutMs = 5000;
   const cancelledResponse = {
@@ -277,6 +289,7 @@ test('athena wait cancellation', async () => {
 
 // todo use fake timers to avoid 1s test delay
 test('athena wait failure', async () => {
+  // Unit Test
   const queryExecutionId = '1234';
   const timeoutMs = 1000;
   const failedResponse = {
@@ -305,6 +318,7 @@ test('athena wait failure', async () => {
 });
 
 test('athena wait failure retry', async () => {
+  // Unit Test
   const queryExecutionId = '1234';
   const timeoutMs = 5000;
 
@@ -333,6 +347,7 @@ test('athena wait failure retry', async () => {
 });
 
 test('s3 put with key', async () => {
+  // Unit Test
   const Bucket = 'some-bucket';
   const Filename = 'file.json';
 
@@ -351,6 +366,7 @@ test('s3 put with key', async () => {
 });
 
 test('s3 put without key', async () => {
+  // Unit Test
   const Bucket = 'some-bucket';
   const Filename = 'file.json';
 
@@ -369,6 +385,7 @@ test('s3 put without key', async () => {
 });
 
 test('s3 copy with key', async () => {
+  // Unit Test
   const Bucket = 'dest-bucket';
   const CopySource = 'src-bucket/folder/file.json';
 
@@ -389,6 +406,7 @@ test('s3 copy with key', async () => {
 });
 
 test('s3 copy without key', async () => {
+  // Unit Test
   const Bucket = 'dest-bucket';
   const CopySource = 'src-bucket/folder/file.json';
 
@@ -409,6 +427,7 @@ test('s3 copy without key', async () => {
 });
 
 test('s3 copy with delete', async () => {
+  // Unit Test
   const Bucket = 'dest-bucket';
   const CopySource = 'src-bucket/folder/file.json';
   const VersionId = '9_gKg5vG56F.TTEUdwkxGpJ3tNDlWlGq';
@@ -433,6 +452,7 @@ test('s3 copy with delete', async () => {
 });
 
 test('state machine arn from name', async () => {
+  // Unit Test
   const accountId = '123456789012';
   const stateMachineName = 'dev-dap-raw-to-stage-process';
 
@@ -457,6 +477,7 @@ test('state machine arn from name', async () => {
 });
 
 test('redshift success', async () => {
+  // Unit Test
   const queryId = '1234';
 
   mockRedshiftClient
@@ -482,6 +503,7 @@ test('redshift success', async () => {
 });
 
 test('redshift cancellation', async () => {
+  // Unit Test
   const queryId = '1234';
   const timeoutMs = 1000;
   const cancelledResponse = { Id: queryId, Status: 'ABORTED' };
@@ -509,6 +531,7 @@ test('redshift cancellation', async () => {
 });
 
 test('redshift failure', async () => {
+  // Unit Test
   const queryId = '1234';
   const timeoutMs = 1000;
   const failedResponse = { Id: queryId, Status: 'FAILED', Error: 'ERROR: permission denied for schema dev_txma_stage' };
@@ -545,6 +568,7 @@ const getEvent = (overrides: { environment?: string; command?: string; input?: o
 };
 
 test('firehose describe stream', async () => {
+  // Unit Test
   const mockFirehoseClient = mockClient(FirehoseClient);
   mockFirehoseClient.resolves({});
 
@@ -559,6 +583,7 @@ test('firehose describe stream', async () => {
 });
 
 test('lambda list events', async () => {
+  // Unit Test
   mockLambdaClient.resolves({});
 
   const event = getEvent({
@@ -571,6 +596,7 @@ test('lambda list events', async () => {
 });
 
 test('s3 list objects', async () => {
+  // Unit Test
   mockS3Client.resolves({});
 
   const event = getEvent({
@@ -583,6 +609,7 @@ test('s3 list objects', async () => {
 });
 
 test('sqs get url', async () => {
+  // Unit Test
   const mockSQSClient = mockClient(SQSClient);
   mockSQSClient.resolves({});
 
@@ -597,6 +624,7 @@ test('sqs get url', async () => {
 });
 
 test('sqs send message', async () => {
+  // Unit Test
   const mockSQSClient = mockClient(SQSClient);
   mockSQSClient.resolves({});
 
@@ -611,6 +639,7 @@ test('sqs send message', async () => {
 });
 
 test('sfn describe execution', async () => {
+  // Unit Test
   mockSFNClient.resolves({});
 
   const event = getEvent({
@@ -623,6 +652,7 @@ test('sfn describe execution', async () => {
 });
 
 test('sfn list executions', async () => {
+  // Unit Test
   mockSFNClient.resolves({});
 
   const event = getEvent({

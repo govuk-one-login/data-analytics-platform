@@ -34,6 +34,7 @@ describe('Stage to Conform Integration Tests', () => {
     test.each(getTestEventPairs())(
       'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
       ({ auditEvent, conformedEvent }) => {
+        // Component Test
         const fact = getFact(auditEvent.event_id);
         if (!fact) return;
 
@@ -48,6 +49,7 @@ describe('Stage to Conform Integration Tests', () => {
     test.each(getTestEventPairs())(
       'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
       ({ auditEvent, conformedEvent }) => {
+        // Component Test
         const fact = getFact(auditEvent.event_id);
         if (!fact?.user_journey_key) return;
 
@@ -64,6 +66,7 @@ describe('Stage to Conform Integration Tests', () => {
     test.each(getTestEventPairs())(
       'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
       ({ auditEvent, conformedEvent }) => {
+        // Component Test
         const extensions = cache?.extensionsCache.get(auditEvent.event_id) || [];
 
         expect(extensions.length).toBe(conformedEvent.extensions?.length || 0);
@@ -77,6 +80,7 @@ describe('Stage to Conform Integration Tests', () => {
     test.each(getTestEventPairs())(
       'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
       ({ auditEvent, conformedEvent }) => {
+        // Component Test
         const fact = getFact(auditEvent.event_id);
         if (!fact) return;
 
@@ -91,6 +95,7 @@ describe('Stage to Conform Integration Tests', () => {
     test.each(getTestEventPairs())(
       'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
       ({ auditEvent, conformedEvent }) => {
+        // Component Test
         if (!conformedEvent.dimUser) return;
 
         const fact = getFact(auditEvent.event_id);
@@ -107,6 +112,7 @@ describe('Stage to Conform Integration Tests', () => {
     test.each(getTestEventPairs())(
       'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
       ({ auditEvent, conformedEvent }) => {
+        // Component Test
         const fact = getFact(auditEvent.event_id);
         if (!fact) return;
 
@@ -121,6 +127,7 @@ describe('Stage to Conform Integration Tests', () => {
     test.each(getTestEventPairs())(
       'Test Event $testEventNumber: $auditEvent.event_name ($auditEvent.event_id)',
       ({ auditEvent, conformedEvent }) => {
+        // Component Test
         const fact = getFact(auditEvent.event_id);
         if (!fact) return;
 

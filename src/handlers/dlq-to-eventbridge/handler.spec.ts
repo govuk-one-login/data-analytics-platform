@@ -35,6 +35,7 @@ beforeEach(() => {
 });
 
 test('process s3 event', async () => {
+  // Unit Test
   const filepath = 's3e file path';
   const s3Event: S3Event = JSON.parse(await getTestResource('s3-object-creation-notification.json'));
   s3Event.Records[0].s3.object.key = filepath;
@@ -51,6 +52,7 @@ test('process s3 event', async () => {
 });
 
 test('process redshift get metadata event', async () => {
+  // Unit Test
   const filepath = 'rgme file path';
   const redshiftFileMetadata: RedshiftFileMetadata = { bucket: 's3 bucket', file_path: filepath };
   const redshiftGetMetadataEvent: RedshiftGetMetadataEvent = { fileMetadata: JSON.stringify(redshiftFileMetadata) };
@@ -67,6 +69,7 @@ test('process redshift get metadata event', async () => {
 });
 
 test('process redshift file metadata', async () => {
+  // Unit Test
   const filepath = 'rfm file path';
   const redshiftFileMetadata: RedshiftFileMetadata = { bucket: 's3 bucket', file_path: filepath };
 
@@ -93,6 +96,7 @@ test.each([
     expectedError: 'Unexpected token \'h\', "hello world" is not valid JSON',
   },
 ])('$name input event', async ({ event, expectedError }) => {
+  // Unit Test
   const batchResponse = await handler(event);
   expect(batchResponse.batchItemFailures).toHaveLength(1);
   expect(batchResponse.batchItemFailures[0]).toEqual({ itemIdentifier: event.Records[0].messageId });
@@ -106,6 +110,7 @@ test.each([
 });
 
 test('multiple events', async () => {
+  // Unit Test
   const event = sqsEvent(
     { bucket: 's3 bucket', file_path: 'fp1' },
     'hello world',

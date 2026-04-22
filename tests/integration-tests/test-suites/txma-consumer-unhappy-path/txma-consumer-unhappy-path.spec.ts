@@ -18,6 +18,7 @@ describe('TxMA consumer lambda unhappy path tests', () => {
   test.each(getUnhappyPathEventPairs())(
     '$description does not appear in raw layer and txma-event-consumer lambda logs "Invalid audit event"',
     async ({ auditEvent }) => {
+      // Component Test
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const eventId = (auditEvent as any).event_id;
 

@@ -35,6 +35,7 @@ beforeEach(() => {
 });
 
 test('success', async () => {
+  // Unit Test
   const event = getEvent();
   setupQuicksightMocks(event);
   setupS3Mocks(event);
@@ -50,6 +51,7 @@ test('success', async () => {
 });
 
 test('bad analysis id', async () => {
+  // Unit Test
   const event = getEvent({ analysisId: '1234' });
   setupQuicksightMocks(event);
   setupS3Mocks(event);
@@ -60,6 +62,7 @@ test('bad analysis id', async () => {
 });
 
 test('start job bad status', async () => {
+  // Unit Test
   const event = getEvent();
   const startJobStatus = 400;
   setupQuicksightMocks(event, { startJobStatus });
@@ -73,6 +76,7 @@ test('start job bad status', async () => {
 });
 
 test('start job throws', async () => {
+  // Unit Test
   const event = getEvent();
   const startJobError = 'Error starting job';
   setupQuicksightMocks(event, { startJobError });
@@ -84,6 +88,7 @@ test('start job throws', async () => {
 });
 
 test('export not successful', async () => {
+  // Unit Test
   const event = getEvent();
   const exportFinalStatus = 'FAILED';
   setupQuicksightMocks(event, { exportFinalStatus });
@@ -97,6 +102,7 @@ test('export not successful', async () => {
 });
 
 test('s3 error', async () => {
+  // Unit Test
   const event = getEvent();
   const putObjectFailure = 'Error uploading object';
   setupQuicksightMocks(event);
@@ -108,6 +114,7 @@ test('s3 error', async () => {
 });
 
 test('describe job error', async () => {
+  // Unit Test
   const event = getEvent();
   const describeJobError = 'Error describing export job';
   setupQuicksightMocks(event, { describeJobError });
@@ -119,6 +126,7 @@ test('describe job error', async () => {
 });
 
 test('start job with non-200 success status', async () => {
+  // Unit Test
   const event = getEvent();
   const startJobStatus = 201;
   setupQuicksightMocks(event, { startJobStatus });
@@ -131,6 +139,7 @@ test('start job with non-200 success status', async () => {
 });
 
 test('start job with undefined response status', async () => {
+  // Unit Test
   const event = getEvent();
 
   mockQuicksightClient
@@ -143,6 +152,7 @@ test('start job with undefined response status', async () => {
 });
 
 test('start job with null response status', async () => {
+  // Unit Test
   const event = getEvent();
 
   mockQuicksightClient
@@ -155,6 +165,7 @@ test('start job with null response status', async () => {
 });
 
 test('start job with numeric status not starting with 2', async () => {
+  // Unit Test
   const event = getEvent();
 
   mockQuicksightClient
@@ -167,6 +178,7 @@ test('start job with numeric status not starting with 2', async () => {
 });
 
 test('start job with object status that cannot be converted to string', async () => {
+  // Unit Test
   const event = getEvent();
 
   const statusObject = {
@@ -183,6 +195,7 @@ test('start job with object status that cannot be converted to string', async ()
 
 describe('region environment variable handling', () => {
   test('tests AWS_DEFAULT_REGION fallback branch coverage', async () => {
+    // Unit Test
     const originalAwsRegion = process.env.AWS_REGION;
     const originalAwsDefaultRegion = process.env.AWS_DEFAULT_REGION;
 
@@ -205,6 +218,7 @@ describe('region environment variable handling', () => {
   });
 
   test('tests both undefined branch coverage', async () => {
+    // Unit Test
     const originalAwsRegion = process.env.AWS_REGION;
     const originalAwsDefaultRegion = process.env.AWS_DEFAULT_REGION;
 
@@ -229,6 +243,7 @@ describe('region environment variable handling', () => {
 });
 
 test('start job with undefined response', async () => {
+  // Unit Test
   const event = getEvent();
 
   mockQuicksightClient.on(StartAssetBundleExportJobCommand).resolves(undefined);
@@ -237,6 +252,7 @@ test('start job with undefined response', async () => {
 });
 
 test('start job response missing AssetBundleExportJobId', async () => {
+  // Unit Test
   const event = getEvent();
 
   mockQuicksightClient
@@ -247,6 +263,7 @@ test('start job response missing AssetBundleExportJobId', async () => {
 });
 
 test('successful job response missing DownloadUrl', async () => {
+  // Unit Test
   const event = getEvent();
   setupS3Mocks(event);
 

@@ -31,6 +31,7 @@ describe('Event Replay Integration Test', () => {
   const expectedInitialConformedData = constructReplayTestEventExpectedConformedData(eventId, date);
 
   test('Initial event appears in conform layer with expected extensions', async () => {
+    // Component Test
     const factQuery = `
       SELECT f.event_id, f.component_id
       FROM "dap_txma_reporting_db_refactored"."conformed_refactored"."fact_user_journey_event_refactored" f
@@ -54,6 +55,7 @@ describe('Event Replay Integration Test', () => {
   test(
     'Event replay updates stage and conform layers with additional extensions',
     async () => {
+      // Component Test
       const queueUrl = getIntegrationTestEnv('DAP_TXMA_CONSUMER_SQS_QUEUE_URL');
       const timestamp = generateTimestamp();
       const timestamp_formatted = generateTimestampFormatted();

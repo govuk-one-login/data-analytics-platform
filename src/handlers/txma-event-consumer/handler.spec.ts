@@ -15,6 +15,7 @@ beforeEach(() => {
 });
 
 test('valid event', async () => {
+  // Unit Test
   mockFirehoseClient.resolves({});
 
   const validEvent = JSON.stringify({
@@ -31,6 +32,7 @@ test('valid event', async () => {
 });
 
 test('event with invalid timestamp', async () => {
+  // Unit Test
   mockFirehoseClient.resolves({});
 
   const validEvent = JSON.stringify({
@@ -51,6 +53,7 @@ test('event with invalid timestamp', async () => {
 });
 
 test('event with multiple validation errors', async () => {
+  // Unit Test
   mockFirehoseClient.resolves({});
 
   const validEvent = JSON.stringify({
@@ -71,6 +74,7 @@ test('event with multiple validation errors', async () => {
 });
 
 test('invalid events', async () => {
+  // Unit Test
   mockFirehoseClient.resolves({});
 
   const sqsEvent = mockSQSEvent('null', 'undefined', 'false', 'true', '{}');
@@ -82,6 +86,7 @@ test('invalid events', async () => {
 });
 
 test('missing stream name', async () => {
+  // Unit Test
   mockFirehoseClient.resolves({});
   process.env.FIREHOSE_STREAM_NAME = '';
 
@@ -97,6 +102,7 @@ test('missing stream name', async () => {
 });
 
 test('multiple valid events, one invalid event', async () => {
+  // Unit Test
   mockFirehoseClient.resolves({});
 
   const validEvent = JSON.stringify({
@@ -126,6 +132,7 @@ test('multiple valid events, one invalid event', async () => {
 });
 
 test('firehose error', async () => {
+  // Unit Test
   mockFirehoseClient.rejects();
 
   const validEvent = JSON.stringify({ event_name: 'test', timestamp: 1234567890, event_id: 'test-id' });
@@ -140,6 +147,7 @@ test('firehose error', async () => {
 });
 
 test('batch error handling', async () => {
+  // Unit Test
   mockFirehoseClient.rejects();
 
   const validEvent = JSON.stringify({ event_name: 'test', timestamp: 1234567890, event_id: 'test-id' });

@@ -26,6 +26,7 @@ beforeEach(() => {
 });
 
 test('success', async () => {
+  // Unit Test
   const event = getEvent();
   setupQuicksightMocks(event);
   const response = await handler(event, CONTEXT);
@@ -35,6 +36,7 @@ test('success', async () => {
 });
 
 test('success with name change', async () => {
+  // Unit Test
   const event = getEvent({ newName: 'new-name' });
   setupQuicksightMocks(event);
   const response = await handler(event, CONTEXT);
@@ -44,6 +46,7 @@ test('success with name change', async () => {
 });
 
 test('bad s3 uri', async () => {
+  // Unit Test
   const event = getEvent({ s3Uri: '1234' });
   const expectedFormat = 's3://${bucketName}/export-${analysisId}-${timestamp}.zip';
   await expect(handler(event, CONTEXT)).rejects.toThrow(
@@ -54,6 +57,7 @@ test('bad s3 uri', async () => {
 });
 
 test('start job bad status', async () => {
+  // Unit Test
   const event = getEvent();
   const startJobStatus = 400;
   const analysisId = analysisIdFromS3Uri(event.s3Uri);
@@ -66,6 +70,7 @@ test('start job bad status', async () => {
 });
 
 test('start job throws', async () => {
+  // Unit Test
   const event = getEvent();
   const startJobError = 'Error starting job';
   setupQuicksightMocks(event, { startJobError });
@@ -75,6 +80,7 @@ test('start job throws', async () => {
 });
 
 test('import not successful', async () => {
+  // Unit Test
   const event = getEvent();
   const importFinalStatus = 'FAILED';
   setupQuicksightMocks(event, { importFinalStatus });

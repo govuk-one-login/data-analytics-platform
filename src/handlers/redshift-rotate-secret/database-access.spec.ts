@@ -26,6 +26,7 @@ beforeEach(() => {
 
 describe('DatabaseAccess', () => {
   test('getDatabaseConnection returns connection on success', async () => {
+    // Unit Test
     const mockRawResult = {
       timeout: jest.fn().mockResolvedValue({}),
     };
@@ -55,6 +56,7 @@ describe('DatabaseAccess', () => {
   });
 
   test('getDatabaseConnection returns null on connection error', async () => {
+    // Unit Test
     mockKnex.mockImplementation(() => {
       throw new Error('Connection failed');
     });
@@ -66,6 +68,7 @@ describe('DatabaseAccess', () => {
   });
 
   test('getDatabaseConnection returns null on validation error', async () => {
+    // Unit Test
     const mockRawResult = {
       timeout: jest.fn().mockRejectedValue(new Error('Validation failed')),
     };
@@ -82,6 +85,7 @@ describe('DatabaseAccess', () => {
   });
 
   test('getDatabaseConnection handles null validation internally', async () => {
+    // Unit Test
     const mockConnection = {
       raw: jest.fn().mockReturnValue({
         timeout: jest.fn().mockResolvedValue({}),
@@ -97,6 +101,7 @@ describe('DatabaseAccess', () => {
   });
 
   test('getDatabaseConnection handles knex returning null', async () => {
+    // Unit Test
     mockKnex.mockReturnValue(null as unknown as ReturnType<typeof knex>);
 
     const dbAccess = new DatabaseAccess(logger);

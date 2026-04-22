@@ -22,6 +22,7 @@ describe('Invalid JSON Tests', () => {
   ])(
     'Event with deformed JSON for %s causes ETL job to fail',
     async (fieldDescription, eventConstructor) => {
+      // Component Test
       const fieldName = fieldDescription.replace(' field', '').replace(' ', '');
       const invalidEvent = eventConstructor(
         generateTimestamp(),

@@ -65,6 +65,7 @@ beforeEach(async () => {
 });
 
 test('success', async () => {
+  // Unit Test
   setUpSuccessfulFetch();
   const expectedArn = `arn:aws:quicksight:${process.env.AWS_REGION}:${ACCOUNT_ID}:user/default/${USER_INFO_RESPONSE.username}`;
 
@@ -86,6 +87,7 @@ test('success', async () => {
 });
 
 test('bad query parameters', async () => {
+  // Unit Test
   setEvent(await mockApiGatewayEvent({ hello: 'world' }, ACCOUNT_ID));
 
   await verifyErrorResponseAndLogs('code query param is missing or invalid - parameters are {"hello":"world"}');
@@ -94,6 +96,7 @@ test('bad query parameters', async () => {
 });
 
 test('missing cognito client id', async () => {
+  // Unit Test
   setClientId('');
 
   await verifyErrorResponseAndLogs('COGNITO_CLIENT_ID is not defined in this environment');
@@ -102,6 +105,7 @@ test('missing cognito client id', async () => {
 });
 
 test('missing cognito domain', async () => {
+  // Unit Test
   setDomain('');
 
   await verifyErrorResponseAndLogs('COGNITO_DOMAIN is not defined in this environment');
@@ -110,6 +114,7 @@ test('missing cognito domain', async () => {
 });
 
 test('bad fetch', async () => {
+  // Unit Test
   const error = {
     status: 504,
     statusText: 'Gateway Timeout',
@@ -131,6 +136,7 @@ test('bad fetch', async () => {
 });
 
 test('quicksight error', async () => {
+  // Unit Test
   global.fetch = jest
     .fn()
     .mockResolvedValueOnce({ ok: true, json: async () => TOKEN_RESPONSE })
@@ -147,6 +153,7 @@ test('quicksight error', async () => {
 });
 
 test('undefined embed url', async () => {
+  // Unit Test
   global.fetch = jest
     .fn()
     .mockResolvedValueOnce({ ok: true, json: async () => TOKEN_RESPONSE })
@@ -164,6 +171,7 @@ test('undefined embed url', async () => {
 });
 
 test('session duration', async () => {
+  // Unit Test
   const expectSessionDuration = async (
     environment: (typeof AWS_ENVIRONMENTS)[number],
     expectedDuration: number,

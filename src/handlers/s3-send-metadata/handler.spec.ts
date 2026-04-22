@@ -31,6 +31,7 @@ beforeEach(() => {
 });
 
 test('missing queue url', async () => {
+  // Unit Test
   process.env.METADATA_QUEUE_URL = '';
 
   await expect(handler(TEST_EVENT)).rejects.toThrow('METADATA_QUEUE_URL is not defined in this environment');
@@ -39,6 +40,7 @@ test('missing queue url', async () => {
 });
 
 test('success', async () => {
+  // Unit Test
   // test indirectly by only resolving for the expected SendMessageCommand
   mockSQSClient
     .on(SendMessageCommand, {
@@ -58,6 +60,7 @@ test('success', async () => {
 });
 
 test('filename parsing error', async () => {
+  // Unit Test
   const testEvent = { ...TEST_EVENT };
   testEvent.Records[0].s3.object.key = 'invalid-filename.csv';
 

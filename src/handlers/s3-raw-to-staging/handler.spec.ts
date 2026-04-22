@@ -45,6 +45,7 @@ beforeEach(() => {
 });
 
 test('missing stage bucket name', async () => {
+  // Unit Test
   process.env.STAGE_BUCKET_NAME = '';
 
   await expect(handler(TEST_EVENT)).rejects.toThrow('STAGE_BUCKET_NAME is not defined in this environment');
@@ -53,6 +54,7 @@ test('missing stage bucket name', async () => {
 });
 
 test('missing metadata bucket name', async () => {
+  // Unit Test
   process.env.METADATA_BUCKET_NAME = '';
 
   await expect(handler(TEST_EVENT)).rejects.toThrow('METADATA_BUCKET_NAME is not defined in this environment');
@@ -61,6 +63,7 @@ test('missing metadata bucket name', async () => {
 });
 
 test('success when ingestion enabled', async () => {
+  // Unit Test
   TEST_EVENT.Records[0].s3.object.key = S3_KEY_PROCESSING_ENABLED;
 
   // test indirectly by only resolving for the expected CopyObjectCommand
@@ -82,6 +85,7 @@ test('success when ingestion enabled', async () => {
 });
 
 test('cancelled when ingestion disabled', async () => {
+  // Unit Test
   TEST_EVENT.Records[0].s3.object.key = S3_KEY_PROCESSING_DISABLED;
 
   mockS3Client.on(CopyObjectCommand).rejects();
@@ -96,6 +100,7 @@ test('cancelled when ingestion disabled', async () => {
 });
 
 test('failed with s3 error', async () => {
+  // Unit Test
   TEST_EVENT.Records[0].s3.object.key = S3_KEY_PROCESSING_ENABLED;
 
   const error = 's3 error';

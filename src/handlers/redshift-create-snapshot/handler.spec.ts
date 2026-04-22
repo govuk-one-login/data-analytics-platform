@@ -24,6 +24,7 @@ beforeEach(() => {
 });
 
 test('success', async () => {
+  // Unit Test
   const epochTime = Date.now();
   jest.useFakeTimers().setSystemTime(epochTime);
 
@@ -47,6 +48,7 @@ test('success', async () => {
 });
 
 test('redshift error', async () => {
+  // Unit Test
   const epochTime = Date.now();
   jest.useFakeTimers().setSystemTime(epochTime);
 
