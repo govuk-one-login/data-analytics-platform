@@ -15,6 +15,7 @@ const user = event.user as { user_id: string; govuk_signin_journey_id: string };
 
 describe('E2E Regression Tests', () => {
   it(`${event.event_name}`, async () => {
+    // End-to-end Test
     const testStart = Date.now();
     const eventId = getEventId();
     const result = await queryConformLayer(eventId);
