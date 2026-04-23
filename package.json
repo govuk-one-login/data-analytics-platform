@@ -61,7 +61,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.55.0",
-    "uuid": "^13.0.0"
+    "uuid": "^14.0.0"
   },
   "scripts": {
     "build": "scripts/build-lambdas.sh",
