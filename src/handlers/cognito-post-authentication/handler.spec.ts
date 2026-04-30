@@ -32,7 +32,7 @@ const TEST_EVENT: PostAuthenticationTriggerEvent = {
   response: {},
 };
 
-const loggerErrorSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+const loggerErrorSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
 
 beforeEach(async () => {
   loggerErrorSpy.mockReset();
@@ -45,7 +45,7 @@ beforeEach(async () => {
 test('success', async () => {
   // Unit Test
   const now = Date.now();
-  jest.useFakeTimers().setSystemTime(now);
+  vi.useFakeTimers().setSystemTime(now);
   mockCognitoClient
     .on(AdminUpdateUserAttributesCommand, { UserAttributes: [{ Name: 'custom:last_login', Value: now.toString() }] })
     .resolvesOnce({});

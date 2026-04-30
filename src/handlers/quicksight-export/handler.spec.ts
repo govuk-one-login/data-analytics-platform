@@ -31,7 +31,7 @@ beforeEach(() => {
   });
 
   // mock binary returned by downloading from the download url
-  global.fetch = jest.fn().mockResolvedValueOnce({ arrayBuffer: async () => new ArrayBuffer(4) });
+  global.fetch = vi.fn().mockResolvedValueOnce({ arrayBuffer: async () => new ArrayBuffer(4) });
 });
 
 test('success', async () => {
@@ -157,7 +157,7 @@ test('start job with null response status', async () => {
 
   mockQuicksightClient
     .on(StartAssetBundleExportJobCommand)
-    .resolves({ Status: null, AssetBundleExportJobId: event.analysisId });
+    .resolves({ Status: null as unknown as number, AssetBundleExportJobId: event.analysisId });
 
   await expect(handler(event, CONTEXT)).rejects.toThrow(
     `Start export job request with id ${event.analysisId} returned status code of null`,
@@ -188,7 +188,7 @@ test('start job with object status that cannot be converted to string', async ()
   };
   mockQuicksightClient
     .on(StartAssetBundleExportJobCommand)
-    .resolves({ Status: statusObject, AssetBundleExportJobId: event.analysisId });
+    .resolves({ Status: statusObject as unknown as number, AssetBundleExportJobId: event.analysisId });
 
   await expect(handler(event, CONTEXT)).rejects.toThrow();
 });
@@ -202,7 +202,7 @@ describe('region environment variable handling', () => {
     try {
       delete process.env.AWS_REGION;
       process.env.AWS_DEFAULT_REGION = 'us-west-1';
-      jest.resetModules();
+      vi.resetModules();
 
       // Just import to trigger the region variable evaluation
       await import('./handler');
@@ -225,7 +225,7 @@ describe('region environment variable handling', () => {
     try {
       delete process.env.AWS_REGION;
       delete process.env.AWS_DEFAULT_REGION;
-      jest.resetModules();
+      vi.resetModules();
 
       // Just import to trigger the region variable evaluation
       await import('./handler');
@@ -246,7 +246,7 @@ test('start job with undefined response', async () => {
   // Unit Test
   const event = getEvent();
 
-  mockQuicksightClient.on(StartAssetBundleExportJobCommand).resolves(undefined);
+  mockQuicksightClient.on(StartAssetBundleExportJobCommand).resolves(undefined as never);
 
   await expect(handler(event, CONTEXT)).rejects.toThrow("Cannot read properties of undefined (reading 'Status')");
 });

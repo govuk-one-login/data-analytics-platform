@@ -4,7 +4,7 @@ import { quicksightClient, s3Client } from '../../shared/clients';
 import type { DescribeAssetBundleExportJobCommandOutput } from '@aws-sdk/client-quicksight';
 import { DescribeAssetBundleExportJobCommand, StartAssetBundleExportJobCommand } from '@aws-sdk/client-quicksight';
 import type { Context } from 'aws-lambda';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { ChecksumAlgorithm, PutObjectCommand } from '@aws-sdk/client-s3';
 import { waitForJob } from '../../shared/utils/wait-for-job';
 import { filenameFromAnalysisId } from '../../shared/quicksight-import-export/filename-utils';
 
@@ -101,6 +101,7 @@ const uploadToS3 = async (event: QuicksightExportEvent, downloadUrl: string, key
         Body: await fetch(downloadUrl)
           .then(async response => await response.arrayBuffer())
           .then(arrayBuffer => Buffer.from(arrayBuffer)),
+        ChecksumAlgorithm: ChecksumAlgorithm.SHA256,
       }),
     );
   } catch (error) {

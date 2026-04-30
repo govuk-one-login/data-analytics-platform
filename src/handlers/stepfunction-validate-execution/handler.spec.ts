@@ -3,7 +3,7 @@ import { DescribeExecutionCommand, ListExecutionsCommand, SFNClient } from '@aws
 import type { ExecutionListItem, ExecutionStatus } from '@aws-sdk/client-sfn';
 import { handler, logger } from './handler';
 
-const loggerSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
 
 const mockSFNClient = mockClient(SFNClient);
 

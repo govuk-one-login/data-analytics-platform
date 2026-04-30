@@ -4,8 +4,12 @@
  * e.g.   ts-node scripts/debug/invoke-local.ts s3-send-metadata
  */
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { Context } from 'aws-lambda';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const handlerName = process.argv[2];
 if (!handlerName) {
@@ -44,12 +48,11 @@ const context: Context = {
   callbackWaitsForEmptyEventLoop: false,
 } as Context;
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { handler } = require(join(rootDir, 'src/handlers', handlerName, 'handler')) as {
+const { handler } = (await import(join(rootDir, 'src/handlers', handlerName, 'handler'))) as {
   handler: (event: unknown, context: Context) => Promise<void>;
 };
 
-handler(event, context)
+await handler(event, context)
   .then(() => console.log('Handler completed successfully'))
   .catch((err: Error) => {
     console.error('Handler failed:', err);
