@@ -25,7 +25,7 @@ const PASSWORD_LENGTH = '16';
 
 const SECRET_ID = 'MySecretId';
 
-const getDatabaseConnectionSpy = jest.spyOn(databaseAccess, 'getDatabaseConnection');
+const getDatabaseConnectionSpy = vi.spyOn(databaseAccess, 'getDatabaseConnection');
 
 interface SecretsManagerMockingConfig {
   pendingSecretError?: boolean;

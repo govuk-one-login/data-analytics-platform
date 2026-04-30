@@ -49,7 +49,7 @@ const setDomain = (domain: string): void => {
   COGNITO_DOMAIN = process.env.COGNITO_DOMAIN = domain;
 };
 
-const loggerErrorSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+const loggerErrorSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
 
 interface LogInputObject {
   event: APIGatewayProxyEventV2;
@@ -121,7 +121,7 @@ test('bad fetch', async () => {
     message: 'Did not get a response in time from the upstream server',
   };
 
-  global.fetch = jest.fn().mockResolvedValueOnce({
+  global.fetch = vi.fn().mockResolvedValueOnce({
     ok: false,
     status: error.status,
     statusText: error.statusText,
@@ -137,7 +137,7 @@ test('bad fetch', async () => {
 
 test('quicksight error', async () => {
   // Unit Test
-  global.fetch = jest
+  global.fetch = vi
     .fn()
     .mockResolvedValueOnce({ ok: true, json: async () => TOKEN_RESPONSE })
     .mockResolvedValueOnce({ ok: true, json: async () => USER_INFO_RESPONSE });
@@ -154,7 +154,7 @@ test('quicksight error', async () => {
 
 test('undefined embed url', async () => {
   // Unit Test
-  global.fetch = jest
+  global.fetch = vi
     .fn()
     .mockResolvedValueOnce({ ok: true, json: async () => TOKEN_RESPONSE })
     .mockResolvedValueOnce({ ok: true, json: async () => USER_INFO_RESPONSE });
@@ -197,7 +197,7 @@ test('session duration', async () => {
 });
 
 const setUpSuccessfulFetch = (): void => {
-  global.fetch = jest
+  global.fetch = vi
     .fn()
     .mockImplementationOnce(async (url: string, init: RequestInit) => {
       expect(url).toEqual(`${COGNITO_DOMAIN}/oauth2/token`);

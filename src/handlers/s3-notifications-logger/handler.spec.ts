@@ -2,8 +2,8 @@ import { handler, logger } from './handler';
 import { getTestResource } from '../../shared/utils/test-utils';
 import type { S3ObjectCreatedNotificationEvent } from 'aws-lambda';
 
-const loggerInfoSpy = jest.spyOn(logger, 'info').mockImplementation(() => undefined);
-const loggerErrorSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+const loggerInfoSpy = vi.spyOn(logger, 'info').mockImplementation(() => undefined);
+const loggerErrorSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
 
 beforeEach(() => {
   loggerInfoSpy.mockReset();

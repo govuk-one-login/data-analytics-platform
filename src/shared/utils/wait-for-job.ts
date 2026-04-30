@@ -24,9 +24,9 @@ export const waitForJob = async <T>(config: WaitForJobConfig<T>): Promise<T> => 
     status = config.statusStringGetter(response);
     // return if one of the successful statuses, break if one of the failed ones to allow error to be thrown
     // we do nothing for other possible statuses as we want to continue waiting
-    if (config.successStatuses.includes(status)) {
+    if (status !== undefined && config.successStatuses.includes(status)) {
       return response;
-    } else if (config.failureStatuses.includes(status)) {
+    } else if (status !== undefined && config.failureStatuses.includes(status)) {
       break;
     }
     timeRemaining -= timeoutStepMs;
