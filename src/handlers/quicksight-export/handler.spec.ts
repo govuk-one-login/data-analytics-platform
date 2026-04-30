@@ -157,7 +157,7 @@ test('start job with null response status', async () => {
 
   mockQuicksightClient
     .on(StartAssetBundleExportJobCommand)
-    .resolves({ Status: null, AssetBundleExportJobId: event.analysisId });
+    .resolves({ Status: null as unknown as number, AssetBundleExportJobId: event.analysisId });
 
   await expect(handler(event, CONTEXT)).rejects.toThrow(
     `Start export job request with id ${event.analysisId} returned status code of null`,
@@ -188,7 +188,7 @@ test('start job with object status that cannot be converted to string', async ()
   };
   mockQuicksightClient
     .on(StartAssetBundleExportJobCommand)
-    .resolves({ Status: statusObject, AssetBundleExportJobId: event.analysisId });
+    .resolves({ Status: statusObject as unknown as number, AssetBundleExportJobId: event.analysisId });
 
   await expect(handler(event, CONTEXT)).rejects.toThrow();
 });
@@ -246,7 +246,7 @@ test('start job with undefined response', async () => {
   // Unit Test
   const event = getEvent();
 
-  mockQuicksightClient.on(StartAssetBundleExportJobCommand).resolves(undefined);
+  mockQuicksightClient.on(StartAssetBundleExportJobCommand).resolves(undefined as never);
 
   await expect(handler(event, CONTEXT)).rejects.toThrow("Cannot read properties of undefined (reading 'Status')");
 });

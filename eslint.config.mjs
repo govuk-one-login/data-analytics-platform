@@ -2,6 +2,7 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintPluginJest from 'eslint-plugin-jest';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import eslintPluginImport from 'eslint-plugin-import';
 import globals from 'globals';
 
 export default [
@@ -10,6 +11,9 @@ export default [
   eslintPluginPrettierRecommended,
   {
     files: ['**/*.mjs', '**/*.js', '**/*.ts'],
+    plugins: {
+      import: eslintPluginImport,
+    },
     languageOptions: {
       globals: {
         ...globals.node,
@@ -19,6 +23,10 @@ export default [
       'no-console': 'error',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { args: 'none', caughtErrors: 'none' }],
+      // ESM enforcement: prohibit CommonJS require() calls
+      'import/no-commonjs': 'error',
+      // ESM enforcement: warn on relative imports without .js extension (forward-looking for bundler-resolved projects)
+      'import/extensions': ['warn', 'ignorePackages', { ts: 'never', js: 'always', mjs: 'always' }],
     },
   },
   {

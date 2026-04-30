@@ -49,7 +49,7 @@ const REDSHIFT_JAR_NAME = 'redshift-jdbc42-2.1.0.25.jar';
 
 const TEST_EVENT: RunFlywayEvent = { command: 'info', database: DATABASE };
 
-jest.mock('node:child_process', (): child_process.SpawnSyncReturns<Buffer> => {
+jest.mock('node:child_process', () => {
   return {
     __esModule: true,
     ...jest.requireActual('node:child_process'),
@@ -107,10 +107,13 @@ beforeAll(async () => {
   FLYWAY_INFO = JSON.parse(await getTestResource('flyway-info.json'));
   mkdirSyncSpy.mockImplementation();
   createWriteStreamSpy.mockImplementation();
-  readdirSyncSpy.mockReturnValue([FLYWAY_TAR_NAME, REDSHIFT_JAR_NAME]);
+  readdirSyncSpy.mockReturnValue([FLYWAY_TAR_NAME, REDSHIFT_JAR_NAME] as unknown as ReturnType<typeof fs.readdirSync>);
   parseSpy.mockImplementation(path => ({
     base: path.substring(path.lastIndexOf('/') + 1),
     dir: path.substring(0, path.lastIndexOf('/')),
+    root: '',
+    ext: '',
+    name: path.substring(path.lastIndexOf('/') + 1).split('.')[0] ?? '',
   }));
   tarExtractSpy.mockImplementation(options => {
     expect(options.file).toEqual(`${LIBRARY_FILES_PATH}/${FLYWAY_TAR_NAME}`);
@@ -337,10 +340,12 @@ test('JSON parse error in decodeOutput', async () => {
 
   spawnSyncSpy.mockImplementation(() => {
     return {
+      pid: 0,
+      output: [],
+      signal: null,
       status: 0,
       stdout: Buffer.from('invalid json {', 'utf-8'),
       stderr: Buffer.from('', 'utf-8'),
-      error: undefined,
     };
   });
 
@@ -357,11 +362,12 @@ test('null output buffer', async () => {
 
   spawnSyncSpy.mockImplementation(() => {
     return {
+      pid: 0,
+      output: [],
+      signal: null,
       status: 0,
-      // @ts-expect-error Simulating null buffer for test coverage
-      stdout: null,
+      stdout: null as unknown as Buffer,
       stderr: Buffer.from('', 'utf-8'),
-      error: undefined,
     };
   });
 
@@ -429,12 +435,18 @@ const spawnSyncResult = (
   stderr: Record<string, unknown>,
   error?: Error,
 ): child_process.SpawnSyncReturns<Buffer> => {
-  return {
+  const result: child_process.SpawnSyncReturns<Buffer> = {
+    pid: 0,
+    output: [],
+    signal: null,
     status,
     stdout: Buffer.from(JSON.stringify(stdout), 'utf-8'),
     stderr: Buffer.from(JSON.stringify(stderr), 'utf-8'),
-    error,
   };
+  if (error !== undefined) {
+    result.error = error;
+  }
+  return result;
 };
 
 class MockReadable extends Readable {
