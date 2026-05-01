@@ -1,0 +1,56 @@
+{
+  "Comment": "Child state machine for conformed_refactored.dim_journey_channel_refactored_upsert()",
+  "StartAt": "dim_journey_channel_refactored_upsert",
+  "States": {
+    "dim_journey_channel_refactored_upsert": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
+      "ResultPath": "$.sql_output",
+      "Parameters": {
+        "WorkgroupName": "${RedshiftWorkgroup}",
+        "Database": "${RedshiftDatabaseName}",
+        "Sql": "call conformed_refactored.dim_journey_channel_refactored_upsert()"
+      },
+      "Next": "wait_on_dim_journey_channel_refactored_upsert"
+    },
+    "wait_on_dim_journey_channel_refactored_upsert": {
+      "Type": "Wait",
+      "Seconds": 120,
+      "Next": "dim_journey_channel_refactored_upsert_status_check"
+    },
+    "dim_journey_channel_refactored_upsert_status_check": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
+      "ResultPath": "$.sql_output",
+      "Parameters": {
+        "Id.$": "$.sql_output.Id"
+      },
+      "Next": "is_dim_journey_channel_refactored_upsert_complete"
+    },
+    "is_dim_journey_channel_refactored_upsert_complete": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.sql_output.Status",
+          "StringEquals": "FAILED",
+          "Next": "dim_journey_channel_refactored_upsert_failure"
+        },
+        {
+          "Variable": "$.sql_output.Status",
+          "StringEquals": "FINISHED",
+          "Next": "dim_journey_channel_refactored_upsert_done"
+        }
+      ],
+      "Default": "wait_on_dim_journey_channel_refactored_upsert"
+    },
+    "dim_journey_channel_refactored_upsert_failure": {
+      "Type": "Fail",
+      "Error": "dim_journey_channel_refactored_upsert_failed",
+      "Cause": "conformed_refactored.dim_journey_channel_refactored_upsert() failed"
+    },
+    "dim_journey_channel_refactored_upsert_done": {
+      "Type": "Pass",
+      "End": true
+    }
+  }
+}
