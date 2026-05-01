@@ -30,7 +30,7 @@
       "Error": "RunningInstanceDetected"
     },
     "dap_datamart_parallel_update": {
-      "Comment": "Run all dimension upsert procedures in parallel",
+      "Comment": "Run all dimension upsert child state machines in parallel",
       "Type": "Parallel",
       "Next": "event_extensions_refactored_upsert",
       "ResultPath": null,
@@ -42,276 +42,81 @@
       ],
       "Branches": [
         {
-          "StartAt": "dim_event_upsert",
+          "StartAt": "invoke_dim_event_upsert",
           "States": {
-            "dim_event_upsert": {
+            "invoke_dim_event_upsert": {
               "Type": "Task",
-              "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
-              "ResultPath": "$.sql_output",
+              "Resource": "arn:aws:states:::states:startExecution.sync:2",
               "Parameters": {
-                "WorkgroupName": "${RedshiftWorkgroup}",
-                "Database": "${RedshiftDatabaseName}",
-                "Sql": "call conformed_refactored.dim_event_upsert()"
-              },
-              "Next": "wait_on_dim_event_upsert"
-            },
-            "wait_on_dim_event_upsert": {
-              "Type": "Wait",
-              "Seconds": 120,
-              "Next": "dim_event_upsert_status_check"
-            },
-            "dim_event_upsert_status_check": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
-              "ResultPath": "$.sql_output",
-              "Parameters": {
-                "Id.$": "$.sql_output.Id"
-              },
-              "Next": "is_dim_event_upsert_complete"
-            },
-            "is_dim_event_upsert_complete": {
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "Variable": "$.sql_output.Status",
-                  "StringEquals": "FAILED",
-                  "Next": "dim_event_upsert_failure"
-                },
-                {
-                  "Variable": "$.sql_output.Status",
-                  "StringEquals": "FINISHED",
-                  "Next": "dim_event_upsert_done"
+                "StateMachineArn": "${DimEventUpsertStateMachineArn}",
+                "Input": {
+                  "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
                 }
-              ],
-              "Default": "wait_on_dim_event_upsert"
-            },
-            "dim_event_upsert_failure": {
-              "Type": "Fail",
-              "Error": "dim_event_upsert_failed",
-              "Cause": "conformed_refactored.dim_event_upsert() failed"
-            },
-            "dim_event_upsert_done": {
-              "Type": "Pass",
+              },
               "End": true
             }
           }
         },
         {
-          "StartAt": "dim_user_journey_event_upsert",
+          "StartAt": "invoke_dim_user_journey_event_upsert",
           "States": {
-            "dim_user_journey_event_upsert": {
+            "invoke_dim_user_journey_event_upsert": {
               "Type": "Task",
-              "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
-              "ResultPath": "$.sql_output",
+              "Resource": "arn:aws:states:::states:startExecution.sync:2",
               "Parameters": {
-                "WorkgroupName": "${RedshiftWorkgroup}",
-                "Database": "${RedshiftDatabaseName}",
-                "Sql": "call conformed_refactored.dim_user_journey_event_upsert()"
-              },
-              "Next": "wait_on_dim_user_journey_event_upsert"
-            },
-            "wait_on_dim_user_journey_event_upsert": {
-              "Type": "Wait",
-              "Seconds": 120,
-              "Next": "dim_user_journey_event_upsert_status_check"
-            },
-            "dim_user_journey_event_upsert_status_check": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
-              "ResultPath": "$.sql_output",
-              "Parameters": {
-                "Id.$": "$.sql_output.Id"
-              },
-              "Next": "is_dim_user_journey_event_upsert_complete"
-            },
-            "is_dim_user_journey_event_upsert_complete": {
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "Variable": "$.sql_output.Status",
-                  "StringEquals": "FAILED",
-                  "Next": "dim_user_journey_event_upsert_failure"
-                },
-                {
-                  "Variable": "$.sql_output.Status",
-                  "StringEquals": "FINISHED",
-                  "Next": "dim_user_journey_event_upsert_done"
+                "StateMachineArn": "${DimUserJourneyEventUpsertStateMachineArn}",
+                "Input": {
+                  "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
                 }
-              ],
-              "Default": "wait_on_dim_user_journey_event_upsert"
-            },
-            "dim_user_journey_event_upsert_failure": {
-              "Type": "Fail",
-              "Error": "dim_user_journey_event_upsert_failed",
-              "Cause": "conformed_refactored.dim_user_journey_event_upsert() failed"
-            },
-            "dim_user_journey_event_upsert_done": {
-              "Type": "Pass",
+              },
               "End": true
             }
           }
         },
         {
-          "StartAt": "dim_user_refactored_upsert",
+          "StartAt": "invoke_dim_user_refactored_upsert",
           "States": {
-            "dim_user_refactored_upsert": {
+            "invoke_dim_user_refactored_upsert": {
               "Type": "Task",
-              "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
-              "ResultPath": "$.sql_output",
+              "Resource": "arn:aws:states:::states:startExecution.sync:2",
               "Parameters": {
-                "WorkgroupName": "${RedshiftWorkgroup}",
-                "Database": "${RedshiftDatabaseName}",
-                "Sql": "call conformed_refactored.dim_user_refactored_upsert()"
-              },
-              "Next": "wait_on_dim_user_refactored_upsert"
-            },
-            "wait_on_dim_user_refactored_upsert": {
-              "Type": "Wait",
-              "Seconds": 120,
-              "Next": "dim_user_refactored_upsert_status_check"
-            },
-            "dim_user_refactored_upsert_status_check": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
-              "ResultPath": "$.sql_output",
-              "Parameters": {
-                "Id.$": "$.sql_output.Id"
-              },
-              "Next": "is_dim_user_refactored_upsert_complete"
-            },
-            "is_dim_user_refactored_upsert_complete": {
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "Variable": "$.sql_output.Status",
-                  "StringEquals": "FAILED",
-                  "Next": "dim_user_refactored_upsert_failure"
-                },
-                {
-                  "Variable": "$.sql_output.Status",
-                  "StringEquals": "FINISHED",
-                  "Next": "dim_user_refactored_upsert_done"
+                "StateMachineArn": "${DimUserRefactoredUpsertStateMachineArn}",
+                "Input": {
+                  "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
                 }
-              ],
-              "Default": "wait_on_dim_user_refactored_upsert"
-            },
-            "dim_user_refactored_upsert_failure": {
-              "Type": "Fail",
-              "Error": "dim_user_refactored_upsert_failed",
-              "Cause": "conformed_refactored.dim_user_refactored_upsert() failed"
-            },
-            "dim_user_refactored_upsert_done": {
-              "Type": "Pass",
+              },
               "End": true
             }
           }
         },
         {
-          "StartAt": "dim_journey_channel_refactored_upsert",
+          "StartAt": "invoke_dim_journey_channel_refactored_upsert",
           "States": {
-            "dim_journey_channel_refactored_upsert": {
+            "invoke_dim_journey_channel_refactored_upsert": {
               "Type": "Task",
-              "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
-              "ResultPath": "$.sql_output",
+              "Resource": "arn:aws:states:::states:startExecution.sync:2",
               "Parameters": {
-                "WorkgroupName": "${RedshiftWorkgroup}",
-                "Database": "${RedshiftDatabaseName}",
-                "Sql": "call conformed_refactored.dim_journey_channel_refactored_upsert()"
-              },
-              "Next": "wait_on_dim_journey_channel_refactored_upsert"
-            },
-            "wait_on_dim_journey_channel_refactored_upsert": {
-              "Type": "Wait",
-              "Seconds": 120,
-              "Next": "dim_journey_channel_refactored_upsert_status_check"
-            },
-            "dim_journey_channel_refactored_upsert_status_check": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
-              "ResultPath": "$.sql_output",
-              "Parameters": {
-                "Id.$": "$.sql_output.Id"
-              },
-              "Next": "is_dim_journey_channel_refactored_upsert_complete"
-            },
-            "is_dim_journey_channel_refactored_upsert_complete": {
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "Variable": "$.sql_output.Status",
-                  "StringEquals": "FAILED",
-                  "Next": "dim_journey_channel_refactored_upsert_failure"
-                },
-                {
-                  "Variable": "$.sql_output.Status",
-                  "StringEquals": "FINISHED",
-                  "Next": "dim_journey_channel_refactored_upsert_done"
+                "StateMachineArn": "${DimJourneyChannelRefactoredUpsertStateMachineArn}",
+                "Input": {
+                  "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
                 }
-              ],
-              "Default": "wait_on_dim_journey_channel_refactored_upsert"
-            },
-            "dim_journey_channel_refactored_upsert_failure": {
-              "Type": "Fail",
-              "Error": "dim_journey_channel_refactored_upsert_failed",
-              "Cause": "conformed_refactored.dim_journey_channel_refactored_upsert() failed"
-            },
-            "dim_journey_channel_refactored_upsert_done": {
-              "Type": "Pass",
+              },
               "End": true
             }
           }
         },
         {
-          "StartAt": "dim_relying_party_refactored_upsert",
+          "StartAt": "invoke_dim_relying_party_refactored_upsert",
           "States": {
-            "dim_relying_party_refactored_upsert": {
+            "invoke_dim_relying_party_refactored_upsert": {
               "Type": "Task",
-              "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
-              "ResultPath": "$.sql_output",
+              "Resource": "arn:aws:states:::states:startExecution.sync:2",
               "Parameters": {
-                "WorkgroupName": "${RedshiftWorkgroup}",
-                "Database": "${RedshiftDatabaseName}",
-                "Sql": "call conformed_refactored.dim_relying_party_refactored_upsert()"
-              },
-              "Next": "wait_on_dim_relying_party_refactored_upsert"
-            },
-            "wait_on_dim_relying_party_refactored_upsert": {
-              "Type": "Wait",
-              "Seconds": 120,
-              "Next": "dim_relying_party_refactored_upsert_status_check"
-            },
-            "dim_relying_party_refactored_upsert_status_check": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
-              "ResultPath": "$.sql_output",
-              "Parameters": {
-                "Id.$": "$.sql_output.Id"
-              },
-              "Next": "is_dim_relying_party_refactored_upsert_complete"
-            },
-            "is_dim_relying_party_refactored_upsert_complete": {
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "Variable": "$.sql_output.Status",
-                  "StringEquals": "FAILED",
-                  "Next": "dim_relying_party_refactored_upsert_failure"
-                },
-                {
-                  "Variable": "$.sql_output.Status",
-                  "StringEquals": "FINISHED",
-                  "Next": "dim_relying_party_refactored_upsert_done"
+                "StateMachineArn": "${DimRelyingPartyRefactoredUpsertStateMachineArn}",
+                "Input": {
+                  "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
                 }
-              ],
-              "Default": "wait_on_dim_relying_party_refactored_upsert"
-            },
-            "dim_relying_party_refactored_upsert_failure": {
-              "Type": "Fail",
-              "Error": "dim_relying_party_refactored_upsert_failed",
-              "Cause": "conformed_refactored.dim_relying_party_refactored_upsert() failed"
-            },
-            "dim_relying_party_refactored_upsert_done": {
-              "Type": "Pass",
+              },
               "End": true
             }
           }

@@ -703,6 +703,11 @@ StepFunctionRedshiftProcessRole:
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-stage-layer-to-redshift-processing'
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-conformed-layer-to-adm-processing'
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-conformed-layer-to-adm-processing-v3'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-dim-event-upsert'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-dim-user-journey-event-upsert'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-dim-user-refactored-upsert'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-dim-journey-channel-refactored-upsert'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-dim-relying-party-refactored-upsert'
               Action:
                 - states:ListExecutions
                 - states:StartExecution
@@ -903,8 +908,88 @@ ADMV3RefreshLogGroup:
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
+DimEventUpsertStateMachine:
+  Type: AWS::Serverless::StateMachine
+  Properties:
+    DefinitionUri: statemachine/redshift_dim_event_upsert.asl.json
+    Name: !Sub ${Environment}-dap-redshift-dim-event-upsert
+    Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
+    Logging:
+      Destinations:
+        - CloudWatchLogsLogGroup:
+            LogGroupArn: !GetAtt RedshiftConsolidatedModelProcessingLogGroup.Arn
+      IncludeExecutionData: true
+      Level: ALL
+    DefinitionSubstitutions:
+      RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
+      RedshiftDatabaseName: dap_txma_reporting_db_refactored
+
+DimUserJourneyEventUpsertStateMachine:
+  Type: AWS::Serverless::StateMachine
+  Properties:
+    DefinitionUri: statemachine/redshift_dim_user_journey_event_upsert.asl.json
+    Name: !Sub ${Environment}-dap-redshift-dim-user-journey-event-upsert
+    Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
+    Logging:
+      Destinations:
+        - CloudWatchLogsLogGroup:
+            LogGroupArn: !GetAtt RedshiftConsolidatedModelProcessingLogGroup.Arn
+      IncludeExecutionData: true
+      Level: ALL
+    DefinitionSubstitutions:
+      RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
+      RedshiftDatabaseName: dap_txma_reporting_db_refactored
+
+DimUserRefactoredUpsertStateMachine:
+  Type: AWS::Serverless::StateMachine
+  Properties:
+    DefinitionUri: statemachine/redshift_dim_user_refactored_upsert.asl.json
+    Name: !Sub ${Environment}-dap-redshift-dim-user-refactored-upsert
+    Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
+    Logging:
+      Destinations:
+        - CloudWatchLogsLogGroup:
+            LogGroupArn: !GetAtt RedshiftConsolidatedModelProcessingLogGroup.Arn
+      IncludeExecutionData: true
+      Level: ALL
+    DefinitionSubstitutions:
+      RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
+      RedshiftDatabaseName: dap_txma_reporting_db_refactored
+
+DimJourneyChannelRefactoredUpsertStateMachine:
+  Type: AWS::Serverless::StateMachine
+  Properties:
+    DefinitionUri: statemachine/redshift_dim_journey_channel_refactored_upsert.asl.json
+    Name: !Sub ${Environment}-dap-redshift-dim-journey-channel-refactored-upsert
+    Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
+    Logging:
+      Destinations:
+        - CloudWatchLogsLogGroup:
+            LogGroupArn: !GetAtt RedshiftConsolidatedModelProcessingLogGroup.Arn
+      IncludeExecutionData: true
+      Level: ALL
+    DefinitionSubstitutions:
+      RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
+      RedshiftDatabaseName: dap_txma_reporting_db_refactored
+
+DimRelyingPartyRefactoredUpsertStateMachine:
+  Type: AWS::Serverless::StateMachine
+  Properties:
+    DefinitionUri: statemachine/redshift_dim_relying_party_refactored_upsert.asl.json
+    Name: !Sub ${Environment}-dap-redshift-dim-relying-party-refactored-upsert
+    Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
+    Logging:
+      Destinations:
+        - CloudWatchLogsLogGroup:
+            LogGroupArn: !GetAtt RedshiftConsolidatedModelProcessingLogGroup.Arn
+      IncludeExecutionData: true
+      Level: ALL
+    DefinitionSubstitutions:
+      RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
+      RedshiftDatabaseName: dap_txma_reporting_db_refactored
+
 RedshiftConsolidatedModelProcessingStateMachine:
-  Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+  Type: AWS::Serverless::StateMachine
   Properties:
     DefinitionUri: statemachine/txma_redshift_consolidated_schema_processing.asl.json
     Name: !Sub ${Environment}-dap-consolidated-stage-layer-to-redshift-processing
@@ -925,6 +1010,11 @@ RedshiftConsolidatedModelProcessingStateMachine:
         - !Ref ADMConsolidatedModelProcessingStateMachine
         - !Ref 'AWS::NoValue'
       IsADMEnvironment: !If [IsADMEnvironment, true, false]
+      DimEventUpsertStateMachineArn: !Ref DimEventUpsertStateMachine
+      DimUserJourneyEventUpsertStateMachineArn: !Ref DimUserJourneyEventUpsertStateMachine
+      DimUserRefactoredUpsertStateMachineArn: !Ref DimUserRefactoredUpsertStateMachine
+      DimJourneyChannelRefactoredUpsertStateMachineArn: !Ref DimJourneyChannelRefactoredUpsertStateMachine
+      DimRelyingPartyRefactoredUpsertStateMachineArn: !Ref DimRelyingPartyRefactoredUpsertStateMachine
 
 ADMV3RefreshStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
