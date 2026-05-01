@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/govuk-one-login/quality-gates/refs/tags/v0.1.0/schemas/schema.json",
+  "services": [
+    {
+      "quality-gates": [
+        {
+          "check-types": ["unit", "code style and linting", "vulnerability detection", "code quality"],
+          "phase": "pre-merge",
+          "provider": "GitHub",
+          "config": {
+            "file": ".github/workflows/test-and-validate.yml",
+            "name": "Test and validate iac and lambdas"
+          }
+        },
+        {
+          "check-types": [
+            "unit test coverage",
+            "code quality",
+            "secret scanning",
+            "sensitive data scanning",
+            "vulnerability detection"
+          ],
+          "config": {
+            "file": ".github/workflows/code-quality-sonarcloud.yml",
+            "name": "SonarCloud Code Analysis"
+          },
+          "phase": "pre-merge",
+          "provider": "GitHub"
+        },
+        {
+          "check-types": [
+            "vulnerability detection"
+          ],
+          "config": {
+            "file": ".github/workflows/ensure-sha-pinned-actions.yml",
+            "name": "Ensure SHA pinned actions"
+          },
+          "phase": "pre-merge",
+          "provider": "GitHub"
+        },
+        {
+          "check-types": ["unit", "code style and linting", "vulnerability detection", "code quality"],
+          "phase": "pre-upload",
+          "provider": "GitHub",
+          "config": {
+            "file": ".github/workflows/test-and-validate.yml",
+            "name": "Test and validate iac and lambdas"
+          }
+        }
+      ],
+      "service-tag": "data-dpt"
+    }
+  ]
+}
