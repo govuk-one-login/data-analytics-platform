@@ -714,6 +714,20 @@ StepFunctionRedshiftProcessRole:
 
             - Effect: Allow
               Resource:
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${Environment}-dap-consolidated-stage-layer-to-redshift-processing:*'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${Environment}-dap-consolidated-conformed-layer-to-adm-processing:*'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${Environment}-dap-consolidated-conformed-layer-to-adm-processing-v3:*'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${Environment}-dap-redshift-dim-event-upsert:*'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${Environment}-dap-redshift-dim-user-journey-event-upsert:*'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${Environment}-dap-redshift-dim-user-refactored-upsert:*'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${Environment}-dap-redshift-dim-journey-channel-refactored-upsert:*'
+                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${Environment}-dap-redshift-dim-relying-party-refactored-upsert:*'
+              Action:
+                - states:DescribeExecution
+                - states:StopExecution
+
+            - Effect: Allow
+              Resource:
                 - '*'
 
               Action:
