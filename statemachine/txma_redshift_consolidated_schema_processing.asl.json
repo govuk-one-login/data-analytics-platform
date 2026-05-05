@@ -32,7 +32,7 @@
     "dap_datamart_parallel_update": {
       "Comment": "Run all dimension upsert child state machines in parallel",
       "Type": "Parallel",
-      "Next": "event_extensions_refactored_upsert",
+      "Next": "invoke_fact_user_journey_event_refactored_upsert",
       "ResultPath": null,
       "Catch": [
         {
@@ -120,6 +120,24 @@
               "End": true
             }
           }
+        }
+      ]
+    },
+    "invoke_fact_user_journey_event_refactored_upsert": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Parameters": {
+        "StateMachineArn": "${FactUserJourneyEventRefactoredUpsertStateMachineArn}",
+        "Input": {
+          "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+        }
+      },
+      "ResultPath": null,
+      "Next": "event_extensions_refactored_upsert",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "dap_datamart_update_failure"
         }
       ]
     },
