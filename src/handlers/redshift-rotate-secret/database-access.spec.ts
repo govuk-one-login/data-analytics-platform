@@ -2,12 +2,13 @@ import { DatabaseAccess } from './database-access';
 import type { RedshiftSecret } from '../../shared/types/secrets-manager';
 import { getLogger } from '../../shared/powertools';
 import { knex } from 'knex';
+import type { MockedFunction } from 'vitest';
 
-jest.mock('knex', () => ({
-  knex: jest.fn(),
+vi.mock('knex', () => ({
+  knex: vi.fn(),
 }));
 
-const mockKnex = knex as jest.MockedFunction<typeof knex>;
+const mockKnex = knex as MockedFunction<typeof knex>;
 
 const mockSecret: RedshiftSecret = {
   engine: 'redshift',
@@ -21,18 +22,18 @@ const mockSecret: RedshiftSecret = {
 const logger = getLogger('test');
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 describe('DatabaseAccess', () => {
   test('getDatabaseConnection returns connection on success', async () => {
     // Unit Test
     const mockRawResult = {
-      timeout: jest.fn().mockResolvedValue({}),
+      timeout: vi.fn().mockResolvedValue({}),
     };
     const mockConnection = {
-      raw: jest.fn().mockReturnValue(mockRawResult),
-      destroy: jest.fn().mockResolvedValue(undefined),
+      raw: vi.fn().mockReturnValue(mockRawResult),
+      destroy: vi.fn().mockResolvedValue(undefined),
     };
 
     mockKnex.mockReturnValue(mockConnection as unknown as ReturnType<typeof knex>);
@@ -70,10 +71,10 @@ describe('DatabaseAccess', () => {
   test('getDatabaseConnection returns null on validation error', async () => {
     // Unit Test
     const mockRawResult = {
-      timeout: jest.fn().mockRejectedValue(new Error('Validation failed')),
+      timeout: vi.fn().mockRejectedValue(new Error('Validation failed')),
     };
     const mockConnection = {
-      raw: jest.fn().mockReturnValue(mockRawResult),
+      raw: vi.fn().mockReturnValue(mockRawResult),
     };
 
     mockKnex.mockReturnValue(mockConnection as unknown as ReturnType<typeof knex>);
@@ -87,8 +88,8 @@ describe('DatabaseAccess', () => {
   test('getDatabaseConnection handles null validation internally', async () => {
     // Unit Test
     const mockConnection = {
-      raw: jest.fn().mockReturnValue({
-        timeout: jest.fn().mockResolvedValue({}),
+      raw: vi.fn().mockReturnValue({
+        timeout: vi.fn().mockResolvedValue({}),
       }),
     };
 

@@ -7,8 +7,6 @@ import { getTestResource } from '../../shared/utils/test-utils';
 import * as fs from 'node:fs';
 import { GetObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { Readable } from 'node:stream';
-import * as path from 'node:path';
-import * as tar from 'tar';
 import type { SdkStream } from '@aws-sdk/types';
 import type { RedshiftSecret } from '../../shared/types/secrets-manager';
 
@@ -49,54 +47,50 @@ const REDSHIFT_JAR_NAME = 'redshift-jdbc42-2.1.0.25.jar';
 
 const TEST_EVENT: RunFlywayEvent = { command: 'info', database: DATABASE };
 
-jest.mock('node:child_process', (): child_process.SpawnSyncReturns<Buffer> => {
+const spawnSyncMock = vi.fn();
+vi.mock('node:child_process', async importOriginal => {
+  const actual = await importOriginal<typeof import('node:child_process')>();
   return {
-    __esModule: true,
-    ...jest.requireActual('node:child_process'),
+    ...actual,
+    spawnSync: (...args: Parameters<typeof actual.spawnSync>) => spawnSyncMock(...args),
   };
 });
 
-const spawnSyncSpy = jest.spyOn(child_process, 'spawnSync');
-
-jest.mock('node:fs', () => {
+const mkdirSyncMock = vi.fn();
+const createWriteStreamMock = vi.fn();
+const readdirSyncMock = vi.fn();
+const renameSyncMock = vi.fn();
+const existsSyncMock = vi.fn();
+vi.mock('node:fs', async importOriginal => {
+  const actual = await importOriginal<typeof import('node:fs')>();
   return {
-    __esModule: true,
-    ...jest.requireActual('node:fs'),
-    // if this default property is missing, we get the error `TypeError: Cannot read properties of undefined (reading 'writev')` with Jest 30
-    // i am not sure why it did not happen before jest 30 but i think it is something to do with ESM/CJS changes
-    // in any case the ultimate root cause was in node_modules/@isaacs/fs-minipass/dist/commonjs/index.js
-    // which seems to check if the module (node:fs in this case) it is importing is ESM, and if not put its properties under a `default` object
-    // it then tries to access `writev` via this `default` object (`const writev = fs_1.default.writev;`) and i am speculating it fails
-    // as node:fs was ESM so the `default` object was never created (but for some reason we are executing the CJS version of fs-minipass)
-    default: {
-      ...jest.requireActual('node:fs'),
-    },
+    ...actual,
+    mkdirSync: (...args: Parameters<typeof actual.mkdirSync>) => mkdirSyncMock(...args),
+    createWriteStream: (...args: Parameters<typeof actual.createWriteStream>) => createWriteStreamMock(...args),
+    readdirSync: (...args: Parameters<typeof actual.readdirSync>) => readdirSyncMock(...args),
+    renameSync: (...args: Parameters<typeof actual.renameSync>) => renameSyncMock(...args),
+    existsSync: (...args: Parameters<typeof actual.existsSync>) => existsSyncMock(...args),
+    default: { ...actual },
   };
 });
 
-const mkdirSyncSpy = jest.spyOn(fs, 'mkdirSync');
-const createWriteStreamSpy = jest.spyOn(fs, 'createWriteStream');
-const readdirSyncSpy = jest.spyOn(fs, 'readdirSync');
-const renameSyncSpy = jest.spyOn(fs, 'renameSync');
-const existsSyncSpy = jest.spyOn(fs, 'existsSync');
-
-jest.mock('node:path', () => {
+const parseMock = vi.fn();
+vi.mock('node:path', async importOriginal => {
+  const actual = await importOriginal<typeof import('node:path')>();
   return {
-    __esModule: true,
-    ...jest.requireActual('node:path'),
+    ...actual,
+    parse: (...args: Parameters<typeof actual.parse>) => parseMock(...args),
   };
 });
 
-const parseSpy = jest.spyOn(path, 'parse');
-
-jest.mock('tar', () => {
+const tarExtractMock = vi.fn();
+vi.mock('tar', async importOriginal => {
+  const actual = await importOriginal<typeof import('tar')>();
   return {
-    __esModule: true,
-    ...jest.requireActual('tar'),
+    ...actual,
+    x: (...args: Parameters<typeof actual.x>) => tarExtractMock(...args),
   };
 });
-
-const tarExtractSpy = jest.spyOn(tar, 'x');
 
 let FLYWAY_CONNECTION_ERROR: Record<string, unknown>;
 
@@ -105,19 +99,22 @@ let FLYWAY_INFO: Record<string, unknown>;
 beforeAll(async () => {
   FLYWAY_CONNECTION_ERROR = JSON.parse(await getTestResource('flyway-connection-error.json'));
   FLYWAY_INFO = JSON.parse(await getTestResource('flyway-info.json'));
-  mkdirSyncSpy.mockImplementation();
-  createWriteStreamSpy.mockImplementation();
-  readdirSyncSpy.mockReturnValue([FLYWAY_TAR_NAME, REDSHIFT_JAR_NAME]);
-  parseSpy.mockImplementation(path => ({
+  mkdirSyncMock.mockImplementation();
+  createWriteStreamMock.mockImplementation();
+  readdirSyncMock.mockReturnValue([FLYWAY_TAR_NAME, REDSHIFT_JAR_NAME] as unknown as ReturnType<typeof fs.readdirSync>);
+  parseMock.mockImplementation(path => ({
     base: path.substring(path.lastIndexOf('/') + 1),
     dir: path.substring(0, path.lastIndexOf('/')),
+    root: '',
+    ext: '',
+    name: path.substring(path.lastIndexOf('/') + 1).split('.')[0] ?? '',
   }));
-  tarExtractSpy.mockImplementation(options => {
+  tarExtractMock.mockImplementation(options => {
     expect(options.file).toEqual(`${LIBRARY_FILES_PATH}/${FLYWAY_TAR_NAME}`);
     expect(options.stripComponents).toEqual(1);
     expect(options.C).toEqual(LIBRARY_FILES_PATH);
   });
-  renameSyncSpy.mockImplementation((oldPath, newPath) => {
+  renameSyncMock.mockImplementation((oldPath, newPath) => {
     expect(oldPath).toEqual(`${LIBRARY_FILES_PATH}/${REDSHIFT_JAR_NAME}`);
     expect(newPath).toEqual(`${LIBRARY_FILES_PATH}/drivers/${REDSHIFT_JAR_NAME}`);
   });
@@ -134,7 +131,7 @@ beforeEach(() => {
     throw new Error(`Unexpected Secrets Manager request - ${JSON.stringify(input)}`);
   });
 
-  mkdirSyncSpy.mockReset();
+  mkdirSyncMock.mockReset();
 
   process.env.REDSHIFT_SECRET_ID = SECRET_ID;
   process.env.FLYWAY_FILES_BUCKET_NAME = FLYWAY_FILES_BUCKET_NAME;
@@ -180,7 +177,7 @@ test('flyway success', async () => {
   mockS3Responses();
   mockSecretsManagerResponses();
 
-  spawnSyncSpy.mockImplementation((command, args, options) => {
+  spawnSyncMock.mockImplementation((command, args, options) => {
     expect(options?.env).toEqual(expectedEnvironment(TEST_EVENT));
     return spawnSyncResult(0, FLYWAY_INFO, {});
   });
@@ -201,7 +198,7 @@ test('flyway error', async () => {
   mockSecretsManagerResponses();
 
   // flyway sends errors using stdout
-  spawnSyncSpy.mockImplementation((command, args, options) => {
+  spawnSyncMock.mockImplementation((command, args, options) => {
     expect(options?.env).toEqual(expectedEnvironment(TEST_EVENT));
     return spawnSyncResult(1, FLYWAY_CONNECTION_ERROR, {});
   });
@@ -224,7 +221,7 @@ test('spawn sync error', async () => {
   mockS3Responses();
   mockSecretsManagerResponses();
 
-  spawnSyncSpy.mockImplementation((command, args, options) => {
+  spawnSyncMock.mockImplementation((command, args, options) => {
     expect(options?.env).toEqual(expectedEnvironment(TEST_EVENT));
     return spawnSyncResult(1, {}, stderr, error);
   });
@@ -246,7 +243,7 @@ test('spawn sync uncaught error', async () => {
   mockS3Responses();
   mockSecretsManagerResponses();
 
-  spawnSyncSpy.mockImplementation((command, args, options) => {
+  spawnSyncMock.mockImplementation((command, args, options) => {
     expect(options?.env).toEqual(expectedEnvironment(TEST_EVENT));
     throw error;
   });
@@ -272,18 +269,18 @@ test('getting files', async () => {
   mockS3Responses({ contents });
   mockSecretsManagerResponses();
 
-  spawnSyncSpy.mockImplementation((command, args, options) => {
+  spawnSyncMock.mockImplementation((command, args, options) => {
     expect(options?.env).toEqual(expectedEnvironment(TEST_EVENT));
     return spawnSyncResult(0, FLYWAY_INFO, {});
   });
 
   // use an array to represent the filesystem so existsSync can be affected by mkdirSync
   const existingFolders: string[] = [];
-  mkdirSyncSpy.mockImplementation((path, options) => {
+  mkdirSyncMock.mockImplementation((path, options) => {
     existingFolders.push(path.toString());
     return undefined;
   });
-  existsSyncSpy.mockImplementation(path => existingFolders.includes(path.toString()));
+  existsSyncMock.mockImplementation(path => existingFolders.includes(path.toString()));
 
   const response = await handler(TEST_EVENT);
   expect(response.status).toEqual(0);
@@ -291,8 +288,8 @@ test('getting files', async () => {
   expect(response.stdout).toEqual(FLYWAY_INFO);
   expect(response.error).toBeUndefined();
 
-  expect(mkdirSyncSpy.mock.calls).toHaveLength(5);
-  expect(mkdirSyncSpy.mock.calls).toEqual(
+  expect(mkdirSyncMock.mock.calls).toHaveLength(5);
+  expect(mkdirSyncMock.mock.calls).toEqual(
     expect.arrayContaining([
       ['/tmp/flyway', { recursive: true }],
       ['/tmp/flyway/lib', { recursive: true }],
@@ -335,12 +332,14 @@ test('JSON parse error in decodeOutput', async () => {
   mockS3Responses();
   mockSecretsManagerResponses();
 
-  spawnSyncSpy.mockImplementation(() => {
+  spawnSyncMock.mockImplementation(() => {
     return {
+      pid: 0,
+      output: [],
+      signal: null,
       status: 0,
       stdout: Buffer.from('invalid json {', 'utf-8'),
       stderr: Buffer.from('', 'utf-8'),
-      error: undefined,
     };
   });
 
@@ -355,13 +354,14 @@ test('null output buffer', async () => {
   mockS3Responses();
   mockSecretsManagerResponses();
 
-  spawnSyncSpy.mockImplementation(() => {
+  spawnSyncMock.mockImplementation(() => {
     return {
+      pid: 0,
+      output: [],
+      signal: null,
       status: 0,
-      // @ts-expect-error Simulating null buffer for test coverage
-      stdout: null,
+      stdout: null as unknown as Buffer,
       stderr: Buffer.from('', 'utf-8'),
-      error: undefined,
     };
   });
 
@@ -408,7 +408,7 @@ const testClean = async (cleanShouldBeDisabled: boolean): Promise<void> => {
 
   const cleanEvent = { ...TEST_EVENT, command: 'clean' };
 
-  spawnSyncSpy.mockImplementation((command, args, options) => {
+  spawnSyncMock.mockImplementation((command, args, options) => {
     expect(options?.env).toEqual(expectedEnvironment(cleanEvent, cleanShouldBeDisabled));
     return spawnSyncResult(0, {}, {});
   });
@@ -429,12 +429,18 @@ const spawnSyncResult = (
   stderr: Record<string, unknown>,
   error?: Error,
 ): child_process.SpawnSyncReturns<Buffer> => {
-  return {
+  const result: child_process.SpawnSyncReturns<Buffer> = {
+    pid: 0,
+    output: [],
+    signal: null,
     status,
     stdout: Buffer.from(JSON.stringify(stdout), 'utf-8'),
     stderr: Buffer.from(JSON.stringify(stderr), 'utf-8'),
-    error,
   };
+  if (error !== undefined) {
+    result.error = error;
+  }
+  return result;
 };
 
 class MockReadable extends Readable {

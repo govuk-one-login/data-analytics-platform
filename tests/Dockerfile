@@ -1,5 +1,5 @@
 ARG ALPINE_VERSION=3.21
-ARG NODE_VERSION=22
+ARG NODE_VERSION=24
 
 FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS builder
 
@@ -28,6 +28,7 @@ COPY tests/run-tests.sh /
 
 
 RUN chmod +x /run-tests.sh
+
 WORKDIR /test-app/tests
 
 ENTRYPOINT ["/run-tests.sh"]

@@ -4,6 +4,7 @@ import { DescribeLogStreamsCommand, GetLogEventsCommand } from '@aws-sdk/client-
 import { InvokeCommand, ListEventSourceMappingsCommand } from '@aws-sdk/client-lambda';
 import type { CopyObjectCommandOutput, DeleteObjectCommandOutput, GetObjectCommandOutput } from '@aws-sdk/client-s3';
 import {
+  ChecksumAlgorithm,
   CopyObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
@@ -134,7 +135,9 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
     case 'S3_PUT': {
       const { Bucket, Filename } = getRequiredParams(event.input, 'Bucket', 'Filename');
       const Key = event.input.Key ?? Filename;
-      return await s3Client.send(new PutObjectCommand({ Bucket, Key, Body: Filename }));
+      return await s3Client.send(
+        new PutObjectCommand({ Bucket, Key, Body: Filename, ChecksumAlgorithm: ChecksumAlgorithm.SHA256 }),
+      );
     }
     case 'SQS_GET_URL': {
       const request = new GetQueueUrlCommand({

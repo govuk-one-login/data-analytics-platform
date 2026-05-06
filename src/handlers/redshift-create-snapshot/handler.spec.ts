@@ -5,8 +5,8 @@ import { handler, logger } from './handler';
 const NAMESPACE_NAME = 'test-redshift-serverless-ns';
 const RETENTION_PERIOD_DAYS = 7;
 
-const loggerInfoSpy = jest.spyOn(logger, 'info').mockImplementation(() => undefined);
-const loggerErrorSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+const loggerInfoSpy = vi.spyOn(logger, 'info').mockImplementation(() => undefined);
+const loggerErrorSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
 
 const mockRedshiftServerlessClient = mockClient(RedshiftServerlessClient);
 
@@ -26,7 +26,7 @@ beforeEach(() => {
 test('success', async () => {
   // Unit Test
   const epochTime = Date.now();
-  jest.useFakeTimers().setSystemTime(epochTime);
+  vi.useFakeTimers().setSystemTime(epochTime);
 
   const response = { snapshot: { namespaceName: 'name', namespaceArn: 'arn' } };
 
@@ -50,7 +50,7 @@ test('success', async () => {
 test('redshift error', async () => {
   // Unit Test
   const epochTime = Date.now();
-  jest.useFakeTimers().setSystemTime(epochTime);
+  vi.useFakeTimers().setSystemTime(epochTime);
 
   const error = 'redshift error';
 

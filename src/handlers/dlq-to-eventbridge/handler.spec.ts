@@ -6,7 +6,7 @@ import { getTestResource } from '../../shared/utils/test-utils';
 import type { RedshiftGetMetadataEvent } from '../redshift-get-metadata/handler';
 import type { RedshiftFileMetadata } from '../../shared/types/redshift-metadata';
 
-const loggerSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
 
 const mockEventbridgeClient = mockClient(EventBridgeClient);
 
@@ -105,7 +105,7 @@ test.each([
 
   expect(loggerSpy).toHaveBeenCalledTimes(1);
   expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: new Error(expectedError),
+    error: expect.objectContaining({ message: expectedError }),
   });
 });
 
@@ -136,9 +136,9 @@ test('multiple events', async () => {
 
   expect(loggerSpy).toHaveBeenCalledTimes(2);
   expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: new Error('Could not parse input event as any of the expected event types'),
+    error: expect.objectContaining({ message: 'Could not parse input event as any of the expected event types' }),
   });
   expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: new Error('Unexpected token \'h\', "hello world" is not valid JSON'),
+    error: expect.objectContaining({ message: 'Unexpected token \'h\', "hello world" is not valid JSON' }),
   });
 });

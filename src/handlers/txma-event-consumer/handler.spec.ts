@@ -2,8 +2,8 @@ import { handler, logger } from './handler';
 import { mockLambdaContext, mockSQSEvent } from '../../shared/utils/test-utils';
 import { FirehoseClient } from '@aws-sdk/client-firehose';
 import { mockClient } from 'aws-sdk-client-mock';
-const loggerInfoSpy = jest.spyOn(logger, 'info').mockImplementation(() => undefined);
-const loggerErrorSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+const loggerInfoSpy = vi.spyOn(logger, 'info').mockImplementation(() => undefined);
+const loggerErrorSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
 
 const mockFirehoseClient = mockClient(FirehoseClient);
 

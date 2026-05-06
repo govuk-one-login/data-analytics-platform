@@ -204,9 +204,7 @@ test('ensure defined', () => {
 test('find or throw', () => {
   // Unit Test
   expect(findOrThrow([1, 2, 3, 4], n => n === 2)).toEqual(2);
-  expect(() => findOrThrow([1, 2, 3, 4], n => n === 8)).toThrow(
-    'Unable to find element matching predicate (n)=>n === 8',
-  );
+  expect(() => findOrThrow([1, 2, 3, 4], n => n === 8)).toThrow('Unable to find element matching predicate');
 });
 
 test('get s3 event records', () => {
