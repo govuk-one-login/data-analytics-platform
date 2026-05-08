@@ -37,7 +37,7 @@ WHERE  client_id='dTKJW0U9EpT2TeU5J7QAaLk0Tug';
 --WG - Skills Hub
 
 INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
-SELECT 'V69dApWpYRzVOQPHVl6ZJgfCfe0','Skills Hub','WG - Skills Hub,'WG','WG'
+SELECT 'V69dApWpYRzVOQPHVl6ZJgfCfe0','Skills Hub','WG - Skills Hub','WG','WG'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.REF_RELYING_PARTIES_refactored
