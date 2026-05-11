@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'eu-west-2' });
