@@ -50,7 +50,7 @@ export const parseS3ResponseAsObject = async <T>(s3Response: GetObjectCommandOut
   try {
     return JSON.parse(body);
   } catch (error) {
-    throw new Error(`Error parsing JSON string "${body}" - ${getErrorMessage(error)}`);
+    throw new Error(`Error parsing JSON string "${body}" - ${getErrorMessage(error)}`, { cause: error });
   }
 };
 

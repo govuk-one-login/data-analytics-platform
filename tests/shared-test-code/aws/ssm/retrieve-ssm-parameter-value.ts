@@ -15,6 +15,6 @@ export const retrieveSsmParameterValue = async (name: string, region: string) =>
       throw new Error(`Parameter ${name} has no value`);
     }
   } catch (error) {
-    throw new Error(`SSM parameter with name ${name} not found. \n${error}`);
+    throw new Error(`SSM parameter with name ${name} not found. \n${error}`, { cause: error });
   }
 };

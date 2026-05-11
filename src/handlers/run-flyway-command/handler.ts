@@ -69,7 +69,7 @@ const getFlywayFiles = async (): Promise<void> => {
       await writeToFile(getObject, key);
     }
   } catch (error) {
-    throw new Error(`Error getting flyway files - ${getErrorMessage(error)}`);
+    throw new Error(`Error getting flyway files - ${getErrorMessage(error)}`, { cause: error });
   }
 };
 
@@ -132,7 +132,7 @@ const getRedshiftSecret = async (): Promise<RedshiftSecret> => {
     const redshiftSecretId = getEnvironmentVariable('REDSHIFT_SECRET_ID');
     return await getSecret(redshiftSecretId);
   } catch (error) {
-    throw new Error(`Error getting redshift secret - ${getErrorMessage(error)}`);
+    throw new Error(`Error getting redshift secret - ${getErrorMessage(error)}`, { cause: error });
   }
 };
 

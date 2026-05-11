@@ -164,7 +164,7 @@ const describeSecret = async (event: RotateSecretEvent): Promise<DescribeSecretC
       }),
     );
   } catch (error) {
-    throw new Error(`Error getting secret metadata - ${getErrorMessage(error)}`);
+    throw new Error(`Error getting secret metadata - ${getErrorMessage(error)}`, { cause: error });
   }
 };
 
@@ -181,7 +181,7 @@ const getRandomPassword = async (): Promise<string> => {
       )
       .then(response => ensureDefined(() => response.RandomPassword));
   } catch (error) {
-    throw new Error(`Error getting random password - ${getErrorMessage(error)}`);
+    throw new Error(`Error getting random password - ${getErrorMessage(error)}`, { cause: error });
   }
 };
 
@@ -201,7 +201,7 @@ const updateSecretPassword = async (event: RotateSecretEvent): Promise<void> => 
       }),
     );
   } catch (error) {
-    throw new Error(`Error putting secret value - ${getErrorMessage(error)}`);
+    throw new Error(`Error putting secret value - ${getErrorMessage(error)}`, { cause: error });
   }
 };
 
@@ -219,7 +219,7 @@ const updateSecretVersionStage = async (
       }),
     );
   } catch (error) {
-    throw new Error(`Error updating secret version stage - ${getErrorMessage(error)}`);
+    throw new Error(`Error updating secret version stage - ${getErrorMessage(error)}`, { cause: error });
   }
 };
 
