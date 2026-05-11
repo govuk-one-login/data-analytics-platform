@@ -25,8 +25,8 @@ export default [
       '@typescript-eslint/no-unused-vars': ['error', { args: 'none', caughtErrors: 'none' }],
       // ESM enforcement: prohibit CommonJS require() calls
       'import/no-commonjs': 'error',
-      // ESM enforcement: warn on relative imports without .js extension (forward-looking for bundler-resolved projects)
-      'import/extensions': ['warn', 'ignorePackages', { ts: 'never', js: 'always', mjs: 'always' }],
+      // ESM enforcement: TypeScript projects resolve extensions implicitly; .config filenames are false positives so rule is off
+      'import/extensions': 'off',
     },
   },
   {

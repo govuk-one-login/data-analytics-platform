@@ -80,7 +80,7 @@ jobs:
         uses: aws-actions/setup-sam@f664fad9e12492edfc187a31f575537dfbb0ff63 # v2
         with:
           use-installer: true
-          version: 1.134.0
+          version: 1.160.0
       - name: SAM build
         run: sam build
       - name: Assume AWS role
@@ -120,7 +120,7 @@ jobs:
         uses: aws-actions/setup-sam@f664fad9e12492edfc187a31f575537dfbb0ff63 # v2
         with:
           use-installer: true
-          version: 1.134.0
+          version: 1.160.0
       - name: SAM build
         run: sam build
       - name: Assume AWS role
@@ -161,7 +161,7 @@ jobs:
         uses: aws-actions/setup-sam@f664fad9e12492edfc187a31f575537dfbb0ff63 # v2
         with:
           use-installer: true
-          version: 1.134.0
+          version: 1.160.0
       - name: SAM build
         run: sam build
       - name: Assume AWS role
