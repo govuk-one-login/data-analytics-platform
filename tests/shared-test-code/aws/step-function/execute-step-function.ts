@@ -30,7 +30,7 @@ export const executeStepFunction = async (
     const randomSuffix = Math.random().toString(36).substring(2, 11);
     const executionName = prefix ? `${prefix}-${randomSuffix}` : `integration-test-${randomSuffix}`;
 
-    console.log(`⚙️ Starting step function execution: ${executionName}`);
+    console.log(`⚙️ Starting step function execution: ${stateMachineArn} ${executionName}`);
 
     const startCommand = new StartExecutionCommand({
       stateMachineArn,

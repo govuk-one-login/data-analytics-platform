@@ -21,6 +21,8 @@ export const uploadReplayConfigToS3 = async (bucket: string, replayId: string): 
   config.event_record_selection.event_processing_testing_criteria.enabled = true;
   config.event_record_selection.event_processing_testing_criteria.filter = `txma like '%${replayId}%'`;
 
+  console.log(`Uploading replay config to S3. Bucket: ${bucket}`);
+
   await s3Client.send(
     new PutObjectCommand({
       Bucket: bucket,
