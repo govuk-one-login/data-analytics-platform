@@ -32,7 +32,7 @@
     "dap_datamart_parallel_update": {
       "Comment": "Run all dimension upsert procedures in parallel",
       "Type": "Parallel",
-      "Next": "event_extensions_refactored_upsert",
+      "Next": "fact_user_journey_event_refactored_upsert",
       "ResultPath": null,
       "Catch": [
         {
@@ -317,6 +317,52 @@
           }
         }
       ]
+    },
+    "fact_user_journey_event_refactored_upsert": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:redshiftdata:executeStatement",
+      "ResultPath": "$.sql_output",
+      "Parameters": {
+        "WorkgroupName": "${RedshiftWorkgroup}",
+        "Database": "${RedshiftDatabaseName}",
+        "Sql": "call conformed_refactored.fact_user_journey_event_refactored_upsert()"
+      },
+      "Next": "wait_on_fact_user_journey_event_refactored_upsert"
+    },
+    "wait_on_fact_user_journey_event_refactored_upsert": {
+      "Type": "Wait",
+      "Seconds": 120,
+      "Next": "fact_user_journey_event_refactored_upsert_status_check"
+    },
+    "fact_user_journey_event_refactored_upsert_status_check": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:redshiftdata:describeStatement",
+      "ResultPath": "$.sql_output",
+      "Parameters": {
+        "Id.$": "$.sql_output.Id"
+      },
+      "Next": "is_fact_user_journey_event_refactored_upsert_complete"
+    },
+    "is_fact_user_journey_event_refactored_upsert_complete": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.sql_output.Status",
+          "StringEquals": "FAILED",
+          "Next": "fact_user_journey_event_refactored_upsert_failure"
+        },
+        {
+          "Variable": "$.sql_output.Status",
+          "StringEquals": "FINISHED",
+          "Next": "event_extensions_refactored_upsert"
+        }
+      ],
+      "Default": "wait_on_fact_user_journey_event_refactored_upsert"
+    },
+    "fact_user_journey_event_refactored_upsert_failure": {
+      "Type": "Fail",
+      "Error": "fact_user_journey_event_refactored_upsert_failed",
+      "Cause": "conformed_refactored.fact_user_journey_event_refactored_upsert() failed"
     },
     "event_extensions_refactored_upsert": {
       "Type": "Task",
