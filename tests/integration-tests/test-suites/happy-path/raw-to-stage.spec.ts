@@ -4,8 +4,7 @@ import { pollForStageLayerData } from '../../../shared-test-code/poll-for-athena
 import { Row } from '@aws-sdk/client-athena';
 import { readSharedState } from '../../helpers/state/shared-state';
 
-// Get events that were processed during setup
-const getTestEventPairs = () => readSharedState().testEventPairs as any[];
+const getTestEventPairs = () => readSharedState().testEventPairs;
 
 // Cache for batch query results
 let stageLayerBatchResults: Map<string, Row[]> | null = null;

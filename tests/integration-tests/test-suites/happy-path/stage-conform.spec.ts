@@ -3,7 +3,7 @@ import { loadConformLayerCache, ConformLayerCache } from '../../helpers/aws/reds
 import { readSharedState } from '../../helpers/state/shared-state';
 
 const getTestEventPairs = () => {
-  return readSharedState().testEventPairs as any[];
+  return readSharedState().testEventPairs;
 };
 
 const getFact = (eventId: string) => {

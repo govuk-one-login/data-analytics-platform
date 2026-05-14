@@ -2,8 +2,7 @@ import { getIntegrationTestEnv } from '../../helpers/utils/utils';
 import { executeAthenaQuery } from '../../../shared-test-code/aws/athena/execute-athena-query';
 import { readSharedState } from '../../helpers/state/shared-state';
 
-// Get events that were processed during setup
-const getTestEventPairs = () => readSharedState().edgeCaseEventPairs as any[];
+const getTestEventPairs = () => readSharedState().edgeCaseEventPairs;
 
 describe('Raw to Stage Integration Tests', () => {
   test(`Empty client_id field appears in the txma_stage_layer table with value null`, async () => {

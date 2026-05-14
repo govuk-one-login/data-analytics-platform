@@ -5,7 +5,12 @@ import { Row } from '@aws-sdk/client-athena';
 import { readSharedState } from '../../helpers/state/shared-state';
 
 // Get events that were processed during setup
-const getTestEventPairs = () => readSharedState().testEventPairs as { testEventNumber: number; auditEvent: { event_id: string; event_name: string }; rawLayerEvent: Row[] }[];
+const getTestEventPairs = () =>
+  readSharedState().testEventPairs as {
+    testEventNumber: number;
+    auditEvent: { event_id: string; event_name: string };
+    rawLayerEvent: Row[];
+  }[];
 
 // Cache for batch query results
 let batchResults: Map<string, Row[]> | null = null;
