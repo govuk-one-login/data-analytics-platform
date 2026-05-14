@@ -2,7 +2,7 @@ import { analysisIdFromS3Uri, filenameFromAnalysisId } from './filename-utils';
 
 test('filename from analysis id', () => {
   // Unit Test
-  jest.useFakeTimers().setSystemTime(new Date('2024-03-04T12:06:24.000Z'));
+  vi.useFakeTimers().setSystemTime(new Date('2024-03-04T12:06:24.000Z'));
 
   const analysisId = '98957a5f-f68f-4f63-b359-3aa633f8fcbc';
   expect(filenameFromAnalysisId(analysisId)).toEqual(`export-98957a5ff68f4f63b3593aa633f8fcbc-20240304T120624.zip`);

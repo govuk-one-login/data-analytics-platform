@@ -17,7 +17,7 @@ else
   exit 1
 fi
 
-if [ -f "tests/integration-tests/reports/junit.xml" ]; then
-  cp tests/integration-tests/reports/junit.xml "$TEST_REPORT_ABSOLUTE_DIR/junit.xml"
+if [ -f "tests/integration-tests/reports/junit-unified.xml" ]; then
+  cp tests/integration-tests/reports/junit-unified.xml "$TEST_REPORT_ABSOLUTE_DIR/junit.xml"
 fi
 exit $TESTS_EXIT_CODE

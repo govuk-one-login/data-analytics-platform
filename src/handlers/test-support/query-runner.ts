@@ -14,7 +14,7 @@ import type { GetStatementResultCommandOutput } from '@aws-sdk/client-redshift-d
 export type QueryRunnerDatabaseType = 'athena' | 'redshift';
 
 interface QueryStatus {
-  status?: string;
+  status?: string | undefined;
   extraInfo?: unknown;
 }
 

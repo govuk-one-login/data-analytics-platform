@@ -53,7 +53,7 @@ jobs:
       - name: Node setup
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - name: Install node packages
         run: npm ci
@@ -65,7 +65,7 @@ jobs:
         uses: aws-actions/setup-sam@f664fad9e12492edfc187a31f575537dfbb0ff63 # v2
         with:
           use-installer: true
-          version: 1.134.0
+          version: 1.160.0
       - name: SAM build
         run: sam build
       - name: Assume AWS GitHub actions role
@@ -93,7 +93,7 @@ jobs:
       - name: Node setup
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - name: Install node packages
         run: npm ci
@@ -105,7 +105,7 @@ jobs:
         uses: aws-actions/setup-sam@f664fad9e12492edfc187a31f575537dfbb0ff63 # v2
         with:
           use-installer: true
-          version: 1.134.0
+          version: 1.160.0
       - name: SAM build
         run: sam build
       - name: Assume AWS GitHub actions role
@@ -134,7 +134,7 @@ jobs:
       - name: Node setup
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - name: Install node packages
         run: npm ci
@@ -146,7 +146,7 @@ jobs:
         uses: aws-actions/setup-sam@f664fad9e12492edfc187a31f575537dfbb0ff63 # v2
         with:
           use-installer: true
-          version: 1.134.0
+          version: 1.160.0
       - name: SAM build
         run: sam build
       - name: Assume AWS GitHub actions role
