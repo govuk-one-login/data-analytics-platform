@@ -1,13 +1,13 @@
 import { checkEventLog } from '../../helpers/aws/cloudwatch/check-event-log';
 import { executeAthenaQuery } from '../../../shared-test-code/aws/athena/execute-athena-query';
 import { getIntegrationTestEnv } from '../../helpers/utils/utils';
+import { readSharedState } from '../../helpers/state/shared-state';
 
 const setupStartTime = Date.now() - 30 * 60 * 1000; // 30 minutes before test start
 
 // Events sent during setup - these should all fail validation
 const getUnhappyPathEventPairs = () =>
-  (global as { unhappyPathEventPairs?: Array<{ description: string; auditEvent: unknown }> }).unhappyPathEventPairs ||
-  [];
+  readSharedState().unhappyPathEventPairs as Array<{ description: string; auditEvent: unknown }>;
 
 describe('TxMA consumer lambda unhappy path tests', () => {
   // Test cases:

@@ -1,10 +1,9 @@
 import { pollForFactJourneyData } from '../../../shared-test-code/poll-for-redshift-data';
-import { AuditEvent } from '../../../../common/types/event';
 import { loadConformLayerCache, ConformLayerCache } from '../../helpers/aws/redshift/conform-layer-queries';
+import { readSharedState } from '../../helpers/state/shared-state';
 
 const getTestEventPairs = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (global as { testEventPairs?: any[] }).testEventPairs || [];
+  return readSharedState().testEventPairs as any[];
 };
 
 const getFact = (eventId: string) => {
@@ -19,7 +18,7 @@ let cache: ConformLayerCache | null = null;
 describe('Stage to Conform Integration Tests', () => {
   beforeAll(
     async () => {
-      const testEvents = (global as { testEvents?: AuditEvent[] }).testEvents || [];
+      const testEvents = readSharedState().testEvents as { event_id: string }[];
       const eventIds = testEvents.map(event => event.event_id);
 
       // Wait for events to appear in conform layer

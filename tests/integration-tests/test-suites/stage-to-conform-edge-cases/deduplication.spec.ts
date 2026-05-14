@@ -4,11 +4,11 @@ import {
   validateNoDuplicateExtensions,
   validateNoDuplicateDimEntries,
 } from '../../helpers/aws/redshift/conform-layer-queries';
+import { readSharedState } from '../../helpers/state/shared-state';
 
 const getDeduplicationData = () => {
-  const eventId = (global as { deduplicationEventId?: string }).deduplicationEventId;
-  const timestamps = (global as { deduplicationTimestamps?: string[] }).deduplicationTimestamps;
-  return { eventId, timestamps };
+  const state = readSharedState();
+  return { eventId: state.deduplicationEventId, timestamps: state.deduplicationTimestamps };
 };
 
 describe('Stage to Conform Deduplication Tests', () => {

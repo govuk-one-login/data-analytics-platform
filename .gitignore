@@ -23,3 +23,6 @@ build/
 
 venvlocal/
 venv/
+
+# Integration test shared state
+tests/integration-tests/.state/

@@ -1,12 +1,11 @@
 import { getIntegrationTestEnv } from '../../helpers/utils/utils';
 import { executeAthenaQuery } from '../../../shared-test-code/aws/athena/execute-athena-query';
-import { happyPathEventList } from '../../test-events/happy-path-events/happy-path-event-list';
 import { pollForStageLayerData } from '../../../shared-test-code/poll-for-athena-data';
-import { AuditEvent } from '../../../../common/types/event';
 import { Row } from '@aws-sdk/client-athena';
+import { readSharedState } from '../../helpers/state/shared-state';
 
 // Get events that were processed during setup
-const getTestEventPairs = () => (global as { testEventPairs?: typeof happyPathEventList }).testEventPairs || [];
+const getTestEventPairs = () => readSharedState().testEventPairs as any[];
 
 // Cache for batch query results
 let stageLayerBatchResults: Map<string, Row[]> | null = null;
@@ -15,7 +14,7 @@ let stageLayerKeyValuesBatchResults: Map<string, Row[]> | null = null;
 describe('Raw to Stage Integration Tests', () => {
   beforeAll(
     async () => {
-      const testEvents = (global as { testEvents?: AuditEvent[] }).testEvents || [];
+      const testEvents = readSharedState().testEvents as { event_id: string }[];
       const eventIds = testEvents.map(event => event.event_id);
       await pollForStageLayerData(eventIds, { maxWaitTimeMs: 2 * 60 * 1000 });
 

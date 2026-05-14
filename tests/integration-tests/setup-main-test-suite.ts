@@ -21,6 +21,7 @@ import { uploadEventToRawLayer } from './helpers/aws/s3/upload-to-s3';
 import { constructAuthAuthorisationInitiatedTestEvent10 } from './test-events/happy-path-events/test-event-10-auth-authorisation-initiated-dap';
 import { randomUUID } from 'crypto';
 import globalTeardown from './teardown';
+import { writeSharedState } from './helpers/state/shared-state';
 
 export default async () => {
   const setupStartTime = Date.now();
@@ -90,46 +91,16 @@ export default async () => {
       await uploadEventToRawLayer(event, customKey);
     }
 
-    // Store deduplication data globally
-    (global as { deduplicationEventId?: string; deduplicationTimestamps?: string[] }).deduplicationEventId =
-      deduplicationEventId;
-    (global as { deduplicationEventId?: string; deduplicationTimestamps?: string[] }).deduplicationTimestamps =
-      timestampsFormatted;
-
-    // Store events and event pairs globally for tests to access
-    (global as { replayEventId?: string; replayId?: string }).replayEventId = replayEvent.event_id;
-    (
-      global as {
-        testEvents?: AuditEvent[];
-        testEventPairs?: typeof happyPathEventList;
-        edgeCaseEventPairs?: typeof edgeCaseEventList;
-        unhappyPathEventPairs?: typeof txmaUnhappyPathEventList;
-      }
-    ).testEvents = processedEvents;
-    (
-      global as {
-        testEvents?: AuditEvent[];
-        testEventPairs?: typeof happyPathEventList;
-        edgeCaseEventPairs?: typeof edgeCaseEventList;
-        unhappyPathEventPairs?: typeof txmaUnhappyPathEventList;
-      }
-    ).testEventPairs = happyPathEventList;
-    (
-      global as {
-        testEvents?: AuditEvent[];
-        testEventPairs?: typeof happyPathEventList;
-        edgeCaseEventPairs?: typeof edgeCaseEventList;
-        unhappyPathEventPairs?: typeof txmaUnhappyPathEventList;
-      }
-    ).edgeCaseEventPairs = edgeCaseEventList;
-    (
-      global as {
-        testEvents?: AuditEvent[];
-        testEventPairs?: typeof happyPathEventList;
-        edgeCaseEventPairs?: typeof edgeCaseEventList;
-        unhappyPathEventPairs?: typeof txmaUnhappyPathEventList;
-      }
-    ).unhappyPathEventPairs = txmaUnhappyPathEventList;
+    // Write shared state to file for test workers to read
+    writeSharedState({
+      testEventPairs: happyPathEventList,
+      edgeCaseEventPairs: edgeCaseEventList,
+      unhappyPathEventPairs: txmaUnhappyPathEventList,
+      testEvents: processedEvents,
+      replayEventId: replayEvent.event_id,
+      deduplicationEventId,
+      deduplicationTimestamps: timestampsFormatted,
+    });
 
     const eventIds = processedEvents.map(event => event.event_id);
     // Wait 5 seconds for Lambda to start processing before polling

@@ -18,8 +18,9 @@ import {
   constructReplayTestEventExpectedConformedDataAfterReplay,
   getReplayedTimestampMs,
 } from '../../test-events/replay-events/replay-event';
+import { readSharedState } from '../../helpers/state/shared-state';
 
-const eventId = (global as { replayEventId?: string }).replayEventId!;
+const eventId = readSharedState().replayEventId;
 let replayId: string;
 
 describe('Event Replay Integration Test', () => {

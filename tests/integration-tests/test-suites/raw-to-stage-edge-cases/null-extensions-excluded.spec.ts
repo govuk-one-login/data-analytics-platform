@@ -1,9 +1,9 @@
 import { getIntegrationTestEnv } from '../../helpers/utils/utils';
 import { executeAthenaQuery } from '../../../shared-test-code/aws/athena/execute-athena-query';
-import { edgeCaseEventList } from '../../test-events/edge-case-events/edge-case-event-list';
+import { readSharedState } from '../../helpers/state/shared-state';
 
 // Get events that were processed during setup
-const getTestEventPairs = () => (global as { edgeCaseEventPairs?: typeof edgeCaseEventList }).edgeCaseEventPairs || [];
+const getTestEventPairs = () => readSharedState().edgeCaseEventPairs as any[];
 
 describe('Raw to Stage Integration Tests', () => {
   test(`Extensions and txma fields with values null or 'null' are excluded from the txma_stage_layer_key_values table`, async () => {

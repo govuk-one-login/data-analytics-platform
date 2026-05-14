@@ -1,11 +1,11 @@
 import { getIntegrationTestEnv } from '../../helpers/utils/utils';
 import { executeAthenaQuery } from '../../../shared-test-code/aws/athena/execute-athena-query';
-import { happyPathEventList } from '../../test-events/happy-path-events/happy-path-event-list';
 import { normaliseJsonInResults } from '../../helpers/utils/normalise-json';
 import { Row } from '@aws-sdk/client-athena';
+import { readSharedState } from '../../helpers/state/shared-state';
 
 // Get events that were processed during setup
-const getTestEventPairs = () => (global as { testEventPairs?: typeof happyPathEventList }).testEventPairs || [];
+const getTestEventPairs = () => readSharedState().testEventPairs as { testEventNumber: number; auditEvent: { event_id: string; event_name: string }; rawLayerEvent: Row[] }[];
 
 // Cache for batch query results
 let batchResults: Map<string, Row[]> | null = null;
