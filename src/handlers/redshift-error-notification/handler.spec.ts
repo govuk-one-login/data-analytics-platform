@@ -8,29 +8,33 @@ interface MockLogMessage {
   execution_arn?: string;
 }
 
-const { mockSend } = vi.hoisted(() => ({ mockSend: vi.fn() }));
+const mockSend = jest.fn();
 
-vi.mock('@aws-sdk/client-eventbridge', () => ({
-  EventBridgeClient: vi.fn().mockImplementation(function (this: object) {
-    (this as { send: typeof mockSend }).send = mockSend;
-  }),
-  PutEventsCommand: vi.fn().mockImplementation(function (this: object, input: unknown) {
-    (this as { input: unknown }).input = input;
-  }),
+// Mock modules before any imports
+jest.doMock('@aws-sdk/client-eventbridge', () => ({
+  EventBridgeClient: jest.fn().mockImplementation(() => ({
+    send: mockSend,
+  })),
+  PutEventsCommand: jest.fn().mockImplementation(input => ({ input })),
 }));
 
-vi.mock('@aws-lambda-powertools/logger', () => ({
-  Logger: vi.fn().mockImplementation(function (this: object) {
-    (this as { error: ReturnType<typeof vi.fn>; info: ReturnType<typeof vi.fn> }).error = vi.fn();
-    (this as { error: ReturnType<typeof vi.fn>; info: ReturnType<typeof vi.fn> }).info = vi.fn();
-  }),
+jest.doMock('@aws-lambda-powertools/logger', () => ({
+  Logger: jest.fn().mockImplementation(() => ({
+    error: jest.fn(),
+    info: jest.fn(),
+  })),
 }));
 
-import { handler } from './handler';
+// Import handler after mocking
+let handler: (event: CloudWatchLogsEvent) => Promise<void>;
+beforeAll(async () => {
+  const handlerModule = await import('./handler');
+  handler = handlerModule.handler;
+});
 
 describe('redshift-error-notification', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
     mockSend.mockResolvedValue({});
     process.env.AWS_REGION = 'eu-west-2';
   });

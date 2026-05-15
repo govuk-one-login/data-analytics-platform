@@ -91,9 +91,9 @@ export const getAccountId = (context: Context): string => {
 };
 
 export interface LambdaInvokeResponse {
-  executedVersion?: string | undefined;
-  statusCode?: number | undefined;
-  functionError?: string | undefined;
+  executedVersion?: string;
+  statusCode?: number;
+  functionError?: string;
   logResult: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload: Record<string, any>;

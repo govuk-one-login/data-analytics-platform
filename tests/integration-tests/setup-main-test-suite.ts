@@ -20,7 +20,6 @@ import { grantRedshiftAccess } from '../shared-test-code/aws/redshift/grant-acce
 import { uploadEventToRawLayer } from './helpers/aws/s3/upload-to-s3';
 import { constructAuthAuthorisationInitiatedTestEvent10 } from './test-events/happy-path-events/test-event-10-auth-authorisation-initiated-dap';
 import { randomUUID } from 'crypto';
-import globalTeardown from './teardown';
 
 export default async () => {
   const setupStartTime = Date.now();
@@ -149,6 +148,4 @@ export default async () => {
     console.error(`❌ Integration test setup failed after ${Math.round(setupDuration / 1000)}s:`, error);
     throw error;
   }
-
-  return globalTeardown;
 };
