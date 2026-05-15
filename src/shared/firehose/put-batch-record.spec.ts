@@ -2,13 +2,13 @@ import { PutRecordBatchCommand, PutRecordBatchCommandOutput, _Record } from '@aw
 import { firehoseClient } from '../clients';
 import { firehosePutRecordBatch } from './put-batch-record';
 
-vi.mock('../clients');
+jest.mock('../clients');
 
-const mockFirehoseClient = firehoseClient as vi.Mocked<typeof firehoseClient>;
+const mockFirehoseClient = firehoseClient as jest.Mocked<typeof firehoseClient>;
 
 describe('firehosePutRecordBatch', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it('should send PutRecordBatchCommand with correct parameters', async () => {
@@ -16,17 +16,14 @@ describe('firehosePutRecordBatch', () => {
     const mockOutput: PutRecordBatchCommandOutput = {
       FailedPutCount: 0,
       Encrypted: false,
-      RequestResponses: [],
+      RequestId: 'test-request-id',
       $metadata: {},
     };
 
     mockFirehoseClient.send.mockResolvedValue(mockOutput);
 
     const streamName = 'test-stream';
-    const records: _Record[] = [
-      { Data: new Uint8Array(Buffer.from('test-data-1')) },
-      { Data: new Uint8Array(Buffer.from('test-data-2')) },
-    ];
+    const records: _Record[] = [{ Data: Buffer.from('test-data-1') }, { Data: Buffer.from('test-data-2') }];
 
     const result = await firehosePutRecordBatch(streamName, records);
 
@@ -48,7 +45,7 @@ describe('firehosePutRecordBatch', () => {
     mockFirehoseClient.send.mockRejectedValue(error);
 
     const streamName = 'test-stream';
-    const records: _Record[] = [{ Data: new Uint8Array(Buffer.from('test-data')) }];
+    const records: _Record[] = [{ Data: Buffer.from('test-data') }];
 
     await expect(firehosePutRecordBatch(streamName, records)).rejects.toThrow('Firehose error');
   });

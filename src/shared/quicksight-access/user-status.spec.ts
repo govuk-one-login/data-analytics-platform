@@ -77,9 +77,7 @@ describe('getUserStatus function', () => {
 
   test('user does not exist in Cognito', async () => {
     // Unit Test
-    mockCognitoClient
-      .on(AdminGetUserCommand)
-      .rejects(new UserNotFoundException({ message: 'User not found', $metadata: {} }));
+    mockCognitoClient.on(AdminGetUserCommand).rejects(new UserNotFoundException({ message: 'User not found' }));
     mockQuickSightClient.on(DescribeUserCommand).resolves({ User: { UserName: TEST_USERNAME } });
     mockQuickSightClient.on(ListUserGroupsCommand).resolves({ GroupList: [] });
 
@@ -92,12 +90,10 @@ describe('getUserStatus function', () => {
   test('user does not exist in QuickSight', async () => {
     // Unit Test
     mockCognitoClient.on(AdminGetUserCommand).resolves({ Username: TEST_USERNAME });
-    mockQuickSightClient
-      .on(DescribeUserCommand)
-      .rejects(new ResourceNotFoundException({ message: 'User not found', $metadata: {} }));
+    mockQuickSightClient.on(DescribeUserCommand).rejects(new ResourceNotFoundException({ message: 'User not found' }));
     mockQuickSightClient
       .on(ListUserGroupsCommand)
-      .rejects(new ResourceNotFoundException({ message: 'User not found', $metadata: {} }));
+      .rejects(new ResourceNotFoundException({ message: 'User not found' }));
 
     const status = await getUserStatus(TEST_USERNAME, TEST_USER_POOL_ID, TEST_ACCOUNT_ID);
 

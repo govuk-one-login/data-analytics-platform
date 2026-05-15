@@ -68,7 +68,7 @@ export const mockLambdaContext: Context = {
   logGroupName: 'someLogGroupName',
   logStreamName: 'someLogStreamName',
   getRemainingTimeInMillis: () => 1,
-  done: vi.fn(),
-  fail: vi.fn(),
-  succeed: vi.fn(),
+  done: jest.fn(),
+  fail: jest.fn(),
+  succeed: jest.fn(),
 };

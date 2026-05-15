@@ -26,19 +26,19 @@ test('get required params correctly errors', () => {
   }
 
   expect(() => getRequiredParams({ a: 'b' }, 'a')).not.toThrow();
-  expect(() => getRequiredParams({}, 'a')).toThrow('Object is missing the following required fields: a');
+  expect(() => getRequiredParams({} as TestType, 'a')).toThrow('Object is missing the following required fields: a');
   expect(() => getRequiredParams({ aa: 'b' } as TestType, 'a')).toThrow(
     'Object is missing the following required fields: a',
   );
-  expect(() => getRequiredParams({ a: 'b', c: 'd' }, 'e')).toThrow(
+  expect(() => getRequiredParams({ a: 'b', c: 'd' } as TestType, 'e')).toThrow(
     'Object is missing the following required fields: e',
   );
 
   expect(() => getRequiredParams({ a: 'b', c: 'd', e: 'f' }, 'a', 'c', 'e')).not.toThrow();
-  expect(() => getRequiredParams({ c: 'd' }, 'a', 'c', 'e')).toThrow(
+  expect(() => getRequiredParams({ c: 'd' } as TestType, 'a', 'c', 'e')).toThrow(
     'Object is missing the following required fields: a, e',
   );
-  expect(() => getRequiredParams({}, 'a', 'c', 'e')).toThrow(
+  expect(() => getRequiredParams({} as TestType, 'a', 'c', 'e')).toThrow(
     'Object is missing the following required fields: a, c, e',
   );
   expect(() => getRequiredParams({ ee: 'f' } as TestType, 'a', 'c', 'e')).toThrow(
@@ -204,7 +204,9 @@ test('ensure defined', () => {
 test('find or throw', () => {
   // Unit Test
   expect(findOrThrow([1, 2, 3, 4], n => n === 2)).toEqual(2);
-  expect(() => findOrThrow([1, 2, 3, 4], n => n === 8)).toThrow('Unable to find element matching predicate');
+  expect(() => findOrThrow([1, 2, 3, 4], n => n === 8)).toThrow(
+    'Unable to find element matching predicate (n)=>n === 8',
+  );
 });
 
 test('get s3 event records', () => {

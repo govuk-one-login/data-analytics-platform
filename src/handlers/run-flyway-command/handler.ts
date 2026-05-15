@@ -34,7 +34,7 @@ interface RunFlywayResult {
   stdout: Record<string, unknown> | null;
   stderr: Record<string, unknown> | null;
   status: number | null;
-  error?: Error | undefined;
+  error?: Error;
 }
 
 export const handler = async (event: RunFlywayEvent): Promise<RunFlywayResult> => {

@@ -7,26 +7,24 @@ describe('clients module', () => {
     let capturedRetryFunction: ((retryAttempt: number) => number) | undefined;
 
     // Mock the constructor to capture the retry function
-    const MockedStrategy = vi.fn().mockImplementation(function (
-      this: object,
-      maxAttempts: number,
-      delayDecider: (retryAttempt: number) => number,
-    ) {
-      capturedRetryFunction = delayDecider;
+    const MockedStrategy = jest
+      .fn()
+      .mockImplementation((maxAttempts: number, delayDecider: (retryAttempt: number) => number) => {
+        capturedRetryFunction = delayDecider;
 
-      if (delayDecider) {
-        delayDecider(1);
-        delayDecider(2);
-      }
+        if (delayDecider) {
+          delayDecider(1);
+          delayDecider(2);
+        }
 
-      return new originalConstructor(maxAttempts, delayDecider);
-    });
+        return new originalConstructor(maxAttempts, delayDecider);
+      });
 
-    vi.doMock('@smithy/util-retry', () => ({
+    jest.doMock('@smithy/util-retry', () => ({
       ConfiguredRetryStrategy: MockedStrategy,
     }));
 
-    vi.resetModules();
+    jest.resetModules();
 
     const { firehoseClient } = await import('./clients');
 
@@ -38,6 +36,6 @@ describe('clients module', () => {
     expect(capturedRetryFunction!(1)).toBe(2000);
     expect(capturedRetryFunction!(2)).toBe(4000);
 
-    vi.unmock('@smithy/util-retry');
+    jest.unmock('@smithy/util-retry');
   });
 });
