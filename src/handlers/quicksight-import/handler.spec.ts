@@ -91,6 +91,24 @@ test('import not successful', async () => {
   expect(mockQuicksightClient.calls()).toHaveLength(3);
 });
 
+test('describe import job throws', async () => {
+  // Unit Test
+  const event = getEvent();
+  const analysisId = analysisIdFromS3Uri(event.s3Uri);
+  const describeError = new Error('Error describing import job');
+
+  mockQuicksightClient
+    .on(StartAssetBundleImportJobCommand, {
+      AwsAccountId: ACCOUNT_ID,
+      AssetBundleImportSource: { S3Uri: event.s3Uri },
+    })
+    .resolves({ Status: 200, AssetBundleImportJobId: analysisId })
+    .on(DescribeAssetBundleImportJobCommand, { AwsAccountId: ACCOUNT_ID, AssetBundleImportJobId: analysisId })
+    .rejects(describeError);
+
+  await expect(handler(event, CONTEXT)).rejects.toThrow(describeError);
+});
+
 interface QuicksightMocksConfig {
   startJobStatus?: number;
   startJobError?: string;

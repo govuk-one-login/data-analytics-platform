@@ -90,8 +90,8 @@ export const executeStepFunction = async (
     return {
       executionArn,
       status,
-      error: details.error,
-      cause: details.cause,
+      ...(details.error !== undefined ? { error: details.error } : {}),
+      ...(details.cause !== undefined ? { cause: details.cause } : {}),
     };
   } finally {
     client.destroy();

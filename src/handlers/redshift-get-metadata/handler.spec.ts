@@ -133,13 +133,11 @@ test('config object errors', async () => {
       }),
     });
 
-  await expect(handler(TEST_EVENT)).rejects.toThrow(`Cannot read properties of undefined (reading 'data_sources')`);
+  await expect(handler(TEST_EVENT)).rejects.toThrow('Metadata was null or undefined');
 
-  await expect(handler(TEST_EVENT)).rejects.toThrow(
-    `Cannot read properties of undefined (reading 'redshift_metadata')`,
-  );
+  await expect(handler(TEST_EVENT)).rejects.toThrow('Metadata was null or undefined');
 
-  await expect(handler(TEST_EVENT)).rejects.toThrow(`Metadata was null or undefined`);
+  await expect(handler(TEST_EVENT)).rejects.toThrow('Metadata was null or undefined');
 
   expect(mockS3Client.calls()).toHaveLength(3);
 });
@@ -159,7 +157,9 @@ test('success', async () => {
   expect(response).toBeDefined();
 
   const parsedFile: RedshiftConfig = JSON.parse(TEST_CONFIG_FILE);
-  expect(response).toEqual(JSON.stringify(parsedFile.benefits_dashboard.data_sources.account_login.redshift_metadata));
+  expect(response).toEqual(
+    JSON.stringify(parsedFile.benefits_dashboard!.data_sources.account_login!.redshift_metadata),
+  );
 
   expect(mockS3Client.calls()).toHaveLength(1);
 });

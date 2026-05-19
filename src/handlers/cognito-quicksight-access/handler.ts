@@ -103,7 +103,7 @@ const callUserInfoEndpoint = async (tokens: TokenResponse): Promise<UserInfoResp
 
 const fetchResponse = async <T>(response: Response, endpointName: string): Promise<T> => {
   if (response.ok) {
-    return await response.json();
+    return (await response.json()) as T;
   } else {
     throw new Error(
       `${response.status} ${response.statusText} error calling ${endpointName} endpoint - ${await response.text()}`,

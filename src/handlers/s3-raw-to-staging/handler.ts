@@ -3,7 +3,7 @@ import { getEnvironmentVariable, getErrorMessage, getS3EventRecords } from '../.
 import { getLogger } from '../../shared/powertools';
 import { s3Client } from '../../shared/clients';
 import { getDatasource } from '../../shared/manual-reference-data-ingestion/redshift-metadata';
-import { CopyObjectCommand } from '@aws-sdk/client-s3';
+import { ChecksumAlgorithm, CopyObjectCommand } from '@aws-sdk/client-s3';
 
 const logger = getLogger('lambda/s3-raw-to-staging');
 
@@ -49,6 +49,7 @@ const copyFileToStaging = async (record: S3EventRecord, stageBucketName: string)
           Bucket: stageBucketName,
           CopySource: `${rawBucketName}/${filename}`,
           Key: filename,
+          ChecksumAlgorithm: ChecksumAlgorithm.CRC32,
         }),
       )
       .then(response => ({ filename, status: 'succeeded' }));

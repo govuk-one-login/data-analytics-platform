@@ -11,7 +11,7 @@ class StatusHolder {
   }
 
   getStatus(): string | undefined {
-    this.currentStatus = this.statuses[this.count++];
+    this.currentStatus = this.statuses[this.count++] ?? '';
     return this.currentStatus;
   }
 }
@@ -53,4 +53,19 @@ test('wait for job failure', async () => {
     }),
   ).rejects.toThrow(`Job did not complete in ${timeoutMs}ms - final status was ${statusHolder.currentStatus}`);
   expect(onErrorExecuted).toEqual(true);
+});
+
+test('wait for job failure without onError callback', async () => {
+  // Unit Test
+  const statusHolder = new StatusHolder(['failed']);
+  await expect(
+    waitForJob<StatusHolder>({
+      statusGetter: async () => statusHolder,
+      statusStringGetter: statusHolder => statusHolder.getStatus(),
+      successStatuses: ['done'],
+      failureStatuses: ['failed'],
+      timeoutMs: 100,
+      timeoutStepMs: 20,
+    }),
+  ).rejects.toThrow('Job did not complete in');
 });

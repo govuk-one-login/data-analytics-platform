@@ -15,12 +15,14 @@ import { RedshiftDataClient } from '@aws-sdk/client-redshift-data';
 import type { ExecuteStatementCommand, GetStatementResultCommandOutput } from '@aws-sdk/client-redshift-data';
 import { FirehoseClient } from '@aws-sdk/client-firehose';
 import { SQSClient } from '@aws-sdk/client-sqs';
+import { CloudWatchLogsClient } from '@aws-sdk/client-cloudwatch-logs';
 
 const mockAthenaClient = mockClient(AthenaClient);
 const mockLambdaClient = mockClient(LambdaClient);
 const mockRedshiftClient = mockClient(RedshiftDataClient);
 const mockS3Client = mockClient(S3Client);
 const mockSFNClient = mockClient(SFNClient);
+const mockCloudWatchClient = mockClient(CloudWatchLogsClient);
 
 const EXPECTED_S3_BODY = {
   event_id: '8e9d3367-f943-411a-b83d-076ab5b96725',
@@ -53,6 +55,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
   mockAthenaClient.reset();
+  mockCloudWatchClient.reset();
   mockLambdaClient.reset();
   mockRedshiftClient.reset();
   mockS3Client.reset();
@@ -580,6 +583,72 @@ test('firehose describe stream', async () => {
 
   expect(mockFirehoseClient.calls()).toHaveLength(1);
   mockFirehoseClient.reset();
+});
+
+test('cloudwatch get log events', async () => {
+  // Unit Test
+  mockCloudWatchClient.resolves({ events: [] });
+
+  const event = getEvent({
+    command: 'CLOUDWATCH_GET',
+    input: { logGroupName: 'my-group', logStreamName: 'my-stream', startTime: 0 },
+  });
+  await handler(event, CONTEXT);
+
+  expect(mockCloudWatchClient.calls()).toHaveLength(1);
+});
+
+test('cloudwatch list log streams', async () => {
+  // Unit Test
+  mockCloudWatchClient.resolves({ logStreams: [] });
+
+  const event = getEvent({
+    command: 'CLOUDWATCH_LIST',
+    input: { logGroupName: 'my-group' },
+  });
+  await handler(event, CONTEXT);
+
+  expect(mockCloudWatchClient.calls()).toHaveLength(1);
+});
+
+test('s3 gzip body undefined throws', async () => {
+  // Unit Test
+  mockS3Client.resolves({
+    Body: undefined,
+    ContentEncoding: 'gzip',
+    $metadata: {},
+  });
+
+  const event = getEvent({ command: 'S3_GET', input: { Bucket: 'bucket', Key: 'key' } });
+  await expect(handler(event, CONTEXT)).rejects.toThrow('Gzipped body is undefined');
+});
+
+test('athena query execution with undefined status', async () => {
+  // Unit Test
+  const queryExecutionId = '1234';
+  const timeoutMs = 200;
+
+  mockAthenaClient.resolvesOnce({ QueryExecutionId: queryExecutionId }).resolves({ QueryExecution: {} });
+
+  const event = getEvent({
+    command: 'ATHENA_RUN_QUERY',
+    input: { QueryString: '', QueryExecutionContext: {}, WorkGroup: '', timeoutMs },
+  });
+  await expect(handler(event, CONTEXT)).rejects.toThrow('Query did not complete');
+});
+
+test('s3 copy delete with invalid CopySource throws', async () => {
+  // Unit Test
+  const Bucket = 'dest-bucket';
+  const CopySource = '/';
+
+  mockS3Client.on(CopyObjectCommand).resolves({});
+
+  const event = getEvent({
+    command: 'S3_COPY',
+    input: { Bucket, CopySource, DeleteOriginal: true },
+  });
+  await expect(handler(event, CONTEXT)).rejects.toThrow(`Cannot get bucket name from given CopySource '${CopySource}'`);
 });
 
 test('lambda list events', async () => {

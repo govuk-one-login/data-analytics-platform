@@ -222,11 +222,11 @@ export const printConformCheckOnly = (eventName: string, result: ConformResult) 
 
   const fields = ['event_id', 'component_id', 'event_name', 'user_govuk_signin_journey_id', 'date'] as const;
   const values = fields.map(f => String(row?.[f] ?? ''));
-  const widths = fields.map((f, i) => Math.max(f.length, values[i].length));
+  const widths = fields.map((f, i) => Math.max(f.length, (values[i] ?? '').length));
 
-  const header = fields.map((f, i) => ` ${f.padEnd(widths[i])} `).join('│');
-  const separator = widths.map(w => '─'.repeat(w + 2)).join('┼');
-  const valueLine = values.map((v, i) => ` ${v.padEnd(widths[i])} `).join('│');
+  const header = fields.map((f, i) => ` ${f.padEnd(widths[i] ?? 0)} `).join('│');
+  const separator = widths.map(w => '─'.repeat((w ?? 0) + 2)).join('┼');
+  const valueLine = values.map((v, i) => ` ${v.padEnd(widths[i] ?? 0)} `).join('│');
 
   const lines = [
     `\n📋 ${eventName}`,

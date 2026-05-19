@@ -155,7 +155,7 @@ const runFlywayCommand = (event: RunFlywayEvent, environment: Record<string, str
     status: result.status,
     stdout: decodeOutput(result.stdout),
     stderr: decodeOutput(result.stderr),
-    error: result.error,
+    ...(result.error === undefined ? {} : { error: result.error }),
   };
 };
 

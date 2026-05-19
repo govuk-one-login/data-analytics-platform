@@ -22,7 +22,7 @@ describe('Raw to Stage Integration Tests', () => {
     expect(stageLayerKeyValuesResults).toHaveLength(expectedKeyValuesResults.length);
 
     stageLayerKeyValuesResults.slice(1).forEach((row, i) => {
-      const expected = expectedKeyValuesResults[i + 1].Data;
+      const expected = expectedKeyValuesResults[i + 1]!.Data;
       expect(row.Data).toMatchObject([
         expected[0], // event_id
         expected[1], // parent_column_name

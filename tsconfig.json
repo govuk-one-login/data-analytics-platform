@@ -1,16 +1,19 @@
 {
+  "extends": "@tsconfig/node24/tsconfig.json",
   "compilerOptions": {
     "esModuleInterop": true,
+    "exactOptionalPropertyTypes": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
     "outDir": "./dist/",
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2022",
+    "target": "ES2024",
     "resolveJsonModule": true,
-    "types": ["jest", "node"]
+    "types": ["vitest/globals", "node"]
   }
 }

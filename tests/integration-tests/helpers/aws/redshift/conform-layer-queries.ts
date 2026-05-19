@@ -78,7 +78,7 @@ export async function getExtensionsCount(eventId: string): Promise<number> {
     WHERE event_id = '${eventId}'
   `;
   const results = await executeRedshiftQuery(query);
-  return Number(results[0].count);
+  return Number(results[0]!.count);
 }
 
 export async function getDuplicateExtensions(eventId: string): Promise<ExtensionResult[]> {
@@ -96,8 +96,8 @@ export async function getDuplicateExtensions(eventId: string): Promise<Extension
 export async function validateSingleFactEntry(eventId: string, expectedTimestamp: string): Promise<void> {
   const results = await getFactTableEventCount(eventId);
   expect(results.length).toBe(1);
-  expect(results[0].count).toBe(1);
-  expect(results[0].event_time).toBe(expectedTimestamp);
+  expect(results[0]!.count).toBe(1);
+  expect(results[0]!.event_time).toBe(expectedTimestamp);
 }
 
 export async function validateNoDuplicateExtensions(eventId: string): Promise<void> {
@@ -114,7 +114,7 @@ export async function validateNoDuplicateDimEntries(eventId: string): Promise<vo
   if (factResults.length === 0) {
     throw new Error(`No fact entry found for event_id: ${eventId}`);
   }
-  const fact = factResults[0];
+  const fact = factResults[0]!;
 
   // Check each dimension table for duplicate entries using the foreign keys
   const dimChecks = [];
@@ -128,7 +128,7 @@ export async function validateNoDuplicateDimEntries(eventId: string): Promise<vo
     `;
     dimChecks.push(
       executeRedshiftQuery(userJourneyQuery).then(results => {
-        expect(Number(results[0].count)).toBe(1);
+        expect(Number(results[0]!.count)).toBe(1);
       }),
     );
   }
@@ -142,7 +142,7 @@ export async function validateNoDuplicateDimEntries(eventId: string): Promise<vo
     `;
     dimChecks.push(
       executeRedshiftQuery(eventQuery).then(results => {
-        expect(Number(results[0].count)).toBe(1);
+        expect(Number(results[0]!.count)).toBe(1);
       }),
     );
   }
@@ -156,7 +156,7 @@ export async function validateNoDuplicateDimEntries(eventId: string): Promise<vo
     `;
     dimChecks.push(
       executeRedshiftQuery(userQuery).then(results => {
-        expect(Number(results[0].count)).toBe(1);
+        expect(Number(results[0]!.count)).toBe(1);
       }),
     );
   }
@@ -170,7 +170,7 @@ export async function validateNoDuplicateDimEntries(eventId: string): Promise<vo
     `;
     dimChecks.push(
       executeRedshiftQuery(channelQuery).then(results => {
-        expect(Number(results[0].count)).toBe(1);
+        expect(Number(results[0]!.count)).toBe(1);
       }),
     );
   }
@@ -184,7 +184,7 @@ export async function validateNoDuplicateDimEntries(eventId: string): Promise<vo
     `;
     dimChecks.push(
       executeRedshiftQuery(dateQuery).then(results => {
-        expect(Number(results[0].count)).toBe(1);
+        expect(Number(results[0]!.count)).toBe(1);
       }),
     );
   }

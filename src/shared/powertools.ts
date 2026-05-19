@@ -1,7 +1,7 @@
 import { Logger } from '@aws-lambda-powertools/logger';
+import type { LogLevel } from '@aws-lambda-powertools/logger/types';
 import { getAWSEnvironment } from './utils/utils';
 import { Metrics } from '@aws-lambda-powertools/metrics';
-import { LogLevel } from '@aws-lambda-powertools/logger/lib/cjs/types/Logger';
 
 const environment = getAWSEnvironment();
 

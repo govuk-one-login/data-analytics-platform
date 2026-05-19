@@ -17,8 +17,8 @@ let TEST_EVENT: S3Event;
 
 beforeAll(async () => {
   TEST_EVENT = JSON.parse(await getTestResource('s3-object-creation-notification.json'));
-  TEST_EVENT.Records[0].s3.bucket.name = S3_BUCKET_NAME;
-  TEST_EVENT.Records[0].s3.object.key = S3_KEY;
+  TEST_EVENT.Records[0]!.s3.bucket.name = S3_BUCKET_NAME;
+  TEST_EVENT.Records[0]!.s3.object.key = S3_KEY;
 });
 
 beforeEach(() => {
@@ -62,7 +62,7 @@ test('success', async () => {
 test('filename parsing error', async () => {
   // Unit Test
   const testEvent = { ...TEST_EVENT };
-  testEvent.Records[0].s3.object.key = 'invalid-filename.csv';
+  testEvent.Records[0]!.s3.object.key = 'invalid-filename.csv';
 
   await expect(handler(testEvent)).rejects.toThrow('Unable to parse key path string "invalid-filename"');
 

@@ -42,7 +42,7 @@ const getMessageParams = (record: S3EventRecord): MessageParams => {
   if (groupIdMatchArray === null) {
     throw new Error(`Unable to parse key path string "${filename}"`);
   }
-  const filePathGroupId = groupIdMatchArray[1];
+  const filePathGroupId = groupIdMatchArray[1]!;
   const fileMetadata: RedshiftFileMetadata = { bucket, file_path: key };
   return {
     filePath: filename,

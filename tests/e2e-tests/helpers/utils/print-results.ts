@@ -11,10 +11,10 @@ export const printResults = (
   const columns = Object.keys(expected);
   const allRows = [expected, ...actual];
   const widths = columns.map(col => Math.max(col.length, ...allRows.map(row => String(row[col] ?? '').length)));
-  const separator = '─'.repeat(10) + '┼' + widths.map(w => '─'.repeat(w + 2)).join('┼');
-  const header = ' '.repeat(10) + '│' + columns.map((col, i) => ` ${col.padEnd(widths[i])} `).join('│');
+  const separator = '─'.repeat(10) + '┼' + widths.map(w => '─'.repeat((w ?? 0) + 2)).join('┼');
+  const header = ' '.repeat(10) + '│' + columns.map((col, i) => ` ${col.padEnd(widths[i] ?? 0)} `).join('│');
   const formatRow = (row: Record<string, string | number>) =>
-    columns.map((col, i) => ` ${String(row[col] ?? '').padEnd(widths[i])} `).join('│');
+    columns.map((col, i) => ` ${String(row[col] ?? '').padEnd(widths[i] ?? 0)} `).join('│');
 
   const lines = [
     `\n📋 ${tableName}`,
@@ -25,7 +25,7 @@ export const printResults = (
 
   if (actual.length === 0) {
     lines.push(
-      `  ${'Actual'.padEnd(10)}│${columns.map((_, i) => ' '.repeat(widths[i] + 2)).join('│')}  (no rows found) ❌`,
+      `  ${'Actual'.padEnd(10)}│${columns.map((_, i) => ' '.repeat((widths[i] ?? 0) + 2)).join('│')}  (no rows found) ❌`,
     );
   } else {
     for (const row of actual) {
@@ -33,7 +33,7 @@ export const printResults = (
       const cells = columns.map((col, i) => {
         const expectedVal = String(expected[col] ?? '');
         const actualVal = String(row[col] ?? '');
-        const padded = ` ${actualVal.padEnd(widths[i])} `;
+        const padded = ` ${actualVal.padEnd(widths[i] ?? 0)} `;
         if (expectedVal !== actualVal) {
           mismatches.push(col);
           return red(padded);
