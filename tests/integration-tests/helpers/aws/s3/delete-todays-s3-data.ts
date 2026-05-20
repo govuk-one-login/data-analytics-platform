@@ -3,12 +3,17 @@ import { getIntegrationTestEnv } from '../../utils/utils';
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'eu-west-2' });
 
-const getTodaysPrefix = (basePath: string): string => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  return `${basePath}/year=${year}/month=${month}/day=${day}/`;
+const getRecentPrefixes = (basePath: string, daysBack = 7): string[] => {
+  const prefixes: string[] = [];
+  for (let i = 0; i <= daysBack; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    prefixes.push(`${basePath}/year=${year}/month=${month}/day=${day}/`);
+  }
+  return prefixes;
 };
 
 const deleteS3Objects = async (bucketName: string, prefix: string): Promise<number> => {
@@ -26,5 +31,11 @@ const deleteS3Objects = async (bucketName: string, prefix: string): Promise<numb
 };
 
 export const deleteRawLayerTodaysData = async (): Promise<number> => {
-  return deleteS3Objects(getIntegrationTestEnv('RAW_LAYER_BUCKET'), getTodaysPrefix('txma-refactored'));
+  const bucket = getIntegrationTestEnv('RAW_LAYER_BUCKET');
+  const prefixes = getRecentPrefixes('txma-refactored');
+  let totalDeleted = 0;
+  for (const prefix of prefixes) {
+    totalDeleted += await deleteS3Objects(bucket, prefix);
+  }
+  return totalDeleted;
 };
