@@ -429,7 +429,7 @@ DataQualityPythonGlueJob:
       ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/data_quality_metrics_script/data_quality_metrics_generation.py
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-data-quality-metrics-generation
-      '--additional-python-modules': 'awswrangler'
+      '--additional-python-modules': 'pyarrow==17.0.0,awswrangler==3.9.1'
       '--env': !Sub ${Environment}
       '--raw_db': !Sub ${Environment}-txma-raw
       '--stage_db': !Sub ${Environment}-txma-stage
@@ -766,7 +766,7 @@ RawStageTransformProcessPythonGlueJob:
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
       '--LOG_LEVEL': 'INFO'
-      '--additional-python-modules': 'awswrangler,aws_lambda_powertools'
+      '--additional-python-modules': 'pyarrow==17.0.0,awswrangler==3.9.1,aws_lambda_powertools'
       '--config_bucket': !Sub ${ELTMetadataBucket}
       '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/raw_to_stage_config_rules.json'
       '--raw_database': !Sub ${Environment}-txma-raw
@@ -867,7 +867,7 @@ DataQualityStageLayerOptimisedPythonGlueJob:
       ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/data_quality_metrics_script/data_quality_new_stage_metrics_generation.py
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-data-quality-new-stage-metrics-generation
-      '--additional-python-modules': 'awswrangler'
+      '--additional-python-modules': 'pyarrow==17.0.0,awswrangler==3.9.1'
       '--env': !Sub ${Environment}
       '--stage_db': !Sub ${Environment}-txma-stage
       '--stage_parent_tbl': 'txma_stage_layer'
@@ -976,7 +976,7 @@ SplunkMigratedRawStageTransformProcessPythonGlueJob:
       ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/raw_stage_optimisation_solution/scripts/raw_to_stage_process_glue_job.py
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-splunk-migration-raw-stage-transform-process
-      '--additional-python-modules': 'awswrangler'
+      '--additional-python-modules': 'pyarrow==17.0.0,awswrangler==3.9.1'
       '--config_bucket': !Sub ${ELTMetadataBucket}
       '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/splunk_to_stage_config_rules.json'
       '--raw_database': !Sub ${Environment}-txma-raw
