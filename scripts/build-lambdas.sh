@@ -11,6 +11,6 @@ for dir in "$SRC"/*; do
   srcPath="${dir}/handler.ts"
   lambdaName="${dir##*/}"
   echo "Building handlers/$lambdaName"
-  esbuild "$srcPath" --bundle --minify --sourcemap --platform=node --target=node24 --format=esm --outfile="$DIST/$lambdaName.mjs" --log-level=warning \
+  esbuild "$srcPath" --bundle --minify --sourcemap --platform=node --target=node24 --format=esm --main-fields=module,main --outfile="$DIST/$lambdaName.mjs" --log-level=warning \
     --external:better-sqlite3 --external:better-mysql2 --external:mysql* --external:oracledb --external:pg-query-stream --external:sqlite3 --external:tedious
 done
