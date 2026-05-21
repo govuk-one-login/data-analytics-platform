@@ -29,6 +29,7 @@ await Promise.all(
       platform: 'node',
       target: 'node24',
       format: 'esm',
+      mainFields: ['module', 'main'],
       outfile,
       logLevel: 'warning',
       // pg-native alternatives that are optional / non-node
