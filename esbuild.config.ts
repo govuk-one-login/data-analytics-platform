@@ -18,7 +18,7 @@ const handlerDirs = readdirSync(srcDir, { withFileTypes: true })
 await Promise.all(
   handlerDirs.map(lambdaName => {
     const entryPoint = join(srcDir, lambdaName, 'handler.ts');
-    const outfile = join(distDir, `${lambdaName}.js`);
+    const outfile = join(distDir, `${lambdaName}.mjs`);
 
     console.log(`Building handlers/${lambdaName}`);
     return build({
