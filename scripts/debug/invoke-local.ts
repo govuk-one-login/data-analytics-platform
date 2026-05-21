@@ -1,10 +1,11 @@
 /**
  * Invokes a Lambda handler directly in Node.js (no Docker/SAM).
- * Usage: ts-node scripts/debug/invoke-local.ts <handlerName>
- * e.g.   ts-node scripts/debug/invoke-local.ts s3-send-metadata
+ * Usage: tsx scripts/debug/invoke-local.ts <handlerName>
+ * e.g.   tsx scripts/debug/invoke-local.ts s3-send-metadata
  */
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { fileURLToPath } from 'url';
 import { Context } from 'aws-lambda';
 
 const handlerName = process.argv[2];
@@ -13,8 +14,8 @@ if (!handlerName) {
   process.exit(1);
 }
 
-const debugDir = join(__dirname);
-const rootDir = join(__dirname, '../..');
+const debugDir = join(fileURLToPath(import.meta.url), '..');
+const rootDir = join(debugDir, '../..');
 
 const envVars = JSON.parse(readFileSync(join(debugDir, 'env-vars.json'), 'utf-8')) as {
   Parameters: Record<string, string>;
@@ -45,13 +46,14 @@ const context: Context = {
 } as Context;
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { handler } = require(join(rootDir, 'src/handlers', handlerName, 'handler')) as {
+const { handler } = (await import(join(rootDir, 'src/handlers', handlerName, 'handler.js'))) as {
   handler: (event: unknown, context: Context) => Promise<void>;
 };
 
-handler(event, context)
-  .then(() => console.log('Handler completed successfully'))
-  .catch((err: Error) => {
-    console.error('Handler failed:', err);
-    process.exit(1);
-  });
+try {
+  await handler(event, context);
+  console.log('Handler completed successfully');
+} catch (err) {
+  console.error('Handler failed:', err);
+  process.exit(1);
+}

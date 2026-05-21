@@ -1,14 +1,15 @@
 import { PutRecordBatchCommand, PutRecordBatchCommandOutput, _Record } from '@aws-sdk/client-firehose';
 import { firehoseClient } from '../clients';
 import { firehosePutRecordBatch } from './put-batch-record';
+import type { Mocked } from 'vitest';
 
-jest.mock('../clients');
+vi.mock('../clients');
 
-const mockFirehoseClient = firehoseClient as jest.Mocked<typeof firehoseClient>;
+const mockFirehoseClient = firehoseClient as Mocked<typeof firehoseClient>;
 
 describe('firehosePutRecordBatch', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should send PutRecordBatchCommand with correct parameters', async () => {
@@ -16,11 +17,12 @@ describe('firehosePutRecordBatch', () => {
     const mockOutput: PutRecordBatchCommandOutput = {
       FailedPutCount: 0,
       Encrypted: false,
-      RequestId: 'test-request-id',
+      RequestResponses: [],
       $metadata: {},
     };
 
-    mockFirehoseClient.send.mockResolvedValue(mockOutput);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockFirehoseClient.send.mockResolvedValue(mockOutput as any);
 
     const streamName = 'test-stream';
     const records: _Record[] = [{ Data: Buffer.from('test-data-1') }, { Data: Buffer.from('test-data-2') }];

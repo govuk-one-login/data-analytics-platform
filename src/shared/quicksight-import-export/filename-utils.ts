@@ -20,6 +20,6 @@ export const analysisIdFromS3Uri = (s3Uri: string): string => {
     const expectedFormat = 's3://${bucketName}/export-${analysisId}-${timestamp}.zip';
     throw new Error(`Invalid S3 URI (expected format '${expectedFormat}') - received ${s3Uri}`);
   }
-  const analysisId = matchArray[1];
+  const analysisId = matchArray[1]!;
   return `${analysisId.substring(0, 8)}-${analysisId.substring(8, 12)}-${analysisId.substring(12, 16)}-${analysisId.substring(16, 20)}-${analysisId.substring(20, 32)}`;
 };

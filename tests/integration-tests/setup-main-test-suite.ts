@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import type { GlobalSetupContext } from 'vitest/node';
 import { AWS_REGION, STACK_NAME } from '../shared-test-code/constants';
 import { addMessageToQueue } from '../shared-test-code/aws/sqs/add-message-to-queue';
 import { executeStepFunction } from '../shared-test-code/aws/step-function/execute-step-function';
@@ -21,7 +22,7 @@ import { uploadEventToRawLayer } from './helpers/aws/s3/upload-to-s3';
 import { constructAuthAuthorisationInitiatedTestEvent10 } from './test-events/happy-path-events/test-event-10-auth-authorisation-initiated-dap';
 import { randomUUID } from 'crypto';
 
-export default async () => {
+export default async ({ provide }: GlobalSetupContext) => {
   const setupStartTime = Date.now();
 
   try {
@@ -79,8 +80,8 @@ export default async () => {
 
       const event = {
         ...constructAuthAuthorisationInitiatedTestEvent10(
-          timestamps[i],
-          timestampsFormatted[i],
+          timestamps[i]!,
+          timestampsFormatted[i]!,
           eventTimestampMs,
           eventTimestampMsFormatted,
         ),
@@ -140,6 +141,18 @@ export default async () => {
     await executeStepFunction(rawToStageStepFunction, undefined, 'integration-test-setup');
     await pollForStageLayerData(eventIds, { maxWaitTimeMs: 2 * 60 * 1000, pollIntervalMs: 5000 });
     await pollForFactJourneyData(eventIds, { maxWaitTimeMs: 5 * 60 * 1000, pollIntervalMs: 5000 });
+
+    // Share global state with test workers via provide/inject
+    // (globalSetup runs in main process; workers have an isolated global scope)
+    provide('integrationTestGlobals', {
+      replayEventId: replayEvent.event_id,
+      deduplicationEventId,
+      deduplicationTimestamps: timestampsFormatted,
+      testEvents: processedEvents,
+      testEventPairs: happyPathEventList,
+      edgeCaseEventPairs: edgeCaseEventList,
+      unhappyPathEventPairs: txmaUnhappyPathEventList,
+    } as Record<string, unknown>);
 
     const totalSetupDuration = Date.now() - setupStartTime;
     console.log(`🎉 Integration test setup completed successfully in ${Math.round(totalSetupDuration / 1000)}s`);

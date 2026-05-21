@@ -77,7 +77,9 @@ describe('getUserStatus function', () => {
 
   test('user does not exist in Cognito', async () => {
     // Unit Test
-    mockCognitoClient.on(AdminGetUserCommand).rejects(new UserNotFoundException({ message: 'User not found' }));
+    mockCognitoClient
+      .on(AdminGetUserCommand)
+      .rejects(new UserNotFoundException({ message: 'User not found', $metadata: {} }));
     mockQuickSightClient.on(DescribeUserCommand).resolves({ User: { UserName: TEST_USERNAME } });
     mockQuickSightClient.on(ListUserGroupsCommand).resolves({ GroupList: [] });
 
@@ -90,15 +92,47 @@ describe('getUserStatus function', () => {
   test('user does not exist in QuickSight', async () => {
     // Unit Test
     mockCognitoClient.on(AdminGetUserCommand).resolves({ Username: TEST_USERNAME });
-    mockQuickSightClient.on(DescribeUserCommand).rejects(new ResourceNotFoundException({ message: 'User not found' }));
+    mockQuickSightClient
+      .on(DescribeUserCommand)
+      .rejects(new ResourceNotFoundException({ message: 'User not found', $metadata: {} }));
     mockQuickSightClient
       .on(ListUserGroupsCommand)
-      .rejects(new ResourceNotFoundException({ message: 'User not found' }));
+      .rejects(new ResourceNotFoundException({ message: 'User not found', $metadata: {} }));
 
     const status = await getUserStatus(TEST_USERNAME, TEST_USER_POOL_ID, TEST_ACCOUNT_ID);
 
     expect(status.existsInCognito).toBe(true);
     expect(status.existsInQuicksight).toBe(false);
     expect(status.quicksightGroups).toEqual([]);
+  });
+
+  test('cognito throws non-UserNotFoundException error', async () => {
+    // Unit Test
+    const unexpectedError = new Error('Unexpected cognito error');
+    mockCognitoClient.on(AdminGetUserCommand).rejects(unexpectedError);
+    mockQuickSightClient.on(DescribeUserCommand).resolves({ User: { UserName: TEST_USERNAME } });
+    mockQuickSightClient.on(ListUserGroupsCommand).resolves({ GroupList: [] });
+
+    await expect(getUserStatus(TEST_USERNAME, TEST_USER_POOL_ID, TEST_ACCOUNT_ID)).rejects.toThrow(unexpectedError);
+  });
+
+  test('quicksight describe user throws non-ResourceNotFoundException error', async () => {
+    // Unit Test
+    const unexpectedError = new Error('Unexpected quicksight error');
+    mockCognitoClient.on(AdminGetUserCommand).resolves({ Username: TEST_USERNAME });
+    mockQuickSightClient.on(DescribeUserCommand).rejects(unexpectedError);
+    mockQuickSightClient.on(ListUserGroupsCommand).resolves({ GroupList: [] });
+
+    await expect(getUserStatus(TEST_USERNAME, TEST_USER_POOL_ID, TEST_ACCOUNT_ID)).rejects.toThrow(unexpectedError);
+  });
+
+  test('quicksight list groups throws non-ResourceNotFoundException error', async () => {
+    // Unit Test
+    const unexpectedError = new Error('Unexpected quicksight groups error');
+    mockCognitoClient.on(AdminGetUserCommand).resolves({ Username: TEST_USERNAME });
+    mockQuickSightClient.on(DescribeUserCommand).resolves({ User: { UserName: TEST_USERNAME } });
+    mockQuickSightClient.on(ListUserGroupsCommand).rejects(unexpectedError);
+
+    await expect(getUserStatus(TEST_USERNAME, TEST_USER_POOL_ID, TEST_ACCOUNT_ID)).rejects.toThrow(unexpectedError);
   });
 });

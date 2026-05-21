@@ -6,7 +6,7 @@ import { getTestResource } from '../../shared/utils/test-utils';
 import type { RedshiftGetMetadataEvent } from '../redshift-get-metadata/handler';
 import type { RedshiftFileMetadata } from '../../shared/types/redshift-metadata';
 
-const loggerSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
 
 const mockEventbridgeClient = mockClient(EventBridgeClient);
 
@@ -38,7 +38,7 @@ test('process s3 event', async () => {
   // Unit Test
   const filepath = 's3e file path';
   const s3Event: S3Event = JSON.parse(await getTestResource('s3-object-creation-notification.json'));
-  s3Event.Records[0].s3.object.key = filepath;
+  s3Event.Records[0]!.s3.object.key = filepath;
 
   mockEventbridgeClient
     .on(PutEventsCommand, { Entries: [{ ...EVENTBRIDGE_ENTRY_BASE, Detail: JSON.stringify({ filepath }) }] })
@@ -99,13 +99,13 @@ test.each([
   // Unit Test
   const batchResponse = await handler(event);
   expect(batchResponse.batchItemFailures).toHaveLength(1);
-  expect(batchResponse.batchItemFailures[0]).toEqual({ itemIdentifier: event.Records[0].messageId });
+  expect(batchResponse.batchItemFailures[0]).toEqual({ itemIdentifier: event.Records[0]!.messageId });
 
   expect(mockEventbridgeClient.calls()).toHaveLength(0);
 
   expect(loggerSpy).toHaveBeenCalledTimes(1);
   expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: new Error(expectedError),
+    error: expect.objectContaining({ message: expectedError }),
   });
 });
 
@@ -129,16 +129,16 @@ test('multiple events', async () => {
 
   const batchResponse = await handler(event);
   expect(batchResponse.batchItemFailures).toHaveLength(2);
-  expect(batchResponse.batchItemFailures[0]).toEqual({ itemIdentifier: event.Records[1].messageId });
-  expect(batchResponse.batchItemFailures[1]).toEqual({ itemIdentifier: event.Records[3].messageId });
+  expect(batchResponse.batchItemFailures[0]).toEqual({ itemIdentifier: event.Records[1]!.messageId });
+  expect(batchResponse.batchItemFailures[1]).toEqual({ itemIdentifier: event.Records[3]!.messageId });
 
   expect(mockEventbridgeClient.calls()).toHaveLength(3);
 
   expect(loggerSpy).toHaveBeenCalledTimes(2);
   expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: new Error('Could not parse input event as any of the expected event types'),
+    error: expect.objectContaining({ message: 'Could not parse input event as any of the expected event types' }),
   });
   expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: new Error('Unexpected token \'h\', "hello world" is not valid JSON'),
+    error: expect.objectContaining({ message: `Unexpected token 'h', "hello world" is not valid JSON` }),
   });
 });

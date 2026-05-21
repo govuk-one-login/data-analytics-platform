@@ -28,9 +28,9 @@ describe('Raw to Stage Integration Tests', () => {
 
       // Group stage layer results by event_id
       stageLayerBatchResults = new Map();
-      const stageHeaders = stageLayerResults[0];
+      const stageHeaders = stageLayerResults[0]!;
       for (let i = 1; i < stageLayerResults.length; i++) {
-        const row = stageLayerResults[i];
+        const row = stageLayerResults[i]!;
         const eventId = row.Data?.[0]?.VarCharValue;
         if (eventId) {
           if (!stageLayerBatchResults.has(eventId)) {
@@ -46,9 +46,9 @@ describe('Raw to Stage Integration Tests', () => {
 
       // Group key values results by event_id
       stageLayerKeyValuesBatchResults = new Map();
-      const keyValuesHeaders = keyValuesResults[0];
+      const keyValuesHeaders = keyValuesResults[0]!;
       for (let i = 1; i < keyValuesResults.length; i++) {
-        const row = keyValuesResults[i];
+        const row = keyValuesResults[i]!;
         const eventId = row.Data?.[0]?.VarCharValue;
         if (eventId) {
           if (!stageLayerKeyValuesBatchResults.has(eventId)) {
@@ -70,8 +70,8 @@ describe('Raw to Stage Integration Tests', () => {
         expect(stageLayerResults[0]).toEqual(stageLayerEvent[0]);
         expect(stageLayerResults).toHaveLength(stageLayerEvent.length);
 
-        const expected = stageLayerEvent[1].Data;
-        expect(stageLayerResults[1].Data).toMatchObject([
+        const expected = stageLayerEvent[1]!.Data;
+        expect(stageLayerResults[1]!.Data).toMatchObject([
           ...expected.slice(0, 13), // All fields before processed_time
           { VarCharValue: expect.stringMatching(/^\d+$/) }, // processed_time
           expected[14], // processed_dt

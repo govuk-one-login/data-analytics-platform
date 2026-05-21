@@ -13,7 +13,7 @@ export const getDatasource = async (record: S3EventRecord, logger: Logger): Prom
   const configFileBucket = getEnvironmentVariable('METADATA_BUCKET_NAME');
   const configFile = await getConfigFile(configFileBucket, filePathParts.configRef);
   logger.info('Retrieved config file', { configFile });
-  return configFile[filePathParts.dashboardRef].data_sources[filePathParts.dataSource];
+  return configFile[filePathParts.dashboardRef]!.data_sources[filePathParts.dataSource]!;
 };
 
 export const getFilePathParts = (filePath: string): { configRef: string; dashboardRef: string; dataSource: string } => {
@@ -22,9 +22,9 @@ export const getFilePathParts = (filePath: string): { configRef: string; dashboa
     throw new Error(`Unable to parse key path string "${filePath}"`);
   }
   return {
-    configRef: matches[1],
-    dashboardRef: matches[2],
-    dataSource: matches[3],
+    configRef: matches[1]!,
+    dashboardRef: matches[2]!,
+    dataSource: matches[3]!,
   };
 };
 

@@ -26,7 +26,7 @@ describe('Stage to Conform Deduplication Tests', () => {
       await checkStageLayerEventsWithTimestamps(eventId);
 
       // Verify only one event exists in conform layer with earliest timestamp
-      await validateSingleFactEntry(eventId, timestamps[0]);
+      await validateSingleFactEntry(eventId, timestamps[0]!);
 
       // Verify no duplicate extensions were created
       await validateNoDuplicateExtensions(eventId);

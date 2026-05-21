@@ -3,7 +3,7 @@ import { DescribeExecutionCommand, ListExecutionsCommand, SFNClient } from '@aws
 import type { ExecutionListItem, ExecutionStatus } from '@aws-sdk/client-sfn';
 import { handler, logger } from './handler';
 
-const loggerSpy = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
 
 const mockSFNClient = mockClient(SFNClient);
 
@@ -96,7 +96,7 @@ test('running execution with same id started before', async () => {
   expect(response).toEqual({ continue: 'false' });
 
   expect(loggerSpy).toHaveBeenCalledTimes(1);
-  expect(loggerSpy.mock.calls[0][0]).toEqual(
+  expect(loggerSpy.mock.calls[0]![0]).toEqual(
     'One or more other executions found with the same MessageGroupId that started before this one',
   );
   expect(getStartedBeforeWithSameId()).toHaveLength(1);
@@ -134,7 +134,7 @@ test('multiple with same id and some before', async () => {
   expect(response).toEqual({ continue: 'false' });
 
   expect(loggerSpy).toHaveBeenCalledTimes(1);
-  expect(loggerSpy.mock.calls[0][0]).toEqual(
+  expect(loggerSpy.mock.calls[0]![0]).toEqual(
     'One or more other executions found with the same MessageGroupId that started before this one',
   );
   expect(getStartedBeforeWithSameId()).toHaveLength(2);
@@ -175,6 +175,28 @@ test('sfn client error', async () => {
 
   // one for the execution list
   expect(mockSFNClient.calls()).toHaveLength(1);
+});
+
+test('current execution not found in running executions', async () => {
+  // Unit Test
+  const otherArn = 'arn:aws:states:eu-west-2:123456789012:execution:state-machine:other-execution';
+  mockSFNClient.on(ListExecutionsCommand, { stateMachineArn: STATE_MACHINE_ARN }).resolves({
+    executions: [
+      {
+        stateMachineArn: STATE_MACHINE_ARN,
+        executionArn: otherArn,
+        status: 'RUNNING',
+        startDate: new Date(),
+      } as unknown as ExecutionListItem,
+    ],
+  });
+  mockSFNClient.on(DescribeExecutionCommand, { executionArn: otherArn }).resolves({
+    stateMachineArn: STATE_MACHINE_ARN,
+    executionArn: otherArn,
+  });
+
+  await expect(handler(TEST_EVENT)).rejects.toThrow(`Unable to find execution for execution ARN ${EXECUTION_ARN}`);
+  expect(loggerSpy).toHaveBeenCalledTimes(1);
 });
 
 class MockExecution {
@@ -237,5 +259,6 @@ const executionInput = (messageGroupId = MESSAGE_GROUP_ID): string => {
 };
 
 const getStartedBeforeWithSameId = (): unknown[] => {
-  return (loggerSpy.mock.calls[0][1] as unknown as Record<string, never>).startedBeforeWithSameId;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (loggerSpy.mock.calls[0]![1] as any).startedBeforeWithSameId as unknown[];
 };

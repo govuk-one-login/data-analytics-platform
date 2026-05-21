@@ -58,10 +58,10 @@ export default async function globalSetup() {
     await pollForStageLayerData([eventId], { maxWaitTimeMs: 10 * 60 * 1000, pollIntervalMs: 10000 });
     await pollForFactJourneyData([eventId], { maxWaitTimeMs: 5 * 60 * 1000, pollIntervalMs: 5000 });
 
-    (global as { regressionEventId?: string }).regressionEventId = eventId;
-    (global as { regressionExpectedDate?: string }).regressionExpectedDate = expectedDate;
-    (global as { regressionHmacKey?: string }).regressionHmacKey = hmacKey;
-    (global as { regressionEventTimestampMs?: number }).regressionEventTimestampMs = now.getTime();
+    (global as { regressionEventId?: string | undefined }).regressionEventId = eventId;
+    (global as { regressionExpectedDate?: string | undefined }).regressionExpectedDate = expectedDate;
+    (global as { regressionHmacKey?: string | undefined }).regressionHmacKey = hmacKey;
+    (global as { regressionEventTimestampMs?: number | undefined }).regressionEventTimestampMs = now.getTime();
 
     const totalSetupDuration = Date.now() - setupStartTime;
     (global as { regressionSetupDurationMs?: number }).regressionSetupDurationMs = totalSetupDuration;

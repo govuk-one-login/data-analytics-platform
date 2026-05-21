@@ -16,7 +16,7 @@ export const pollForRawLayerData = async (
   const tableName = 'txma-refactored';
 
   if (timestamps && eventIds.length === 1) {
-    await pollForDataWithTimestamps(eventIds[0], timestamps, database, tableName, 'raw layer', options);
+    await pollForDataWithTimestamps(eventIds[0]!, timestamps, database, tableName, 'raw layer', options);
   } else {
     await pollForData(eventIds, database, tableName, 'raw layer', options);
   }
@@ -52,7 +52,7 @@ async function pollForDataWithTimestamps(
       const results = await executeAthenaQuery(query, database, 30000);
       const foundTimestamps = results
         .slice(1)
-        .map((row: { Data?: { VarCharValue?: string }[] }) => row.Data?.[1]?.VarCharValue)
+        .map(row => row.Data?.[1]?.VarCharValue)
         .filter((v): v is string => Boolean(v));
 
       const foundTimestampNumbers = new Set(foundTimestamps.map(ts => Number.parseInt(ts, 10)));
@@ -112,7 +112,7 @@ async function checkEventsInTable(eventIds: string[], database: string, tableNam
     const results = await executeAthenaQuery(query, database);
     const foundIds = results
       .slice(1)
-      .map((row: { Data?: { VarCharValue?: string }[] }) => row.Data?.[0]?.VarCharValue)
+      .map(row => row.Data?.[0]?.VarCharValue)
       .filter((v): v is string => Boolean(v));
     return foundIds;
   } catch {

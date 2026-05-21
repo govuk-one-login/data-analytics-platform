@@ -34,7 +34,8 @@ const getFileMetadata = (event: RedshiftGetMetadataEvent): RedshiftFileMetadata 
 };
 
 const getMetadata = (configFile: RedshiftConfig, dashboardRef: string, dataSource: string): string => {
-  const metadata = configFile[dashboardRef].data_sources[dataSource].redshift_metadata;
+  const dashboard = configFile[dashboardRef];
+  const metadata = dashboard?.data_sources[dataSource]?.redshift_metadata;
   if (metadata === null || metadata === undefined) {
     logger.error('Could not get metadata from config file', { configFile, dashboardRef, dataSource });
     throw new Error('Metadata was null or undefined');

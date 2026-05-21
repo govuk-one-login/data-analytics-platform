@@ -23,9 +23,9 @@ describe('TxMA consumer lambda to raw layer integration tests', () => {
 
     // Group results by event_id
     batchResults = new Map();
-    const headers = results[0];
+    const headers = results[0]!;
     for (let i = 1; i < results.length; i++) {
-      const row = results[i];
+      const row = results[i]!;
       const eventId = row.Data?.[0]?.VarCharValue;
       if (eventId) {
         if (!batchResults.has(eventId)) {

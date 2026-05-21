@@ -8,20 +8,22 @@ interface MockLogMessage {
   execution_arn?: string;
 }
 
-const mockSend = jest.fn();
+const mockSend = vi.fn();
 
 // Mock modules before any imports
-jest.doMock('@aws-sdk/client-eventbridge', () => ({
-  EventBridgeClient: jest.fn().mockImplementation(() => ({
-    send: mockSend,
-  })),
-  PutEventsCommand: jest.fn().mockImplementation(input => ({ input })),
+vi.doMock('@aws-sdk/client-eventbridge', () => ({
+  EventBridgeClient: vi.fn(function MockEventBridgeClient() {
+    return { send: mockSend };
+  }),
+  PutEventsCommand: vi.fn(function MockPutEventsCommand(input: unknown) {
+    return { input };
+  }),
 }));
 
-jest.doMock('@aws-lambda-powertools/logger', () => ({
-  Logger: jest.fn().mockImplementation(() => ({
-    error: jest.fn(),
-    info: jest.fn(),
+vi.doMock('@aws-lambda-powertools/logger', () => ({
+  Logger: vi.fn().mockImplementation(() => ({
+    error: vi.fn(),
+    info: vi.fn(),
   })),
 }));
 
@@ -34,7 +36,7 @@ beforeAll(async () => {
 
 describe('redshift-error-notification', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockSend.mockResolvedValue({});
     process.env.AWS_REGION = 'eu-west-2';
   });
@@ -81,7 +83,7 @@ describe('redshift-error-notification', () => {
 
     expect(mockSend).toHaveBeenCalledTimes(1);
 
-    const putEventsCommand = mockSend.mock.calls[0][0];
+    const putEventsCommand = mockSend.mock.calls[0]![0];
     expect(putEventsCommand.input.Entries).toHaveLength(1);
     expect(putEventsCommand.input.Entries[0].Source).toBe('dap.redshift.errors');
     expect(putEventsCommand.input.Entries[0].DetailType).toBe('Redshift Error');

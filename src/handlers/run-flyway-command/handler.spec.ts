@@ -49,54 +49,44 @@ const REDSHIFT_JAR_NAME = 'redshift-jdbc42-2.1.0.25.jar';
 
 const TEST_EVENT: RunFlywayEvent = { command: 'info', database: DATABASE };
 
-jest.mock('node:child_process', (): child_process.SpawnSyncReturns<Buffer> => {
+vi.mock('node:child_process', async () => {
   return {
-    __esModule: true,
-    ...jest.requireActual('node:child_process'),
+    ...(await vi.importActual<typeof import('node:child_process')>('node:child_process')),
   };
 });
 
-const spawnSyncSpy = jest.spyOn(child_process, 'spawnSync');
+const spawnSyncSpy = vi.spyOn(child_process, 'spawnSync');
 
-jest.mock('node:fs', () => {
+vi.mock('node:fs', async () => {
+  const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
   return {
-    __esModule: true,
-    ...jest.requireActual('node:fs'),
-    // if this default property is missing, we get the error `TypeError: Cannot read properties of undefined (reading 'writev')` with Jest 30
-    // i am not sure why it did not happen before jest 30 but i think it is something to do with ESM/CJS changes
-    // in any case the ultimate root cause was in node_modules/@isaacs/fs-minipass/dist/commonjs/index.js
-    // which seems to check if the module (node:fs in this case) it is importing is ESM, and if not put its properties under a `default` object
-    // it then tries to access `writev` via this `default` object (`const writev = fs_1.default.writev;`) and i am speculating it fails
-    // as node:fs was ESM so the `default` object was never created (but for some reason we are executing the CJS version of fs-minipass)
-    default: {
-      ...jest.requireActual('node:fs'),
-    },
+    ...actual,
+    // Expose as default to satisfy CJS consumers (e.g. @isaacs/fs-minipass) that access fs.default.writev
+    default: actual,
   };
 });
 
-const mkdirSyncSpy = jest.spyOn(fs, 'mkdirSync');
-const createWriteStreamSpy = jest.spyOn(fs, 'createWriteStream');
-const readdirSyncSpy = jest.spyOn(fs, 'readdirSync');
-const renameSyncSpy = jest.spyOn(fs, 'renameSync');
-const existsSyncSpy = jest.spyOn(fs, 'existsSync');
+const mkdirSyncSpy = vi.spyOn(fs, 'mkdirSync');
+const createWriteStreamSpy = vi.spyOn(fs, 'createWriteStream');
+const readdirSyncSpy = vi.spyOn(fs, 'readdirSync');
+const renameSyncSpy = vi.spyOn(fs, 'renameSync');
+const existsSyncSpy = vi.spyOn(fs, 'existsSync');
 
-jest.mock('node:path', () => {
+vi.mock('node:path', async () => {
   return {
-    __esModule: true,
-    ...jest.requireActual('node:path'),
+    ...(await vi.importActual<typeof import('node:path')>('node:path')),
   };
 });
 
-const parseSpy = jest.spyOn(path, 'parse');
+const parseSpy = vi.spyOn(path, 'parse');
 
-jest.mock('tar', () => {
+vi.mock('tar', async () => {
   return {
-    __esModule: true,
-    ...jest.requireActual('tar'),
+    ...(await vi.importActual<typeof import('tar')>('tar')),
   };
 });
 
-const tarExtractSpy = jest.spyOn(tar, 'x');
+const tarExtractSpy = vi.spyOn(tar, 'x');
 
 let FLYWAY_CONNECTION_ERROR: Record<string, unknown>;
 
@@ -105,12 +95,16 @@ let FLYWAY_INFO: Record<string, unknown>;
 beforeAll(async () => {
   FLYWAY_CONNECTION_ERROR = JSON.parse(await getTestResource('flyway-connection-error.json'));
   FLYWAY_INFO = JSON.parse(await getTestResource('flyway-info.json'));
-  mkdirSyncSpy.mockImplementation();
-  createWriteStreamSpy.mockImplementation();
-  readdirSyncSpy.mockReturnValue([FLYWAY_TAR_NAME, REDSHIFT_JAR_NAME]);
-  parseSpy.mockImplementation(path => ({
-    base: path.substring(path.lastIndexOf('/') + 1),
-    dir: path.substring(0, path.lastIndexOf('/')),
+  mkdirSyncSpy.mockImplementation(() => undefined);
+  createWriteStreamSpy.mockImplementation(() => undefined as unknown as fs.WriteStream);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readdirSyncSpy.mockReturnValue([FLYWAY_TAR_NAME, REDSHIFT_JAR_NAME] as any);
+  parseSpy.mockImplementation(p => ({
+    root: '',
+    ext: '',
+    name: p.substring(p.lastIndexOf('/') + 1),
+    base: p.substring(p.lastIndexOf('/') + 1),
+    dir: p.substring(0, p.lastIndexOf('/')),
   }));
   tarExtractSpy.mockImplementation(options => {
     expect(options.file).toEqual(`${LIBRARY_FILES_PATH}/${FLYWAY_TAR_NAME}`);
@@ -335,14 +329,14 @@ test('JSON parse error in decodeOutput', async () => {
   mockS3Responses();
   mockSecretsManagerResponses();
 
-  spawnSyncSpy.mockImplementation(() => {
-    return {
-      status: 0,
-      stdout: Buffer.from('invalid json {', 'utf-8'),
-      stderr: Buffer.from('', 'utf-8'),
-      error: undefined,
-    };
-  });
+  spawnSyncSpy.mockImplementation(
+    () =>
+      ({
+        status: 0,
+        stdout: Buffer.from('invalid json {', 'utf-8'),
+        stderr: Buffer.from('', 'utf-8'),
+      }) as unknown as ReturnType<typeof child_process.spawnSync>,
+  );
 
   const response = await handler(TEST_EVENT);
   expect(response.status).toEqual(0);
@@ -355,15 +349,14 @@ test('null output buffer', async () => {
   mockS3Responses();
   mockSecretsManagerResponses();
 
-  spawnSyncSpy.mockImplementation(() => {
-    return {
-      status: 0,
-      // @ts-expect-error Simulating null buffer for test coverage
-      stdout: null,
-      stderr: Buffer.from('', 'utf-8'),
-      error: undefined,
-    };
-  });
+  spawnSyncSpy.mockImplementation(
+    () =>
+      ({
+        status: 0,
+        stdout: null,
+        stderr: Buffer.from('', 'utf-8'),
+      }) as unknown as ReturnType<typeof child_process.spawnSync>,
+  );
 
   const response = await handler(TEST_EVENT);
   expect(response.status).toEqual(0);
@@ -382,7 +375,6 @@ test('write stream error', async () => {
       return this;
     }
 
-    // @ts-expect-error this is fine as it's just for creating a mock
     on(event: string, listener: (err?: Error) => void): this {
       if (event === 'error') {
         listener(new Error('Write stream error'));
@@ -428,13 +420,13 @@ const spawnSyncResult = (
   stdout: Record<string, unknown>,
   stderr: Record<string, unknown>,
   error?: Error,
-): child_process.SpawnSyncReturns<Buffer> => {
+): ReturnType<typeof child_process.spawnSync> => {
   return {
     status,
     stdout: Buffer.from(JSON.stringify(stdout), 'utf-8'),
     stderr: Buffer.from(JSON.stringify(stderr), 'utf-8'),
-    error,
-  };
+    ...(error === undefined ? {} : { error }),
+  } as unknown as ReturnType<typeof child_process.spawnSync>;
 };
 
 class MockReadable extends Readable {
@@ -443,7 +435,6 @@ class MockReadable extends Readable {
     return this;
   }
 
-  // @ts-expect-error this is fine as it's just for creating a mock
   on(event: string, listener: () => void): this {
     if (event === 'close') {
       listener();

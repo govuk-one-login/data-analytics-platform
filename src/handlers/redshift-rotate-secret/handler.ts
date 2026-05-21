@@ -54,10 +54,10 @@ const rotateSecret = async (event: RotateSecretEvent): Promise<void> => {
     logAndThrow(`Secret version ${event.ClientRequestToken} has no stage for rotation`);
   }
 
-  if (version.includes('AWSCURRENT')) {
+  if (version!.includes('AWSCURRENT')) {
     logger.info(`Secret version ${event.ClientRequestToken} already set as AWSCURRENT`);
     return;
-  } else if (!version.includes('AWSPENDING')) {
+  } else if (!version!.includes('AWSPENDING')) {
     logAndThrow(`Secret version ${event.ClientRequestToken} not set as AWSPENDING`);
   }
 

@@ -102,9 +102,9 @@ export interface LambdaInvokeResponse {
 // custom response as real response LogResult is base64 encoded and Payload is encoded as a UintArray
 export const lambdaInvokeResponse = (response: InvokeCommandOutput): LambdaInvokeResponse => {
   return {
-    executedVersion: response.ExecutedVersion,
-    statusCode: response.StatusCode,
-    functionError: response.FunctionError,
+    ...(response.ExecutedVersion === undefined ? {} : { executedVersion: response.ExecutedVersion }),
+    ...(response.StatusCode === undefined ? {} : { statusCode: response.StatusCode }),
+    ...(response.FunctionError === undefined ? {} : { functionError: response.FunctionError }),
     logResult: Buffer.from(response.LogResult ?? '', 'base64').toString('utf-8'),
     payload: decodeObject(response.Payload ?? new Uint8Array([0x7b, 0x7d])),
   };

@@ -39,8 +39,8 @@ describe('Event Replay Integration Test', () => {
     `;
     const factResults = await executeRedshiftQuery(factQuery);
     expect(factResults).toHaveLength(1);
-    expect(factResults[0].event_id).toBe(expectedInitialConformedData.fact.event_id);
-    expect(factResults[0].component_id).toBe(expectedInitialConformedData.fact.component_id);
+    expect(factResults[0]!.event_id).toBe(expectedInitialConformedData.fact.event_id);
+    expect(factResults[0]!.component_id).toBe(expectedInitialConformedData.fact.component_id);
 
     const extensionsQuery = `
       SELECT parent_attribute_name, event_attribute_name, event_attribute_value
@@ -110,7 +110,7 @@ describe('Event Replay Integration Test', () => {
         WHERE event_id = '${eventId}'
       `;
       const countResults = await executeRedshiftQuery(countQuery);
-      expect(countResults[0].count).toBe(1);
+      expect(countResults[0]!.count).toBe(1);
 
       const extensionsQuery = `
         SELECT parent_attribute_name, event_attribute_name, event_attribute_value

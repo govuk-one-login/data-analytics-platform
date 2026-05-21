@@ -92,6 +92,11 @@ test('encode and decode', () => {
   expect(decoded).toEqual(testObject);
 });
 
+test('decode object throws when input is undefined', () => {
+  // Unit Test
+  expect(() => decodeObject(undefined)).toThrow('Uint8Array to decode was undefined');
+});
+
 test('parse s3 response as string', async () => {
   // Unit Test
   await expect(parseS3ResponseAsString(mockS3Response('hi'))).resolves.toEqual('hi');
@@ -194,6 +199,11 @@ test('array partition', () => {
   expect(arrayPartition([1, 2, 3, 4, 5, 6], 5)).toEqual(expect.arrayContaining([[1, 2, 3, 4, 5], [6]]));
 });
 
+test('array partition throws when partition size is less than one', () => {
+  // Unit Test
+  expect(() => arrayPartition([], 0)).toThrow('Partition size must be greater than zero');
+});
+
 test('ensure defined', () => {
   // Unit Test
   const response = { one: 'one', two: undefined };
@@ -205,7 +215,7 @@ test('find or throw', () => {
   // Unit Test
   expect(findOrThrow([1, 2, 3, 4], n => n === 2)).toEqual(2);
   expect(() => findOrThrow([1, 2, 3, 4], n => n === 8)).toThrow(
-    'Unable to find element matching predicate (n)=>n === 8',
+    'Unable to find element matching predicate (n) => n === 8',
   );
 });
 
