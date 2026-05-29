@@ -2,6 +2,8 @@ TfstateBucket:
   Type: AWS::S3::Bucket
   Properties:
     BucketName: !Sub di-txma-dap-${Environment}-tfstate
+    LoggingConfiguration:
+      LogFilePrefix: tfstate-logs/
     VersioningConfiguration:
       Status: Enabled
     PublicAccessBlockConfiguration:
