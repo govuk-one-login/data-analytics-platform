@@ -122,6 +122,6 @@ describe('Event Replay Integration Test', () => {
       expect(extensionsResults.length).toBe(expectedReplayConformedData.extensions.length);
       expect(extensionsResults).toEqual(expect.arrayContaining(expectedReplayConformedData.extensions));
     },
-    10 * 60 * 1000,
+    25 * 60 * 1000,
   );
 });

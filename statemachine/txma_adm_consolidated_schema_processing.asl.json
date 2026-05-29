@@ -23,11 +23,40 @@
                     "Next": "RunningInstanceDetected"
                 }
             ],
-            "Default": "adm_refresh_update_first"
+            "Default": "check_adm_refresh_enabled"
         },
         "RunningInstanceDetected": {
             "Type": "Fail",
             "Error": "RunningInstanceDetected"
+        },
+        "check_adm_refresh_enabled": {
+            "Comment": "Check if ADM refresh procedures are available in this environment",
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable": "$.runADMRefresh",
+                    "IsPresent": false,
+                    "Next": "set_adm_refresh_flag"
+                }
+            ],
+            "Default": "set_adm_refresh_flag"
+        },
+        "set_adm_refresh_flag": {
+            "Type": "Pass",
+            "Result": "${RunADMRefresh}",
+            "ResultPath": "$.runADMRefresh",
+            "Next": "is_adm_refresh_enabled"
+        },
+        "is_adm_refresh_enabled": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable": "$.runADMRefresh",
+                    "StringEquals": "true",
+                    "Next": "adm_refresh_update_first"
+                }
+            ],
+            "Default": "trigger_adm_refresh_v3_step_function"
         },
         "adm_refresh_update_first": {
             "Comment": "Invoke first ADM Refresh update script",
