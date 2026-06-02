@@ -267,7 +267,7 @@ echo "--- S3 Buckets ---"
 BUCKETS=$($AWS s3api list-buckets --query 'Buckets[].Name' | jq -r '.[]')
 for BUCKET in $BUCKETS; do
   if ! is_in_iac "$BUCKET" "${IAC_BUCKETS[@]}" && ! cfn_has "$BUCKET"; then
-    echo "  ORPHAN: $BUCKET"
+    echo "  $BUCKET"
   fi
 done
 
@@ -280,7 +280,7 @@ echo "$FUNCTIONS" | while IFS= read -r fn; do
   if ! is_in_iac "$NAME" "${IAC_LAMBDAS[@]}" && ! is_accelerator_managed "$NAME" && ! cfn_has "$NAME" && ! cfn_has_partial "$NAME"; then
     MODIFIED=$(echo "$fn" | jq -r '.LastModified')
     RUNTIME=$(echo "$fn" | jq -r '.Runtime')
-    echo "  ORPHAN: $NAME (runtime: $RUNTIME, last modified: $MODIFIED)"
+    echo "  $NAME (runtime: $RUNTIME, last modified: $MODIFIED)"
   fi
 done
 
@@ -293,7 +293,7 @@ for QUEUE_URL in $QUEUES; do
   if ! is_in_iac "$QUEUE_NAME" "${IAC_QUEUES[@]}" && ! is_accelerator_managed "$QUEUE_NAME" && ! cfn_has "$QUEUE_URL" && ! cfn_has_partial "$QUEUE_NAME"; then
     ATTRS=$($AWS sqs get-queue-attributes --queue-url "$QUEUE_URL" --attribute-names ApproximateNumberOfMessages --query 'Attributes' 2>/dev/null || echo "{}")
     MSGS=$(echo "$ATTRS" | jq -r '.ApproximateNumberOfMessages // "?"')
-    echo "  ORPHAN: $QUEUE_NAME (messages: $MSGS)"
+    echo "  $QUEUE_NAME (messages: $MSGS)"
   fi
 done
 
@@ -305,7 +305,7 @@ echo "$STATE_MACHINES" | while IFS= read -r sm; do
   NAME=$(echo "$sm" | jq -r '.Name')
   ARN=$(echo "$sm" | jq -r '.Arn')
   if ! is_in_iac "$NAME" "${IAC_STATE_MACHINES[@]}" && ! cfn_has "$ARN" && ! cfn_has_partial "$NAME"; then
-    echo "  ORPHAN: $NAME"
+    echo "  $NAME"
   fi
 done
 
@@ -315,7 +315,7 @@ echo "--- Glue Databases ---"
 GLUE_DBS=$($AWS glue get-databases --query 'DatabaseList[].Name' | jq -r '.[]')
 for DB in $GLUE_DBS; do
   if ! is_in_iac "$DB" "${IAC_GLUE_DBS[@]}" && ! cfn_has "$DB" && ! cfn_has_partial "$DB"; then
-    echo "  ORPHAN: $DB"
+    echo "  $DB"
   fi
 done
 
@@ -325,7 +325,7 @@ echo "--- Glue Jobs ---"
 GLUE_JOBS=$($AWS glue get-jobs --query 'Jobs[].Name' | jq -r '.[]')
 for JOB in $GLUE_JOBS; do
   if ! is_in_iac "$JOB" "${IAC_GLUE_JOBS[@]}" && ! cfn_has "$JOB" && ! cfn_has_partial "$JOB"; then
-    echo "  ORPHAN: $JOB"
+    echo "  $JOB"
   fi
 done
 
@@ -335,7 +335,7 @@ echo "--- Glue Crawlers ---"
 CRAWLERS=$($AWS glue get-crawlers --query 'Crawlers[].Name' 2>/dev/null | jq -r '.[]? // empty')
 for CRAWLER in $CRAWLERS; do
   if ! is_in_iac "$CRAWLER" "${IAC_GLUE_CRAWLERS[@]}" && ! cfn_has "$CRAWLER" && ! cfn_has_partial "$CRAWLER"; then
-    echo "  ORPHAN: $CRAWLER"
+    echo "  $CRAWLER"
   fi
 done
 
@@ -345,7 +345,7 @@ echo "--- Redshift Serverless ---"
 WORKGROUPS=$($AWS redshift-serverless list-workgroups --query 'workgroups[].workgroupName' | jq -r '.[]? // empty')
 for WG in $WORKGROUPS; do
   if ! is_in_iac "$WG" "${IAC_REDSHIFT_WORKGROUPS[@]}" && ! cfn_has "$WG" && ! cfn_has_partial "$WG"; then
-    echo "  ORPHAN: $WG"
+    echo "  $WG"
   fi
 done
 
@@ -359,7 +359,7 @@ echo "$LOG_GROUPS" | while IFS= read -r lg; do
     STORED=$(echo "$lg" | jq -r '.Stored // 0')
     RETENTION=$(echo "$lg" | jq -r '.Retention // "never expires"')
     STORED_MB=$(echo "scale=2; $STORED / 1048576" | bc 2>/dev/null || echo "?")
-    echo "  ORPHAN: $NAME (${STORED_MB}MB, retention: $RETENTION)"
+    echo "  $NAME (${STORED_MB}MB, retention: $RETENTION)"
   fi
 done
 
@@ -372,7 +372,7 @@ echo "$SECRETS" | while IFS= read -r secret; do
   ARN=$(echo "$secret" | jq -r '.ARN')
   if ! is_in_iac "$NAME" "${IAC_SECRETS[@]}" && ! cfn_has "$ARN" && ! cfn_has "$NAME" && ! cfn_has_partial "$NAME"; then
     LAST=$(echo "$secret" | jq -r '.LastAccessed // "never"')
-    echo "  ORPHAN: $NAME (last accessed: $LAST)"
+    echo "  $NAME (last accessed: $LAST)"
   fi
 done
 
@@ -382,7 +382,7 @@ echo "--- SSM Parameters ---"
 SSM_PARAMS=$($AWS ssm describe-parameters --query 'Parameters[].Name' | jq -r '.[]')
 for PARAM in $SSM_PARAMS; do
   if ! is_in_iac "$PARAM" "${IAC_SSM_PARAMS[@]}" && ! is_accelerator_managed "$PARAM" && ! cfn_has "$PARAM" && ! cfn_has_partial "$PARAM"; then
-    echo "  ORPHAN: $PARAM"
+    echo "  $PARAM"
   fi
 done
 
@@ -395,7 +395,7 @@ echo "$ROLES" | while IFS= read -r role; do
   NAME=$(echo "$role" | jq -r '.Name')
   if ! matches_iac_role "$NAME" && ! cfn_has "$NAME" && ! cfn_has_partial "$NAME"; then
     CREATED=$(echo "$role" | jq -r '.Created')
-    echo "  ORPHAN: $NAME (created: $CREATED)"
+    echo "  $NAME (created: $CREATED)"
   fi
 done
 
@@ -408,7 +408,7 @@ echo "$ENDPOINTS" | while IFS= read -r ep; do
   if ! cfn_has "$ID" && ! cfn_has_partial "$ID"; then
     SERVICE=$(echo "$ep" | jq -r '.Service')
     STATE=$(echo "$ep" | jq -r '.State')
-    echo "  ORPHAN: $ID ($SERVICE, state: $STATE)"
+    echo "  $ID ($SERVICE, state: $STATE)"
   fi
 done
 
@@ -418,7 +418,7 @@ echo "--- Kinesis Firehose Delivery Streams ---"
 STREAMS=$($AWS firehose list-delivery-streams --query 'DeliveryStreamNames' | jq -r '.[]? // empty')
 for STREAM in $STREAMS; do
   if ! is_in_iac "$STREAM" "${IAC_FIREHOSE[@]}" && ! cfn_has "$STREAM" && ! cfn_has_partial "$STREAM"; then
-    echo "  ORPHAN: $STREAM"
+    echo "  $STREAM"
   fi
 done
 
@@ -428,7 +428,7 @@ echo "--- EventBridge Rules (default bus) ---"
 RULES=$($AWS events list-rules --query 'Rules[].Name' | jq -r '.[]? // empty')
 for RULE in $RULES; do
   if ! is_in_iac "$RULE" "${IAC_EVENTBRIDGE_RULES[@]}" && ! is_accelerator_managed "$RULE" && ! cfn_has "$RULE" && ! cfn_has_partial "$RULE"; then
-    echo "  ORPHAN: $RULE"
+    echo "  $RULE"
   fi
 done
 
