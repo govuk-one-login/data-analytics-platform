@@ -42,7 +42,7 @@ jobs:
           config_file: .checkov.ci.yml
           directory: iac-dist
           quiet: true
-          baseline_branch: main
+          baseline: .checkov.baseline
 
       # scripts
       - name: Script formatting checks
