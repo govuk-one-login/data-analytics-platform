@@ -20,6 +20,6 @@ export const getSecret = async <T>(
       .then(response => ensureDefined(() => response.SecretString));
     return JSON.parse(secretString);
   } catch (error) {
-    throw new Error(`Error getting secret - ${getErrorMessage(error)}`);
+    throw new Error(`Error getting secret - ${getErrorMessage(error)}`, { cause: error });
   }
 };

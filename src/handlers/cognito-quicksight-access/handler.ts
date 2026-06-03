@@ -136,6 +136,7 @@ const getEmbedUrl = async (accountId: string, username: string): Promise<string>
       `Error getting quicksight embed url for userArn ${userArn} - ${JSON.stringify(
         error instanceof Error ? error.message : error,
       )}`,
+      { cause: error },
     );
   }
 };
