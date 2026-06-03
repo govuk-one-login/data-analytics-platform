@@ -966,6 +966,7 @@ ADMConsolidatedModelProcessingStateMachine:
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
       RedshiftSecretArn: !Ref RedshiftSecret
       ADMV3RefreshStepFunctionArn: !Ref ADMV3RefreshStateMachine
+      RunADMRefresh: !If [IsProduction, 'true', 'false']
 
 SplunkMigratedRawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job
