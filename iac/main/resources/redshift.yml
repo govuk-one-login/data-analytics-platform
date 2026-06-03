@@ -82,6 +82,8 @@ QuickSightEnvironmentPolicy:
 
 RedshiftSecret:
   Type: 'AWS::SecretsManager::Secret'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Description: This is a Secrets Manager secret for a Redshift cluster
     GenerateSecretString:
@@ -170,6 +172,8 @@ RedshiftSecretRotationLambdaPermission:
 
 RedshiftServerlessNamespace:
   Type: 'AWS::RedshiftServerless::Namespace'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AdminUsername: !Sub '{{resolve:secretsmanager:${RedshiftSecret}::username}}'
     AdminUserPassword: !Sub '{{resolve:secretsmanager:${RedshiftSecret}::password}}'
@@ -191,6 +195,8 @@ RedshiftServerlessNamespace:
 
 RedshiftServerlessWorkgroup:
   Type: 'AWS::RedshiftServerless::Workgroup'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     BaseCapacity: 256
     EnhancedVpcRouting: false
@@ -329,6 +335,8 @@ RunFlywayCommandLambda:
 
 FlywayFilesBucket:
   Type: AWS::S3::Bucket
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-flyway-files
@@ -586,6 +594,8 @@ RedshiftErrorEventRule:
 # Dead Letter Queue for failed EventBridge rule invocations
 RedshiftErrorDLQ:
   Type: AWS::SQS::Queue
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     QueueName: !Sub ${Environment}-dap-redshift-error-dlq
     MessageRetentionPeriod: 1209600 # 14 days

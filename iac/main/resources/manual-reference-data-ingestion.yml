@@ -41,6 +41,8 @@ RedshiftGetMetadataLambda:
 
 GlueJobResultsBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-glue-job-process-results
@@ -94,6 +96,8 @@ GlueJobResultsBucketPolicy:
 
 ReferenceDataSQSQueue:
   Type: AWS::SQS::Queue
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     ContentBasedDeduplication: true
     FifoQueue: true
@@ -106,6 +110,8 @@ ReferenceDataSQSQueue:
 
 DeadLetterQueue:
   Type: AWS::SQS::Queue
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     FifoQueue: true
     QueueName: !Sub ${Environment}-reference-data-processing-dlq.fifo
@@ -113,12 +119,16 @@ DeadLetterQueue:
 
 LambdaDeadLetterQueue:
   Type: AWS::SQS::Queue
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     QueueName: !Sub ${Environment}-reference-data-processing-lambda-dlq
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 ProcessReferenceDataLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: /aws/stepfunction/dap-reference-data-redshift-ingestion
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -215,6 +225,8 @@ GlueRedshiftConnection:
 
 ReferenceDataRedshiftIngestionGlueJob:
   Type: AWS::Glue::Job
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: 'glueetl'
@@ -369,6 +381,8 @@ ManualReferenceDataUploadRole:
 
 ProcessReferenceDapAlertLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: /aws/events/reference-data-ingestion-pipeline-alert
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -442,6 +456,8 @@ ReferenceDataTopicRoutingPolicy:
 
 SNSReferenceDataAlertTopic:
   Type: AWS::SNS::Topic
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     TopicName: !Sub ${Environment}-reference-data-ingestion-alerts-topic
     KmsMasterKeyId: !GetAtt KmsKey.Arn

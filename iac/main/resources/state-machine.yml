@@ -1,5 +1,7 @@
 ELTMetadataBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-elt-metadata
@@ -81,6 +83,8 @@ ELTMetadataBucketPolicy:
 
 StateMachineResultsBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-step-function-process-results
@@ -134,6 +138,8 @@ StateMachineResultsBucketPolicy:
 
 AthenaRawLayerProcessingLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: !Sub /aws/stepfunction/dap-process-raw-layer
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -345,6 +351,8 @@ GlueLogGroupParameter:
 
 DataQualityMetricsBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-data-quality-metrics
@@ -386,6 +394,8 @@ DataQualityMetricsBucketPolicy:
 
 DataQualityGlueDatabase:
   Type: AWS::Glue::Database
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseInput:
@@ -393,6 +403,8 @@ DataQualityGlueDatabase:
 
 DataQualityMetricsGlueTable:
   Type: AWS::Glue::Table
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref DataQualityGlueDatabase
@@ -422,6 +434,8 @@ DataQualityMetricsGlueTable:
 
 DataQualityPythonGlueJob:
   Type: AWS::Glue::Job
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: pythonshell
@@ -609,6 +623,8 @@ GlueScriptsExecutionRole:
 
 RedshiftProcessingLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: /aws/stepfunction/dap-redshift-processing
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -758,6 +774,8 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
 
 RawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: pythonshell
@@ -854,12 +872,16 @@ TopicRoutingPolicy:
 
 SNSAlertTopic:
   Type: AWS::SNS::Topic
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     TopicName: !Sub ${Environment}-dap-elt-support-management-topic
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 DataQualityStageLayerOptimisedPythonGlueJob:
   Type: AWS::Glue::Job
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: pythonshell
@@ -884,6 +906,8 @@ DataQualityStageLayerOptimisedPythonGlueJob:
 
 RedshiftConsolidatedModelProcessingLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: /aws/stepfunction/dap-consolidated-stage-layer-to-redshift
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -891,6 +915,8 @@ RedshiftConsolidatedModelProcessingLogGroup:
 
 ADMConsolidatedModelProcessingLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: /aws/stepfunction/dap-consolidated-conformed-layer-to-adm
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -898,6 +924,8 @@ ADMConsolidatedModelProcessingLogGroup:
 
 ADMV3RefreshLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: /aws/stepfunction/dap-consolidated-conformed-layer-to-adm-v3
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -970,6 +998,8 @@ ADMConsolidatedModelProcessingStateMachine:
 
 SplunkMigratedRawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: pythonshell

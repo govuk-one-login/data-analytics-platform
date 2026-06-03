@@ -1,5 +1,7 @@
 RawLayerBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-raw-layer
@@ -94,6 +96,8 @@ RawGlueCrawlerRole:
 
 RawGlueDatabase:
   Type: AWS::Glue::Database
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseInput:
@@ -101,6 +105,8 @@ RawGlueDatabase:
 
 SplunkRawLayerSingleTableCrawler:
   Type: AWS::Glue::Crawler
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Name: splunk_migrated_data_fixed_schema
     Role: !GetAtt RawGlueCrawlerRole.Arn
@@ -120,6 +126,8 @@ SplunkRawLayerSingleTableCrawler:
 
 SplunkMigrationGlueTable:
   Type: AWS::Glue::Table
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref RawGlueDatabase
@@ -154,6 +162,8 @@ SplunkPerformanceIndexSecret:
 
 TxmaRefactoredTable:
   Type: AWS::Glue::Table
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     CatalogId: !Ref AWS::AccountId
     DatabaseName: !Ref RawGlueDatabase

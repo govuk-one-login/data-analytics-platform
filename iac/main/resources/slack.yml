@@ -1,5 +1,7 @@
 DAPNotificationsTopic:
   Type: AWS::SNS::Topic
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     TopicName: !Sub ${AWS::StackName}-alerts-notification-topic
     KmsMasterKeyId: !GetAtt KmsKey.Arn

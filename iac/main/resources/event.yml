@@ -3,6 +3,8 @@
 # it also exists in production preview to allow manual event injection
 EventConsumerQueue:
   Type: AWS::SQS::Queue
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsDevOrBuild
   Properties:
     QueueName: !Sub ${Environment}-placeholder-txma-event-queue
@@ -13,6 +15,8 @@ EventConsumerQueue:
 
 EventConsumerDlq:
   Type: AWS::SQS::Queue
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsDevOrBuild
   Properties:
     QueueName: !Sub ${Environment}-placeholder-txma-event-dlq
@@ -74,6 +78,8 @@ EventConsumerEventSourceMapping:
 
 KinesisFirehose:
   Type: 'AWS::KinesisFirehose::DeliveryStream'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     DeliveryStreamName: !Sub ${Environment}-${DeliveryStreamName}
     DeliveryStreamType: DirectPut
@@ -150,6 +156,8 @@ EventConsumerQueueTestUrl:
 
 E2ETestProducerQueueKmsKey:
   Type: AWS::KMS::Key
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsStaging
   Properties:
     EnableKeyRotation: true
@@ -190,6 +198,8 @@ E2ETestProducerQueueKmsKeyAlias:
 
 E2ETestProducerDeadLetterQueue:
   Type: AWS::SQS::Queue
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsStaging
   Properties:
     QueueName: !Sub ${Environment}-dap-e2e-test-producer-dlq
@@ -197,6 +207,8 @@ E2ETestProducerDeadLetterQueue:
 
 E2ETestProducerQueue:
   Type: AWS::SQS::Queue
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsStaging
   Properties:
     QueueName: !Sub ${Environment}-dap-e2e-test-producer-queue

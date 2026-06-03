@@ -1,6 +1,8 @@
 QuickSightLogBucket:
   # checkov:skip=CKV_AWS_18: This is the log bucket to log quicksight access
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsQuicksightEnvironment
   Properties:
     AccessControl: Private
@@ -79,6 +81,8 @@ QuicksightAccessLambdaFunction:
 
 QuicksightApiAccessLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     KmsKeyId: '{{resolve:ssm:LogsKmsKeyArn}}'
     LogGroupName: !Sub /aws/apigateway/${AWS::StackName}-endpoint-access-logs
@@ -135,6 +139,8 @@ QuicksightAccessApiGatewayLambdaPermission2:
 
 QuicksightAccessUserPool:
   Type: AWS::Cognito::UserPool
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsQuicksightEnvironment
   Properties:
     AccountRecoverySetting:
@@ -184,6 +190,8 @@ QuicksightAccessUserPool:
 
 QuicksightAccessUserPoolClient:
   Type: AWS::Cognito::UserPoolClient
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsQuicksightEnvironment
   Properties:
     AllowedOAuthFlows:
@@ -214,6 +222,8 @@ QuicksightAccessUserPoolClient:
 
 QuicksightAccessUserPoolDomain:
   Type: AWS::Cognito::UserPoolDomain
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsQuicksightEnvironment
   Properties:
     Domain: !Sub ${Environment}-dap-quicksight-access
@@ -376,6 +386,8 @@ webAcl:
 
 cloudwatchLogsGroup:
   Type: 'AWS::Logs::LogGroup'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsQuicksightEnvironment
   Properties:
     LogGroupName: !Sub 'aws-waf-logs-${Environment}-dap-cloudWatchLog'
@@ -426,6 +438,8 @@ WafAclSSM:
 
 WAFLoggingKmsKey:
   Type: AWS::KMS::Key
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsQuicksightEnvironment
   Properties:
     EnableKeyRotation: true
@@ -509,6 +523,8 @@ DataAnalyticsQuicksightSyncRole:
 
 QuicksightAccessKmsKey:
   Type: AWS::KMS::Key
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsProduction
   Properties:
     EnableKeyRotation: true
@@ -530,6 +546,8 @@ QuicksightAccessKmsKeyAlias:
 
 GoogleCredentialsSecret:
   Type: AWS::SecretsManager::Secret
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsProduction
   Properties:
     Description: Credentials JSON for a service account that can access the Google Sheets API
