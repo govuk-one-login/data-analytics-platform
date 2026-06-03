@@ -23,7 +23,7 @@ export const setEnvVarsFromSsm = async (mappings: Record<string, string>) => {
       }
       process.env[k] = value;
     } catch (error) {
-      throw new Error(`Failed to retrieve SSM parameter ${v} for ${k}: ${error}`);
+      throw new Error(`Failed to retrieve SSM parameter ${v} for ${k}: ${error}`, { cause: error });
     }
   }
 
