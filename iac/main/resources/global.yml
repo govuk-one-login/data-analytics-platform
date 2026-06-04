@@ -1,6 +1,8 @@
 GlobalLogBucket:
   # checkov:skip=CKV_AWS_18: This is the log bucket for all other buckets - no need for a log bucket of the log bucket
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub '${Environment}-dap-s3-logs'
@@ -53,6 +55,8 @@ GlobalLogBucketPolicy:
 
 GlobalNonEventBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub '${Environment}-dap-s3-non-event'
@@ -101,6 +105,8 @@ GlobalNonEventBucketPolicy:
 
 VPCFlowLogsBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub '${Environment}-dap-vpc-flow-logs'
@@ -171,6 +177,8 @@ S3NotificationsLoggerLambda:
 
 S3NotificationsLoggerEventBridgeRule:
   Type: AWS::Events::Rule
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Description: Rule to send all s3:ObjectCreated:* and s3:ObjectRemoved:* events to the logger lambda
     EventPattern:
@@ -196,6 +204,8 @@ S3BucketNotificationLambdaPermission:
 
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Name: !Sub ${Environment}-dap-glue-security-configuration
     EncryptionConfiguration:
@@ -311,6 +321,8 @@ TestSupportLambdaTestingContainerPermission:
 
 KmsKey:
   Type: AWS::KMS::Key
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     EnableKeyRotation: true
     KeyPolicy:
@@ -358,6 +370,8 @@ KmsKeyAlias:
 
 VPCForDAP:
   Type: AWS::EC2::VPC
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     CidrBlock: 10.0.0.0/16
     EnableDnsHostnames: true
@@ -370,6 +384,8 @@ VPCForDAP:
 
 FlowLogRole:
   Type: 'AWS::IAM::Role'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AssumeRolePolicyDocument:
       Version: '2012-10-17'
@@ -401,6 +417,8 @@ FlowLogs:
 
 SubnetForDAP1:
   Type: AWS::EC2::Subnet
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     VpcId: !Ref VPCForDAP
     AvailabilityZone: !Select
@@ -416,6 +434,8 @@ SubnetForDAP1:
 
 SubnetForDAP2:
   Type: AWS::EC2::Subnet
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     VpcId: !Ref VPCForDAP
     AvailabilityZone: !Select
@@ -431,6 +451,8 @@ SubnetForDAP2:
 
 SubnetForDAP3:
   Type: AWS::EC2::Subnet
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     VpcId: !Ref VPCForDAP
     AvailabilityZone: !Select
@@ -446,6 +468,8 @@ SubnetForDAP3:
 
 RouteTableForDAP:
   Type: AWS::EC2::RouteTable
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Tags:
       - Key: Environment
@@ -474,6 +498,8 @@ SubnetRouteTableAssocDAP3:
 
 LambdaSecurityGroup:
   Type: AWS::EC2::SecurityGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     GroupName: !Sub ${Environment}-dap-lambda-security-group
     GroupDescription: Security group for DAP lambdas
@@ -613,6 +639,8 @@ VPCEndpointStepFunctions:
 
 VpcEndpointSecurityGroup:
   Type: 'AWS::EC2::SecurityGroup'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     GroupDescription: 'Security Group for VPC Endpoints'
     VpcId: !Ref VPCForDAP
@@ -685,6 +713,8 @@ VPCEndpointRedshiftServerless:
 
 AWSSupportReadOnlyRole:
   Type: 'AWS::IAM::Role'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: 'AWS-Support-ReadOnly'
     AssumeRolePolicyDocument:
@@ -721,6 +751,8 @@ AWSSupportReadOnlyRole:
 
 TrailBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub '${Environment}-dap-cloud-trail'
@@ -778,6 +810,8 @@ TrailBucketPolicy:
 
 CloudTrailForUnauthorizedAPIChanges:
   Type: 'AWS::CloudTrail::Trail'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     S3BucketName: !Ref TrailBucket
     IncludeGlobalServiceEvents: true
@@ -793,6 +827,8 @@ CloudTrailForUnauthorizedAPIChanges:
 
 UnauthorizedApiCallLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: !Sub /aws/dap-cloud-trail-log-group
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -810,6 +846,8 @@ UnauthorizedApiCallMetricFilter:
 
 UnauthorizedApiCallAlarm:
   Type: 'AWS::CloudWatch::Alarm'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AlarmName: UnauthorizedAPICallAlarm
     MetricName: UnauthorizedAPICallCount
@@ -824,6 +862,8 @@ UnauthorizedApiCallAlarm:
 
 CloudTrailCloudWatchLogsRole:
   Type: 'AWS::IAM::Role'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AssumeRolePolicyDocument:
       Version: '2012-10-17'
@@ -847,6 +887,8 @@ CloudTrailCloudWatchLogsRole:
 
 IAMChangeLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: !Sub /aws/dap-IAM-changes-log-group
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -854,6 +896,8 @@ IAMChangeLogGroup:
 
 CloudTrailForIAMChanges:
   Type: 'AWS::CloudTrail::Trail'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     S3BucketName: !Ref TrailBucket
     IncludeGlobalServiceEvents: true
@@ -877,6 +921,8 @@ IAMChangeMetricFilter:
 
 IAMChangeAlarm:
   Type: 'AWS::CloudWatch::Alarm'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AlarmName: IAMPolicyChangeAlarm
     MetricName: IAMPolicyChangeCount
@@ -891,6 +937,8 @@ IAMChangeAlarm:
 
 IAMChangeAlertSNSTopic:
   Type: 'AWS::SNS::Topic'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     DisplayName: 'IAM Policy Change Alert'
     TopicName: 'IAMPolicyChangeAlert'
@@ -906,6 +954,8 @@ IAMChangeAlertSNSTopicSubscription:
 
 UnauthorizedApiCallSNSTopic:
   Type: 'AWS::SNS::Topic'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     DisplayName: 'Unauthorized API Call Alert'
     TopicName: 'UnauthorizedApiCallAlert'

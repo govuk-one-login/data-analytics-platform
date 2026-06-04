@@ -1,5 +1,7 @@
 StageLayerBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-stage-layer
@@ -54,6 +56,8 @@ StageLayerBucketPolicy:
 
 StageGlueDatabase:
   Type: AWS::Glue::Database
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseInput:

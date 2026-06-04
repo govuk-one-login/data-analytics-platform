@@ -1,5 +1,7 @@
 DAPAlertsSNSTopic:
   Type: AWS::SNS::Topic
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsProduction
   Properties:
     DisplayName: Slack di_dap_alerts channel topic
@@ -39,6 +41,8 @@ DAPAlertsChatbotConfiguration:
 
 QuicksightSPICEUsageAlarm:
   Type: AWS::CloudWatch::Alarm
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsProduction
   Properties:
     ActionsEnabled: true

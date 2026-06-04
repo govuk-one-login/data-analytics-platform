@@ -1,5 +1,7 @@
 AthenaWorkgroupBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-athena-workgroup
@@ -53,6 +55,8 @@ AthenaWorkgroupBucketPolicy:
 
 AthenaWorkGroup:
   Type: AWS::Athena::WorkGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Name: !Sub ${Environment}-dap-txma-processing
     Description: DAP project
