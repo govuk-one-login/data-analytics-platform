@@ -22,6 +22,8 @@ ELTMetadataBucket:
 ELTMetadataUploadRole:
   Condition: IsBuild
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: dap-elt-metadata-upload-role
     AssumeRolePolicyDocument:
@@ -147,6 +149,8 @@ AthenaRawLayerProcessingLogGroup:
 
 StepFunctionRole:
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-dap-statemachine-processing-role
     AssumeRolePolicyDocument:
@@ -461,6 +465,8 @@ DataQualityPythonGlueJob:
 
 GlueScriptsExecutionRole:
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-dap-glue-scripts-execution-role
     AssumeRolePolicyDocument:
@@ -650,6 +656,8 @@ RedshiftProcessingStateMachine:
 
 StepFunctionRedshiftProcessRole:
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   # AWS issue identified enabling CW logs for Step Function as detailed in the following link
   # https://repost.aws/questions/QURc2glxBETSe3Q6Y0UwcpQg/bug-with-loggingconfiguration
   # checkov:skip=CKV_AWS_111:Ensure IAM policies does not allow write access without constraints
@@ -1041,6 +1049,8 @@ SplunkMigratedRawStageTransformProcessPythonGlueJob:
 
 HypercareAdjustedScheduleEventBridgeRule:
   Type: AWS::Events::Rule
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Description: Rule to be enabled when rps require hypercare during onboarding
     ScheduleExpression: 'cron(30 9,13 * * ? *)'
@@ -1053,6 +1063,8 @@ HypercareAdjustedScheduleEventBridgeRule:
 
 HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole:
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-dap-hypercare-eventbridge-role
     AssumeRolePolicyDocument:

@@ -153,6 +153,8 @@ ProcessReferenceDataStateMachine:
 
 ReferenceDataProcessingPipeRole:
   Type: 'AWS::IAM::Role'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AssumeRolePolicyDocument:
       Version: '2012-10-17'
@@ -210,6 +212,8 @@ ReferenceDataProcessingPipe:
 
 GlueRedshiftConnection:
   Type: AWS::Glue::Connection
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     CatalogId: !Ref AWS::AccountId
     ConnectionInput:
@@ -358,6 +362,8 @@ S3RawToStagingLambdaPermission:
 ManualReferenceDataUploadRole:
   Condition: IsManualReferenceDataEnvironment
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-dap-manual-reference-data-upload-role
     AssumeRolePolicyDocument:

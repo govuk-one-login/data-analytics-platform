@@ -113,6 +113,8 @@ KinesisFirehose:
 
 IAMRoleKinesisFirehose:
   Type: 'AWS::IAM::Role'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-kinesis-txma-firehose-role
     AssumeRolePolicyDocument:

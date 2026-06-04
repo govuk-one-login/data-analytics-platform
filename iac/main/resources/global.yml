@@ -177,6 +177,8 @@ S3NotificationsLoggerLambda:
 
 S3NotificationsLoggerEventBridgeRule:
   Type: AWS::Events::Rule
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Description: Rule to send all s3:ObjectCreated:* and s3:ObjectRemoved:* events to the logger lambda
     EventPattern:
@@ -202,6 +204,8 @@ S3BucketNotificationLambdaPermission:
 
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Name: !Sub ${Environment}-dap-glue-security-configuration
     EncryptionConfiguration:
@@ -366,6 +370,8 @@ KmsKeyAlias:
 
 VPCForDAP:
   Type: AWS::EC2::VPC
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     CidrBlock: 10.0.0.0/16
     EnableDnsHostnames: true
@@ -378,6 +384,8 @@ VPCForDAP:
 
 FlowLogRole:
   Type: 'AWS::IAM::Role'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AssumeRolePolicyDocument:
       Version: '2012-10-17'
@@ -409,6 +417,8 @@ FlowLogs:
 
 SubnetForDAP1:
   Type: AWS::EC2::Subnet
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     VpcId: !Ref VPCForDAP
     AvailabilityZone: !Select
@@ -424,6 +434,8 @@ SubnetForDAP1:
 
 SubnetForDAP2:
   Type: AWS::EC2::Subnet
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     VpcId: !Ref VPCForDAP
     AvailabilityZone: !Select
@@ -439,6 +451,8 @@ SubnetForDAP2:
 
 SubnetForDAP3:
   Type: AWS::EC2::Subnet
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     VpcId: !Ref VPCForDAP
     AvailabilityZone: !Select
@@ -454,6 +468,8 @@ SubnetForDAP3:
 
 RouteTableForDAP:
   Type: AWS::EC2::RouteTable
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Tags:
       - Key: Environment
@@ -482,6 +498,8 @@ SubnetRouteTableAssocDAP3:
 
 LambdaSecurityGroup:
   Type: AWS::EC2::SecurityGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     GroupName: !Sub ${Environment}-dap-lambda-security-group
     GroupDescription: Security group for DAP lambdas
@@ -621,6 +639,8 @@ VPCEndpointStepFunctions:
 
 VpcEndpointSecurityGroup:
   Type: 'AWS::EC2::SecurityGroup'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     GroupDescription: 'Security Group for VPC Endpoints'
     VpcId: !Ref VPCForDAP
@@ -693,6 +713,8 @@ VPCEndpointRedshiftServerless:
 
 AWSSupportReadOnlyRole:
   Type: 'AWS::IAM::Role'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: 'AWS-Support-ReadOnly'
     AssumeRolePolicyDocument:
@@ -788,6 +810,8 @@ TrailBucketPolicy:
 
 CloudTrailForUnauthorizedAPIChanges:
   Type: 'AWS::CloudTrail::Trail'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     S3BucketName: !Ref TrailBucket
     IncludeGlobalServiceEvents: true
@@ -838,6 +862,8 @@ UnauthorizedApiCallAlarm:
 
 CloudTrailCloudWatchLogsRole:
   Type: 'AWS::IAM::Role'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AssumeRolePolicyDocument:
       Version: '2012-10-17'
@@ -870,6 +896,8 @@ IAMChangeLogGroup:
 
 CloudTrailForIAMChanges:
   Type: 'AWS::CloudTrail::Trail'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     S3BucketName: !Ref TrailBucket
     IncludeGlobalServiceEvents: true

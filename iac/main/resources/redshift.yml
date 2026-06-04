@@ -1,5 +1,7 @@
 IAMRoleRedshiftServerless:
   Type: 'AWS::IAM::Role'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-redshift-serverless-role
     AssumeRolePolicyDocument:
@@ -217,6 +219,8 @@ RedshiftServerlessWorkgroup:
 
 RedshiftAccessEC2SecurityGroup:
   Type: 'AWS::EC2::SecurityGroup'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     GroupDescription: 'Security Group for Redshift Access EC2'
     VpcId: !Ref VPCForDAP
@@ -253,6 +257,8 @@ VPCDefaultSecurityGroupAllIngress:
 
 RedshiftMigrationRole:
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-dap-redshift-migrate-role
     AssumeRolePolicyDocument:
@@ -390,6 +396,8 @@ FlywayFilesBucketPolicy:
 FlywayFilesBucketUploadRole:
   Condition: IsBuild
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: dap-flyway-files-upload-role
     AssumeRolePolicyDocument:
@@ -425,6 +433,8 @@ FlywayFilesBucketUploadRole:
 # Role to allow the data-analytics-adm repository the access to Redshift and related resources it needs
 DataAnalyticsADMRedshiftRole:
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsADMEnvironment
   Properties:
     RoleName: !Sub data-analytics-adm-redshift-role
@@ -494,6 +504,8 @@ RedshiftCreateSnapshotLambda:
 
 RedshiftCreateSnapshotScheduledRule:
   Type: AWS::Events::Rule
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Name: !Sub ${Environment}-dap-redshift-create-snapshot-rule
     Description: Schedule to create redshift snapshots using the redshift-create-snapshot lambda
@@ -577,6 +589,8 @@ RedshiftWorkgroupNameParameter:
 # EventBridge rule to forward Redshift errors to SNS in same stack
 RedshiftErrorEventRule:
   Type: AWS::Events::Rule
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Name: !Sub ${Environment}-dap-redshift-error-rule
     Description: 'Forward Redshift errors to SNS'
