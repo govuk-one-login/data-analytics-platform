@@ -1,131 +1,132 @@
--- Insert AMC_STARTED if it doesn't exist
+-- Insert AMC_PASSKEY_ENROLMENT_FAILED if it doesn't exist
 INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'AMC_STARTED', sysdate, '1999-01-01'
+SELECT 'AMC_PASSKEY_ENROLMENT_FAILED', sysdate, '1999-01-01'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'AMC_STARTED'
-);
-
--- Insert AMC_ACTION_STARTED if it doesn't exist
-INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'AMC_ACTION_STARTED', sysdate, '1999-01-01'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'AMC_ACTION_STARTED'
-);
-
--- Insert AMC_ACTION_COMPLETED if it doesn't exist
-INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'AMC_ACTION_COMPLETED', sysdate, '1999-01-01'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'AMC_ACTION_COMPLETED'
-);
-
--- Insert AMC_COMPLETED if it doesn't exist
-INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'AMC_COMPLETED', sysdate, '1999-01-01'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'AMC_COMPLETED'
-);
-
--- Insert HOME_ACTION_STARTED if it doesn't exist
-INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'HOME_ACTION_STARTED', sysdate, '1999-01-01'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'HOME_ACTION_STARTED'
+    WHERE event_name = 'AMC_PASSKEY_ENROLMENT_FAILED'
 );
 
 
--- Insert HOME_ACTION_COMPLETED if it doesn't exist
+-- Insert AMC_PASSKEY_ENROLMENT_SUCCESSFUL if it doesn't exist
 INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'HOME_ACTION_COMPLETED', sysdate, '1999-01-01'
+SELECT 'AMC_PASSKEY_ENROLMENT_SUCCESSFUL', sysdate, '1999-01-01'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'HOME_ACTION_COMPLETED'
+    WHERE event_name = 'AMC_PASSKEY_ENROLMENT_SUCCESSFUL'
 );
 
 
--- Insert AUTH_CHECK_USER_KNOWN_EMAIL if it doesn't exist
+-- Insert AMC_PASSKEY_REGISTRATION_FAILED if it doesn't exist
 INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'AUTH_CHECK_USER_KNOWN_EMAIL', sysdate, '1999-01-01'
+SELECT 'AMC_PASSKEY_REGISTRATION_FAILED', sysdate, '1999-01-01'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'AUTH_CHECK_USER_KNOWN_EMAIL'
+    WHERE event_name = 'AMC_PASSKEY_REGISTRATION_FAILED'
 );
 
--- Insert AUTH_AMC_AUTHORISATION_RECEIVED if it doesn't exist
+-- Insert AMC_PASSKEY_REGISTRATION_GENERATED if it doesn't exist
 INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'AUTH_AMC_AUTHORISATION_RECEIVED', sysdate, '1999-01-01'
+SELECT 'AMC_PASSKEY_REGISTRATION_GENERATED', sysdate, '1999-01-01'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'AUTH_AMC_AUTHORISATION_RECEIVED'
+    WHERE event_name = 'AMC_PASSKEY_REGISTRATION_GENERATED'
 );
 
-
--- Insert AUTH_AMC_AUTHORISATION_ERROR_RECEIVED if it doesn't exist
+-- Insert AMC_PASSKEY_REGISTRATION_SUCCESSFUL if it doesn't exist
 INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'AUTH_AMC_AUTHORISATION_ERROR_RECEIVED', sysdate, '1999-01-01'
+SELECT 'AMC_PASSKEY_REGISTRATION_SUCCESSFUL', sysdate, '1999-01-01'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'AUTH_AMC_AUTHORISATION_ERROR_RECEIVED'
+    WHERE event_name = 'AMC_PASSKEY_REGISTRATION_SUCCESSFUL'
 );
 
-
--- Insert AUTH_AMC_AUTHORISATION_REQUESTED if it doesn't exist
+-- Insert AUTH_PASSKEY_VERIFICATION_FAILED if it doesn't exist
 INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'AUTH_AMC_AUTHORISATION_REQUESTED', sysdate, '1999-01-01'
+SELECT 'AUTH_PASSKEY_VERIFICATION_FAILED', sysdate, '1999-01-01'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'AUTH_AMC_AUTHORISATION_REQUESTED'
-);
-
-
--- Insert HOME_AMC_AUTHORISATION_RECEIVED if it doesn't exist
-INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'HOME_AMC_AUTHORISATION_RECEIVED', sysdate, '1999-01-01'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'HOME_AMC_AUTHORISATION_RECEIVED'
-);
-
--- Insert HOME_AMC_AUTHORISATION_ERROR_RECEIVED if it doesn't exist
-INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'HOME_AMC_AUTHORISATION_ERROR_RECEIVED', sysdate, '1999-01-01'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'HOME_AMC_AUTHORISATION_ERROR_RECEIVED'
-);
-
--- Insert HOME_AMC_AUTHORISATION_REQUESTED if it doesn't exist
-INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'HOME_AMC_AUTHORISATION_REQUESTED', sysdate, '1999-01-01'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'HOME_AMC_AUTHORISATION_REQUESTED'
+    WHERE event_name = 'AUTH_PASSKEY_VERIFICATION_FAILED'
 );
 
 
--- Insert AUTH_PASSKEY_REGISTRATION_PROMPT_SKIPPED if it doesn't exist
+-- Insert AUTH_PASSKEY_VERIFICATION_SUCCESSFUL if it doesn't exist
 INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
-SELECT 'AUTH_PASSKEY_REGISTRATION_PROMPT_SKIPPED', sysdate, '1999-01-01'
+SELECT 'AUTH_PASSKEY_VERIFICATION_SUCCESSFUL', sysdate, '1999-01-01'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.batch_events_refactored
-    WHERE event_name = 'AUTH_PASSKEY_REGISTRATION_PROMPT_SKIPPED'
+    WHERE event_name = 'AUTH_PASSKEY_VERIFICATION_SUCCESSFUL'
+);
+
+
+-- Insert AUTH_PASSKEY_AUTHENTICATION_FAILED if it doesn't exist
+INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
+SELECT 'AUTH_PASSKEY_AUTHENTICATION_FAILED', sysdate, '1999-01-01'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM conformed_refactored.batch_events_refactored
+    WHERE event_name = 'AUTH_PASSKEY_AUTHENTICATION_FAILED'
+);
+
+-- Insert AUTH_PASSKEY_AUTHENTICATION_GENERATED if it doesn't exist
+INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
+SELECT 'AUTH_PASSKEY_AUTHENTICATION_GENERATED', sysdate, '1999-01-01'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM conformed_refactored.batch_events_refactored
+    WHERE event_name = 'AUTH_PASSKEY_AUTHENTICATION_GENERATED'
+);
+
+-- Insert AUTH_PASSKEY_AUTHENTICATION_SUCCESSFUL if it doesn't exist
+INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
+SELECT 'AUTH_PASSKEY_AUTHENTICATION_SUCCESSFUL', sysdate, '1999-01-01'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM conformed_refactored.batch_events_refactored
+    WHERE event_name = 'AUTH_PASSKEY_AUTHENTICATION_SUCCESSFUL'
+);
+
+-- Insert AUTH_PASSKEY_DELETE_SUCCESSFUL if it doesn't exist
+INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
+SELECT 'AUTH_PASSKEY_DELETE_SUCCESSFUL', sysdate, '1999-01-01'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM conformed_refactored.batch_events_refactored
+    WHERE event_name = 'AUTH_PASSKEY_DELETE_SUCCESSFUL'
+);
+
+
+-- Insert AUTH_PASSKEY_DELETE_FAILED if it doesn't exist
+INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
+SELECT 'AUTH_PASSKEY_DELETE_FAILED', sysdate, '1999-01-01'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM conformed_refactored.batch_events_refactored
+    WHERE event_name = 'AUTH_PASSKEY_DELETE_FAILED'
+);
+
+
+-- Insert HOME_PASSKEY_DELETE_SUCCESSFUL if it doesn't exist
+INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
+SELECT 'HOME_PASSKEY_DELETE_SUCCESSFUL', sysdate, '1999-01-01'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM conformed_refactored.batch_events_refactored
+    WHERE event_name = 'HOME_PASSKEY_DELETE_SUCCESSFUL'
+);
+
+
+-- Insert HOME_PASSKEY_DELETE_FAILED if it doesn't exist
+INSERT INTO conformed_refactored.batch_events_refactored (event_name, insert_timestamp, max_run_date)
+SELECT 'HOME_PASSKEY_DELETE_FAILED', sysdate, '1999-01-01'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM conformed_refactored.batch_events_refactored
+    WHERE event_name = 'HOME_PASSKEY_DELETE_FAILED'
 );
