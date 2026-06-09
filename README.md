@@ -46,7 +46,9 @@ The [lint-staged](https://github.com/okonet/lint-staged) library is used to only
 
 Config can be found in the `lint-staged` block in [package.json](package.json). Note that `lint-staged` works by passing
 a list of the matched staged files to the command defined, which is why the commands in `package.json` are e.g. `prettier --write`, with no file, directory or glob arguments.
-(usually if you wanted to run prettier you would need such an argument, e.g.`prettier --write .` or `prettier --check src`. More information can be found [here](https://github.com/okonet/lint-staged#configuration).
+(usually if you wanted to run prettier you would need such an argument, e.g.`prettier --write .` or `prettier --check src`)  
+More information can be found [here](https://github.com/okonet/lint-staged#configuration).
+
 
 &ast; Git LFS hooks also live in this directory - see section below
 
@@ -460,8 +462,6 @@ _Production preview_ has a real TxMA queue in addition to its placeholder queue 
 
 For a guide to how and why certain development decisions, coding practices, etc. were made, please refer to the [Development Decisions document](docs/development-decisions.md).
 
-For a list of TODOs for the project, please see the [TODOs document](docs/todos.md).
-
 
 ## Raw-to-Stage ETL Job :
 The raw-to-stage ETL jobs runs as part of DAP step function to load transformed and new raw data in to the stage layer
@@ -477,7 +477,7 @@ to run the unit tests, run
 
 `python3 -m pytest`
 
-to upload these files to S3 use the [`Upload Athena files to S3`](https://github.com/govuk-one-login/data-analytics-platform/actions/workflows/upload-athena-files.yml) Github Action by specifying the below parameters:
+to upload these files to S3 use the [`Upload Athena files to S3`](https://github.com/govuk-one-login/data-analytics-platform/actions/workflows/upload-athena-files.yml) GitHub Action by specifying the below parameters:
     - Branch
     - Environment 
 
@@ -513,3 +513,51 @@ Go to Quicksight as Admin and Go to User Icon(top right corner) after login. Cli
 Update IDP URL with Cognito login page URL
 
 Now the Quicksight will use new API Gateway
+
+
+## Scripts
+
+There are a number of scripts that can help with regular maintenance and other jobs
+These are all located in the `scripts/` directory. Below is a list of some of them and basic usage instructions. The scripts themselves should have more detailed information about their usage.
+
+### athena-upload.sh
+
+Uploads all the `.sql` scripts stored in `athena-scripts` to an S3 bucket. This is normally run by GitHub actions as part of the deployment process.
+
+**Usage:** `./scripts/athena-upload.sh ENV`
+
+Where 
+- **ENV** One of `dev | build | staging | integration | production` and is used to build the destination bucket name.
+
+### generate-import-resources.ts
+
+Parses a built CloudFormation template and extracts the resources that have a retention policy set on them, building a JSON file which can then be used to import those resources into a CloudFormation stack. 
+This is to help recover a stack that has been previously deleted so that resources that should not be deleted can be added to the new stack instance. 
+
+**Usage:** `npx tsx scripts/generate-import-resources.ts --environment ENV [--template FILE] [--output FILE]`
+
+Where:
+- **ENV** The name of the deployment environment and is used to generate many of the resource's unique names.
+- **--template FILE** An optional parameter pointing to the location of a CloudFormation YAML file. defaults to `./template.yaml`.
+- **--output FILE** An optional parameter stating where to save the JSON output. Defaults to `./resources-to-import.json` This file can be used as part of an AWS cli import command.
+
+### recover-stack.sh
+
+Shell script to generate the retained resources JSON file and then import the resources into a CloudFormation stack. Under the hood, this scripts runs the cloudFormation template build, generates the list of retained resources ready for import by call ing generate-import-resources.ts, and then calls the aws-cli to create a stack change-set and then execute the change-set. The script will ask for user confirmation before executing the change-set.
+
+This would be used to help redeploy a stack after it's been deleted, making sure that resources that are not auto deleted are re-added to the stack correctly. Without an import, the stack deployment would fail as it defaults to throwing an error if a resource already exists.
+
+**Usage:** `scripts/recover-stack.sh <ENV> <stack-name>`
+
+Where:
+- **\<ENV>** The target environment, used when building the template and resource names
+- **\<stack-name>** Name of the stack that the resources need to be imported to
+
+### list-retained-resources.sh
+
+A helper function for listing retained resources that are currently on a deployed stack. Useful for checking the results of `recover-stack.sh` and `generate-import-resources.ts`
+
+**Usage:** `./scripts/list-retained-resources.sh --stack STACK_NAME`
+
+Where:
+- **--stack STACK_NAME** The name of the deployed stack to query resource IDs
