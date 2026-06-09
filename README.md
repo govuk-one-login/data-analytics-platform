@@ -513,3 +513,51 @@ Go to Quicksight as Admin and Go to User Icon(top right corner) after login. Cli
 Update IDP URL with Cognito login page URL
 
 Now the Quicksight will use new API Gateway
+
+
+## Scripts
+
+There are a number of scripts that can help with regular maintenance and other jobs
+These are all located in the `scripts/` directory. Below is a list of some of them and basic usage instructions. The scripts themselves should have more detailed information about their usage.
+
+### athena-upload.sh
+
+Uploads all the `.sql` scripts stored in `athena-scripts` to an S3 bucket. This is normally run by GitHub actions as part of the deployment process.
+
+**Usage:** `./scripts/athena-upload.sh ENV`
+
+Where 
+- **ENV** One of `dev | build | staging | integration | production` and is used to build the destination bucket name.
+
+### generate-import-resources.ts
+
+Parses a built CloudFormation template and extracts the resources that have a retention policy set on them, building a JSON file which can then be used to import those resources into a CloudFormation stack. 
+This is to help recover a stack that has been previously deleted so that resources that should not be deleted can be added to the new stack instance. 
+
+**Usage:** `npx tsx scripts/generate-import-resources.ts --environment ENV [--template FILE] [--output FILE]`
+
+Where:
+- **ENV** The name of the deployment environment and is used to generate many of the resource's unique names.
+- **--template FILE** An optional parameter pointing to the location of a CloudFormation yaml file. defaults to `./template.yaml`.
+- **--output FILE** An optional parameter stating where to save the JSON output. Defaults to `./resources-to-import.json` This file can be used as part of a aws cli import command.
+
+### import-retained-resources.sh
+
+Shell script to generate the retained resources json file and then import the resources into a CloudFormation stack. Under the hood, this scripts runs the cloudFormation template build, generates the list of retained resources ready for import by call ing generate-import-resources.ts, and then calls the aws-cli to craete a stack change-set and then execute the change-set. The script will ask for user confirmation before executing the change-set.
+
+This would be used to help redeploy a stack after it's been deleted, making sure that resources taht are not auto deleted are re-added to the stack correctly. Without an import, the stack deployment would fail as it defaults to throwing an error if a resource already exists.
+
+**Usage:** `scripts/import-retained-resources.sh <ENV> <stack-name>`
+
+Where:
+- **\<ENV>** The target environment, used when building the template and resource names
+- **\<stack-name>** Name of the stack that the resources need to be imported to
+
+### list-retained-resources.sh
+
+A helper function for listing retained resources that are currently on a deployed stack. Useful for checking the results of `import-retained-resources.sh` and `generate-import-resources.ts`
+
+**Usage:** `./scripts/list-retained-resources.sh --stack STACK_NAME`
+
+Where:
+- **--stack STACK_NAME** The name of the deployed stack to query resource IDs

@@ -2,7 +2,6 @@
 # Import retained resources into a new CloudFormation stack after stack deletion.
 #
 # Prerequisites:
-#   - npm run iac:build -- main (creates template.yaml)
 #   - Authenticated to the target AWS account (aws sso login)
 #
 # Usage:
