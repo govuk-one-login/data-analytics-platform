@@ -5,10 +5,10 @@
 #   - Authenticated to the target AWS account (aws sso login)
 #
 # Usage:
-#   ./scripts/import-retained-resources.sh <environment> <stack-name>
+#   ./scripts/recover-stack.sh <environment> <stack-name>
 #
 # Example:
-#   ./scripts/import-retained-resources.sh dev dap-main-dev
+#   ./scripts/recover-stack.sh dev dap-main-dev
 
 set -euo pipefail
 
