@@ -10,7 +10,7 @@ WHERE NOT EXISTS (
 
 UPDATE conformed_refactored.dim_relying_party_refactored
 SET relying_party_name = 'Register for a National Professional Qualification',
-    display_name      = 'DFE - Register a National Professional Qualification',
+    display_name      = 'DFE - Register for a National Professional Qualification',
     department_name   = 'DFE',
     agency_name       = 'DFE'
 WHERE client_id = 'DD1qQMnQ8UThae3vXwZVo59DbYM';
