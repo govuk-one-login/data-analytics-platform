@@ -1,5 +1,7 @@
 DAPNotificationsTopic:
   Type: AWS::SNS::Topic
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     TopicName: !Sub ${AWS::StackName}-alerts-notification-topic
     KmsMasterKeyId: !GetAtt KmsKey.Arn
@@ -35,6 +37,8 @@ DAPNotificationsTopicSubscribePolicy:
 
 DAPNotificationChatbotRole:
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${AWS::StackName}-notifications-chatbot-role
     PermissionsBoundary: !If

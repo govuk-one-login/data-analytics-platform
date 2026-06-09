@@ -1,5 +1,7 @@
 ELTMetadataBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-elt-metadata
@@ -20,6 +22,8 @@ ELTMetadataBucket:
 ELTMetadataUploadRole:
   Condition: IsBuild
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: dap-elt-metadata-upload-role
     AssumeRolePolicyDocument:
@@ -81,6 +85,8 @@ ELTMetadataBucketPolicy:
 
 StateMachineResultsBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-step-function-process-results
@@ -134,6 +140,8 @@ StateMachineResultsBucketPolicy:
 
 AthenaRawLayerProcessingLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: !Sub /aws/stepfunction/dap-process-raw-layer
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -141,6 +149,8 @@ AthenaRawLayerProcessingLogGroup:
 
 StepFunctionRole:
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-dap-statemachine-processing-role
     AssumeRolePolicyDocument:
@@ -345,6 +355,8 @@ GlueLogGroupParameter:
 
 DataQualityMetricsBucket:
   Type: 'AWS::S3::Bucket'
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-data-quality-metrics
@@ -386,6 +398,8 @@ DataQualityMetricsBucketPolicy:
 
 DataQualityGlueDatabase:
   Type: AWS::Glue::Database
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseInput:
@@ -393,6 +407,8 @@ DataQualityGlueDatabase:
 
 DataQualityMetricsGlueTable:
   Type: AWS::Glue::Table
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref DataQualityGlueDatabase
@@ -422,6 +438,8 @@ DataQualityMetricsGlueTable:
 
 DataQualityPythonGlueJob:
   Type: AWS::Glue::Job
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: pythonshell
@@ -447,6 +465,8 @@ DataQualityPythonGlueJob:
 
 GlueScriptsExecutionRole:
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-dap-glue-scripts-execution-role
     AssumeRolePolicyDocument:
@@ -609,6 +629,8 @@ GlueScriptsExecutionRole:
 
 RedshiftProcessingLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: /aws/stepfunction/dap-redshift-processing
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -634,6 +656,8 @@ RedshiftProcessingStateMachine:
 
 StepFunctionRedshiftProcessRole:
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   # AWS issue identified enabling CW logs for Step Function as detailed in the following link
   # https://repost.aws/questions/QURc2glxBETSe3Q6Y0UwcpQg/bug-with-loggingconfiguration
   # checkov:skip=CKV_AWS_111:Ensure IAM policies does not allow write access without constraints
@@ -758,6 +782,8 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
 
 RawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: pythonshell
@@ -854,12 +880,16 @@ TopicRoutingPolicy:
 
 SNSAlertTopic:
   Type: AWS::SNS::Topic
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     TopicName: !Sub ${Environment}-dap-elt-support-management-topic
     KmsMasterKeyId: !GetAtt KmsKey.Arn
 
 DataQualityStageLayerOptimisedPythonGlueJob:
   Type: AWS::Glue::Job
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: pythonshell
@@ -884,6 +914,8 @@ DataQualityStageLayerOptimisedPythonGlueJob:
 
 RedshiftConsolidatedModelProcessingLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: /aws/stepfunction/dap-consolidated-stage-layer-to-redshift
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -891,6 +923,8 @@ RedshiftConsolidatedModelProcessingLogGroup:
 
 ADMConsolidatedModelProcessingLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: /aws/stepfunction/dap-consolidated-conformed-layer-to-adm
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -898,6 +932,8 @@ ADMConsolidatedModelProcessingLogGroup:
 
 ADMV3RefreshLogGroup:
   Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     LogGroupName: /aws/stepfunction/dap-consolidated-conformed-layer-to-adm-v3
     KmsKeyId: !GetAtt KmsKey.Arn
@@ -970,6 +1006,8 @@ ADMConsolidatedModelProcessingStateMachine:
 
 SplunkMigratedRawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: pythonshell
@@ -1011,6 +1049,8 @@ SplunkMigratedRawStageTransformProcessPythonGlueJob:
 
 HypercareAdjustedScheduleEventBridgeRule:
   Type: AWS::Events::Rule
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Description: Rule to be enabled when rps require hypercare during onboarding
     ScheduleExpression: 'cron(30 9,13 * * ? *)'
@@ -1023,6 +1063,8 @@ HypercareAdjustedScheduleEventBridgeRule:
 
 HypercareAdjustedScheduleEventBridgeStateMachineInvokeRole:
   Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-dap-hypercare-eventbridge-role
     AssumeRolePolicyDocument:

@@ -11,6 +11,8 @@ SustainabilityAccountIds:
 
 SustainabilityDatabase:
   Type: AWS::Glue::Database
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsADMEnvironment
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
@@ -19,6 +21,8 @@ SustainabilityDatabase:
 
 CurTable:
   Type: AWS::Glue::Table
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Condition: IsADMEnvironment
   Properties:
     CatalogId: !Ref AWS::AccountId
