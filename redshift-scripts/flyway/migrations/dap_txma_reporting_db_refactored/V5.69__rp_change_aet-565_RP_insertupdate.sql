@@ -1,7 +1,7 @@
 --DFE - Register a National Professional Qualification
 
 INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
-SELECT 'DD1qQMnQ8UThae3vXwZVo59DbYM','Register for a National Professional Qualification','DFE - Register a National Professional Qualification','DFE','DFE'
+SELECT 'DD1qQMnQ8UThae3vXwZVo59DbYM','Register for a National Professional Qualification','DFE - Register for a National Professional Qualification','DFE','DFE'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.REF_RELYING_PARTIES_refactored
