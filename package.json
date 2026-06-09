@@ -63,6 +63,7 @@
     "build": "scripts/build-lambdas.sh",
     "build-etl:local": "scripts/build-and-deploy-etl.sh dev local",
     "build-etl": "scripts/build-and-deploy-etl.sh",
+    "lint": "npm run lint:check && npm run scripts:format:check && npm run iac:lint && npm run iac:format:check",
     "lint:check": "eslint src tests",
     "lint:fix": "eslint --fix src tests",
     "test": "vitest run --reporter=verbose",

@@ -16,9 +16,18 @@ STACK_NAME=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --stack) STACK_NAME="$2"; shift 2 ;;
-    --region) REGION="$2"; shift 2 ;;
-    *) echo "Unknown option: $1"; exit 1 ;;
+    --stack)
+      STACK_NAME="$2"
+      shift 2
+      ;;
+    --region)
+      REGION="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
   esac
 done
 
@@ -49,7 +58,7 @@ find_retained_resources() {
         # Print previous resource if it had Retain
       }
       END {}
-    ' "$file" | true  # awk approach is fragile for this; use python instead
+    ' "$file" | true # awk approach is fragile for this; use python instead
 
     # Use a simple python one-liner for reliable YAML-like parsing
     python3 -c "
@@ -116,7 +125,7 @@ if [[ -n "$STACK_NAME" ]]; then
       --logical-resource-id "$logical_id" \
       --region "$REGION" \
       --query "StackResourceDetail.PhysicalResourceId" \
-      --output text 2>/dev/null || echo "NOT FOUND")
+      --output text 2> /dev/null || echo "NOT FOUND")
     printf "%-50s %-45s %s\n" "$logical_id" "$type" "$physical_id"
   done
 fi

@@ -32,8 +32,11 @@ TEMPLATE_FILE="$PROJECT_ROOT/template.yaml"
 
 # Validate environment
 case "$ENVIRONMENT" in
-  dev|build|staging|integration|production|production-preview) ;;
-  *) echo "Error: Invalid environment '$ENVIRONMENT'"; exit 1 ;;
+  dev | build | staging | integration | production | production-preview) ;;
+  *)
+    echo "Error: Invalid environment '$ENVIRONMENT'"
+    exit 1
+    ;;
 esac
 
 # Get AWS account ID

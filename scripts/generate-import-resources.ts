@@ -54,13 +54,14 @@ const RESOURCE_TYPE_CONFIG: Record<string, { identifierKey: string; templateProp
   'AWS::EC2::SecurityGroup': { identifierKey: 'GroupId', templateProperty: '__AWS_GENERATED__' },
   'AWS::CloudTrail::Trail': { identifierKey: 'TrailName', templateProperty: 'TrailName' },
   'AWS::SecretsManager::Secret': { identifierKey: 'SecretId', templateProperty: 'Name' },
-  'AWS::KinesisFirehose::DeliveryStream': { identifierKey: 'DeliveryStreamName', templateProperty: 'DeliveryStreamName' },
+  'AWS::KinesisFirehose::DeliveryStream': {
+    identifierKey: 'DeliveryStreamName',
+    templateProperty: 'DeliveryStreamName',
+  },
   'AWS::RedshiftServerless::Namespace': { identifierKey: 'NamespaceName', templateProperty: 'NamespaceName' },
   'AWS::RedshiftServerless::Workgroup': { identifierKey: 'WorkgroupName', templateProperty: 'WorkgroupName' },
   'AWS::StepFunctions::StateMachine': { identifierKey: 'StateMachineArn', templateProperty: '__AWS_GENERATED__' },
 };
-
-
 
 interface TemplateResource {
   logicalId: string;
@@ -281,7 +282,9 @@ async function main() {
   });
 
   if (!values.environment) {
-    console.error('Usage: npx tsx scripts/generate-import-resources.ts --environment ENV [--template FILE] [--output FILE] [--account-id ACCOUNT_ID]');
+    console.error(
+      'Usage: npx tsx scripts/generate-import-resources.ts --environment ENV [--template FILE] [--output FILE] [--account-id ACCOUNT_ID]',
+    );
     console.error('\nOptions:');
     console.error('  --environment   Target environment (dev, build, staging, etc.)');
     console.error('  --template      Path to built template.yaml (default: ./template.yaml)');
@@ -304,19 +307,31 @@ async function main() {
   for (const resource of resources) {
     const config = RESOURCE_TYPE_CONFIG[resource.type];
     if (!config) {
-      needsManualLookup.push({ logicalId: resource.logicalId, type: resource.type, reason: 'unsupported resource type' });
+      needsManualLookup.push({
+        logicalId: resource.logicalId,
+        type: resource.type,
+        reason: 'unsupported resource type',
+      });
       continue;
     }
 
     if (config.templateProperty === '__AWS_GENERATED__') {
-      needsManualLookup.push({ logicalId: resource.logicalId, type: resource.type, reason: 'AWS-generated ID — requires CLI lookup' });
+      needsManualLookup.push({
+        logicalId: resource.logicalId,
+        type: resource.type,
+        reason: 'AWS-generated ID — requires CLI lookup',
+      });
       continue;
     }
 
     const identifier = getIdentifierValue(resource, parameters, values.environment);
 
     if (!identifier) {
-      needsManualLookup.push({ logicalId: resource.logicalId, type: resource.type, reason: 'could not resolve value from template' });
+      needsManualLookup.push({
+        logicalId: resource.logicalId,
+        type: resource.type,
+        reason: 'could not resolve value from template',
+      });
       continue;
     }
 
