@@ -31,6 +31,8 @@ StageLayerBucket:
 
 StageLayerBucketPolicy:
   Type: AWS::S3::BucketPolicy
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Bucket: !Ref StageLayerBucket
     PolicyDocument:
