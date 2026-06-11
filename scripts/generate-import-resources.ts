@@ -61,6 +61,7 @@ const RESOURCE_TYPE_CONFIG: Record<string, { identifierKey: string; templateProp
   'AWS::RedshiftServerless::Namespace': { identifierKey: 'NamespaceName', templateProperty: 'NamespaceName' },
   'AWS::RedshiftServerless::Workgroup': { identifierKey: 'WorkgroupName', templateProperty: 'WorkgroupName' },
   'AWS::StepFunctions::StateMachine': { identifierKey: 'StateMachineArn', templateProperty: '__AWS_GENERATED__' },
+  'AWS::S3::BucketPolicy': { identifierKey: 'Bucket', templateProperty: 'Bucket' },
 };
 
 interface TemplateResource {
