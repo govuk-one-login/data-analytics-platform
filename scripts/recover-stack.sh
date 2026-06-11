@@ -72,11 +72,30 @@ fi
 # Create the import change set
 echo ""
 echo "Creating import change set..."
+
+# Template exceeds the 51KB --template-body limit, so upload to S3.
+# Use the SAM CLI managed bucket (same as sam deploy --resolve-s3 uses).
+TEMPLATE_BUCKET=$(aws cloudformation describe-stacks \
+  --stack-name aws-sam-cli-managed-default \
+  --region "$REGION" \
+  --query "Stacks[0].Outputs[?OutputKey=='SourceBucket'].OutputValue" \
+  --output text 2>/dev/null || echo "")
+
+if [[ -z "$TEMPLATE_BUCKET" ]]; then
+  echo "Error: Could not find SAM CLI managed S3 bucket. Run 'sam deploy --guided' once first, or provide an S3 bucket."
+  exit 1
+fi
+
+TEMPLATE_S3_KEY="recover-stack/template-$(date +%s).yaml"
+echo "Uploading template to s3://$TEMPLATE_BUCKET/$TEMPLATE_S3_KEY ..."
+aws s3 cp "$TEMPLATE_FILE" "s3://$TEMPLATE_BUCKET/$TEMPLATE_S3_KEY" --region "$REGION"
+TEMPLATE_URL="https://$TEMPLATE_BUCKET.s3.$REGION.amazonaws.com/$TEMPLATE_S3_KEY"
+
 aws cloudformation create-change-set \
   --stack-name "$STACK_NAME" \
   --change-set-name "$CHANGE_SET_NAME" \
   --change-set-type IMPORT \
-  --template-body "file://$TEMPLATE_FILE" \
+  --template-url "$TEMPLATE_URL" \
   --resources-to-import "file://$OUTPUT_FILE" \
   --parameters "ParameterKey=Environment,ParameterValue=$ENVIRONMENT" \
   --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
