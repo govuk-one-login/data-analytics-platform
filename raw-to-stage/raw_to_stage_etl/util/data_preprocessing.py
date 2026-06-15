@@ -1,10 +1,11 @@
-"""Module to perform preprocessing transformation functions on Pandas dataframe."""
+"""Module to perform preprocessing transformation functions on PySpark dataframe."""
 
 import json
 from datetime import datetime
 
-import numpy as np
-import pandas as pd
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.types import StringType
 
 from ..exceptions.no_data_found_exception import NoDataFoundException
 from ..logging.logger import get_logger
@@ -19,10 +20,13 @@ def add_new_column_from_struct(df, fields):
     """
     Create new columns from struct fields in the DataFrame.
 
+    The struct columns are stored as JSON strings. This function uses
+    get_json_object to extract the specified keys.
+
     Parameters:
-    df (DataFrame): The input DataFrame.
-    fields (dict): A dictionary where keys are the new column names,
-        and values are the corresponding struct fields to extract.
+    df (DataFrame): The input PySpark DataFrame.
+    fields (dict): A dictionary where keys are column names containing JSON strings,
+        and values are the corresponding fields to extract.
 
     Returns:
     DataFrame: A DataFrame with new columns added from struct fields.
@@ -34,9 +38,13 @@ def add_new_column_from_struct(df, fields):
         for key, value in fields.items():
             for item in value:
                 col_name = f"{key}_{item}"
-                df[col_name] = df.apply(
-                    lambda x, k=key, i=item: None if x[k] is None or x[k].get(i) is None or (not x[k].get(i).strip()) else x[k].get(i),
-                    axis=1,
+                extracted = F.get_json_object(F.col(key), f"$.{item}")
+                df = df.withColumn(
+                    col_name,
+                    F.when(
+                        F.col(key).isNull() | extracted.isNull() | (F.trim(extracted) == F.lit("")),
+                        F.lit(None).cast(StringType()),
+                    ).otherwise(extracted),
                 )
 
         return df
@@ -49,10 +57,9 @@ def add_new_column_from_string_format(df, fields):
     Create new columns from formatted string column in the DataFrame.
 
     Parameters:
-    df (DataFrame): The input DataFrame.
+    df (DataFrame): The input PySpark DataFrame.
     fields (dict): A dictionary where keys are raw column names which contain unformatted string values
-    and the value is a dictionary of keys with new column names and the corresponding regex to extract from the original
-    data frame
+    and the value is a dictionary of keys with new column names and the corresponding regex to extract.
 
     Returns:
     DataFrame: A DataFrame with new columns added from unformatted fields.
@@ -63,7 +70,7 @@ def add_new_column_from_string_format(df, fields):
 
         for col, mappings in fields.items():
             for new_col, pattern in mappings.items():
-                df[new_col] = df[col].str.extract(pattern)
+                df = df.withColumn(new_col, F.regexp_extract(F.col(col), pattern, 1))
 
         return df
     except Exception as e:
@@ -75,7 +82,7 @@ def empty_string_to_null(df, fields):
     Replace empty strings with None (null) in the specified columns.
 
     Parameters:
-    df (DataFrame): The input DataFrame.
+    df (DataFrame): The input PySpark DataFrame.
     fields (list): A list of column names where empty strings should be replaced with None.
 
     Returns:
@@ -86,7 +93,13 @@ def empty_string_to_null(df, fields):
             raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
 
         for column_name in fields:
-            df[column_name] = df[column_name].apply(lambda x: None if isinstance(x, str) and (x.isspace() or not x) else x)
+            df = df.withColumn(
+                column_name,
+                F.when(
+                    (F.col(column_name).isNull()) | (F.trim(F.col(column_name)) == F.lit("")),
+                    F.lit(None).cast(StringType()),
+                ).otherwise(F.col(column_name)),
+            )
 
         return df
     except Exception as e:
@@ -98,7 +111,7 @@ def remove_duplicate_rows(df, fields):
     Remove duplicate rows based on the specified fields.
 
     Parameters:
-    df (DataFrame): The input DataFrame.
+    df (DataFrame): The input PySpark DataFrame.
     fields (list): A list of column names to consider when identifying duplicates.
 
     Returns:
@@ -107,7 +120,7 @@ def remove_duplicate_rows(df, fields):
     try:
         if not isinstance(fields, list):
             raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.drop_duplicates(subset=fields)
+        return df.dropDuplicates(subset=fields)
     except Exception as e:
         raise OperationFailedException("Error dropping row duplicates: %s", str(e))
 
@@ -117,7 +130,7 @@ def remove_rows_missing_mandatory_values(df, fields):
     Remove rows with missing mandatory field values.
 
     Parameters:
-    df (DataFrame): The input DataFrame.
+    df (DataFrame): The input PySpark DataFrame.
     fields (list): A list of column names with mandatory values.
 
     Returns:
@@ -136,7 +149,7 @@ def rename_column_names(df, fields):
     Rename column names based on the provided mapping.
 
     Parameters:
-    df (DataFrame): The input DataFrame.
+    df (DataFrame): The input PySpark DataFrame.
     fields (dict): A dictionary where keys are old column names, and values are new column names.
 
     Returns:
@@ -145,7 +158,10 @@ def rename_column_names(df, fields):
     try:
         if not isinstance(fields, dict):
             raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
-        return df.rename(columns=fields)
+        for old_name, new_name in fields.items():
+            if old_name in df.columns:
+                df = df.withColumnRenamed(old_name, new_name)
+        return df
     except Exception as e:
         raise OperationFailedException("Error renaming columns: %s", str(e))
 
@@ -155,7 +171,7 @@ def remove_columns(df, columns, silent):
     Remove columns from the data frame.
 
     Parameters:
-    df (DataFrame): The input DataFrame.
+    df (DataFrame): The input PySpark DataFrame.
     columns (list): A list of columns
     silent (bool): true if errors should be suppressed
 
@@ -163,10 +179,11 @@ def remove_columns(df, columns, silent):
     DataFrame: A DataFrame with specified columns removed if found.
     """
     try:
-        errors = "ignore" if silent else "raise"
         if not isinstance(columns, list):
             raise ValueError("Invalid field of columns provided, require list")
-        return df.drop(columns, axis=1, errors=errors)
+        if silent:
+            columns = [c for c in columns if c in df.columns]
+        return df.drop(*columns)
     except Exception as e:
         raise OperationFailedException("Error removing columns: %s", str(e))
 
@@ -194,8 +211,6 @@ def get_penultimate_processed_dt(all_processed_dts):
     """
     Get the penultimate processed dt from the specified stage table.
 
-    last processed dt that isn't current and isn't the last processed dt
-
     Parameters:
     all_processed_dts (df): dataframe of all processed dates excluding today and the max processed date
 
@@ -220,18 +235,19 @@ def convert_value_to_float_or_int(value):
     Returns
      converted value
     """
-    if isinstance(value, str):  # Check if item is a string
+    if isinstance(value, str):
         try:
-            value = float(value)  # Attempt to convert the string to a float
+            value = float(value)
         except ValueError:
-            pass  # Ignore if conversion fails
+            pass
     if isinstance(value, (int, float)):
         try:
             if isinstance(value, float) and value.is_integer():
                 value = int(value)
         except ValueError:
-            pass  # Ignore if conversion fails
+            pass
     return value
+
 
 class DataPreprocessing:
     """A class for performing preprocessing tasks against a supplied dataframe."""
@@ -252,7 +268,7 @@ class DataPreprocessing:
         Add new duplicate columns to the DataFrame.
 
         Parameters:
-        df (DataFrame): The input DataFrame.
+        df (DataFrame): The input PySpark DataFrame.
         fields (dict): A dictionary where keys are new column names, and values are the columns to duplicate.
 
         Returns:
@@ -262,7 +278,7 @@ class DataPreprocessing:
             if not isinstance(fields, dict):
                 raise ValueError("Invalid field list structure provided, require dict object")
             for column_name, _value in fields.items():
-                df[column_name] = df[_value]
+                df = df.withColumn(column_name, F.col(_value))
 
             return df
         except Exception as e:
@@ -273,7 +289,7 @@ class DataPreprocessing:
         Add new columns to the DataFrame.
 
         Parameters:
-        df (DataFrame): The input DataFrame.
+        df (DataFrame): The input PySpark DataFrame.
         fields (dict): A dictionary where keys are new column names, and values are their corresponding values.
 
         Returns:
@@ -284,9 +300,9 @@ class DataPreprocessing:
                 raise ValueError("Invalid field list structure provided, require dict object")
             for column_name, _value in fields.items():
                 if column_name == "processed_dt":
-                    df[column_name] = self.processed_dt
+                    df = df.withColumn(column_name, F.lit(self.processed_dt))
                 if column_name == "processed_time":
-                    df[column_name] = self.processed_time
+                    df = df.withColumn(column_name, F.lit(self.processed_time))
             return df
         except Exception as e:
             raise OperationFailedException("Error adding new columns: %s", str(e))
@@ -327,7 +343,7 @@ class DataPreprocessing:
          key (str): key used to form new key in key value pair
          parent_key (str): The parent key used for recursion.
          sep (str): The separator used to join parent and child keys.
-         value (dict/list/ndarray/str/int/float):
+         value (dict/list/str/int/float):
 
         Returns:
          None
@@ -335,7 +351,7 @@ class DataPreprocessing:
         new_key = f"{parent_key}{sep}{key}" if parent_key else key
         if isinstance(value, dict):
             items.extend(self.extract_key_values(value, new_key))
-        elif isinstance(value, (list, np.ndarray)):
+        elif isinstance(value, list):
             for i, item in enumerate(value):
                 if isinstance(item, (dict, list)):
                     items.extend(self.extract_key_values(item, f"{new_key}[{i}]"))
@@ -348,48 +364,63 @@ class DataPreprocessing:
     def generate_key_value_records(self, df, fields, column_names_list):
         """Generate Key/Value records from nested struct fields in the DataFrame.
 
+        Uses the cached parsed rows (from parse_string_columns_as_json_by_config) which
+        preserve full nested dict structure. Falls back to collecting from the DataFrame
+        and parsing JSON strings if cache is unavailable.
+
         Parameters:
-        df (DataFrame): The input DataFrame.
+        df (DataFrame): The input PySpark DataFrame.
         fields (list): A list of column names with nested struct fields to extract.
         column_names_list (list): A list of column names for the resulting DataFrame.
 
         Returns:
-        DataFrame: A DataFrame with extracted Key/Value records from nested struct fields.
+        DataFrame: A PySpark DataFrame with extracted Key/Value records from nested struct fields.
         """
         try:
             if not isinstance(fields, list):
                 raise ValueError(INVALID_FIELD_LIST_STRUCTURE)
 
-            # Initialize an empty list to store DataFrames
-            dfs = []
+            spark = SparkSession.builder.getOrCreate()
+            all_rows = []
 
-            for column_name in fields:
-                df_key_value = df.apply(
-                    lambda row, col=column_name: (
-                        [(row["event_id"], col, key, value) for key, value in self.extract_key_values(row[col], field_name=col)] if pd.notna(row[col]) else []
-                    ),
-                    axis=1,
-                )
-                dfs.append(df_key_value)
+            # Use cached parsed rows if available (preserves nested dict structure)
+            if hasattr(self, '_parsed_rows_cache') and self._parsed_rows_cache:
+                rows_data = self._parsed_rows_cache
+            else:
+                # Fallback: collect from DataFrame and parse JSON strings
+                rows_data = []
+                for row in df.collect():
+                    row_dict = row.asDict()
+                    for col in fields:
+                        val = row_dict.get(col)
+                        if isinstance(val, str) and val.strip().startswith("{"):
+                            row_dict[col] = json.loads(val)
+                    rows_data.append(row_dict)
 
-            self.logger.info("class: DataPreprocessing | method=generate_key_value_records | dfs row count: %s", len(dfs))
+            for row_dict in rows_data:
+                event_id = row_dict["event_id"]
+                for column_name in fields:
+                    cell_value = row_dict.get(column_name)
+                    if cell_value is not None:
+                        kv_pairs = self.extract_key_values(cell_value, field_name=column_name)
+                        for key, value in kv_pairs:
+                            all_rows.append((event_id, column_name, key, value))
 
-            key_value_pairs = pd.concat(dfs, ignore_index=True)
+            self.logger.info("class: DataPreprocessing | method=generate_key_value_records | rows count: %s", len(all_rows))
 
-            # Flatten the list of lists into a single list
-            key_value_pairs = [item for sublist in key_value_pairs for item in sublist]
-
-            # Create the "extensions_key_values" DataFrame
-            result_df = pd.DataFrame(
-                key_value_pairs,
-                columns=["event_id", "parent_column_name", "key", "value"],
-            )
+            # Create PySpark DataFrame from collected key-value pairs
+            result_df = spark.createDataFrame(all_rows, ["event_id", "parent_column_name", "key", "value"])
 
             # Filter out rows with null values
-            result_df = result_df[result_df["value"].notna()]
-            result_df["processed_dt"] = self.processed_dt
-            result_df["processed_time"] = self.processed_time
-            result_df.columns = column_names_list
+            result_df = result_df.filter(F.col("value").isNotNull())
+            result_df = result_df.withColumn("processed_dt", F.lit(self.processed_dt))
+            result_df = result_df.withColumn("processed_time", F.lit(self.processed_time))
+
+            # Rename columns to match expected schema
+            for i, col_name in enumerate(column_names_list):
+                old_name = result_df.columns[i]
+                if old_name != col_name:
+                    result_df = result_df.withColumnRenamed(old_name, col_name)
 
             return result_df
         except Exception as e:
@@ -407,7 +438,7 @@ class DataPreprocessing:
 
         Parameters:
         json_data (dict or list): The JSON configuration data.
-        df_raw (DataFrame): The raw DataFrame.
+        df_raw (DataFrame): The raw PySpark DataFrame.
         key_value_schema_columns (dict): A dictionary specifying column names for the resulting DataFrame.
         df_raw_col_names_original: Original list of raw layer column names
 
@@ -433,14 +464,12 @@ class DataPreprocessing:
             col_names_list = list(key_value_schema_columns.keys())
 
             # Generate a set of column names to generate key/value record(s)
-            # Logic: df_raw original column names minus the key/value exclusion columns list
-            #        convert set to list object to aid processing
             process_columns_set = set(df_raw_col_names_original) - set(data_transformations_key_value_cols_exclusion_list)
             process_columns_list = list(process_columns_set)
             self.logger.info("key/value records to be created for the following columns: %s", process_columns_list)
 
             df_keys = self.generate_key_value_records(df_raw, process_columns_list, col_names_list)
-            if df_keys is None or df_keys.empty:
+            if df_keys is None or df_keys.rdd.isEmpty():
                 raise ValueError("Class: preprocessing method: extract_key_values returned None/Empty object")
             return df_keys
 
@@ -453,7 +482,7 @@ class DataPreprocessing:
 
         Parameters:
         json_data (dict or list): The JSON configuration data.
-        df_raw (DataFrame): The raw DataFrame.
+        df_raw (DataFrame): The raw PySpark DataFrame.
 
         Returns:
         DataFrame: The data frame with columns removed
@@ -481,7 +510,7 @@ class DataPreprocessing:
 
         Parameters:
         json_data (dict or list): The JSON configuration data.
-        df_raw (DataFrame): The raw DataFrame.
+        df_raw (DataFrame): The raw PySpark DataFrame.
 
         Returns:
         DataFrame: The DataFrame with duplicate rows removed.
@@ -498,7 +527,7 @@ class DataPreprocessing:
             df_raw = remove_duplicate_rows(df_raw, data_cleaning_duplicate_row_removal_criteria_fields)
             if df_raw is None:
                 raise ValueError("Function: remove_duplicate_rows returned None object")
-            elif df_raw.empty:
+            elif df_raw.rdd.isEmpty():
                 raise ValueError("No raw records returned for processing following duplicate row removal. Program is stopping.")
             return df_raw
 
@@ -511,7 +540,7 @@ class DataPreprocessing:
 
         Parameters:
         json_data (dict or list): The JSON configuration data.
-        df_raw (DataFrame): The raw DataFrame.
+        df_raw (DataFrame): The raw PySpark DataFrame.
 
         Returns:
         DataFrame: The DataFrame with rows containing mandatory values.
@@ -528,7 +557,7 @@ class DataPreprocessing:
             df_raw = remove_rows_missing_mandatory_values(df_raw, data_cleaning_mandatory_row_removal_criteria_fields)
             if df_raw is None:
                 raise ValueError("Function: remove_rows_missing_mandatory_values returned None object")
-            elif df_raw.empty:
+            elif df_raw.rdd.isEmpty():
                 raise ValueError("No raw records returned for processing following missing mandatory fields row removal. Program is stopping.")
 
             return df_raw
@@ -542,7 +571,7 @@ class DataPreprocessing:
 
         Parameters:
         json_data (dict or list): The JSON configuration data.
-        df_raw (DataFrame): The raw DataFrame.
+        df_raw (DataFrame): The raw PySpark DataFrame.
 
         Returns:
         DataFrame: The DataFrame with renamed columns.
@@ -561,7 +590,7 @@ class DataPreprocessing:
 
             if df_raw is None:
                 raise ValueError("Function: rename_column_names returned None object.")
-            elif df_raw.empty:
+            elif df_raw.rdd.isEmpty():
                 raise ValueError("No raw records returned for processing following rename of columns. Program is stopping.")
 
             return df_raw
@@ -575,7 +604,7 @@ class DataPreprocessing:
 
         Parameters:
         json_data (dict or list): The JSON configuration data.
-        df_raw (DataFrame): The raw DataFrame.
+        df_raw (DataFrame): The raw PySpark DataFrame.
 
         Returns:
         DataFrame: The DataFrame with new columns added.
@@ -593,7 +622,7 @@ class DataPreprocessing:
 
             if df_raw is None:
                 raise ValueError("Function: add_duplicate_column returned None object.")
-            elif df_raw.empty:
+            elif df_raw.rdd.isEmpty():
                 raise ValueError("No raw records returned for processing following adding of new duplicate columns. Program is stopping.")
 
             return df_raw
@@ -607,7 +636,7 @@ class DataPreprocessing:
 
         Parameters:
         json_data (dict or list): The JSON configuration data.
-        df_raw (DataFrame): The raw DataFrame.
+        df_raw (DataFrame): The raw PySpark DataFrame.
 
         Returns:
         DataFrame: The DataFrame with new columns added.
@@ -625,7 +654,7 @@ class DataPreprocessing:
 
             if df_raw is None:
                 raise ValueError("Function: add_new_column returned None object.")
-            elif df_raw.empty:
+            elif df_raw.rdd.isEmpty():
                 raise ValueError("No raw records returned for processing following adding of new columns. Program is stopping.")
 
             return df_raw
@@ -639,7 +668,7 @@ class DataPreprocessing:
 
         Parameters:
         json_data (dict or list): The JSON configuration data.
-        df_raw (DataFrame): The raw DataFrame.
+        df_raw (DataFrame): The raw PySpark DataFrame.
 
         Returns:
         DataFrame: The DataFrame with new columns added from struct fields.
@@ -657,7 +686,7 @@ class DataPreprocessing:
 
             if df_raw is None:
                 raise ValueError("Function: add_new_column_from_struct returned None object.")
-            elif df_raw.empty:
+            elif df_raw.rdd.isEmpty():
                 raise ValueError("No raw records returned for processing following adding of new columns from struct. Program is stopping.")
 
             return df_raw
@@ -671,7 +700,7 @@ class DataPreprocessing:
 
         Parameters:
         json_data (dict or list): The JSON configuration data.
-        df_raw (DataFrame): The raw DataFrame.
+        df_raw (DataFrame): The raw PySpark DataFrame.
 
         Returns:
         DataFrame: The DataFrame with empty strings replaced by None.
@@ -689,7 +718,7 @@ class DataPreprocessing:
 
             if df_raw is None:
                 raise ValueError("Function: empty_string_to_null returned None object.")
-            elif df_raw.empty:
+            elif df_raw.rdd.isEmpty():
                 raise ValueError("No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
 
             return df_raw
@@ -701,11 +730,16 @@ class DataPreprocessing:
         """
         Parse columns that are defined as strings into json.
 
+        For PySpark, JSON strings are parsed and stored back as JSON strings in the DataFrame
+        (to preserve nested structure). The parsed dicts are stored in self._parsed_json_cache
+        for use by generate_key_value_records which needs the full nested structure.
+        Columns that don't start with '{' are set to None.
+
         Parameters:
         json_data (dict or list): The JSON configuration data.
-        df_raw (DataFrame): The raw DataFrame.
+        df_raw (DataFrame): The raw PySpark DataFrame.
         Returns:
-        DataFrame: The DataFrame with empty strings replaced by None.
+        DataFrame: The DataFrame with non-JSON values in parse_json_list columns set to None.
         """
         try:
             if not isinstance(json_data, (dict, list)):
@@ -716,15 +750,43 @@ class DataPreprocessing:
                 raise ValueError("parse_json_list value for data_cleaning is not found within config rules")
             self.logger.info("config rule: data_transformations | parse_json_strings: %s", parse_json_column_list)
 
-            for col in parse_json_column_list:
-                df_raw[col] = df_raw[col].apply(lambda x: json.loads(x) if isinstance(x, str) and x.strip().startswith("{") else None)
+            # Collect rows, parse JSON, and cache parsed dicts for key-value extraction
+            spark = SparkSession.builder.getOrCreate()
+            rows = df_raw.collect()
+            parsed_rows = []
+            for row in rows:
+                row_dict = row.asDict()
+                for col in parse_json_column_list:
+                    val = row_dict.get(col)
+                    if isinstance(val, str) and val.strip().startswith("{"):
+                        row_dict[col] = json.loads(val)
+                    else:
+                        row_dict[col] = None
+                parsed_rows.append(row_dict)
 
-            if df_raw is None:
-                raise ValueError("Function: parse_json returned None object.")
-            elif df_raw.empty:
+            if not parsed_rows:
                 raise ValueError("No raw records returned for processing following replacement of empty strings with null. Program is stopping.")
 
-            return df_raw
+            # Cache parsed rows for later use by generate_key_value_records
+            self._parsed_rows_cache = parsed_rows
+
+            # For the Spark DataFrame, store parsed JSON back as JSON strings
+            # This preserves the column in the DataFrame while keeping the schema simple
+            spark_rows = []
+            for row_dict in parsed_rows:
+                spark_row = dict(row_dict)
+                for col in parse_json_column_list:
+                    val = spark_row.get(col)
+                    if val is not None:
+                        spark_row[col] = json.dumps(val)
+                    else:
+                        spark_row[col] = None
+                spark_rows.append(spark_row)
+
+            result_df = spark.createDataFrame(spark_rows, schema=df_raw.schema)
+            result_df = result_df.select(df_raw.columns)
+
+            return result_df
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function parse_json: {str(e)}")
@@ -735,7 +797,7 @@ class DataPreprocessing:
 
         Parameters:
         json_data (dict or list): The JSON configuration data.
-        df_raw (DataFrame): The raw DataFrame.
+        df_raw (DataFrame): The raw PySpark DataFrame.
 
         Returns:
         DataFrame: The DataFrame with new columns added from struct fields.
@@ -753,20 +815,20 @@ class DataPreprocessing:
 
             if df_raw is None:
                 raise ValueError("Function: data_transformations_new_column_string_extract returned None object.")
-            elif df_raw.empty:
+            elif df_raw.rdd.isEmpty():
                 raise ValueError("No raw records returned for processing following adding of new columns from string format. Program is stopping.")
 
             return df_raw
 
         except Exception as e:
             raise OperationFailedException(f"Exception Error within function add_new_column_from_string_format: {str(e)}")
-        
+
     def filter_null_values_and_null_strings(self, df, column):
         """Remove rows which have null values or null as string('null') in column.
 
         Parameters:
         df : DataFrame
-            Input dataframe
+            Input PySpark dataframe
         column : str
             Column to filter on
 
@@ -774,4 +836,4 @@ class DataPreprocessing:
         DataFrame
             Filtered dataframe
         """
-        return df[df[column].notna() & (df[column] != "null")]
+        return df.filter(F.col(column).isNotNull() & (F.col(column) != F.lit("null")))

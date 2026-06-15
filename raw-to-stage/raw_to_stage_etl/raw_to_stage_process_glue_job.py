@@ -6,6 +6,7 @@ import sys
 import traceback
 
 from awsglue.utils import getResolvedOptions
+from pyspark.sql import SparkSession
 from raw_to_stage_etl.clients.glue_table_query_and_write import GlueTableQueryAndWrite
 from raw_to_stage_etl.clients.s3_read_write import S3ReadWrite
 from raw_to_stage_etl.logging.logger import get_logger
@@ -24,6 +25,9 @@ logger = get_logger(__name__)
 def main():
     """Start of the glue job. It controls flow of the whole job."""
     try:
+        # Initialise SparkSession
+        spark = SparkSession.builder.appName("raw-to-stage-etl").getOrCreate()
+
         # Glue Job Inputs
         args = getResolvedOptions(
             sys.argv,
