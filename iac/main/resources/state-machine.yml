@@ -783,6 +783,7 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
 RawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job
   DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: glueetl
