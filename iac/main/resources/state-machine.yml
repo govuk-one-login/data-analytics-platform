@@ -783,16 +783,15 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
 RawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job
   DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Command:
-      Name: pythonshell
-      PythonVersion: '3.9'
+      Name: glueetl
       ScriptLocation: !Sub s3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_process_glue_job.py
+    GlueVersion: '5.0'
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
       '--LOG_LEVEL': 'INFO'
-      '--additional-python-modules': 'pyarrow==17.0.0,awswrangler==3.9.1,aws_lambda_powertools'
+      '--additional-python-modules': 'awswrangler==3.14.0,aws_lambda_powertools'
       '--config_bucket': !Sub ${ELTMetadataBucket}
       '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/raw_to_stage_config_rules.json'
       '--raw_database': !Sub ${Environment}-txma-raw
@@ -804,12 +803,12 @@ RawStageTransformProcessPythonGlueJob:
       '--txma_raw_dedup_view_key_path': 'txma/raw_stage_optimisation_solution/athena_db_object/txma_raw_dedup_view.sql'
       '--workgroup': !Sub ${Environment}-dap-txma-processing
       '--TempDir': !Sub s3://${StageLayerBucket}/raw_stage_optimisation_processing/temporary/
-      'library-set': 'analytics'
       '--extra-py-files': !Sub 's3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl'
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0
-    MaxCapacity: 1
+    WorkerType: G.1X
+    NumberOfWorkers: 2
     SecurityConfiguration: !Ref GlueSecurityConfig
     Name: !Sub ${Environment}-dap-raw-stage-transform-process
     Role: !Ref GlueScriptsExecutionRole

@@ -1,0 +1,340 @@
+name: Remove Events from Stage and Conformed Layers
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to remove events from'
+        required: true
+        type: choice
+        options:
+          - dev
+          - build
+          - staging
+          - integration
+          - production
+      removal_type:
+        description: 'Type of removal'
+        required: true
+        type: choice
+        options:
+          - partition
+          - conformed_only
+      processed_date:
+        description: 'Date to remove (YYYYMMDD format) - for partition removal'
+        required: false
+        type: string
+      event_name:
+        description: 'Specific event name to remove (optional for partition removal)'
+        required: false
+        type: string
+      event_ids:
+        description: 'Comma-separated list of event IDs - for conformed layer only removal'
+        required: false
+        type: string
+      removal_reason:
+        description: 'Reason for event removal'
+        required: true
+        type: string
+      requested_by:
+        description: 'Person requesting the removal'
+        required: true
+        type: string
+
+jobs:
+  remove-events:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-west-2
+
+      - name: Validate inputs
+        id: validate
+        run: |
+          REMOVAL_TYPE="${{ inputs.removal_type }}"
+          
+          if [ "$REMOVAL_TYPE" = "partition" ]; then
+            PROCESSED_DATE="${{ inputs.processed_date }}"
+            if [ -z "$PROCESSED_DATE" ]; then
+              echo "Error: processed_date is required for partition removal"
+              exit 1
+            fi
+            
+            # Validate date format (YYYYMMDD)
+            if ! [[ "$PROCESSED_DATE" =~ ^[0-9]{8}$ ]]; then
+              echo "Error: processed_date must be in YYYYMMDD format"
+              exit 1
+            fi
+            
+            echo "removal_type=partition" >> $GITHUB_OUTPUT
+            echo "processed_date=$PROCESSED_DATE" >> $GITHUB_OUTPUT
+            echo "event_name=${{ inputs.event_name }}" >> $GITHUB_OUTPUT
+            
+          elif [ "$REMOVAL_TYPE" = "conformed_only" ]; then
+            EVENT_IDS="${{ inputs.event_ids }}"
+            if [ -z "$EVENT_IDS" ]; then
+              echo "Error: event_ids is required for conformed-only removal"
+              exit 1
+            fi
+            
+            # Parse event IDs
+            CLEANED_IDS=$(echo "$EVENT_IDS" | tr -d ' ' | tr ',' '\n' | grep -v '^$')
+            COUNT=$(echo "$CLEANED_IDS" | wc -l)
+            
+            echo "removal_type=conformed_only" >> $GITHUB_OUTPUT
+            echo "event_ids_list<<EOF" >> $GITHUB_OUTPUT
+            echo "$CLEANED_IDS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "event_count=$COUNT" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Remove from stage layer (S3)
+        run: |
+          REMOVAL_TYPE="${{ steps.validate.outputs.removal_type }}"
+          STAGE_BUCKET="dap-${{ inputs.environment }}-txma-stage"
+          
+          if [ "$REMOVAL_TYPE" = "partition" ]; then
+            PROCESSED_DATE="${{ steps.validate.outputs.processed_date }}"
+            EVENT_NAME="${{ steps.validate.outputs.event_name }}"
+            
+            if [ -n "$EVENT_NAME" ]; then
+              # Remove specific event name partition
+              S3_PREFIX="processed_dt=$PROCESSED_DATE/$EVENT_NAME/"
+              echo "🗑️ Removing S3 objects: s3://$STAGE_BUCKET/$S3_PREFIX"
+              
+              # List objects first for logging
+              OBJECT_COUNT=$(aws s3 ls "s3://$STAGE_BUCKET/$S3_PREFIX" --recursive | wc -l)
+              echo "Found $OBJECT_COUNT objects to delete"
+              
+              if [ "$OBJECT_COUNT" -gt 0 ]; then
+                aws s3 rm "s3://$STAGE_BUCKET/$S3_PREFIX" --recursive
+                echo "✅ Removed partition: processed_dt=$PROCESSED_DATE/$EVENT_NAME/"
+              else
+                echo "⚠️ No objects found for partition: processed_dt=$PROCESSED_DATE/$EVENT_NAME/"
+              fi
+            else
+              # Remove entire date partition (all event names)
+              S3_PREFIX="processed_dt=$PROCESSED_DATE/"
+              echo "🗑️ Removing S3 objects: s3://$STAGE_BUCKET/$S3_PREFIX"
+              
+              # List objects first for logging
+              OBJECT_COUNT=$(aws s3 ls "s3://$STAGE_BUCKET/$S3_PREFIX" --recursive | wc -l)
+              echo "Found $OBJECT_COUNT objects to delete"
+              
+              if [ "$OBJECT_COUNT" -gt 0 ]; then
+                aws s3 rm "s3://$STAGE_BUCKET/$S3_PREFIX" --recursive
+                echo "✅ Removed partition: processed_dt=$PROCESSED_DATE/ (all events)"
+              else
+                echo "⚠️ No objects found for partition: processed_dt=$PROCESSED_DATE/"
+              fi
+            fi
+            
+          else
+            # Conformed-only removal - skip stage layer
+            echo "ℹ️ Conformed-only removal selected - skipping stage layer"
+            echo "📝 Note: Individual events cannot be removed from S3 Parquet files"
+            echo "📝 Stage layer will retain the events, only conformed layer will be cleaned"
+          fi
+
+      - name: Remove from conformed layer (Athena)
+        run: |
+          REMOVAL_TYPE="${{ steps.validate.outputs.removal_type }}"
+          
+          if [ "$REMOVAL_TYPE" = "partition" ]; then
+            PROCESSED_DATE="${{ steps.validate.outputs.processed_date }}"
+            EVENT_NAME="${{ steps.validate.outputs.event_name }}"
+            
+            if [ -n "$EVENT_NAME" ]; then
+              CONFORMED_WHERE="date = '$PROCESSED_DATE' AND event_name = '$EVENT_NAME'"
+            else
+              CONFORMED_WHERE="date = '$PROCESSED_DATE'"
+            fi
+            
+            cat > /tmp/remove_from_conformed.sql << EOF
+          -- Remove partition from conformed layer
+          -- Date: $PROCESSED_DATE
+          -- Event Name: ${EVENT_NAME:-"ALL"}
+          -- Requested by: ${{ inputs.requested_by }}
+          -- Reason: ${{ inputs.removal_reason }}
+          -- Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+          DELETE FROM conformed.fact_user_journey_event
+          WHERE $CONFORMED_WHERE;
+          
+          DELETE FROM conformed.dim_event
+          WHERE $CONFORMED_WHERE;
+          EOF
+          
+          else
+            # Individual event ID removal (conformed only)
+            EVENT_IDS_SQL=$(echo "${{ steps.validate.outputs.event_ids_list }}" | sed "s/^/'/; s/$/',/; $ s/,$//" | tr '\n' ' ')
+            
+            cat > /tmp/remove_from_conformed.sql << EOF
+          -- Remove events from conformed layer only
+          -- Requested by: ${{ inputs.requested_by }}
+          -- Reason: ${{ inputs.removal_reason }}
+          -- Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          -- Note: Stage layer events remain in S3 (cannot remove individual events from Parquet files)
+          
+          DELETE FROM conformed.fact_user_journey_event
+          WHERE event_id IN ($EVENT_IDS_SQL);
+          
+          DELETE FROM conformed.dim_event
+          WHERE event_id IN ($EVENT_IDS_SQL);
+          EOF
+          fi
+          
+          # Execute conformed layer removal
+          aws athena start-query-execution \
+            --query-string "$(cat /tmp/remove_from_conformed.sql)" \
+            --work-group "dap-${{ inputs.environment }}-workgroup" \
+            --result-configuration "OutputLocation=s3://dap-${{ inputs.environment }}-athena-query-results/" \
+            --query 'QueryExecutionId' \
+            --output text > /tmp/conformed_query_id.txt
+          
+          # Wait for completion
+          QUERY_ID=$(cat /tmp/conformed_query_id.txt)
+          echo "Conformed removal query ID: $QUERY_ID"
+          
+          while true; do
+            STATUS=$(aws athena get-query-execution --query-execution-id $QUERY_ID --query 'QueryExecution.Status.State' --output text)
+            echo "Conformed removal status: $STATUS"
+            
+            if [ "$STATUS" = "SUCCEEDED" ]; then
+              echo "✅ Conformed layer removal completed successfully"
+              break
+            elif [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CANCELLED" ]; then
+              echo "❌ Conformed layer removal failed"
+              aws athena get-query-execution --query-execution-id $QUERY_ID
+              exit 1
+            fi
+            
+            sleep 10
+          done
+
+      - name: Repair Athena partitions
+        if: steps.validate.outputs.removal_type == 'partition'
+        run: |
+          echo "🔧 Repairing Athena partitions after S3 deletion..."
+          
+          # Repair stage layer partitions
+          aws athena start-query-execution \
+            --query-string "MSCK REPAIR TABLE conformed_txma_stage.txma_stage_layer;" \
+            --work-group "dap-${{ inputs.environment }}-workgroup" \
+            --result-configuration "OutputLocation=s3://dap-${{ inputs.environment }}-athena-query-results/" \
+            --query 'QueryExecutionId' \
+            --output text > /tmp/repair_query_id.txt
+          
+          QUERY_ID=$(cat /tmp/repair_query_id.txt)
+          
+          while true; do
+            STATUS=$(aws athena get-query-execution --query-execution-id $QUERY_ID --query 'QueryExecution.Status.State' --output text)
+            if [ "$STATUS" = "SUCCEEDED" ]; then
+              echo "✅ Athena partitions repaired successfully"
+              break
+            elif [ "$STATUS" = "FAILED" ]; then
+              echo "⚠️ Partition repair failed (this may be expected if no partitions remain)"
+              break
+            fi
+            sleep 5
+          done
+
+      - name: Verify removal
+        run: |
+          REMOVAL_TYPE="${{ steps.validate.outputs.removal_type }}"
+          
+          if [ "$REMOVAL_TYPE" = "partition" ]; then
+            PROCESSED_DATE="${{ steps.validate.outputs.processed_date }}"
+            EVENT_NAME="${{ steps.validate.outputs.event_name }}"
+            
+            if [ -n "$EVENT_NAME" ]; then
+              STAGE_WHERE="processed_dt = '$PROCESSED_DATE' AND event_name = '$EVENT_NAME'"
+              CONFORMED_WHERE="date = '$PROCESSED_DATE' AND event_name = '$EVENT_NAME'"
+            else
+              STAGE_WHERE="processed_dt = '$PROCESSED_DATE'"
+              CONFORMED_WHERE="date = '$PROCESSED_DATE'"
+            fi
+            
+            cat > /tmp/verify_removal.sql << EOF
+          SELECT 
+            'stage' as layer,
+            COUNT(*) as remaining_events
+          FROM conformed_txma_stage.txma_stage_layer 
+          WHERE $STAGE_WHERE
+          
+          UNION ALL
+          
+          SELECT 
+            'conformed' as layer,
+            COUNT(*) as remaining_events
+          FROM conformed.fact_user_journey_event 
+          WHERE $CONFORMED_WHERE;
+          EOF
+          
+          else
+            EVENT_IDS_SQL=$(echo "${{ steps.validate.outputs.event_ids_list }}" | sed "s/^/'/; s/$/',/; $ s/,$//" | tr '\n' ' ')
+            
+            cat > /tmp/verify_removal.sql << EOF
+          SELECT 
+            'conformed' as layer,
+            COUNT(*) as remaining_events
+          FROM conformed.fact_user_journey_event 
+          WHERE event_id IN ($EVENT_IDS_SQL);
+          EOF
+          fi
+          
+          # Execute verification
+          aws athena start-query-execution \
+            --query-string "$(cat /tmp/verify_removal.sql)" \
+            --work-group "dap-${{ inputs.environment }}-workgroup" \
+            --result-configuration "OutputLocation=s3://dap-${{ inputs.environment }}-athena-query-results/" \
+            --query 'QueryExecutionId' \
+            --output text > /tmp/verify_query_id.txt
+          
+          QUERY_ID=$(cat /tmp/verify_query_id.txt)
+          
+          # Wait and get results
+          while true; do
+            STATUS=$(aws athena get-query-execution --query-execution-id $QUERY_ID --query 'QueryExecution.Status.State' --output text)
+            if [ "$STATUS" = "SUCCEEDED" ]; then break; fi
+            if [ "$STATUS" = "FAILED" ]; then 
+              echo "⚠️ Verification query failed (may be expected if partitions were completely removed)"
+              exit 0
+            fi
+            sleep 5
+          done
+          
+          echo "📊 Verification Results:"
+          aws athena get-query-results --query-execution-id $QUERY_ID --output table
+
+      - name: Log removal action
+        run: |
+          echo "🗑️ Event Removal Summary"
+          echo "========================"
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Removal Type: ${{ steps.validate.outputs.removal_type }}"
+          
+          if [ "${{ steps.validate.outputs.removal_type }}" = "partition" ]; then
+            echo "Processed Date: ${{ steps.validate.outputs.processed_date }}"
+            echo "Event Name: ${{ steps.validate.outputs.event_name }}"
+            echo "Stage Layer: ✅ Removed (S3 partition deletion)"
+            echo "Conformed Layer: ✅ Removed (Athena DELETE)"
+          else
+            echo "Event Count: ${{ steps.validate.outputs.event_count }}"
+            echo "Event IDs: ${{ inputs.event_ids }}"
+            echo "Stage Layer: ⚠️ Not removed (individual events cannot be removed from Parquet files)"
+            echo "Conformed Layer: ✅ Removed (Athena DELETE)"
+          fi
+          
+          echo "Requested by: ${{ inputs.requested_by }}"
+          echo "Reason: ${{ inputs.removal_reason }}"
+          echo "Timestamp: $(date -u)"
+          echo "========================"
