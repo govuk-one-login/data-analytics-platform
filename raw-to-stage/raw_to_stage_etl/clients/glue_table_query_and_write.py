@@ -121,10 +121,17 @@ class GlueTableQueryAndWrite:
         if dfs is None:
             raise ValueError(f"Function: query_glue_table returned None.  Using query {str(sql_query)}")
 
-        # Convert pandas DataFrames to PySpark DataFrames
+        from pyspark.sql.types import StructType, StructField, StringType
+
         spark = SparkSession.builder.getOrCreate()
         spark_dfs = []
         for pdf in dfs:
-            spark_dfs.append(spark.createDataFrame(pdf))
+            # Build an all-StringType schema to avoid type merge conflicts
+            # (e.g. extensions column may be None in some rows and a parsed dict in others)
+            schema = StructType([StructField(col, StringType(), True) for col in pdf.columns])
+            # Convert all values to strings, keeping None as None
+            for col in pdf.columns:
+                pdf[col] = pdf[col].apply(lambda x: str(x) if x is not None and not (isinstance(x, float) and x != x) else None)
+            spark_dfs.append(spark.createDataFrame(pdf, schema=schema))
 
         return spark_dfs
