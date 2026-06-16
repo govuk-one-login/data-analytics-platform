@@ -463,6 +463,35 @@ DataQualityPythonGlueJob:
     Name: !Sub ${Environment}-dap-data-quality-metrics-generation
     Role: !Ref GlueScriptsExecutionRole
 
+GlueVPCConnection:
+  Type: AWS::Glue::Connection
+  Properties:
+    CatalogId: !Ref AWS::AccountId
+    ConnectionInput:
+      Name: !Sub ${Environment}-dap-glue-vpc-connection
+      ConnectionType: NETWORK
+      PhysicalConnectionRequirements:
+        AvailabilityZone: !Select [0, !GetAZs !Ref 'AWS::Region']
+        SecurityGroupIdList:
+          - !Ref GlueSecurityGroup
+        SubnetId: !Ref SubnetForDAP1
+
+GlueSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: Security group for Glue jobs
+    VpcId: !Ref VPCForDAP
+    SecurityGroupEgress:
+      - IpProtocol: -1
+        CidrIp: 0.0.0.0/0
+        Description: Allow all outbound traffic
+    SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 0
+        ToPort: 65535
+        SourceSecurityGroupId: !Ref GlueSecurityGroup
+        Description: Allow inbound from same security group
+
 GlueScriptsExecutionRole:
   Type: AWS::IAM::Role
   DeletionPolicy: Retain
@@ -609,6 +638,12 @@ GlueScriptsExecutionRole:
                 - '*'
               Action:
                 - ec2:Describe*
+                - ec2:CreateNetworkInterface
+                - ec2:DeleteNetworkInterface
+                - ec2:AttachNetworkInterface
+                - ec2:DetachNetworkInterface
+                - ec2:ModifyNetworkInterfaceAttribute
+                - ec2:CreateTags
 
             - Effect: Allow
               Resource:
@@ -805,12 +840,16 @@ RawStageTransformProcessPythonGlueJob:
       '--workgroup': !Sub ${Environment}-dap-txma-processing
       '--TempDir': !Sub s3://${StageLayerBucket}/raw_stage_optimisation_processing/temporary/
       '--extra-py-files': !Sub 's3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl'
+      '--conf': 'spark.network.timeout=800s --conf spark.executor.heartbeatInterval=60s --conf spark.sql.adaptive.enabled=true --conf spark.sql.adaptive.coalescePartitions.enabled=true'
     ExecutionProperty:
       MaxConcurrentRuns: 1
     MaxRetries: 0
     WorkerType: G.1X
-    NumberOfWorkers: 2
+    NumberOfWorkers: 3
     SecurityConfiguration: !Ref GlueSecurityConfig
+    Connections:
+      Connections:
+        - !Ref GlueVPCConnection
     Name: !Sub ${Environment}-dap-raw-stage-transform-process
     Role: !Ref GlueScriptsExecutionRole
 
