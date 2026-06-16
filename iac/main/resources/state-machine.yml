@@ -471,7 +471,10 @@ GlueVPCConnection:
       Name: !Sub ${Environment}-dap-glue-vpc-connection
       ConnectionType: NETWORK
       PhysicalConnectionRequirements:
-        AvailabilityZone: !Select [0, !GetAZs !Ref 'AWS::Region']
+        AvailabilityZone: !Select
+          - 0
+          - !GetAZs
+            Ref: AWS::Region
         SecurityGroupIdList:
           - !Ref GlueSecurityGroup
         SubnetId: !Ref SubnetForDAP1
@@ -485,12 +488,16 @@ GlueSecurityGroup:
       - IpProtocol: -1
         CidrIp: 0.0.0.0/0
         Description: Allow all outbound traffic
-    SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 0
-        ToPort: 65535
-        SourceSecurityGroupId: !Ref GlueSecurityGroup
-        Description: Allow inbound from same security group
+
+GlueSecurityGroupIngress:
+  Type: AWS::EC2::SecurityGroupIngress
+  Properties:
+    GroupId: !Ref GlueSecurityGroup
+    IpProtocol: tcp
+    FromPort: 0
+    ToPort: 65535
+    SourceSecurityGroupId: !Ref GlueSecurityGroup
+    Description: Allow inbound from same security group
 
 GlueScriptsExecutionRole:
   Type: AWS::IAM::Role
