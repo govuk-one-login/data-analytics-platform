@@ -834,7 +834,7 @@ RawStageTransformProcessPythonGlueJob:
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
       '--LOG_LEVEL': 'INFO'
-      'library-set': 'analytics'
+      '--additional-python-modules': 'awswrangler==3.14.0,boto3==1.35.83'
       '--config_bucket': !Sub ${ELTMetadataBucket}
       '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/raw_to_stage_config_rules.json'
       '--raw_database': !Sub ${Environment}-txma-raw
@@ -846,7 +846,13 @@ RawStageTransformProcessPythonGlueJob:
       '--txma_raw_dedup_view_key_path': 'txma/raw_stage_optimisation_solution/athena_db_object/txma_raw_dedup_view.sql'
       '--workgroup': !Sub ${Environment}-dap-txma-processing
       '--TempDir': !Sub s3://${StageLayerBucket}/raw_stage_optimisation_processing/temporary/
-      '--extra-py-files': !Sub 's3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl'
+      '--extra-py-files': !Join
+        - ','
+        - - !Sub 's3://${ELTMetadataBucket}/txma/raw_to_stage/raw_to_stage_etl_modules-0.1.0-py3-none-any.whl'
+          - !Sub 's3://${ELTMetadataBucket}/txma/raw_to_stage/dependencies/awswrangler-3.14.0-py3-none-any.whl'
+          - !Sub 's3://${ELTMetadataBucket}/txma/raw_to_stage/dependencies/boto3-1.35.83-py3-none-any.whl'
+          - !Sub 's3://${ELTMetadataBucket}/txma/raw_to_stage/dependencies/pandas-2.3.3-py3-none-any.whl'
+          - !Sub 's3://${ELTMetadataBucket}/txma/raw_to_stage/dependencies/pyarrow-21.0.0-py3-none-any.whl'
       '--conf': 'spark.network.timeout=800s --conf spark.executor.heartbeatInterval=60s --conf spark.sql.adaptive.enabled=true --conf spark.sql.adaptive.coalescePartitions.enabled=true'
     ExecutionProperty:
       MaxConcurrentRuns: 1
