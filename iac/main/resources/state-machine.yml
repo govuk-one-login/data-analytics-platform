@@ -834,6 +834,7 @@ RawStageTransformProcessPythonGlueJob:
     DefaultArguments:
       '--JOB_NAME': !Sub ${Environment}-dap-raw-stage-transform-process
       '--LOG_LEVEL': 'INFO'
+      'library-set': 'analytics'
       '--config_bucket': !Sub ${ELTMetadataBucket}
       '--config_key_path': 'txma/raw_stage_optimisation_solution/configuration_rules/raw_to_stage_config_rules.json'
       '--raw_database': !Sub ${Environment}-txma-raw
@@ -853,9 +854,6 @@ RawStageTransformProcessPythonGlueJob:
     WorkerType: G.1X
     NumberOfWorkers: 3
     SecurityConfiguration: !Ref GlueSecurityConfig
-    Connections:
-      Connections:
-        - !Ref GlueVPCConnection
     Name: !Sub ${Environment}-dap-raw-stage-transform-process
     Role: !Ref GlueScriptsExecutionRole
 
