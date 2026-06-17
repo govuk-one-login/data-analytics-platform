@@ -204,8 +204,6 @@ S3BucketNotificationLambdaPermission:
 
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Name: !Sub ${Environment}-dap-glue-security-configuration
     EncryptionConfiguration:

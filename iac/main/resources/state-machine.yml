@@ -409,8 +409,6 @@ DataQualityGlueDatabase:
 
 DataQualityMetricsGlueTable:
   Type: AWS::Glue::Table
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     CatalogId: !Sub ${AWS::AccountId}
     DatabaseName: !Ref DataQualityGlueDatabase
