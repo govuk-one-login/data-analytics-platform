@@ -5,6 +5,7 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
+from pyspark import pandas as ps  # PySpark pandas for better compatibility
 
 from ..exceptions.no_data_found_exception import NoDataFoundException
 from ..logging.logger import get_logger
