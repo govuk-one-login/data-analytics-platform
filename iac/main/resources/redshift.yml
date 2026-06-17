@@ -621,6 +621,7 @@ RedshiftErrorDLQ:
 # Policy to allow EventBridge to send messages to DLQ
 RedshiftErrorDLQPolicy:
   Type: AWS::SQS::QueuePolicy
+  DependsOn: RedshiftErrorEventRule
   Properties:
     Queues:
       - !Ref RedshiftErrorDLQ
