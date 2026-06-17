@@ -212,8 +212,6 @@ ReferenceDataProcessingPipe:
 
 GlueRedshiftConnection:
   Type: AWS::Glue::Connection
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     CatalogId: !Ref AWS::AccountId
     ConnectionInput:

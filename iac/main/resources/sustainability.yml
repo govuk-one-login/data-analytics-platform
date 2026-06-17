@@ -21,8 +21,6 @@ SustainabilityDatabase:
 
 CurTable:
   Type: AWS::Glue::Table
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Condition: IsADMEnvironment
   Properties:
     CatalogId: !Ref AWS::AccountId
