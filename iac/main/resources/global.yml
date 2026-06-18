@@ -192,8 +192,6 @@ S3NotificationsLoggerLambda:
 
 S3NotificationsLoggerEventBridgeRule:
   Type: AWS::Events::Rule
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Description: Rule to send all s3:ObjectCreated:* and s3:ObjectRemoved:* events to the logger lambda
     EventPattern:
@@ -824,8 +822,6 @@ TrailBucketPolicy:
 
 CloudTrailForUnauthorizedAPIChanges:
   Type: 'AWS::CloudTrail::Trail'
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   DependsOn: TrailBucketPolicy
   Properties:
     S3BucketName: !Ref TrailBucket
@@ -911,8 +907,6 @@ IAMChangeLogGroup:
 
 CloudTrailForIAMChanges:
   Type: 'AWS::CloudTrail::Trail'
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     S3BucketName: !Ref TrailBucket
     IncludeGlobalServiceEvents: true
