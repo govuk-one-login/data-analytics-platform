@@ -21,6 +21,7 @@
     "@aws-sdk/client-quicksight": "^3.1068.0",
     "@aws-sdk/client-redshift-data": "^3.1068.0",
     "@aws-sdk/client-redshift-serverless": "^3.1068.0",
+    "@aws-sdk/client-resource-groups-tagging-api": "^3.1067.0",
     "@aws-sdk/client-s3": "^3.1068.0",
     "@aws-sdk/client-secrets-manager": "^3.1068.0",
     "@aws-sdk/client-sfn": "^3.1068.0",
