@@ -27,6 +27,7 @@
     "@aws-sdk/client-sns": "^3.1075.0",
     "@aws-sdk/client-sqs": "^3.1075.0",
     "@aws-sdk/client-ssm": "^3.1075.0",
+    "@aws-sdk/client-resource-groups-tagging-api": "^3.1075.0",
     "@aws-sdk/types": "^3.821.0",
     "@eslint/js": "^10.0.1",
     "@faker-js/faker": "^10.5.0",
