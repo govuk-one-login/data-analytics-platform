@@ -56,8 +56,6 @@ ELTMetadataUploadRole:
 
 ELTMetadataBucketPolicy:
   Type: AWS::S3::BucketPolicy
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Bucket: !Ref ELTMetadataBucket
     PolicyDocument:
@@ -1049,8 +1047,6 @@ SplunkMigratedRawStageTransformProcessPythonGlueJob:
 
 HypercareAdjustedScheduleEventBridgeRule:
   Type: AWS::Events::Rule
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Description: Rule to be enabled when rps require hypercare during onboarding
     ScheduleExpression: 'cron(30 9,13 * * ? *)'
