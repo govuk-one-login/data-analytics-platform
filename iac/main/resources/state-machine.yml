@@ -435,8 +435,6 @@ DataQualityMetricsGlueTable:
 
 DataQualityPythonGlueJob:
   Type: AWS::Glue::Job
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: pythonshell
@@ -779,8 +777,6 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
 
 RawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: pythonshell
@@ -885,8 +881,6 @@ SNSAlertTopic:
 
 DataQualityStageLayerOptimisedPythonGlueJob:
   Type: AWS::Glue::Job
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: pythonshell
@@ -1003,8 +997,6 @@ ADMConsolidatedModelProcessingStateMachine:
 
 SplunkMigratedRawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Command:
       Name: pythonshell
