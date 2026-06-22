@@ -81,7 +81,7 @@ DeployRoleExtraIAMActions:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsStaging
-          - PL-dap-staging-deploy-DeployRole-02e7fac29d94
+          - PL-dap-staging-deploy-DeployRole-060ab83bdc13
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
@@ -152,7 +152,7 @@ GluePolicy:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsStaging
-          - PL-dap-staging-deploy-DeployRole-02e7fac29d94
+          - PL-dap-staging-deploy-DeployRole-060ab83bdc13
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
@@ -195,7 +195,7 @@ RedShiftEC2Policy:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsStaging
-          - PL-dap-staging-deploy-DeployRole-02e7fac29d94
+          - PL-dap-staging-deploy-DeployRole-060ab83bdc13
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
@@ -249,7 +249,7 @@ StateMachinePolicy:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsStaging
-          - PL-dap-staging-deploy-DeployRole-02e7fac29d94
+          - PL-dap-staging-deploy-DeployRole-060ab83bdc13
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
@@ -300,7 +300,7 @@ CloudTrailPolicy:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsStaging
-          - PL-dap-staging-deploy-DeployRole-02e7fac29d94
+          - PL-dap-staging-deploy-DeployRole-060ab83bdc13
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
@@ -338,7 +338,7 @@ CDNPolicy:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsStaging
-          - PL-dap-staging-deploy-DeployRole-02e7fac29d94
+          - PL-dap-staging-deploy-DeployRole-060ab83bdc13
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
