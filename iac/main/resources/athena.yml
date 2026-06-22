@@ -25,6 +25,7 @@ AthenaWorkgroupBucket:
 
 AthenaWorkgroupBucketPolicy:
   Type: AWS::S3::BucketPolicy
+  DeletionPolicy: Retain
   Properties:
     Bucket: !Ref AthenaWorkgroupBucket
     PolicyDocument:

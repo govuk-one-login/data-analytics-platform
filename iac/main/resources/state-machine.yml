@@ -56,6 +56,7 @@ ELTMetadataUploadRole:
 
 ELTMetadataBucketPolicy:
   Type: AWS::S3::BucketPolicy
+  DeletionPolicy: Retain
   Properties:
     Bucket: !Ref ELTMetadataBucket
     PolicyDocument:
@@ -149,8 +150,6 @@ AthenaRawLayerProcessingLogGroup:
 
 StepFunctionRole:
   Type: AWS::IAM::Role
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-dap-statemachine-processing-role
     AssumeRolePolicyDocument:
