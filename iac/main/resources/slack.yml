@@ -8,6 +8,7 @@ DAPNotificationsTopic:
 
 DAPNotificationsTopicSubscribePolicy:
   Type: AWS::SNS::TopicPolicy
+  DeletionPolicy: Retain
   Properties:
     PolicyDocument:
       Id: AllowSnsSubscribe
