@@ -42,6 +42,7 @@ const IMPORT_UNSUPPORTED_TYPES = new Set([
   'AWS::Glue::Connection',
   'AWS::Glue::SecurityConfiguration',
   'AWS::Glue::Crawler',
+  'AWS::Glue::Job',
   'AWS::S3::BucketPolicy',
   'AWS::CloudTrail::Trail',
   'AWS::Events::Rule',
