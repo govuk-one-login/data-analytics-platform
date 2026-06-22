@@ -272,10 +272,23 @@ fi
 # Import Redshift
 REDSHIFT_COUNT=$(python3 -c "import json; print(len(json.load(open('$REDSHIFT_JSON'))))")
 if [[ "$REDSHIFT_COUNT" -gt 0 ]]; then
-  echo "  Importing Redshift..."
+  echo "  Importing Redshift (with retry for throttling)..."
   generate_import_template "$REDSHIFT_IDS" "$TEMP_DIR/template-redshift.yaml"
   REDSHIFT_URL=$(upload_template "$TEMP_DIR/template-redshift.yaml" "step4-redshift")
-  import_resources "$REDSHIFT_URL" "$REDSHIFT_JSON" "ImportRedshift"
+  for attempt in 1 2 3; do
+    if import_resources "$REDSHIFT_URL" "$REDSHIFT_JSON" "ImportRedshift$attempt"; then
+      break
+    else
+      if [[ "$attempt" -lt 3 ]]; then
+        echo "  Throttled. Waiting 60s before retry (attempt $attempt/3)..."
+        sleep 60
+        # Stack may be in IMPORT_ROLLBACK_COMPLETE, need to re-upload template
+        REDSHIFT_URL=$(upload_template "$TEMP_DIR/template-redshift.yaml" "step4-redshift-retry$attempt")
+      else
+        echo "  ERROR: Redshift import failed after 3 attempts. Import manually after sam deploy."
+      fi
+    fi
+  done
 fi
 
 # =============================================================================
