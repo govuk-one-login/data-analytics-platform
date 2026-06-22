@@ -6,7 +6,7 @@ RawLayerBucket:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-raw-layer
     LoggingConfiguration:
-      DestinationBucketName: !Ref GlobalLogBucket
+      DestinationBucketName: !Sub di-s3-access-logs-${AWS::AccountId}-${AWS::Region}
       LogFilePrefix: dap-raw-layer/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true

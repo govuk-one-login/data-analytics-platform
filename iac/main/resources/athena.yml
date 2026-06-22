@@ -6,7 +6,7 @@ AthenaWorkgroupBucket:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-athena-workgroup
     LoggingConfiguration:
-      DestinationBucketName: !Ref GlobalLogBucket
+      DestinationBucketName: !Sub di-s3-access-logs-${AWS::AccountId}-${AWS::Region}
       LogFilePrefix: dap-athena-workgroup/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true

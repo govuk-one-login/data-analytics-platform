@@ -6,7 +6,7 @@ StageLayerBucket:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-stage-layer
     LoggingConfiguration:
-      DestinationBucketName: !Ref GlobalLogBucket
+      DestinationBucketName: !Sub di-s3-access-logs-${AWS::AccountId}-${AWS::Region}
       LogFilePrefix: dap-stage-layer/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true

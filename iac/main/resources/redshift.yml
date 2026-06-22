@@ -347,7 +347,7 @@ FlywayFilesBucket:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-flyway-files
     LoggingConfiguration:
-      DestinationBucketName: !Ref GlobalLogBucket
+      DestinationBucketName: !Sub di-s3-access-logs-${AWS::AccountId}-${AWS::Region}
       LogFilePrefix: dap-flyway-files/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true

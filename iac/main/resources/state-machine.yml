@@ -6,7 +6,7 @@ ELTMetadataBucket:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-elt-metadata
     LoggingConfiguration:
-      DestinationBucketName: !Ref GlobalLogBucket
+      DestinationBucketName: !Sub di-s3-access-logs-${AWS::AccountId}-${AWS::Region}
       LogFilePrefix: dap-elt-metadata/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
@@ -91,7 +91,7 @@ StateMachineResultsBucket:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-step-function-process-results
     LoggingConfiguration:
-      DestinationBucketName: !Ref GlobalLogBucket
+      DestinationBucketName: !Sub di-s3-access-logs-${AWS::AccountId}-${AWS::Region}
       LogFilePrefix: dap-step-function-process-results/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
@@ -361,7 +361,7 @@ DataQualityMetricsBucket:
     AccessControl: Private
     BucketName: !Sub ${Environment}-dap-data-quality-metrics
     LoggingConfiguration:
-      DestinationBucketName: !Ref GlobalLogBucket
+      DestinationBucketName: !Sub di-s3-access-logs-${AWS::AccountId}-${AWS::Region}
       LogFilePrefix: dap-data-quality-metrics/log
     PublicAccessBlockConfiguration:
       BlockPublicAcls: true
