@@ -7,7 +7,6 @@
 #   Step 3: Import S3 buckets with external refs
 #   Step 4: Import Redshift (separately to avoid throttling)
 #   Step 5: Cleanup orphaned resources + sam deploy
-#   Step 6: Import Redshift into full stack (with correct template)
 #
 # Usage: ./scripts/recover-stack.sh <environment> <application> <stack-name>
 
@@ -244,6 +243,8 @@ for r in all_resources:
         s3_resources.append(r)
     elif 'Redshift' in rtype:
         redshift_resources.append(r)
+    elif rtype == 'AWS::IAM::Role':
+        s3_resources.append(r)  # Import IAM roles with S3 (safe, no throttling)
     else:
         print(f'  SKIP (will recreate): {r[\"LogicalResourceId\"]} ({rtype})')
 
