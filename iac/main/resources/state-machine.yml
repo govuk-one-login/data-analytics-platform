@@ -1001,7 +1001,7 @@ ADMConsolidatedModelProcessingStateMachine:
       RedshiftDatabaseName: dap_txma_reporting_db_refactored
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
       RedshiftSecretArn: !Ref RedshiftSecret
-      ADMV3RefreshStepFunctionArn: !If [IsProduction, !Ref ADMV3RefreshStateMachine, 'AWS::NoValue'] 
+      ADMV3RefreshStepFunctionArn: !If [IsProduction, !Ref ADMV3RefreshStateMachine, 'AWS::NoValue']
       RunADMRefresh: !If [IsProduction, 'true', 'false']
 
 SplunkMigratedRawStageTransformProcessPythonGlueJob:
