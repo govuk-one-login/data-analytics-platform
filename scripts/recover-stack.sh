@@ -38,12 +38,18 @@ FULL_JSON="$TEMP_DIR/resources-to-import.json"
 DEFERRED_IDS="$TEMP_DIR/import-template-deferred.json"
 
 case "$ENVIRONMENT" in
-  dev|build|staging|integration|production|production-preview) ;;
-  *) echo "Error: Invalid environment '$ENVIRONMENT'"; exit 1 ;;
+  dev | build | staging | integration | production | production-preview) ;;
+  *)
+    echo "Error: Invalid environment '$ENVIRONMENT'"
+    exit 1
+    ;;
 esac
 case "$APPLICATION" in
-  main|quicksight-access|core) ;;
-  *) echo "Error: Invalid application '$APPLICATION'"; exit 1 ;;
+  main | quicksight-access | core) ;;
+  *)
+    echo "Error: Invalid application '$APPLICATION'"
+    exit 1
+    ;;
 esac
 
 # Get AWS info
@@ -53,7 +59,7 @@ echo "Account: $ACCOUNT_ID | Environment: $ENVIRONMENT | Stack: $STACK_NAME"
 
 TEMPLATE_BUCKET=$(aws cloudformation describe-stacks \
   --stack-name aws-sam-cli-managed-default --region "$REGION" \
-  --query "Stacks[0].Outputs[?OutputKey=='SourceBucket'].OutputValue" --output text 2>/dev/null || echo "")
+  --query "Stacks[0].Outputs[?OutputKey=='SourceBucket'].OutputValue" --output text 2> /dev/null || echo "")
 if [[ -z "$TEMPLATE_BUCKET" ]]; then
   echo "Error: SAM CLI managed bucket not found. Run 'sam deploy --guided' first."
   exit 1
@@ -84,7 +90,7 @@ import_resources() {
     --region "$REGION" > /dev/null
   echo "  Waiting for changeset..."
   if ! aws cloudformation wait change-set-create-complete \
-    --stack-name "$STACK_NAME" --change-set-name "$changeset_name" --region "$REGION" 2>/dev/null; then
+    --stack-name "$STACK_NAME" --change-set-name "$changeset_name" --region "$REGION" 2> /dev/null; then
     echo "  ERROR: Changeset failed:"
     aws cloudformation describe-change-set --stack-name "$STACK_NAME" \
       --change-set-name "$changeset_name" --region "$REGION" \
@@ -306,21 +312,21 @@ for r in resources:
     if r['ResourceType'] == 'AWS::S3::Bucket':
         print(r['ResourceIdentifier'].get('BucketName',''))
 "); do
-  aws s3api delete-bucket-policy --bucket "$bucket" --region "$REGION" 2>/dev/null || true
+  aws s3api delete-bucket-policy --bucket "$bucket" --region "$REGION" 2> /dev/null || true
 done
 
 # Delete VPC endpoints in the DAP VPC
 VPC_ID=$(aws cloudformation describe-stack-resource --stack-name "$STACK_NAME" \
   --logical-resource-id VPCForDAP --region "$REGION" \
-  --query "StackResourceDetail.PhysicalResourceId" --output text 2>/dev/null || echo "")
+  --query "StackResourceDetail.PhysicalResourceId" --output text 2> /dev/null || echo "")
 if [[ -n "$VPC_ID" ]]; then
   echo "  Deleting VPC endpoints in $VPC_ID..."
   ENDPOINTS=$(aws ec2 describe-vpc-endpoints --region "$REGION" \
     --filters "Name=vpc-id,Values=$VPC_ID" \
     --query "VpcEndpoints[?Tags[?Key=='aws:cloudformation:stack-name' && Value=='$STACK_NAME']].VpcEndpointId" \
-    --output text 2>/dev/null)
+    --output text 2> /dev/null)
   if [[ -n "$ENDPOINTS" && "$ENDPOINTS" != "None" ]]; then
-    aws ec2 delete-vpc-endpoints --vpc-endpoint-ids $ENDPOINTS --region "$REGION" 2>/dev/null || true
+    aws ec2 delete-vpc-endpoints --vpc-endpoint-ids $ENDPOINTS --region "$REGION" 2> /dev/null || true
     echo "  Waiting 30s for DNS cleanup..."
     sleep 30
   fi
@@ -328,12 +334,12 @@ fi
 
 # Delete CloudTrail trails that were retained
 echo "  Deleting orphaned CloudTrail trails..."
-aws cloudtrail delete-trail --name UnauthorizedAPICallTrail --region "$REGION" 2>/dev/null || true
-aws cloudtrail delete-trail --name IAMPolicyChangeTrail --region "$REGION" 2>/dev/null || true
+aws cloudtrail delete-trail --name UnauthorizedAPICallTrail --region "$REGION" 2> /dev/null || true
+aws cloudtrail delete-trail --name IAMPolicyChangeTrail --region "$REGION" 2> /dev/null || true
 
 # Run the cleanup script for any other orphaned resources
 if [[ -x "$SCRIPT_DIR/cleanup-orphaned-resources.sh" ]]; then
-  "$SCRIPT_DIR/cleanup-orphaned-resources.sh" "$STACK_NAME" 2>/dev/null || true
+  "$SCRIPT_DIR/cleanup-orphaned-resources.sh" "$STACK_NAME" 2> /dev/null || true
 fi
 
 echo ""
