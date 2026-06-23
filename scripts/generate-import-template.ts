@@ -165,24 +165,24 @@ function main() {
   const resourcesToImport: { LogicalResourceId: string }[] = JSON.parse(
     readFileSync(values['resources-to-import']!, 'utf-8'),
   );
-  const importableLogicalIds = new Set(resourcesToImport.map((r) => r.LogicalResourceId));
+  const importableLogicalIds = new Set(resourcesToImport.map(r => r.LogicalResourceId));
 
   const conditions = parseConditions(lines);
   const resourceBlocks = extractResourceBlocks(lines);
 
   // Filter to only retained resources that match the environment AND are in the import list
-  const retainedBlocks = resourceBlocks.filter((block) => {
+  const retainedBlocks = resourceBlocks.filter(block => {
     if (!block.hasRetain) return false;
     if (block.condition && !evaluateCondition(block.condition, conditions, values.environment!)) return false;
     if (!importableLogicalIds.has(block.logicalId)) return false;
     return true;
   });
 
-  const retainedLogicalIds = new Set(retainedBlocks.map((b) => b.logicalId));
+  const retainedLogicalIds = new Set(retainedBlocks.map(b => b.logicalId));
 
   // Identify which retained resources have references to non-retained resources
-  const allTemplateLogicalIds = new Set(resourceBlocks.map((b) => b.logicalId));
-  const nonRetainedIds = new Set([...allTemplateLogicalIds].filter((id) => !retainedLogicalIds.has(id)));
+  const allTemplateLogicalIds = new Set(resourceBlocks.map(b => b.logicalId));
+  const nonRetainedIds = new Set([...allTemplateLogicalIds].filter(id => !retainedLogicalIds.has(id)));
 
   const hasExternalRef = (block: ResourceBlock): boolean => {
     const text = block.lines.join('\n');
@@ -194,7 +194,7 @@ function main() {
   };
 
   // First pass: identify resources with external references
-  const externalRefIds = new Set(retainedBlocks.filter((b) => hasExternalRef(b)).map((b) => b.logicalId));
+  const externalRefIds = new Set(retainedBlocks.filter(b => hasExternalRef(b)).map(b => b.logicalId));
 
   // Second pass: if any retained resource references one of the external-ref resources,
   // that external-ref resource must stay in Step 1 (it's a dependency of a clean resource).
@@ -211,33 +211,36 @@ function main() {
   };
 
   // Only defer resources that have external refs AND are not depended on by clean resources
-  const deferredIds = new Set(
-    [...externalRefIds].filter((id) => !isReferencedByRetained(id)),
-  );
+  const deferredIds = new Set([...externalRefIds].filter(id => !isReferencedByRetained(id)));
 
   // Final filter: only include resources that are actually in the resources-to-import JSON
   // (some resources can't be imported due to unsupported types or unresolved identifiers)
-  const importableFromJson = new Set(resourcesToImport.map((r) => r.LogicalResourceId));
+  const importableFromJson = new Set(resourcesToImport.map(r => r.LogicalResourceId));
 
-  const cleanBlocks = retainedBlocks.filter((b) => !deferredIds.has(b.logicalId) && importableFromJson.has(b.logicalId));
-  const deferredBlocks = retainedBlocks.filter((b) => deferredIds.has(b.logicalId) && importableFromJson.has(b.logicalId));
+  const cleanBlocks = retainedBlocks.filter(b => !deferredIds.has(b.logicalId) && importableFromJson.has(b.logicalId));
+  const deferredBlocks = retainedBlocks.filter(
+    b => deferredIds.has(b.logicalId) && importableFromJson.has(b.logicalId),
+  );
 
   // Extract everything before Resources: section (header, parameters, conditions, etc.)
   const resourcesLineIndex = lines.indexOf('Resources:');
   const header = lines.slice(0, resourcesLineIndex + 1).join('\n');
 
   // Build the Step 1 import template — only clean resources (no dangling references)
-  let resourceSection = cleanBlocks.map((block) => block.lines.join('\n')).join('\n\n');
+  let resourceSection = cleanBlocks.map(block => block.lines.join('\n')).join('\n\n');
 
   // For clean resources that have external refs (kept in Step 1 because others depend on them),
   // replace references to non-retained resources with placeholder values
   // Also replace references to retained resources that aren't in the import template
-  const cleanLogicalIds = new Set(cleanBlocks.map((b) => b.logicalId));
-  const idsNotInTemplate = new Set([...allTemplateLogicalIds].filter((id) => !cleanLogicalIds.has(id)));
+  const cleanLogicalIds = new Set(cleanBlocks.map(b => b.logicalId));
+  const idsNotInTemplate = new Set([...allTemplateLogicalIds].filter(id => !cleanLogicalIds.has(id)));
   for (const id of idsNotInTemplate) {
     resourceSection = resourceSection.replaceAll(new RegExp(`!GetAtt ${id}\\.\\w+`, 'g'), "'placeholder'");
     resourceSection = resourceSection.replaceAll(new RegExp(`!Ref ${id}\\b`, 'g'), "'placeholder'");
-    resourceSection = resourceSection.replaceAll(new RegExp(`Fn::GetAtt:\\s*\\[${id},\\s*\\w+\\]`, 'g'), "'placeholder'");
+    resourceSection = resourceSection.replaceAll(
+      new RegExp(`Fn::GetAtt:\\s*\\[${id},\\s*\\w+\\]`, 'g'),
+      "'placeholder'",
+    );
     resourceSection = resourceSection.replaceAll(
       new RegExp(`Fn::GetAtt:\\n(\\s+)- ${id}\\n\\s+- \\w+`, 'g'),
       "'placeholder'",
@@ -257,9 +260,16 @@ function main() {
     const result: string[] = [];
     let inSection = false;
     for (const line of lines) {
-      if (line === sectionName + ':') { inSection = true; continue; }
-      if (inSection && line.length > 0 && /^[A-Za-z]/.test(line)) { inSection = false; }
-      if (!inSection) { result.push(line); }
+      if (line === sectionName + ':') {
+        inSection = true;
+        continue;
+      }
+      if (inSection && line.length > 0 && /^[A-Za-z]/.test(line)) {
+        inSection = false;
+      }
+      if (!inSection) {
+        result.push(line);
+      }
     }
     return result.join('\n');
   };
@@ -270,36 +280,47 @@ function main() {
 
   // Write the list of deferred resource logical IDs for Step 3
   const deferredFile = values.output!.replace('.yaml', '-deferred.json');
-  const deferredLogicalIds = deferredBlocks.map((b) => b.logicalId);
+  const deferredLogicalIds = deferredBlocks.map(b => b.logicalId);
   writeFileSync(deferredFile, JSON.stringify(deferredLogicalIds, null, 2));
 
   // Also write a filtered resources-to-import that only includes resources in the import template
-  const cleanIds = new Set(cleanBlocks.map((b) => b.logicalId));
-  const cleanResourcesToImport = resourcesToImport.filter((r) => cleanIds.has(r.LogicalResourceId));
+  const cleanIds = new Set(cleanBlocks.map(b => b.logicalId));
+  const cleanResourcesToImport = resourcesToImport.filter(r => cleanIds.has(r.LogicalResourceId));
 
   // Verify all template resources are in the import list — if any are missing, it will fail
-  const importIds = new Set(cleanResourcesToImport.map((r) => r.LogicalResourceId));
-  const missingFromImport = cleanBlocks.filter((b) => !importIds.has(b.logicalId));
+  const importIds = new Set(cleanResourcesToImport.map(r => r.LogicalResourceId));
+  const missingFromImport = cleanBlocks.filter(b => !importIds.has(b.logicalId));
   if (missingFromImport.length > 0) {
-    console.warn(`WARNING: ${missingFromImport.length} resources in import template but not in resources-to-import JSON:`);
+    console.warn(
+      `WARNING: ${missingFromImport.length} resources in import template but not in resources-to-import JSON:`,
+    );
     for (const b of missingFromImport) {
       console.warn(`  - ${b.logicalId} (will be excluded from template)`);
     }
     // Remove these from the template — they can't be imported without identifiers
-    const finalCleanBlocks = cleanBlocks.filter((b) => importIds.has(b.logicalId));
-    const resourceSection2 = finalCleanBlocks.map((block) => block.lines.join('\n')).join('\n\n');
+    const finalCleanBlocks = cleanBlocks.filter(b => importIds.has(b.logicalId));
+    const resourceSection2 = finalCleanBlocks.map(block => block.lines.join('\n')).join('\n\n');
     // Re-apply placeholder replacement
     let fixedSection = resourceSection2;
-    const finalCleanIds = new Set(finalCleanBlocks.map((b) => b.logicalId));
-    for (const id of [...nonRetainedIds, ...missingFromImport.map((b) => b.logicalId)]) {
+    const finalCleanIds = new Set(finalCleanBlocks.map(b => b.logicalId));
+    for (const id of [...nonRetainedIds, ...missingFromImport.map(b => b.logicalId)]) {
       const idStr = typeof id === 'string' ? id : (id as ResourceBlock).logicalId;
       if (finalCleanIds.has(idStr)) continue;
       fixedSection = fixedSection.replaceAll(new RegExp(`!GetAtt ${idStr}\\.\\w+`, 'g'), "'placeholder'");
       fixedSection = fixedSection.replaceAll(new RegExp(`!Ref ${idStr}\\b`, 'g'), "'placeholder'");
-      fixedSection = fixedSection.replaceAll(new RegExp(`Fn::GetAtt:\\s*\\[${idStr},\\s*\\w+\\]`, 'g'), "'placeholder'");
-      fixedSection = fixedSection.replaceAll(new RegExp(`Fn::GetAtt:\\n(\\s+)- ${idStr}\\n\\s+- \\w+`, 'g'), "'placeholder'");
+      fixedSection = fixedSection.replaceAll(
+        new RegExp(`Fn::GetAtt:\\s*\\[${idStr},\\s*\\w+\\]`, 'g'),
+        "'placeholder'",
+      );
+      fixedSection = fixedSection.replaceAll(
+        new RegExp(`Fn::GetAtt:\\n(\\s+)- ${idStr}\\n\\s+- \\w+`, 'g'),
+        "'placeholder'",
+      );
       fixedSection = fixedSection.replaceAll(new RegExp(`Ref:\\s*${idStr}\\b`, 'g'), "'placeholder'");
-      fixedSection = fixedSection.replaceAll(new RegExp(`- Fn::GetAtt:\\n(\\s+)- ${idStr}\\n\\s+- \\w+`, 'g'), "- 'placeholder'");
+      fixedSection = fixedSection.replaceAll(
+        new RegExp(`- Fn::GetAtt:\\n(\\s+)- ${idStr}\\n\\s+- \\w+`, 'g'),
+        "- 'placeholder'",
+      );
     }
     const fixedContent = header + '\n' + fixedSection + '\n';
     let fixedFinal = fixedContent.replace(/^Transform:.*\n/m, '');
