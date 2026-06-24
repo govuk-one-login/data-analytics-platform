@@ -543,15 +543,49 @@ Where:
 
 ### recover-stack.sh
 
+> **Note:** For new deployments, prefer `deploy-stack.sh` below which is idempotent and CI/CD-safe.
+
 Shell script to generate the retained resources JSON file and then import the resources into a CloudFormation stack. Under the hood, this scripts runs the cloudFormation template build, generates the list of retained resources ready for import by call ing generate-import-resources.ts, and then calls the aws-cli to create a stack change-set and then execute the change-set. The script will ask for user confirmation before executing the change-set.
 
 This would be used to help redeploy a stack after it's been deleted, making sure that resources that are not auto deleted are re-added to the stack correctly. Without an import, the stack deployment would fail as it defaults to throwing an error if a resource already exists.
 
-**Usage:** `scripts/recover-stack.sh <ENV> <stack-name>`
+**Usage:** `scripts/recover-stack.sh <ENV> <application> <stack-name>`
 
 Where:
 - **\<ENV>** The target environment, used when building the template and resource names
+- **\<application>** One of `main | quicksight-access | core`
 - **\<stack-name>** Name of the stack that the resources need to be imported to
+
+### deploy-stack.sh
+
+Idempotent two-phase deployment script that handles both fresh deploys and recovery after stack deletion. It detects whether retained resources exist and automatically imports them before running `sam deploy`.
+
+**Phase 1 (Import):** If the stack doesn't exist but retained resources are detected (e.g., S3 buckets from a previous deployment), it generates an import manifest and executes a CloudFormation IMPORT changeset.
+
+**Phase 2 (Deploy):** Runs `sam deploy` to reconcile the full desired state — creating all non-retained resources fresh and updating imported resources.
+
+**Usage:** `./scripts/deploy-stack.sh <ENV> <application> <stack-name>`
+
+Where:
+- **\<ENV>** One of `dev | build | staging | integration | production`
+- **\<application>** One of `main | quicksight-access | core`
+- **\<stack-name>** The CloudFormation stack name (e.g., `di-data-dap`)
+
+**Environment variables:**
+- `SKIP_IMPORT=true` — Skip the import phase entirely (use for fresh environments with no prior resources)
+- `AUTO_CONFIRM=true` — Skip confirmation prompts (use in CI/CD pipelines)
+
+**Examples:**
+```bash
+# Fresh environment — no retained resources
+SKIP_IMPORT=true ./scripts/deploy-stack.sh build main di-data-dap
+
+# Recovery — stack was deleted, retained resources exist
+./scripts/deploy-stack.sh staging main di-data-dap
+
+# CI/CD — fully automated, no prompts
+AUTO_CONFIRM=true ./scripts/deploy-stack.sh build main di-data-dap
+```
 
 ### list-retained-resources.sh
 

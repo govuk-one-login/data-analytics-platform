@@ -73,19 +73,19 @@ DeployRoleExtraIAMActions:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsBuild
-          - PL-dap-build-deploy-DeployRole-02569a5d3e58
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsIntegration
-          - PL-dap-integration-deploy-DeployRole-023e422e7530
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsStaging
-          - PL-dap-staging-deploy-DeployRole-060ab83bdc13
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
-          - PL-dap-production-deploy-DeployRole-068116bf8a2e
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
 
 GluePolicy:
@@ -144,19 +144,19 @@ GluePolicy:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsBuild
-          - PL-dap-build-deploy-DeployRole-02569a5d3e58
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsIntegration
-          - PL-dap-integration-deploy-DeployRole-023e422e7530
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsStaging
-          - PL-dap-staging-deploy-DeployRole-060ab83bdc13
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
-          - PL-dap-production-deploy-DeployRole-068116bf8a2e
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
 
 RedShiftEC2Policy:
@@ -187,19 +187,19 @@ RedShiftEC2Policy:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsBuild
-          - PL-dap-build-deploy-DeployRole-02569a5d3e58
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsIntegration
-          - PL-dap-integration-deploy-DeployRole-023e422e7530
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsStaging
-          - PL-dap-staging-deploy-DeployRole-060ab83bdc13
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
-          - PL-dap-production-deploy-DeployRole-068116bf8a2e
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
 
 StateMachinePolicy:
@@ -241,19 +241,19 @@ StateMachinePolicy:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsBuild
-          - PL-dap-build-deploy-DeployRole-02569a5d3e58
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsIntegration
-          - PL-dap-integration-deploy-DeployRole-023e422e7530
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsStaging
-          - PL-dap-staging-deploy-DeployRole-060ab83bdc13
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
-          - PL-dap-production-deploy-DeployRole-068116bf8a2e
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
 
 CloudTrailPolicy:
@@ -292,19 +292,19 @@ CloudTrailPolicy:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsBuild
-          - PL-dap-build-deploy-DeployRole-02569a5d3e58
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsIntegration
-          - PL-dap-integration-deploy-DeployRole-023e422e7530
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsStaging
-          - PL-dap-staging-deploy-DeployRole-060ab83bdc13
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
-          - PL-dap-production-deploy-DeployRole-068116bf8a2e
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
 
 CDNPolicy:
@@ -330,19 +330,19 @@ CDNPolicy:
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsBuild
-          - PL-dap-build-deploy-DeployRole-02569a5d3e58
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsIntegration
-          - PL-dap-integration-deploy-DeployRole-023e422e7530
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsStaging
-          - PL-dap-staging-deploy-DeployRole-060ab83bdc13
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
       - Fn::If:
           - IsProduction
-          - PL-dap-production-deploy-DeployRole-068116bf8a2e
+          - '{{resolve:ssm:/secure-pipelines/dap/deploy-role-name}}'
           - Ref: 'AWS::NoValue'
 
 IntegrationTestRolePolicy:
@@ -414,5 +414,5 @@ IntegrationTestRolePolicy:
     Roles:
       - Fn::If:
           - IsBuild
-          - PL-dap-build-deploy-TestRole-02569a5d3e58
+          - '{{resolve:ssm:/secure-pipelines/dap/test-role-name}}'
           - Ref: 'AWS::NoValue'
