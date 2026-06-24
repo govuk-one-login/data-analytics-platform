@@ -34,12 +34,18 @@ STACK_NAME="$3"
 
 # Validate inputs
 case "$ENVIRONMENT" in
-  dev|build|staging|integration|production|production-preview) ;;
-  *) echo "Error: Invalid environment '$ENVIRONMENT'"; exit 1 ;;
+  dev | build | staging | integration | production | production-preview) ;;
+  *)
+    echo "Error: Invalid environment '$ENVIRONMENT'"
+    exit 1
+    ;;
 esac
 case "$APPLICATION" in
-  main|quicksight-access|core) ;;
-  *) echo "Error: Invalid application '$APPLICATION'"; exit 1 ;;
+  main | quicksight-access | core) ;;
+  *)
+    echo "Error: Invalid application '$APPLICATION'"
+    exit 1
+    ;;
 esac
 
 echo "╔══════════════════════════════════════════════════════════════╗"
@@ -54,7 +60,7 @@ echo "╚═══════════════════════�
 detect_stack_state() {
   local status
   status=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" \
-    --query "Stacks[0].StackStatus" --output text --region "$REGION" 2>/dev/null) || status="DOES_NOT_EXIST"
+    --query "Stacks[0].StackStatus" --output text --region "$REGION" 2> /dev/null) || status="DOES_NOT_EXIST"
   echo "$status"
 }
 
@@ -69,7 +75,7 @@ needs_import() {
 
   # Check canary resource — if raw-layer bucket exists, we need import
   local canary_bucket="${ENVIRONMENT}-dap-raw-layer"
-  if aws s3api head-bucket --bucket "$canary_bucket" --region "$REGION" 2>/dev/null; then
+  if aws s3api head-bucket --bucket "$canary_bucket" --region "$REGION" 2> /dev/null; then
     return 0
   fi
   return 1
@@ -118,7 +124,7 @@ if needs_import; then
     # Upload template
     TEMPLATE_BUCKET=$(aws cloudformation describe-stacks \
       --stack-name aws-sam-cli-managed-default --region "$REGION" \
-      --query "Stacks[0].Outputs[?OutputKey=='SourceBucket'].OutputValue" --output text 2>/dev/null)
+      --query "Stacks[0].Outputs[?OutputKey=='SourceBucket'].OutputValue" --output text 2> /dev/null)
     TEMPLATE_KEY="deploy-stack/$APPLICATION/import-$(date +%s).yaml"
     aws s3 cp "$IMPORT_TEMPLATE" "s3://$TEMPLATE_BUCKET/$TEMPLATE_KEY" --region "$REGION" > /dev/null
     TEMPLATE_URL="https://$TEMPLATE_BUCKET.s3.$REGION.amazonaws.com/$TEMPLATE_KEY"
@@ -148,8 +154,8 @@ if needs_import; then
 
   # Cleanup orphaned resources that block sam deploy
   echo "Cleaning up orphaned resources..."
-  aws cloudtrail delete-trail --name UnauthorizedAPICallTrail --region "$REGION" 2>/dev/null || true
-  aws cloudtrail delete-trail --name IAMPolicyChangeTrail --region "$REGION" 2>/dev/null || true
+  aws cloudtrail delete-trail --name UnauthorizedAPICallTrail --region "$REGION" 2> /dev/null || true
+  aws cloudtrail delete-trail --name IAMPolicyChangeTrail --region "$REGION" 2> /dev/null || true
 
   # Remove bucket policies (retained buckets have policies referencing old stack resources)
   for bucket in $(python3 -c "
@@ -159,7 +165,7 @@ for r in resources:
     if r['ResourceType'] == 'AWS::S3::Bucket':
         print(r['ResourceIdentifier'].get('BucketName',''))
 "); do
-    aws s3api delete-bucket-policy --bucket "$bucket" --region "$REGION" 2>/dev/null || true
+    aws s3api delete-bucket-policy --bucket "$bucket" --region "$REGION" 2> /dev/null || true
   done
 
   rm -rf "$TEMP_DIR"
