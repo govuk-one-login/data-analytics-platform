@@ -960,7 +960,7 @@ RedshiftConsolidatedModelProcessingStateMachine:
         - IsADMEnvironment
         - !Ref ADMConsolidatedModelProcessingStateMachine
         - !Ref 'AWS::NoValue'
-      IsADMEnvironment: !If [IsADMEnvironment, true, false]
+      IsADMEnvironment: !If [IsProduction, true, false]
 
 ADMV3RefreshStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
