@@ -298,7 +298,7 @@ StepFunctionRole:
                 - glue:BatchStopJobRun
 
             - Effect: Allow
-              Resource: !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule'
+              Resource: !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule*'
               Action:
                 - events:PutTargets
                 - events:PutRule
@@ -465,6 +465,7 @@ GlueScriptsExecutionRole:
   UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-dap-glue-scripts-execution-role
+    Description: !Sub 'Role for ${Environment} DAP Glue scripts execution'
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -659,6 +660,7 @@ StepFunctionRedshiftProcessRole:
   # checkov:skip=CKV_AWS_111:Ensure IAM policies does not allow write access without constraints
   Properties:
     RoleName: !Sub ${Environment}-dap-redshift-processing-role
+    Description: !Sub 'Role for ${Environment} DAP Redshift processing state machines'
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:
@@ -743,7 +745,7 @@ StepFunctionRedshiftProcessRole:
                 - redshift-data:DescribeStatement
                 - redshift-data:ListStatements
             - Effect: Allow
-              Resource: !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule'
+              Resource: !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule*'
               Action:
                 - events:PutTargets
                 - events:PutRule

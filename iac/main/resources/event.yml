@@ -117,6 +117,7 @@ IAMRoleKinesisFirehose:
   UpdateReplacePolicy: Retain
   Properties:
     RoleName: !Sub ${Environment}-kinesis-txma-firehose-role
+    Description: !Sub 'Role for ${Environment} DAP Kinesis Firehose delivery'
     AssumeRolePolicyDocument:
       Version: 2012-10-17
       Statement:

@@ -6,14 +6,14 @@
  * contains ONLY the resources being imported — no other resources can be present.
  *
  * Usage:
- *   npx tsx scripts/generate-import-template.ts --environment ENV --input TEMPLATE --output FILE
+ *   npx tsx scripts/recovery/dev/generate-import-template.ts --environment ENV --input TEMPLATE --output FILE
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
-const PROJECT_ROOT = resolve(import.meta.dirname, '..');
+const PROJECT_ROOT = resolve(import.meta.dirname, '../../..');
 
 /** Evaluate whether a condition is true for a given environment. */
 function evaluateCondition(conditionName: string, conditions: Record<string, string[]>, environment: string): boolean {

@@ -12,7 +12,7 @@
  *   npm run iac:build -- main    (creates template.yaml)
  *
  * Usage:
- *   npx tsx scripts/generate-import-resources.ts --environment ENV [--template FILE] [--output FILE]
+ *   npx tsx scripts/recovery/dev/generate-import-resources.ts --environment ENV [--template FILE] [--output FILE]
  *
  * Examples:
  *   npx tsx scripts/generate-import-resources.ts --environment dev
@@ -31,7 +31,7 @@ import {
 } from '@aws-sdk/client-cloudformation';
 import { ResourceGroupsTaggingAPIClient, GetResourcesCommand } from '@aws-sdk/client-resource-groups-tagging-api';
 
-const PROJECT_ROOT = resolve(import.meta.dirname, '..');
+const PROJECT_ROOT = resolve(import.meta.dirname, '../../..');
 
 /**
  * Resource types that CloudFormation does not support for import operations.
