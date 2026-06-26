@@ -24,15 +24,43 @@ if [[ -z "$STREAM_INFO" ]]; then
   exit 0
 fi
 
+DEST_UPDATE=$(echo "$STREAM_INFO" | python3 -c "
+import sys, json
+
+stream = json.load(sys.stdin)['DeliveryStreamDescription']
+dest = stream['Destinations'][0]['ExtendedS3DestinationDescription']
+
+update = {
+    'RoleARN': dest['RoleARN'],
+    'BucketARN': dest['BucketARN'],
+    'Prefix': dest.get('Prefix', ''),
+    'ErrorOutputPrefix': dest.get('ErrorOutputPrefix', ''),
+    'CompressionFormat': dest.get('CompressionFormat', 'GZIP'),
+    'BufferingHints': dest.get('BufferingHints', {}),
+}
+
+if dest.get('DynamicPartitioningConfiguration', {}).get('Enabled'):
+    update['DynamicPartitioningConfiguration'] = dest['DynamicPartitioningConfiguration']
+
+if dest.get('ProcessingConfiguration', {}).get('Enabled'):
+    update['ProcessingConfiguration'] = dest['ProcessingConfiguration']
+
+if dest.get('CloudWatchLoggingOptions', {}).get('Enabled'):
+    update['CloudWatchLoggingOptions'] = dest['CloudWatchLoggingOptions']
+
+print(json.dumps(update))
+")
 VERSION_ID=$(echo "$STREAM_INFO" | python3 -c "import sys,json; print(json.load(sys.stdin)['DeliveryStreamDescription']['VersionId'])")
 DEST_ID=$(echo "$STREAM_INFO" | python3 -c "import sys,json; print(json.load(sys.stdin)['DeliveryStreamDescription']['Destinations'][0]['DestinationId'])")
-ROLE_ARN=$(echo "$STREAM_INFO" | python3 -c "import sys,json; print(json.load(sys.stdin)['DeliveryStreamDescription']['Destinations'][0]['ExtendedS3DestinationDescription']['RoleARN'])")
-BUCKET_ARN=$(echo "$STREAM_INFO" | python3 -c "import sys,json; print(json.load(sys.stdin)['DeliveryStreamDescription']['Destinations'][0]['ExtendedS3DestinationDescription']['BucketARN'])")
 
 echo "----|  Updating $FIREHOSE_NAME to refresh role credentials..."
-aws firehose update-destination \
+if ! aws firehose update-destination \
   --delivery-stream-name "$FIREHOSE_NAME" \
   --current-delivery-stream-version-id "$VERSION_ID" \
   --destination-id "$DEST_ID" \
-  --extended-s3-destination-update "{\"RoleARN\":\"$ROLE_ARN\",\"BucketARN\":\"$BUCKET_ARN\"}" \
-  --region "$REGION" 2>/dev/null && echo "----|  Done." || echo "----|  WARNING: Failed to update Firehose stream."
+  --extended-s3-destination-update "$DEST_UPDATE" \
+  --region "$REGION" 2>&1; then
+  echo "----|  WARNING: Failed to update Firehose stream."
+else
+  echo "----|  Done."
+fi

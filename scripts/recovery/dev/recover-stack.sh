@@ -100,8 +100,6 @@ echo "====| Step 3: Import clean retained resources (creates new stack) |===="
 read -rp "==--> Continue? (y/N) " confirm
 [[ "$confirm" == "y" || "$confirm" == "Y" ]] || exit 0
 
-echo ""
-echo ""
 TEMPLATE_URL=$(upload_template "$IMPORT_TEMPLATE" "step1-clean")
 import_resources "$TEMPLATE_URL" "$CLEAN_JSON" "ImportCleanResources"
 
