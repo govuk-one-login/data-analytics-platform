@@ -14,9 +14,7 @@
     "date_added": "May 22, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_APP_START",
@@ -33,9 +31,7 @@
     "date_added": "May 22, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_CRI_START",
@@ -52,9 +48,7 @@
     "date_added": "May 22, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_CRI_VC_ISSUED",
@@ -79,9 +73,7 @@
     "date_added": "May 22, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_CREATE_ACCOUNT",
@@ -98,9 +90,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_APP_END",
@@ -117,9 +107,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_APP_HANDOFF_START",
@@ -136,9 +124,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_DRIVING_LICENCE_SELECTED",
@@ -155,9 +141,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_PASSPORT_SELECTED",
@@ -174,9 +158,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_WEB_END",
@@ -193,9 +175,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_ADDRESS_CRI_START",
@@ -211,9 +191,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_ADDRESS_CRI_VC_ISSUED",
@@ -231,9 +209,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_FRAUD_CRI_START",
@@ -249,9 +225,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_FRAUD_CRI_VC_ISSUED",
@@ -274,9 +248,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_IDENTITY_REUSE_COMPLETE",
@@ -292,9 +264,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_IDENTITY_REUSE_RESET",
@@ -310,9 +280,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_JOURNEY_END",
@@ -328,9 +296,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_JOURNEY_START",
@@ -346,9 +312,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_KBV_CRI_START",
@@ -364,9 +328,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_KBV_CRI_VC_ISSUED",
@@ -390,9 +352,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_PASSPORT_CRI_START",
@@ -408,9 +368,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_PASSPORT_CRI_VC_ISSUED",
@@ -430,9 +388,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_SPOT_RESPONSE_APPROVED",
@@ -448,9 +404,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_SPOT_RESPONSE_REJECTED",
@@ -467,9 +421,7 @@
     "date_added": "May 31, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_ABORT_APP",
@@ -486,9 +438,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_ABORT_WEB",
@@ -505,9 +455,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_BRP_SELECTED",
@@ -524,9 +472,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_CRI_4XXERROR",
@@ -543,9 +489,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_CRI_5XXERROR",
@@ -562,9 +506,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_CRI_ABORT",
@@ -581,9 +523,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_CRI_END",
@@ -600,9 +540,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_HYBRID_BILLING_STARTED",
@@ -619,9 +557,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_IPROOV_BILLING_STARTED",
@@ -638,9 +574,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_MISSING_CONTEXT_AFTER_ABORT",
@@ -657,9 +591,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_MISSING_CONTEXT_AFTER_COMPLETION",
@@ -676,9 +608,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_READID_NFC_BILLING_STARTED",
@@ -695,9 +625,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_REDIRECT_ABORT",
@@ -714,9 +642,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_REDIRECT_SUCCESS",
@@ -733,9 +659,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "DCMAW_SESSION_RECOVERED",
@@ -753,9 +677,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_ADDRESS_CRI_END",
@@ -771,9 +693,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_ADDRESS_CRI_REQUEST_SENT",
@@ -789,9 +709,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_CRI_AUTH_RESPONSE_RECEIVED",
@@ -809,26 +727,15 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_DELETE_USER_DATA",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "user.user_id",
-      "timestamp",
-      "timestamp_formatted"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "user.user_id", "timestamp", "timestamp_formatted"],
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_FRAUD_CRI_END",
@@ -844,9 +751,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_FRAUD_CRI_REQUEST_SENT",
@@ -862,9 +767,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_FRAUD_CRI_RESPONSE_RECEIVED",
@@ -880,9 +783,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_FRAUD_CRI_THIRD_PARTY_REQUEST_ENDED",
@@ -898,9 +799,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_KBV_CRI_END",
@@ -916,9 +815,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_KBV_CRI_REQUEST_SENT",
@@ -934,9 +831,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_KBV_CRI_RESPONSE_RECEIVED",
@@ -956,9 +851,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_PASSPORT_CRI_END",
@@ -974,9 +867,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_PASSPORT_CRI_REQUEST_SENT",
@@ -993,9 +884,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_PASSPORT_CRI_RESPONSE_RECEIVED",
@@ -1011,9 +900,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_REDIRECT_TO_CRI",
@@ -1029,9 +916,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_SPOT_REQUEST_RECEIVED",
@@ -1047,9 +932,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_VC_RECEIVED",
@@ -1082,9 +965,7 @@
     "date_added": "Jun 15, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_CHECK_USER_KNOWN_EMAIL",
@@ -1101,9 +982,7 @@
     "date_added": "Jun 28, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_LOG_IN_SUCCESS",
@@ -1120,9 +999,7 @@
     "date_added": "Jun 28, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_CHECK_USER_NO_ACCOUNT_WITH_EMAIL",
@@ -1138,9 +1015,7 @@
     "date_added": "Jun 28, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_CODE_VERIFIED",
@@ -1160,9 +1035,7 @@
     "date_added": "Jun 28, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_PASSWORD_RESET_SUCCESSFUL",
@@ -1179,9 +1052,7 @@
     "date_added": "Jun 28, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_DL_CRI_START",
@@ -1197,9 +1068,7 @@
     "date_added": "Jun 28, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_DL_CRI_VC_ISSUED",
@@ -1222,9 +1091,7 @@
     "date_added": "Jun 28, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_AUTHORISATION_REQUEST_ERROR",
@@ -1241,9 +1108,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_AUTHORISATION_REQUEST_RECEIVED",
@@ -1258,9 +1123,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_IPV_AUTHORISATION_REQUESTED",
@@ -1278,9 +1141,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "CIC_CRI_AUTH_CODE_ISSUED",
@@ -1296,9 +1157,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "CIC_CRI_END",
@@ -1315,9 +1174,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "CIC_CRI_START",
@@ -1334,9 +1191,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "F2F_CRI_AUTH_CODE_ISSUED",
@@ -1353,9 +1208,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "F2F_CRI_END",
@@ -1372,9 +1225,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "F2F_CRI_START",
@@ -1391,9 +1242,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "F2F_YOTI_PDF_EMAILED",
@@ -1410,9 +1259,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "F2F_YOTI_RESPONSE_RECEIVED",
@@ -1430,9 +1277,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "F2F_YOTI_START",
@@ -1457,9 +1302,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPR_RESULT_NOTIFICATION_EMAILED",
@@ -1475,9 +1318,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPR_USER_REDIRECTED",
@@ -1493,9 +1334,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_F2F_CRI_VC_CONSUMED",
@@ -1511,9 +1350,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_AUTH_CODE_ISSUED",
@@ -1531,9 +1368,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_F2F_CRI_VC_RECEIVED",
@@ -1560,9 +1395,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "F2F_CRI_VC_ISSUED",
@@ -1597,9 +1430,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "CIC_CRI_VC_ISSUED",
@@ -1616,9 +1447,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "F2F_YOTI_END",
@@ -1635,9 +1464,7 @@
     "date_added": "Sep 4, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_IDENTITY_ISSUED",
@@ -1656,9 +1483,7 @@
     "date_added": "Sep 28, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_DL_CRI_END",
@@ -1674,9 +1499,7 @@
     "date_added": "Sep 22, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_DL_CRI_RESPONSE_RECEIVED",
@@ -1692,9 +1515,7 @@
     "date_added": "Sep 22, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_GPG45_PROFILE_MATCHED",
@@ -1715,9 +1536,7 @@
     "date_added": "Sep 22, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_CORE_CRI_RESOURCE_RETRIEVED",
@@ -1733,9 +1552,7 @@
     "date_added": "Sep 22, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_DL_CRI_REQUEST_SENT",
@@ -1752,9 +1569,7 @@
     "date_added": "Sep 22, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_MITIGATION_START",
@@ -1770,9 +1585,7 @@
     "date_added": "Sep 22, 2023",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_DOC_APP_AUTHORISATION_REQUESTED",
@@ -1789,9 +1602,7 @@
     "date_added": "Feb 1, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "F2F_DOCUMENT_UPLOADED",
@@ -1807,25 +1618,15 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_ACCOUNT_MANAGEMENT_AUTHENTICATE",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "timestamp",
-      "timestamp_formatted"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "timestamp", "timestamp_formatted"],
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_ACCOUNT_RECOVERY_BLOCK_ADDED",
@@ -1841,9 +1642,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_ACCOUNT_RECOVERY_BLOCK_REMOVED",
@@ -1860,9 +1659,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_ACCOUNT_RECOVERY_NOT_PERMITTED",
@@ -1878,9 +1675,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_ACCOUNT_RECOVERY_PERMITTED",
@@ -1896,9 +1691,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_ACCOUNT_TEMPORARILY_LOCKED",
@@ -1914,26 +1707,15 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_CHECK_USER_INVALID_EMAIL",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "client_id",
-      "timestamp",
-      "timestamp_formatted"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "client_id", "timestamp", "timestamp_formatted"],
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_CODE_MAX_RETRIES_REACHED",
@@ -1951,43 +1733,23 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_CREATE_ACCOUNT_EMAIL_ALREADY_EXISTS",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "client_id",
-      "timestamp",
-      "timestamp_formatted"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "client_id", "timestamp", "timestamp_formatted"],
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_DELETE_ACCOUNT",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "timestamp",
-      "timestamp_formatted",
-      "user.user_id"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "timestamp", "timestamp_formatted", "user.user_id"],
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_DOC_APP_AUTHORISATION_RESPONSE_RECEIVED",
@@ -2004,9 +1766,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_DOC_APP_SUCCESSFUL_CREDENTIAL_RESPONSE_RECEIVED",
@@ -2023,9 +1783,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_DOC_APP_SUCCESSFUL_TOKEN_RESPONSE_RECEIVED",
@@ -2042,9 +1800,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_DOC_APP_UNSUCCESSFUL_AUTHORISATION_RESPONSE_RECEIVED",
@@ -2061,9 +1817,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_DOC_APP_UNSUCCESSFUL_CREDENTIAL_RESPONSE_RECEIVED",
@@ -2080,9 +1834,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_DOC_APP_UNSUCCESSFUL_TOKEN_RESPONSE_RECEIVED",
@@ -2099,9 +1851,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_INVALID_CODE_SENT",
@@ -2120,9 +1870,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_INVALID_CREDENTIALS",
@@ -2139,9 +1887,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_IPV_AUTHORISATION_RESPONSE_RECEIVED",
@@ -2158,9 +1904,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_IPV_SPOT_REQUESTED",
@@ -2177,9 +1921,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_IPV_SUCCESSFUL_IDENTITY_RESPONSE_RECEIVED",
@@ -2196,9 +1938,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_IPV_SUCCESSFUL_SPOT_RESPONSE_RECEIVED",
@@ -2214,9 +1954,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_IPV_SUCCESSFUL_TOKEN_RESPONSE_RECEIVED",
@@ -2233,9 +1971,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_IPV_UNSUCCESSFUL_AUTHORISATION_RESPONSE_RECEIVED",
@@ -2251,9 +1987,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_IPV_UNSUCCESSFUL_SPOT_RESPONSE_RECEIVED",
@@ -2269,9 +2003,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_IPV_UNSUCCESSFUL_TOKEN_RESPONSE_RECEIVED",
@@ -2288,26 +2020,15 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_LOG_OUT_SUCCESS",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "client_id",
-      "timestamp",
-      "timestamp_formatted"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "client_id", "timestamp", "timestamp_formatted"],
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_MFA_CODE_SENT",
@@ -2324,9 +2045,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_MFA_INVALID_CODE_REQUEST",
@@ -2342,9 +2061,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_MFA_MISSING_PHONE_NUMBER",
@@ -2361,9 +2078,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_PASSWORD_RESET_REQUESTED",
@@ -2379,41 +2094,23 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_PROCESSING_IDENTITY_REQUEST",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "timestamp",
-      "timestamp_formatted"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "timestamp", "timestamp_formatted"],
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_SEND_OTP",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "timestamp",
-      "timestamp_formatted"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "timestamp", "timestamp_formatted"],
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_START_INFO_FOUND",
@@ -2429,77 +2126,39 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_UPDATE_EMAIL",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "timestamp",
-      "timestamp_formatted",
-      "user.user_id"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "timestamp", "timestamp_formatted", "user.user_id"],
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_UPDATE_PASSWORD",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "timestamp",
-      "timestamp_formatted",
-      "user.user_id"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "timestamp", "timestamp_formatted", "user.user_id"],
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_UPDATE_PHONE_NUMBER",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "timestamp",
-      "timestamp_formatted",
-      "user.user_id"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "timestamp", "timestamp_formatted", "user.user_id"],
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_UPDATE_PROFILE_AUTH_APP",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "timestamp",
-      "timestamp_formatted",
-      "user.user_id"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "timestamp", "timestamp_formatted", "user.user_id"],
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_UPDATE_PROFILE_PHONE_NUMBER",
@@ -2515,9 +2174,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_UPDATE_PROFILE_REQUEST_RECEIVED",
@@ -2532,9 +2189,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_UPDATE_PROFILE_TERMS_CONDS_ACCEPTANCE",
@@ -2549,26 +2204,15 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_USER_INFO_RETURNED",
-    "event_fields": [
-      "event_id",
-      "event_name",
-      "component_id",
-      "timestamp",
-      "timestamp_formatted",
-      "user.user_id"
-    ],
+    "event_fields": ["event_id", "event_name", "component_id", "timestamp", "timestamp_formatted", "user.user_id"],
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_CONTRA_INDICATOR_STORAGE_GET_END",
@@ -2584,9 +2228,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_CONTRA_INDICATOR_STORAGE_GET_QUERY",
@@ -2602,9 +2244,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_CONTRA_INDICATOR_STORAGE_GET_START",
@@ -2620,9 +2260,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_CONTRA_INDICATOR_STORAGE_MITIGATIONS_PUT_END",
@@ -2638,9 +2276,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_CONTRA_INDICATOR_STORAGE_MITIGATIONS_PUT_START",
@@ -2655,9 +2291,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_CONTRA_INDICATOR_STORAGE_PUT_END",
@@ -2673,9 +2307,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_CONTRA_INDICATOR_STORAGE_PUT_NEW_CIS",
@@ -2690,9 +2322,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_CONTRA_INDICATOR_STORAGE_PUT_NEW_MITIGATION",
@@ -2710,9 +2340,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_CONTRA_INDICATOR_STORAGE_PUT_START",
@@ -2727,9 +2355,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_F2F_CORRELATION_FAIL",
@@ -2745,9 +2371,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "IPV_F2F_PROFILE_NOT_MET_FAIL",
@@ -2763,9 +2387,7 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   },
   {
     "event_name": "AUTH_PHONE_CHECK_COMPLETE",
@@ -2783,8 +2405,6 @@
     "date_added": "Feb 9, 2024",
     "date_modified": "",
     "is_retired": "N",
-    "comments": [
-      ""
-    ]
+    "comments": [""]
   }
 ]

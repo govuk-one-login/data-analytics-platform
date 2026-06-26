@@ -14,21 +14,10 @@
     }
   },
   "data_cleaning": {
-    "duplicate_row_removal_criteria_fields": [
-      "event_id",
-      "timestamp"
-    ],
-    "mandatory_row_removal_criteria_fields": [
-      "event_id",
-      "event_name",
-      "timestamp"
-    ],
-    "empty_string_replacement": [
-      "client_id"
-    ],
-    "remove_columns": [
-      "row_num"
-    ]
+    "duplicate_row_removal_criteria_fields": ["event_id", "timestamp"],
+    "mandatory_row_removal_criteria_fields": ["event_id", "event_name", "timestamp"],
+    "empty_string_replacement": ["client_id"],
+    "remove_columns": ["row_num"]
   },
   "data_transformations": {
     "duplicate_column": {
@@ -39,10 +28,7 @@
       "processed_time": "%H%M%S"
     },
     "new_column_struct_extract": {
-      "user": [
-        "user_id",
-        "govuk_signin_journey_id"
-      ]
+      "user": ["user_id", "govuk_signin_journey_id"]
     },
     "new_column_string_extract": {
       "datecreated": {
@@ -66,11 +52,7 @@
       "event_timestamp_ms",
       "event_timestamp_ms_formatted"
     ],
-    "parse_json_list": [
-      "extensions",
-      "user",
-      "txma"
-    ]
+    "parse_json_list": ["extensions", "user", "txma"]
   },
   "stage_schema": {
     "columns": {
@@ -91,10 +73,7 @@
       "processed_dt": "int",
       "processed_time": "int"
     },
-    "partition_columns": [
-      "processed_dt",
-      "event_name"
-    ]
+    "partition_columns": ["processed_dt", "event_name"]
   },
   "key_value_schema": {
     "columns": {
@@ -105,8 +84,6 @@
       "processed_dt": "int",
       "processed_time": "int"
     },
-    "partition_columns": [
-      "processed_dt"
-    ]
+    "partition_columns": ["processed_dt"]
   }
 }

@@ -9,10 +9,10 @@ function convertData(sourceData) {
   return sourceData.eventMappings.map(mapping => ({
     event_name: mapping.event_path,
     event_fields: mapping.json_path.map(path => path.destination),
-    date_added: "",
-    date_modified: "",
-    is_retired: "N",
-    comments: [""]
+    date_added: '',
+    date_modified: '',
+    is_retired: 'N',
+    comments: [''],
   }));
 }
 

@@ -17,7 +17,7 @@ FIREHOSE_NAME="${ENVIRONMENT}-dap-txma-delivery-stream"
 echo "====| Refresh Firehose delivery stream credentials |===="
 
 STREAM_INFO=$(aws firehose describe-delivery-stream --delivery-stream-name "$FIREHOSE_NAME" \
-  --region "$REGION" 2>/dev/null || echo "")
+  --region "$REGION" 2> /dev/null || echo "")
 
 if [[ -z "$STREAM_INFO" ]]; then
   echo "----|  Firehose stream $FIREHOSE_NAME not found, skipping."

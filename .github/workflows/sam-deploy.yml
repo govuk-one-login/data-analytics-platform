@@ -137,7 +137,7 @@ jobs:
   deploy-core-application:
     needs: [get-deployment-role]
     if: ${{ inputs.core-iac-changed == 'true' }}
-   # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
       contents: read
