@@ -3,13 +3,13 @@
 # and optionally queries AWS for their physical resource IDs in a deployed stack.
 #
 # Usage:
-#   ./scripts/list-retained-resources.sh                    # just list from templates
-#   ./scripts/list-retained-resources.sh --stack STACK_NAME # also query AWS for physical IDs
+#   ./scripts/recovery/dev/list-retained-resources.sh                    # just list from templates
+#   ./scripts/recovery/dev/list-retained-resources.sh --stack STACK_NAME # also query AWS for physical IDs
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 IAC_DIR="$PROJECT_ROOT/iac"
 REGION="${AWS_REGION:-eu-west-2}"
 STACK_NAME=""
@@ -31,7 +31,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "Scanning templates in: $IAC_DIR"
+echo "----| Scanning templates in: $IAC_DIR"
 echo ""
 
 # Parse YAML templates to find resources with DeletionPolicy: Retain
@@ -94,7 +94,7 @@ with open('$file') as f:
 RESOURCES=$(find_retained_resources)
 
 if [[ -z "$RESOURCES" ]]; then
-  echo "No resources with DeletionPolicy: Retain found."
+  echo "----| No resources with DeletionPolicy: Retain found."
   exit 0
 fi
 
@@ -109,12 +109,12 @@ done
 
 TOTAL=$(echo "$RESOURCES" | wc -l | tr -d ' ')
 echo ""
-echo "Total: $TOTAL resources with DeletionPolicy: Retain"
+echo "----| Total: $TOTAL resources with DeletionPolicy: Retain"
 
 # If a stack name was provided, query AWS for physical resource IDs
 if [[ -n "$STACK_NAME" ]]; then
   echo ""
-  echo "Querying stack '$STACK_NAME' in $REGION for physical resource IDs..."
+  echo "----| Querying stack '$STACK_NAME' in $REGION for physical resource IDs..."
   echo ""
   printf "%-50s %-45s %s\n" "LOGICAL ID" "TYPE" "PHYSICAL ID"
   printf "%-50s %-45s %s\n" "----------" "----" "-----------"

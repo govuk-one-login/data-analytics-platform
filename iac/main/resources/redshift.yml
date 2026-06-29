@@ -504,8 +504,6 @@ RedshiftCreateSnapshotLambda:
 
 RedshiftCreateSnapshotScheduledRule:
   Type: AWS::Events::Rule
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Name: !Sub ${Environment}-dap-redshift-create-snapshot-rule
     Description: Schedule to create redshift snapshots using the redshift-create-snapshot lambda
@@ -589,8 +587,6 @@ RedshiftWorkgroupNameParameter:
 # EventBridge rule to forward Redshift errors to SNS in same stack
 RedshiftErrorEventRule:
   Type: AWS::Events::Rule
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Name: !Sub ${Environment}-dap-redshift-error-rule
     Description: 'Forward Redshift errors to SNS'

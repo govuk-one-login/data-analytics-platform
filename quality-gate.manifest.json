@@ -28,9 +28,7 @@
           "provider": "GitHub"
         },
         {
-          "check-types": [
-            "vulnerability detection"
-          ],
+          "check-types": ["vulnerability detection"],
           "config": {
             "file": ".github/workflows/ensure-sha-pinned-actions.yml",
             "name": "Ensure SHA pinned actions"

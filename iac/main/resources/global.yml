@@ -149,6 +149,21 @@ VPCFlowLogsBucketPolicy:
           Resource: !Sub ${VPCFlowLogsBucket.Arn}/*
           Principal:
             AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+        - Sid: AWSLogDeliveryWrite
+          Effect: Allow
+          Action: 's3:PutObject'
+          Resource: !Sub ${VPCFlowLogsBucket.Arn}/*
+          Principal:
+            Service: delivery.logs.amazonaws.com
+          Condition:
+            StringEquals:
+              's3:x-amz-acl': bucket-owner-full-control
+        - Sid: AWSLogDeliveryAclCheck
+          Effect: Allow
+          Action: 's3:GetBucketAcl'
+          Resource: !GetAtt VPCFlowLogsBucket.Arn
+          Principal:
+            Service: delivery.logs.amazonaws.com
 
 S3NotificationsLoggerLambda:
   # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda just does logging
@@ -177,8 +192,6 @@ S3NotificationsLoggerLambda:
 
 S3NotificationsLoggerEventBridgeRule:
   Type: AWS::Events::Rule
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Description: Rule to send all s3:ObjectCreated:* and s3:ObjectRemoved:* events to the logger lambda
     EventPattern:
@@ -204,8 +217,6 @@ S3BucketNotificationLambdaPermission:
 
 GlueSecurityConfig:
   Type: AWS::Glue::SecurityConfiguration
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     Name: !Sub ${Environment}-dap-glue-security-configuration
     EncryptionConfiguration:
@@ -408,6 +419,7 @@ FlowLogRole:
 
 FlowLogs:
   Type: 'AWS::EC2::FlowLog'
+  DependsOn: VPCFlowLogsBucketPolicy
   Properties:
     LogDestination: !GetAtt VPCFlowLogsBucket.Arn
     LogDestinationType: s3
@@ -810,8 +822,7 @@ TrailBucketPolicy:
 
 CloudTrailForUnauthorizedAPIChanges:
   Type: 'AWS::CloudTrail::Trail'
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
+  DependsOn: TrailBucketPolicy
   Properties:
     S3BucketName: !Ref TrailBucket
     IncludeGlobalServiceEvents: true
@@ -896,8 +907,6 @@ IAMChangeLogGroup:
 
 CloudTrailForIAMChanges:
   Type: 'AWS::CloudTrail::Trail'
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
   Properties:
     S3BucketName: !Ref TrailBucket
     IncludeGlobalServiceEvents: true

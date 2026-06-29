@@ -517,8 +517,8 @@ Now the Quicksight will use new API Gateway
 
 ## Scripts
 
-There are a number of scripts that can help with regular maintenance and other jobs
-These are all located in the `scripts/` directory. Below is a list of some of them and basic usage instructions. The scripts themselves should have more detailed information about their usage.
+There are a number of scripts that can help with regular maintenance and other jobs.
+These are located in the `scripts/` directory. Below is a list of some of them and basic usage instructions. The scripts themselves should have more detailed information about their usage.
 
 ### athena-upload.sh
 
@@ -529,35 +529,45 @@ Uploads all the `.sql` scripts stored in `athena-scripts` to an S3 bucket. This 
 Where 
 - **ENV** One of `dev | build | staging | integration | production` and is used to build the destination bucket name.
 
-### generate-import-resources.ts
+### Recovery scripts (dev)
 
-Parses a built CloudFormation template and extracts the resources that have a retention policy set on them, building a JSON file which can then be used to import those resources into a CloudFormation stack. 
-This is to help recover a stack that has been previously deleted so that resources that should not be deleted can be added to the new stack instance. 
+Scripts for recovering the dev CloudFormation stack after deletion. Located in `scripts/recovery/dev/`.
 
-**Usage:** `npx tsx scripts/generate-import-resources.ts --environment ENV [--template FILE] [--output FILE]`
+#### recover-stack.sh
 
-Where:
-- **ENV** The name of the deployment environment and is used to generate many of the resource's unique names.
-- **--template FILE** An optional parameter pointing to the location of a CloudFormation YAML file. defaults to `./template.yaml`.
-- **--output FILE** An optional parameter stating where to save the JSON output. Defaults to `./resources-to-import.json` This file can be used as part of an AWS cli import command.
+Main orchestrator that runs the full stack recovery process end-to-end:
+1. Builds and packages the SAM template
+2. Generates the import resources JSON
+3. Imports clean retained resources (creates a new stack)
+4. Imports deferred resources (S3 buckets, then Redshift — separately to avoid throttling)
+5. Cleans up orphaned resources and runs `sam deploy`
+6. Detects and fixes IAM role policy drift
+7. Refreshes Firehose delivery stream credentials
 
-### recover-stack.sh
+The script will ask for user confirmation before executing change sets and running `sam deploy`.
 
-Shell script to generate the retained resources JSON file and then import the resources into a CloudFormation stack. Under the hood, this scripts runs the cloudFormation template build, generates the list of retained resources ready for import by call ing generate-import-resources.ts, and then calls the aws-cli to create a stack change-set and then execute the change-set. The script will ask for user confirmation before executing the change-set.
-
-This would be used to help redeploy a stack after it's been deleted, making sure that resources that are not auto deleted are re-added to the stack correctly. Without an import, the stack deployment would fail as it defaults to throwing an error if a resource already exists.
-
-**Usage:** `scripts/recover-stack.sh <ENV> <stack-name>`
-
-Where:
-- **\<ENV>** The target environment, used when building the template and resource names
-- **\<stack-name>** Name of the stack that the resources need to be imported to
-
-### list-retained-resources.sh
-
-A helper function for listing retained resources that are currently on a deployed stack. Useful for checking the results of `recover-stack.sh` and `generate-import-resources.ts`
-
-**Usage:** `./scripts/list-retained-resources.sh --stack STACK_NAME`
+**Usage:** `./scripts/recovery/dev/recover-stack.sh <environment> <application> <stack-name>`
 
 Where:
-- **--stack STACK_NAME** The name of the deployed stack to query resource IDs
+- **\<environment>** `dev | build | staging | integration | production | production-preview`
+- **\<application>** `main | quicksight-access | core`
+- **\<stack-name>** Name of the CloudFormation stack to recover
+
+**Prerequisites:**
+- AWS credentials configured for the target environment
+- SAM CLI managed bucket exists (run `sam deploy --guided` first if not)
+
+#### Individual scripts
+
+Each step can also be run standalone for debugging or partial recovery:
+
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `build-and-package.sh` | Build lambdas, IaC, and package SAM template | `./scripts/recovery/dev/build-and-package.sh <application>` |
+| `fix-iam-policy-drift.sh` | Detect and fix missing inline policies on retained IAM roles | `./scripts/recovery/dev/fix-iam-policy-drift.sh <stack-name> <environment>` |
+| `refresh-firehose.sh` | Force Firehose to re-assume its IAM role after policy changes | `./scripts/recovery/dev/refresh-firehose.sh <environment>` |
+| `import-resources.sh` | Shared shell functions (sourced by `recover-stack.sh`, not run directly) | `source scripts/recovery/dev/import-resources.sh` |
+| `generate-import-resources.ts` | Parse template and generate resources-to-import JSON | `npx tsx scripts/recovery/dev/generate-import-resources.ts --environment ENV [--template FILE] [--output FILE]` |
+| `generate-import-template.ts` | Generate an import-only CloudFormation template | `npx tsx scripts/recovery/dev/generate-import-template.ts --environment ENV --input TEMPLATE --output FILE` |
+| `cleanup-orphaned-resources.sh` | Delete AWS resources orphaned after stack rollback | `./scripts/recovery/dev/cleanup-orphaned-resources.sh <stack-name> [--dry-run]` |
+| `list-retained-resources.sh` | List retained resources from IaC templates or a deployed stack | `./scripts/recovery/dev/list-retained-resources.sh [--stack STACK_NAME]` |
