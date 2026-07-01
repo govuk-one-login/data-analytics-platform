@@ -63,7 +63,7 @@ jobs:
           ENVIRONMENT_NO_HYPHEN=$(echo ${{ inputs.environment }} | sed 's/-/_/g')
           echo "ROLE_NAME=DB_MIGRATION_ROLE_ARN_$ENVIRONMENT_NO_HYPHEN" >> $GITHUB_ENV
       - name: Assume AWS DB migration role
-        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
+        uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b # v6.2.1
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[env.ROLE_NAME] }}
