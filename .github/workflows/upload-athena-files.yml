@@ -34,7 +34,7 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: '3.11'
-      - uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
+      - uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b # v6.2.1
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.ELT_METADATA_UPLOAD_ROLE_ARN }}
@@ -52,7 +52,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v5
       - name: Assume AWS GitHub actions role
-        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
+        uses: aws-actions/configure-aws-credentials@254c19bd240aabef8777f48595e9d2d7b972184b # v6.2.1
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.ELT_METADATA_UPLOAD_ROLE_ARN }}
