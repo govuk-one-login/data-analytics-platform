@@ -1,5 +1,6 @@
 UPDATE conformed_refactored.ref_relying_parties_refactored
-SET client_id='38APDWZsRb_ekaVJ3-0WUx1q4AU'
+SET client_id='38APDWZsRb_ekaVJ3-0WUx1q4AU',
+modified_date=CURRENT_DATE
 WHERE client_id = 'z9MikRghbhHBwzXYH7i7z8RL0Pk';
 
 
