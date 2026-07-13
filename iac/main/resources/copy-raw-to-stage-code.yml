@@ -18,6 +18,7 @@ CopyRawToStageCodeLambda:
     Environment:
       # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
       Variables:
+        ENVIRONMENT: !Ref Environment
         DESTINATION_BUCKET: !Sub ${Environment}-dap-elt-metadata
         DESTINATION_PREFIX: txma/raw_to_stage/
     Tags:
