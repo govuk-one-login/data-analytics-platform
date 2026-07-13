@@ -62,6 +62,10 @@ Parameters:
     Description: Workspace ID for GDS Slack
     Type: String
     Default: T8GT9416G
+  RawToStageBuildHash:
+    Description: Hash of the raw-to-stage build artefacts to trigger custom resource updates
+    Type: String
+    Default: initial
 
 Mappings:
   DAPNotificationsSlackChannelIds:

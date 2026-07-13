@@ -74,6 +74,23 @@ jobs:
         run: npm ci
       - name: Build lambdas
         run: npm run build
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.11'
+      - name: Build raw-to-stage package
+        run: |
+          cd raw-to-stage
+          python3 -m pip install --upgrade build
+          python3 -m build
+      - name: Copy raw-to-stage assets to lambda directory
+        run: |
+          mkdir -p dist/assets
+          cp raw-to-stage/dist/*.whl dist/assets/
+          cp raw-to-stage/raw_to_stage_etl/raw_to_stage_process_glue_job.py dist/assets/
+      - name: Generate raw-to-stage build hash
+        id: raw-to-stage-hash
+        run: echo "hash=$(find dist/assets -type f | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: Build SAM template
         run: npm run iac:build -- main
       - name: SAM setup
@@ -91,7 +108,7 @@ jobs:
       - name: Deploy stack
         env:
           AWS_RETRY_MODE: adaptive
-          PARAMETER_OVERRIDES: 'Environment=${{ inputs.lowercase-environment }} VpcStackName=none CodeSigningConfigArn=none PermissionsBoundary=none TestRoleArn=none'
+          PARAMETER_OVERRIDES: 'Environment=${{ inputs.lowercase-environment }} VpcStackName=none CodeSigningConfigArn=none PermissionsBoundary=none TestRoleArn=none RawToStageBuildHash=${{ steps.raw-to-stage-hash.outputs.hash }}'
         run: sam deploy --region eu-west-2 --stack-name dap --parameter-overrides "$PARAMETER_OVERRIDES" --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset
 
   deploy-quicksight-access-application:

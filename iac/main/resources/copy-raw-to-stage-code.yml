@@ -1,0 +1,40 @@
+CopyRawToStageCodeLambda:
+  # checkov:skip=CKV_AWS_116: DLQ not needed as this lambda failing will cause stack deployment to fail
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub copy-raw-to-stage-code-${Environment}
+    Handler: copy-raw-to-stage-code.handler
+    Architectures:
+      - arm64
+    Timeout: 120
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - Statement:
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: !Sub arn:aws:s3:::${Environment}-dap-elt-metadata/txma/raw_to_stage/*
+    ReservedConcurrentExecutions: 1
+    Environment:
+      # checkov:skip=CKV_AWS_173: These environment variables do not require encryption
+      Variables:
+        DESTINATION_BUCKET: !Sub ${Environment}-dap-elt-metadata
+        DESTINATION_PREFIX: txma/raw_to_stage/
+    Tags:
+      Environment: !Ref Environment
+
+CopyRawToStageCodeCustomResource:
+  Type: Custom::CopyRawToStageCode
+  DependsOn: ELTMetadataBucket
+  Properties:
+    ServiceToken: !GetAtt CopyRawToStageCodeLambda.Arn
+    BuildHash: !Ref RawToStageBuildHash
+
+CopyRawToStageCodeLambdaLogGroup:
+  Type: AWS::Logs::LogGroup
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
+  Properties:
+    LogGroupName: !Sub /aws/lambda/copy-raw-to-stage-code-${Environment}
+    KmsKeyId: !GetAtt KmsKey.Arn
+    RetentionInDays: 30

@@ -780,6 +780,7 @@ TxmaRawLayerConsolidatedSchemaProcessingStateMachine:
 
 RawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job
+  DependsOn: CopyRawToStageCodeCustomResource
   Properties:
     Command:
       Name: pythonshell
