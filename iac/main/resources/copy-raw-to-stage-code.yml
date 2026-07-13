@@ -22,6 +22,13 @@ CopyRawToStageCodeLambda:
         DESTINATION_PREFIX: txma/raw_to_stage/
     Tags:
       Environment: !Ref Environment
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref SubnetForDAP1
+        - !Ref SubnetForDAP2
+        - !Ref SubnetForDAP3
 
 CopyRawToStageCodeCustomResource:
   Type: Custom::CopyRawToStageCode
