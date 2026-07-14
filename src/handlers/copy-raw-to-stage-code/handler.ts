@@ -1,8 +1,8 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client } from '../../shared/clients';
 import { getLogger } from '../../shared/powertools';
-import { readFileSync, readdirSync } from 'fs';
-import { join } from 'path';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import type { CloudFormationCustomResourceEvent, CloudFormationCustomResourceResponse } from 'aws-lambda';
 
 const logger = getLogger('lambda/copy-raw-to-stage-code');
