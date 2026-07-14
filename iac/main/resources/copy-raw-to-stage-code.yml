@@ -33,7 +33,9 @@ CopyRawToStageCodeLambda:
 
 CopyRawToStageCodeCustomResource:
   Type: Custom::CopyRawToStageCode
-  DependsOn: ELTMetadataBucket
+  DependsOn:
+    - ELTMetadataBucket
+    - CopyRawToStageCodeLambdaLogGroup
   Properties:
     ServiceToken: !GetAtt CopyRawToStageCodeLambda.Arn
     BuildHash: !Ref RawToStageBuildHash
