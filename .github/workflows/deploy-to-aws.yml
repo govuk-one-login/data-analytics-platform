@@ -59,6 +59,23 @@ jobs:
         run: npm ci
       - name: Build lambdas
         run: npm run build
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.11'
+      - name: Build raw-to-stage package
+        run: |
+          cd raw-to-stage
+          python3 -m pip install --upgrade build
+          python3 -m build
+      - name: Copy raw-to-stage assets to lambda directory
+        run: |
+          mkdir -p dist/assets
+          cp raw-to-stage/dist/*.whl dist/assets/
+          cp raw-to-stage/raw_to_stage_etl/raw_to_stage_process_glue_job.py dist/assets/
+      - name: Generate raw-to-stage build hash
+        id: raw-to-stage-hash
+        run: echo "hash=$(find dist/assets -type f | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: Build SAM template
         run: npm run iac:build -- main
       - name: SAM setup
@@ -79,6 +96,8 @@ jobs:
           artifact-bucket-name: ${{ secrets[format('ARTIFACT_BUCKET_NAME_{0}', inputs.environment)] }}
           signing-profile-name: ${{ secrets[format('SIGNING_PROFILE_NAME_{0}', inputs.environment)] }}
           working-directory: .
+          template-file: template.yaml
+          parameter-overrides: RawToStageBuildHash=${{ steps.raw-to-stage-hash.outputs.hash }}
 
   deploy-quicksight-access-application:
     needs: [validate-environment, validate-branch-ahead, upload-athena-files]
