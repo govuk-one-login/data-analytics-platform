@@ -1,4 +1,5 @@
 """Glue job main script."""
+# TODO: REMOVE ME - temporary change to test Secure Pipelines deployment
 
 import json
 import os
