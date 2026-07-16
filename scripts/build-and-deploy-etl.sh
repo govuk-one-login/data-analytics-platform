@@ -1,10 +1,7 @@
 #!/bin/bash -e
 
-lowercase_environment=$(echo "$1" | tr '[:upper:]' '[:lower:]')
-runtype=$(echo "$2" | tr '[:upper:]' '[:lower:]')
 ROOT=$(pwd)
 
-echo "Run type is $runtype"
 cd $ROOT/raw-to-stage
 
 #install all dependencies
@@ -30,25 +27,3 @@ else
   exit 1
 fi
 
-if [ "$runtype" != "local" ]; then
-  REGION="eu-west-2"
-  FILES_ROOT="./dist"
-  ETL_ROOT="./raw_to_stage_etl"
-  DESTINATION_PATH="s3://$(echo "$lowercase_environment")-dap-elt-metadata/txma/raw_to_stage/"
-  COMMIT_SHA=$(git rev-parse HEAD)
-  COMMIT_MESSAGE=$(git log -1 --pretty=%s)
-  echo "Uploading contents of $FILES_ROOT to bucket $S3_BUCKET"
-  pwd
-  ls $FILES_ROOT
-  BUCKET_NAME="$(echo "$lowercase_environment")-dap-elt-metadata"
-  COMMIT_MESSAGE_CLEAN=$(echo "$COMMIT_MESSAGE" | sed "s/'//g" | sed 's/ (#[0-9]*)$//' | sed 's/[.\/:-]*//g' | sed 's/,//g' | head -c 256)
-
-  # Upload files with metadata
-  for file in $(find "$FILES_ROOT" -type f); do
-    key="txma/raw_to_stage/$(basename "$file")"
-    aws --region="$REGION" s3api put-object --bucket "$BUCKET_NAME" --key "$key" --body "$file" --metadata "Commit-Sha=${COMMIT_SHA},Commit-Message=${COMMIT_MESSAGE_CLEAN}" > /dev/null
-  done
-
-  echo "Uploading raw_to_stage_process_glue_job.py from $CURRENT_DIR to s3 path $DESTINATION_PATH"
-  aws --region="$REGION" s3api put-object --bucket "$BUCKET_NAME" --key "txma/raw_to_stage/raw_to_stage_process_glue_job.py" --body "$ETL_ROOT/raw_to_stage_process_glue_job.py" --metadata "Commit-Sha=${COMMIT_SHA},Commit-Message=${COMMIT_MESSAGE_CLEAN}" > /dev/null
-fi
