@@ -48,7 +48,7 @@ jobs:
       - name: Script formatting checks
         run: npm run scripts:format:check
 
-  build-and-release-etl-job:
+  build-etl-job:
     # These permissions are needed to interact with GitHub's OIDC Token endpoint (enabling the aws-actions/configure-aws-credentials action)
     permissions:
       id-token: write
@@ -60,4 +60,4 @@ jobs:
         with:
           python-version: '3.11'
       - name: Build release distributions
-        run: scripts/build-and-deploy-etl.sh dev local
+        run: scripts/build-and-deploy-etl.sh
