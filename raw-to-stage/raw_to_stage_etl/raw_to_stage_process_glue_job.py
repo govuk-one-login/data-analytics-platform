@@ -7,6 +7,10 @@ import sys
 import traceback
 
 from awsglue.utils import getResolvedOptions
+from awsglue.context import GlueContext
+from pyspark.context import SparkContext
+from pyspark.sql import SparkSession
+
 from raw_to_stage_etl.clients.glue_table_query_and_write import GlueTableQueryAndWrite
 from raw_to_stage_etl.clients.s3_read_write import S3ReadWrite
 from raw_to_stage_etl.logging.logger import get_logger
@@ -15,9 +19,12 @@ from raw_to_stage_etl.strategies.custom_strategy import CustomStrategy
 from raw_to_stage_etl.strategies.scheduled_strategy import ScheduledStrategy
 from raw_to_stage_etl.strategies.view_strategy import ViewStrategy
 from raw_to_stage_etl.util.data_preprocessing import DataPreprocessing
-
-
 from raw_to_stage_etl.util.json_config_processing_utilities import extract_element_by_name
+
+# Initialize Spark and Glue contexts
+sc = SparkContext()
+glueContext = GlueContext(sc)
+spark = glueContext.spark_session
 
 logger = get_logger(__name__)
 

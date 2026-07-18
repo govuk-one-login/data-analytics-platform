@@ -1,12 +1,15 @@
 """Module for querying glue tables."""
 
-import awswrangler as wr
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+from pyspark.sql.types import *
+import boto3
 
 from ..logging.logger import get_logger
 
 
 class GlueTableQueryAndWrite:
-    """A class for querying the Glue Data Catalog tables."""
+    """A class for querying the Glue Data Catalog tables using native Spark."""
 
     def __init__(self, args):
         """
@@ -19,6 +22,10 @@ class GlueTableQueryAndWrite:
         """
         self.args = args
         self.logger = get_logger(__name__)
+        self.spark = SparkSession.getActiveSession()
+        if self.spark is None:
+            self.spark = SparkSession.builder.appName("RawToStageETL").getOrCreate()
+        self.glue_client = boto3.client('glue')
 
     def does_glue_table_exist(self, database, table):
         """
@@ -32,14 +39,44 @@ class GlueTableQueryAndWrite:
             bool: True if the table exists, False otherwise.
         """
         try:
-            return wr.catalog.does_table_exist(database=database, table=table)
+            self.glue_client.get_table(DatabaseName=database, Name=table)
+            return True
+        except self.glue_client.exceptions.EntityNotFoundException:
+            return False
         except Exception as e:
             self.logger.error("Error querying glue data catalog: %s", str(e))
             return None
 
+    def query_glue_table_single(self, database, query):
+        """
+        Execute a query on a Glue table using Spark SQL and return a single DataFrame.
+        Used by database utilities functions.
+
+        Args:
+            database (str): The name of the database to run a query against.
+            query (str): The SQL query to execute.
+
+        Returns:
+            pd.DataFrame: Single Pandas DataFrame result, or None if an error occurs.
+        """
+        try:
+            # Set the database context
+            self.spark.sql(f"USE {database}")
+            
+            # Execute the query
+            df = self.spark.sql(query)
+            
+            # Convert to Pandas DataFrame for compatibility with existing code
+            pandas_df = df.toPandas()
+            return pandas_df
+            
+        except Exception as e:
+            self.logger.error("Error reading Athena table: %s", str(e))
+            return None
+
     def query_glue_table(self, database, query, chunksize=1):
         """
-        Execute a query on a Glue table using Athena.
+        Execute a query on a Glue table using Spark SQL.
 
         Args:
             database (str): The name of the database to run a query against.
@@ -48,11 +85,21 @@ class GlueTableQueryAndWrite:
                                 default 1 if no value provided.
 
         Returns:
-            pd.DataFrame: The query result as a Pandas DataFrame, or None if an error occurs.
+            list: List containing a single Pandas DataFrame for compatibility with existing code.
         """
         try:
-            df = wr.athena.read_sql_query(query, database=database, chunksize=chunksize)
-            return df
+            # Set the database context
+            self.spark.sql(f"USE {database}")
+            
+            # Execute the query
+            df = self.spark.sql(query)
+            
+            # Convert to Pandas DataFrame for compatibility with existing code
+            pandas_df = df.toPandas()
+            
+            # Return as list for compatibility with existing iterator-based code
+            return [pandas_df]
+            
         except Exception as e:
             self.logger.error("Error reading Athena table: %s", str(e))
             return None
@@ -85,17 +132,51 @@ class GlueTableQueryAndWrite:
             Returns S3 path metadata if the write operation is successful, or returns None if there is an error.
         """
         try:
-            s3_write_data_return_value = wr.s3.to_parquet(
-                df=dataframe,
-                path=s3_path,
-                dataset=dataset,
-                database=database,
-                mode=insert_mode,
-                table=table,
-                dtype=dtype,
-                partition_cols=partition_cols,
-            )
-            return s3_write_data_return_value
+            # Convert pandas DataFrame to Spark DataFrame
+            spark_df = self.spark.createDataFrame(dataframe)
+            
+            # Apply data types if specified
+            if dtype:
+                for col_name, col_type in dtype.items():
+                    if col_name in spark_df.columns:
+                        if col_type == 'string':
+                            spark_df = spark_df.withColumn(col_name, col(col_name).cast(StringType()))
+                        elif col_type == 'bigint':
+                            spark_df = spark_df.withColumn(col_name, col(col_name).cast(LongType()))
+                        elif col_type == 'int':
+                            spark_df = spark_df.withColumn(col_name, col(col_name).cast(IntegerType()))
+                        elif col_type == 'double':
+                            spark_df = spark_df.withColumn(col_name, col(col_name).cast(DoubleType()))
+                        elif col_type == 'timestamp':
+                            spark_df = spark_df.withColumn(col_name, col(col_name).cast(TimestampType()))
+            
+            # Write DataFrame to S3 as Parquet
+            writer = spark_df.write.mode(insert_mode).format("parquet")
+            
+            # Add partitioning if specified
+            if partition_cols:
+                writer = writer.partitionBy(*partition_cols)
+            
+            # Write to S3
+            writer.save(s3_path)
+            
+            # Use Glue context to create/update catalog table
+            from awsglue.dynamicframe import DynamicFrame
+            
+            # Convert back to DynamicFrame for catalog operations
+            dyf = DynamicFrame.fromDF(spark_df, self.spark.sparkContext._jsc.sc(), "dyf")
+            
+            # Write to Glue catalog
+            self.spark._jsparkSession.catalog().refreshTable(f"{database}.{table}")
+            
+            # Return metadata dictionary similar to awswrangler format
+            return {
+                "paths": [s3_path],
+                "partitions_values": {},
+                "table": table,
+                "database": database
+            }
+            
         except Exception as e:
             self.logger.error("Error writing to Athena table: %s", str(e))
             return None
