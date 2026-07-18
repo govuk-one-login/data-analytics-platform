@@ -723,6 +723,20 @@ VPCEndpointRedshiftServerless:
       - !Ref SubnetForDAP2
       - !Ref SubnetForDAP3
 
+VPCEndpointGlue:
+  Type: AWS::EC2::VPCEndpoint
+  Properties:
+    VpcEndpointType: Interface
+    ServiceName: com.amazonaws.eu-west-2.glue
+    VpcId: !Ref VPCForDAP
+    PrivateDnsEnabled: true
+    SecurityGroupIds:
+      - !Ref LambdaSecurityGroup
+    SubnetIds:
+      - !Ref SubnetForDAP1
+      - !Ref SubnetForDAP2
+      - !Ref SubnetForDAP3
+
 AWSSupportReadOnlyRole:
   Type: 'AWS::IAM::Role'
   DeletionPolicy: Retain

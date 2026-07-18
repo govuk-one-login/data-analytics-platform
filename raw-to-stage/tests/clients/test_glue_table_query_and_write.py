@@ -1,6 +1,12 @@
 import pytest
+import pandas as pd
 from unittest import mock
+from pyspark.sql import SparkSession
 from raw_to_stage_etl.clients.glue_table_query_and_write import GlueTableQueryAndWrite
+
+@pytest.fixture(scope="module")
+def spark():
+    return SparkSession.builder.master("local[1]").appName("test").getOrCreate()
 
 @pytest.fixture
 def mock_logger():
@@ -43,9 +49,9 @@ def test_query_glue_table_exception(mock_read_sql, glue_client):
     assert result is None
 
 @mock.patch("raw_to_stage_etl.clients.glue_table_query_and_write.wr.s3.to_parquet")
-def test_write_to_glue_table_success(mock_to_parquet, glue_client):
+def test_write_to_glue_table_success(mock_to_parquet, glue_client, spark):
     mock_to_parquet.return_value = {"some": "meta"}
-    df = mock.Mock()
+    df = spark.createDataFrame([(1, "a")], ["id", "col"])
     result = glue_client.write_to_glue_table(
         dataframe=df,
         s3_path="s3://bucket/path",
@@ -60,9 +66,9 @@ def test_write_to_glue_table_success(mock_to_parquet, glue_client):
     mock_to_parquet.assert_called_once()
 
 @mock.patch("raw_to_stage_etl.clients.glue_table_query_and_write.wr.s3.to_parquet")
-def test_write_to_glue_table_exception(mock_to_parquet, glue_client):
+def test_write_to_glue_table_exception(mock_to_parquet, glue_client, spark):
     mock_to_parquet.side_effect = Exception("fail")
-    df = mock.Mock()
+    df = spark.createDataFrame([(1, "a")], ["id", "col"])
     result = glue_client.write_to_glue_table(
         dataframe=df,
         s3_path="s3://bucket/path",
@@ -75,11 +81,19 @@ def test_write_to_glue_table_exception(mock_to_parquet, glue_client):
     )
     assert result is None
 
-def test_get_raw_data_success(glue_client):
-    with mock.patch.object(glue_client, "query_glue_table", return_value=["df1", "df2"]) as mock_query:
+@mock.patch("raw_to_stage_etl.clients.glue_table_query_and_write.SparkSession")
+def test_get_raw_data_success(mock_spark_session, glue_client):
+    mock_spark = mock.Mock()
+    mock_spark_session.builder.getOrCreate.return_value = mock_spark
+    mock_spark_df = mock.Mock()
+    mock_spark.createDataFrame.return_value = mock_spark_df
+
+    pdf = pd.DataFrame({"col": [1, 2]})
+    with mock.patch.object(glue_client, "query_glue_table", return_value=[pdf]) as mock_query:
         glue_client.args["raw_database"] = "db"
         result = glue_client.get_raw_data("SELECT * FROM tbl", 10)
-        assert result == ["df1", "df2"]
+        assert len(result) == 1
+        assert result[0] == mock_spark_df
         mock_query.assert_called_once_with("db", "SELECT * FROM tbl", 10)
 
 def test_get_raw_data_none_raises(glue_client):

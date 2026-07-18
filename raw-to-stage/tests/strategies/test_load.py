@@ -4,7 +4,7 @@ from raw_to_stage_etl.strategies.scheduled_strategy import ScheduledStrategy
 from raw_to_stage_etl.strategies.custom_strategy import CustomStrategy
 from raw_to_stage_etl.strategies.view_strategy import ViewStrategy
 from raw_to_stage_etl.util.data_preprocessing import DataPreprocessing
-from test_code.util.helpers import get_pandas_transformation_for_individual_event, get_test_json_config
+from test_code.util.helpers import get_pyspark_transformation_for_individual_event, get_test_json_config
 
 @pytest.fixture
 def setup_mocks(mocker):
@@ -29,7 +29,7 @@ def setup_mocks(mocker):
 @pytest.mark.parametrize("strategy_cls", [ScheduledStrategy, CustomStrategy, ViewStrategy])
 def test_loads_correct_dfs(setup_mocks, strategy_cls):
     mocks = setup_mocks
-    test_dfs = get_pandas_transformation_for_individual_event(
+    test_dfs = get_pyspark_transformation_for_individual_event(
         'auth_create_account',
         mocks["preprocessor"].processed_dt,
         mocks["preprocessor"].processed_time
@@ -79,4 +79,3 @@ def test_loads_correct_dfs(setup_mocks, strategy_cls):
         )
     ]
     assert mocks["mock_glue"].write_to_glue_table.call_args_list == expected_calls
-    
