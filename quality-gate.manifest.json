@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/govuk-one-login/quality-gates/refs/tags/v0.14.0/schemas/schema.json",
+  "$schema": "https://raw.githubusercontent.com/govuk-one-login/quality-gates/refs/tags/v0.15.0/schemas/schema.json",
   "services": [
     {
       "product": "Data-And-Analytics-Platform",
@@ -7,54 +7,82 @@
       "promotionType": "securePipelines",
       "automated": [
         {
-          "checkTypes": [
-            "unit",
-            "code style and linting",
-            "vulnerability detection",
-            "code quality"
-          ],
           "phase": "pre-merge",
           "provider": "GitHub",
           "config": {
             "file": ".github/workflows/test-and-validate.yml"
-          }
+          },
+          "checks": [
+            {
+              "name": "unit"
+            },
+            {
+              "name": "code style and linting"
+            },
+            {
+              "name": "vulnerability detection"
+            },
+            {
+              "name": "code quality"
+            }
+          ]
         },
         {
-          "checkTypes": [
-            "unit test coverage",
-            "code quality",
-            "secret scanning",
-            "sensitive data scanning",
-            "vulnerability detection"
-          ],
           "phase": "pre-merge",
           "provider": "GitHub",
           "config": {
             "file": ".github/workflows/code-quality-sonarcloud.yml"
-          }
+          },
+          "checks": [
+            {
+              "name": "unit test coverage"
+            },
+            {
+              "name": "code quality"
+            },
+            {
+              "name": "secret scanning"
+            },
+            {
+              "name": "sensitive data scanning"
+            },
+            {
+              "name": "vulnerability detection"
+            }
+          ]
         },
         {
-          "checkTypes": [
-            "vulnerability detection"
-          ],
           "phase": "pre-merge",
           "provider": "GitHub",
           "config": {
             "file": ".github/workflows/ensure-sha-pinned-actions.yml"
-          }
+          },
+          "checks": [
+            {
+              "name": "vulnerability detection"
+            }
+          ]
         },
         {
-          "checkTypes": [
-            "unit",
-            "code style and linting",
-            "vulnerability detection",
-            "code quality"
-          ],
           "phase": "pre-upload",
           "provider": "GitHub",
           "config": {
             "file": ".github/workflows/test-and-validate.yml"
-          }
+          },
+          "checks": [
+            {
+              "name": "unit"
+            },
+            {
+              "name": "code style and linting"
+            },
+            {
+              "name": "vulnerability detection"
+            },
+            {
+              "name": "code quality"
+            }
+          ]
         }
       ]
     }
