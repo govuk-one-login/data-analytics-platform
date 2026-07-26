@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/govuk-one-login/quality-gates/refs/tags/v0.16.0/schemas/schema.json",
+  "$schema": "https://raw.githubusercontent.com/govuk-one-login/quality-gates/refs/tags/v0.17.0/schemas/schema.json",
   "services": [
     {
       "product": "Data-And-Analytics-Platform",
@@ -9,9 +9,6 @@
         {
           "phase": "pre-merge",
           "provider": "GitHub",
-          "config": {
-            "file": ".github/workflows/test-and-validate.yml"
-          },
           "checks": [
             {
               "name": "unit"
@@ -25,14 +22,12 @@
             {
               "name": "code quality"
             }
-          ]
+          ],
+          "file": ".github/workflows/test-and-validate.yml"
         },
         {
           "phase": "pre-merge",
           "provider": "GitHub",
-          "config": {
-            "file": ".github/workflows/code-quality-sonarcloud.yml"
-          },
           "checks": [
             {
               "name": "unit test coverage"
@@ -49,26 +44,22 @@
             {
               "name": "vulnerability detection"
             }
-          ]
+          ],
+          "file": ".github/workflows/code-quality-sonarcloud.yml"
         },
         {
           "phase": "pre-merge",
           "provider": "GitHub",
-          "config": {
-            "file": ".github/workflows/ensure-sha-pinned-actions.yml"
-          },
           "checks": [
             {
               "name": "vulnerability detection"
             }
-          ]
+          ],
+          "file": ".github/workflows/ensure-sha-pinned-actions.yml"
         },
         {
           "phase": "pre-upload",
           "provider": "GitHub",
-          "config": {
-            "file": ".github/workflows/test-and-validate.yml"
-          },
           "checks": [
             {
               "name": "unit"
@@ -82,7 +73,8 @@
             {
               "name": "code quality"
             }
-          ]
+          ],
+          "file": ".github/workflows/test-and-validate.yml"
         }
       ]
     }
