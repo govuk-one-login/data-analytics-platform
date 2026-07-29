@@ -53,7 +53,7 @@
     "pg": "^8.22.0",
     "prettier": "^3.9.4",
     "prettier-plugin-sh": "^0.18.1",
-    "tar": "^7.5.19",
+    "tar": "^7.5.22",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.1",
