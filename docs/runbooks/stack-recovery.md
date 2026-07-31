@@ -236,6 +236,257 @@ The script retries 3 times with 60-second intervals. If all attempts fail, skip 
 - [ ] VPC endpoints are all in `available` state
 - [ ] KMS key is `Enabled`
 
+Use these environment variables in the commands below:
+
+```sh
+export AWS_REGION=eu-west-2
+export STACK_NAME=dap
+export ENVIRONMENT=dev
+```
+
+#### 1. Stack status is `UPDATE_COMPLETE`
+
+AWS CLI:
+
+```sh
+aws cloudformation describe-stacks \
+  --stack-name "$STACK_NAME" \
+  --region "$AWS_REGION" \
+  --query 'Stacks[0].StackStatus' \
+  --output text
+```
+
+Expected result: `UPDATE_COMPLETE`.
+
+Console:
+1. Open AWS Console.
+2. Go to CloudFormation.
+3. Select the `dap` stack.
+4. Check the `Status` column or the stack overview panel.
+
+#### 2. All SSM parameters exist under `/tests/dap/`
+
+These parameters are only created in environments that satisfy the `IsDevBuildOrStaging` or related test conditions, so expect fewer results in production-style environments.
+
+AWS CLI:
+
+```sh
+aws ssm get-parameters-by-path \
+  --path "/tests/$STACK_NAME/" \
+  --recursive \
+  --region "$AWS_REGION" \
+  --query 'Parameters[].Name' \
+  --output text
+```
+
+For a count:
+
+```sh
+aws ssm get-parameters-by-path \
+  --path "/tests/$STACK_NAME/" \
+  --recursive \
+  --region "$AWS_REGION" \
+  --query 'length(Parameters)' \
+  --output text
+```
+
+Useful parameters to confirm include `/tests/dap/dapAthenaWorkgroup`, `/tests/dap/dapAthenaRawLayerDatabase`, `/tests/dap/dapAthenaStageLayerDatabase`, and in dev/build `/tests/dap/dapTXMAConsumerSQSQueueUrl`.
+
+Console:
+1. Open Systems Manager.
+2. Go to Parameter Store.
+3. Search for `/tests/dap/`.
+4. Confirm the expected parameters are present for the target environment.
+
+#### 3. SQS queue exists and has an event source mapping to the Lambda
+
+In dev/build, the queue name is `${ENVIRONMENT}-placeholder-txma-event-queue` and the DLQ is `${ENVIRONMENT}-placeholder-txma-event-dlq`. In higher environments, the Lambda event source mapping points at the external TxMA queue ARN stored in the `TxMAEventQueueARN` SSM parameter rather than the placeholder queue.
+
+AWS CLI:
+
+```sh
+QUEUE_URL=$(aws sqs get-queue-url \
+  --queue-name "$ENVIRONMENT-placeholder-txma-event-queue" \
+  --region "$AWS_REGION" \
+  --query 'QueueUrl' \
+  --output text)
+
+aws sqs get-queue-attributes \
+  --queue-url "$QUEUE_URL" \
+  --attribute-names QueueArn RedrivePolicy KmsMasterKeyId \
+  --region "$AWS_REGION"
+```
+
+Check the event source mapping:
+
+```sh
+aws lambda list-event-source-mappings \
+  --function-name txma-event-consumer \
+  --event-source-arn "$(aws sqs get-queue-attributes \
+    --queue-url "$QUEUE_URL" \
+    --attribute-names QueueArn \
+    --region "$AWS_REGION" \
+    --query 'Attributes.QueueArn' \
+    --output text)" \
+  --region "$AWS_REGION" \
+  --query 'EventSourceMappings[].{UUID:UUID,State:State,Enabled:Enabled}'
+```
+
+Expected result: a mapping exists and is `Enabled` with state `Enabled` or `Creating` immediately after deployment.
+
+For higher environments, verify the external queue ARN and mapping instead:
+
+```sh
+TXMA_QUEUE_ARN=$(aws ssm get-parameter \
+  --name TxMAEventQueueARN \
+  --region "$AWS_REGION" \
+  --query 'Parameter.Value' \
+  --output text)
+
+aws lambda list-event-source-mappings \
+  --function-name txma-event-consumer \
+  --event-source-arn "$TXMA_QUEUE_ARN" \
+  --region "$AWS_REGION" \
+  --query 'EventSourceMappings[].{UUID:UUID,State:State,Enabled:Enabled,EventSourceArn:EventSourceArn}'
+```
+
+Console:
+1. Open SQS and confirm the queue exists.
+2. Open the queue and check the `Dead-letter queue` and encryption settings.
+3. Open Lambda, select `txma-event-consumer`, then open `Configuration` > `Triggers`.
+4. Confirm the SQS trigger is attached and enabled.
+
+#### 4. Lambda `txma-event-consumer` is in `Active` state
+
+AWS CLI:
+
+```sh
+aws lambda get-function \
+  --function-name txma-event-consumer \
+  --region "$AWS_REGION" \
+  --query 'Configuration.{State:State,LastUpdateStatus:LastUpdateStatus,Runtime:Runtime,Version:Version}'
+```
+
+Expected result: `State` is `Active` and `LastUpdateStatus` is `Successful`.
+
+Console:
+1. Open Lambda.
+2. Select `txma-event-consumer`.
+3. Check the function overview banner and `Configuration` tab.
+4. Confirm the state is `Active` and the last update succeeded.
+
+#### 5. Firehose delivery stream is `ACTIVE` and delivering to S3
+
+By default, the delivery stream name is `${ENVIRONMENT}-dap-txma-delivery-stream`.
+
+AWS CLI:
+
+```sh
+aws firehose describe-delivery-stream \
+  --delivery-stream-name "$ENVIRONMENT-dap-txma-delivery-stream" \
+  --region "$AWS_REGION" \
+  --query 'DeliveryStreamDescription.{Status:DeliveryStreamStatus,Destination:Destinations[0].ExtendedS3DestinationDescription.BucketARN,LogGroup:Destinations[0].ExtendedS3DestinationDescription.CloudWatchLoggingOptions.LogGroupName,LogStream:Destinations[0].ExtendedS3DestinationDescription.CloudWatchLoggingOptions.LogStreamName}'
+```
+
+Check recent Firehose log events for delivery failures:
+
+```sh
+aws logs get-log-events \
+  --log-group-name "$ENVIRONMENT-dap-txma-delivery-stream" \
+  --log-stream-name "$ENVIRONMENT-dap-txma-delivery-stream" \
+  --limit 20 \
+  --region "$AWS_REGION"
+```
+
+Expected result: stream status is `ACTIVE` and recent log events do not show `S3.AccessDenied`, `AccessDeniedException`, or repeated delivery failures.
+
+Console:
+1. Open Kinesis > Data Firehose.
+2. Select the `${ENVIRONMENT}-dap-txma-delivery-stream` delivery stream.
+3. Check the stream status and destination S3 bucket.
+4. Follow the CloudWatch Logs link from the monitoring or destination section.
+5. Confirm there are no recent delivery errors.
+
+#### 6. Redshift workgroup is `AVAILABLE`
+
+AWS CLI:
+
+```sh
+aws redshift-serverless get-workgroup \
+  --workgroup-name "$ENVIRONMENT-redshift-serverless-workgroup" \
+  --region "$AWS_REGION" \
+  --query 'workgroup.{Status:status,Endpoint:endpoint.address,Port:endpoint.port,BaseCapacity:baseCapacity}'
+```
+
+Expected result: `Status` is `AVAILABLE`.
+
+Console:
+1. Open Amazon Redshift.
+2. Go to `Serverless dashboard` or `Workgroups`.
+3. Select `${ENVIRONMENT}-redshift-serverless-workgroup`.
+4. Confirm the status is `Available` and the endpoint is present.
+
+#### 7. VPC endpoints are all in `available` state
+
+The stack creates endpoints for Athena, CloudWatch Logs, Firehose, Lambda, Redshift Data, S3, Secrets Manager, SQS, Step Functions, SSM, SSMMessages, EC2Messages, and Redshift Serverless.
+
+AWS CLI:
+
+```sh
+VPC_ID=$(aws cloudformation describe-stack-resource \
+  --stack-name "$STACK_NAME" \
+  --logical-resource-id VPCForDAP \
+  --region "$AWS_REGION" \
+  --query 'StackResourceDetail.PhysicalResourceId' \
+  --output text)
+
+aws ec2 describe-vpc-endpoints \
+  --region "$AWS_REGION" \
+  --filters "Name=vpc-id,Values=$VPC_ID" \
+  --query 'VpcEndpoints[].{Id:VpcEndpointId,Service:ServiceName,Type:VpcEndpointType,State:State}' \
+  --output table
+```
+
+Expected result: every listed endpoint has `State` set to `available`.
+
+Console:
+1. Open VPC.
+2. Go to `Endpoints`.
+3. Filter by the DAP VPC ID or by service names containing `athena`, `logs`, `kinesis-firehose`, `lambda`, `redshift`, `s3`, `secretsmanager`, `sqs`, `states`, `ssm`, `ssmmessages`, and `ec2messages`.
+4. Confirm each endpoint shows `Available`.
+
+#### 8. KMS key is `Enabled`
+
+The main DAP key alias is `alias/${ENVIRONMENT}-dap-key`.
+
+AWS CLI:
+
+```sh
+aws kms describe-key \
+  --key-id "alias/$ENVIRONMENT-dap-key" \
+  --region "$AWS_REGION" \
+  --query 'KeyMetadata.{KeyId:KeyId,Arn:Arn,KeyState:KeyState,Enabled:Enabled,Description:Description}'
+```
+
+Expected result: `KeyState` is `Enabled` and `Enabled` is `true`.
+
+If the alias is missing, resolve it from CloudFormation instead:
+
+```sh
+aws cloudformation describe-stack-resource \
+  --stack-name "$STACK_NAME" \
+  --logical-resource-id KmsKey \
+  --region "$AWS_REGION" \
+  --query 'StackResourceDetail.PhysicalResourceId' \
+  --output text
+```
+
+Console:
+1. Open Key Management Service.
+2. Go to `Customer managed keys`.
+3. Search for `alias/${ENVIRONMENT}-dap-key`.
+4. Open the key and confirm the key state is `Enabled`.
+
 ### Data pipeline validation
 
 ```sh
@@ -252,27 +503,71 @@ The integration tests validate the full pipeline:
 
 ### Quick smoke test (without full integration tests)
 
+The commands below use the environment variables set at the top of the Infrastructure checklist. Ensure `$ENVIRONMENT`, `$STACK_NAME`, and `$AWS_REGION` are exported before running.
+
 ```sh
-# Check Firehose is delivering (no S3.AccessDenied)
-aws logs get-log-events --log-group-name dev-dap-txma-delivery-stream \
-  --log-stream-name dev-dap-txma-delivery-stream --limit 5 --region eu-west-2
+# Check Firehose for recent delivery errors (S3.AccessDenied, AccessDeniedException).
+# filter-log-events searches all streams in the log group without needing the stream name.
+aws logs filter-log-events \
+  --log-group-name "$ENVIRONMENT-dap-txma-delivery-stream" \
+  --filter-pattern '?"S3.AccessDenied" ?"AccessDeniedException"' \
+  --start-time $(( $(date +%s) - 3600 ))000 \
+  --region "$AWS_REGION"
+# Expected: no matching events.
+```
 
-# Check SQS queue is empty (Lambda is consuming)
+```sh
+# Check SQS queue message count (Lambda is consuming).
+# Resolve the queue URL dynamically — do not hardcode the account ID.
+QUEUE_URL=$(aws sqs get-queue-url \
+  --queue-name "$ENVIRONMENT-placeholder-txma-event-queue" \
+  --region "$AWS_REGION" \
+  --query 'QueueUrl' --output text)
+
 aws sqs get-queue-attributes \
-  --queue-url https://sqs.eu-west-2.amazonaws.com/<ACCOUNT_ID>/dev-placeholder-txma-event-queue \
-  --attribute-names ApproximateNumberOfMessages --region eu-west-2
+  --queue-url "$QUEUE_URL" \
+  --attribute-names ApproximateNumberOfMessages ApproximateNumberOfMessagesNotVisible \
+  --region "$AWS_REGION"
+# Expected: ApproximateNumberOfMessages close to 0 (queue is draining).
+```
 
-# Check DLQ is empty
+```sh
+# Check DLQ is empty.
+DLQ_URL=$(aws sqs get-queue-url \
+  --queue-name "$ENVIRONMENT-placeholder-txma-event-dlq" \
+  --region "$AWS_REGION" \
+  --query 'QueueUrl' --output text)
+
 aws sqs get-queue-attributes \
-  --queue-url https://sqs.eu-west-2.amazonaws.com/<ACCOUNT_ID>/dev-placeholder-txma-event-dlq \
-  --attribute-names ApproximateNumberOfMessages --region eu-west-2
+  --queue-url "$DLQ_URL" \
+  --attribute-names ApproximateNumberOfMessages \
+  --region "$AWS_REGION"
+# Expected: ApproximateNumberOfMessages is 0. Any messages here indicate Lambda processing failures.
+```
 
-# Check Redshift can access Glue catalog
-aws redshift-data execute-statement \
-  --workgroup-name dev-redshift-serverless-workgroup \
+```sh
+# Check Redshift can access the Glue catalog.
+# execute-statement is asynchronous — capture the ID then poll for the result.
+STMT_ID=$(aws redshift-data execute-statement \
+  --workgroup-name "$ENVIRONMENT-redshift-serverless-workgroup" \
   --database dap_txma_reporting_db_refactored \
   --sql "SELECT schemaname, tablename FROM svv_external_tables LIMIT 1" \
-  --region eu-west-2
+  --region "$AWS_REGION" \
+  --query 'Id' --output text)
+
+echo "Statement ID: $STMT_ID"
+
+# Poll until the statement finishes (usually within a few seconds).
+aws redshift-data describe-statement \
+  --id "$STMT_ID" \
+  --region "$AWS_REGION" \
+  --query '{Status:Status,Error:Error,ResultRows:ResultRows}'
+# Expected: Status is FINISHED and ResultRows >= 0. FAILED status means Glue access is broken.
+
+# Retrieve the rows once FINISHED:
+aws redshift-data get-statement-result \
+  --id "$STMT_ID" \
+  --region "$AWS_REGION"
 ```
 
 ## Manual steps
