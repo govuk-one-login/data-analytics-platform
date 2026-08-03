@@ -688,7 +688,6 @@ StepFunctionRedshiftProcessRole:
               Resource:
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-redshift-processing'
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-stage-layer-to-redshift-processing'
-                - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-conformed-layer-to-adm-processing'
                 - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${Environment}-dap-consolidated-conformed-layer-to-adm-processing-v3'
               Action:
                 - states:ListExecutions
@@ -881,15 +880,6 @@ RedshiftConsolidatedModelProcessingLogGroup:
     KmsKeyId: !GetAtt KmsKey.Arn
     RetentionInDays: 30
 
-ADMConsolidatedModelProcessingLogGroup:
-  Type: AWS::Logs::LogGroup
-  DeletionPolicy: Retain
-  UpdateReplacePolicy: Retain
-  Properties:
-    LogGroupName: /aws/stepfunction/dap-consolidated-conformed-layer-to-adm
-    KmsKeyId: !GetAtt KmsKey.Arn
-    RetentionInDays: 30
-
 ADMV3RefreshLogGroup:
   Type: AWS::Logs::LogGroup
   DeletionPolicy: Retain
@@ -917,8 +907,8 @@ RedshiftConsolidatedModelProcessingStateMachine:
       RedshiftDatabaseName: dap_txma_reporting_db_refactored
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
       ADMProcessingStepFunctionArn: !If
-        - IsADMEnvironment
-        - !Ref ADMConsolidatedModelProcessingStateMachine
+        - IsProduction
+        - !Ref ADMV3RefreshStateMachine
         - !Ref 'AWS::NoValue'
       IsADMEnvironment: !If [IsProduction, true, false]
 
@@ -941,28 +931,6 @@ ADMV3RefreshStateMachine:
       RedshiftDatabaseName: dap_txma_reporting_db_refactored
       StateMachineResultsBucket: !Ref StateMachineResultsBucket
       RedshiftSecretArn: !Ref RedshiftSecret
-
-ADMConsolidatedModelProcessingStateMachine:
-  Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
-  Condition: IsADMEnvironment
-  Properties:
-    DefinitionUri: statemachine/txma_adm_consolidated_schema_processing.asl.json
-    Name: !Sub ${Environment}-dap-consolidated-conformed-layer-to-adm-processing
-    Role: !GetAtt StepFunctionRedshiftProcessRole.Arn
-    Logging:
-      Destinations:
-        - CloudWatchLogsLogGroup:
-            LogGroupArn: !GetAtt ADMConsolidatedModelProcessingLogGroup.Arn
-      IncludeExecutionData: true
-      Level: ALL
-    DefinitionSubstitutions:
-      S3MetaDataBucketName: !Ref ELTMetadataBucket
-      RedshiftWorkgroup: !Ref RedshiftServerlessWorkgroup
-      RedshiftDatabaseName: dap_txma_reporting_db_refactored
-      StateMachineResultsBucket: !Ref StateMachineResultsBucket
-      RedshiftSecretArn: !Ref RedshiftSecret
-      ADMV3RefreshStepFunctionArn: !If [IsProduction, !Ref ADMV3RefreshStateMachine, 'AWS::NoValue']
-      RunADMRefresh: !If [IsProduction, 'true', 'false']
 
 SplunkMigratedRawStageTransformProcessPythonGlueJob:
   Type: AWS::Glue::Job

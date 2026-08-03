@@ -70,23 +70,3 @@ RedshiftProcessingStepFunctionRetryingAlarm:
     TreatMissingData: notBreaching
     AlarmActions:
       - !Ref DAPNotificationsTopic
-
-ADMProcessingStepFunctionRetryingAlarm:
-  Type: 'AWS::CloudWatch::Alarm'
-  Condition: IsADMEnvironment
-  Properties:
-    AlarmName: !Sub '${Environment}-${AWS::StackName}-adm-retrying'
-    AlarmDescription: !Sub '${Environment}-${AWS::StackName}-consolidated-conformed-layer-to-adm-processing step function is being retried'
-    MetricName: ExecutionsFailed
-    Namespace: AWS/States
-    Statistic: Sum
-    Period: 300
-    EvaluationPeriods: 1
-    Threshold: 1
-    ComparisonOperator: GreaterThanOrEqualToThreshold
-    Dimensions:
-      - Name: StateMachineArn
-        Value: !Ref ADMConsolidatedModelProcessingStateMachine
-    TreatMissingData: notBreaching
-    AlarmActions:
-      - !Ref DAPNotificationsTopic
