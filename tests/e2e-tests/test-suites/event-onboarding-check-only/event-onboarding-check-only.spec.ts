@@ -1,6 +1,6 @@
 import { queryConformLayerByEventName, printConformCheckOnly } from '../../helpers/utils/conform-layer-results';
 
-const getEventNames = (): string[] => (global as { checkOnlyEventNames?: string[] }).checkOnlyEventNames || [];
+const getEventNames = (): string[] => process.env.EVENT_ONBOARDING_EVENT_NAMES?.split(',').map(v => v.trim()) || [];
 
 describe('Event Onboarding E2E Tests (check only)', () => {
   for (const eventName of getEventNames()) {
