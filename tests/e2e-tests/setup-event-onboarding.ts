@@ -1,4 +1,7 @@
 /* eslint-disable no-console */
+import { writeFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 import { AWS_REGION, STACK_NAME } from '../shared-test-code/constants';
 import { addMessageToQueue } from '../shared-test-code/aws/sqs/add-message-to-queue';
 import { executeStepFunction } from '../shared-test-code/aws/step-function/execute-step-function';
@@ -54,9 +57,8 @@ export default async function globalSetup() {
     await pollForStageLayerData(eventIds, { maxWaitTimeMs: 10 * 60 * 1000, pollIntervalMs: 10000 });
     await pollForFactJourneyData(eventIds, { maxWaitTimeMs: 5 * 60 * 1000, pollIntervalMs: 5000 });
 
-    // Store data globally for tests
-    (global as { sentEvents?: typeof sentEvents }).sentEvents = sentEvents;
-    (global as { expectedDate?: string }).expectedDate = expectedDate;
+    // Store data for tests via tmp file (globalSetup runs in a separate context in vitest 4)
+    writeFileSync(join(tmpdir(), 'dap-event-onboarding-setup.json'), JSON.stringify({ sentEvents, expectedDate }));
 
     console.log(
       `\n📋 Event IDs for check-only mode:\n   EVENT_ONBOARDING_EVENT_IDS=${sentEvents.map(e => e.event_id).join(',')}\n`,
