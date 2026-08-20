@@ -188,5 +188,5 @@ Globals:
           - !Ref 'AWS::NoValue'
     Layers: !If
       - IsSecurePipelinesEnvironment
-      - - arn:aws:lambda:eu-west-2:216552277552:layer:Dynatrace_OneAgent_1_329_73_20260123-140641_with_collector_nodejs_x86:1
+      - - arn:aws:lambda:eu-west-2:216552277552:layer:Dynatrace_OneAgent_1_329_73_20260123-140641_with_collector_nodejs_arm:1
       - !Ref 'AWS::NoValue'
