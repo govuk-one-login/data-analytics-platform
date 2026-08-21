@@ -288,8 +288,10 @@ RunFlywayCommandLambda:
   Properties:
     Architectures:
       - x86_64
-    Layers:
-      - arn:aws:lambda:eu-west-2:216552277552:layer:Dynatrace_OneAgent_1_329_73_20260123-140641_with_collector_nodejs_x86:1
+    Layers: !If
+      - IsSecurePipelinesEnvironment
+      - - arn:aws:lambda:eu-west-2:216552277552:layer:Dynatrace_OneAgent_1_329_73_20260123-140641_with_collector_nodejs_x86:1
+      - !Ref 'AWS::NoValue'
     FunctionName: run-flyway-command
     Handler: run-flyway-command.handler
     Policies:
