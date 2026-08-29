@@ -6,7 +6,7 @@ import sys
 from abc import ABC, abstractmethod
 from datetime import datetime
 
-import pandas as pd
+from pyspark.sql import DataFrame
 
 from ..exceptions.no_data_found_exception import NoDataFoundException
 from ..logging.logger import get_logger
@@ -49,27 +49,27 @@ class Strategy(ABC):
         pass
 
     def transform(self, df_raw):
-        """Transform pandas dataframe if not empty. Perform various transformations on input df.
+        """Transform PySpark dataframe if not empty. Perform various transformations on input df.
 
         Parameters
-         df_raw (Pandas Dataframe): Input dataframe
+         df_raw (PySpark DataFrame): Input dataframe
 
         Returns
-         df_stage (Pandas Dataframe): Transformed Staging table Dataframe
-         df_key_values (Pandas Dataframe): Transformed Key Value table Dataframe
+         df_stage (PySpark DataFrame): Transformed Staging table Dataframe
+         df_key_values (PySpark DataFrame): Transformed Key Value table Dataframe
          duplicate_rows_removed (int): No of duplicate rows removed
          stage_table_rows_to_be_inserted (int): No of rows to be inserted into stage table
          stage_key_rows_inserted (int): No of rows to be inserted into key value table
         """
-        if not isinstance(df_raw, pd.DataFrame) or df_raw.empty:
+        if not isinstance(df_raw, DataFrame) or df_raw.rdd.isEmpty():
             raise NoDataFoundException("No raw records returned for processing. Program is stopping.")
 
         df_stage = self.preprocessing.remove_columns_by_json_config(self.config_data, df_raw)
 
         df_stage = self.preprocessing.remove_row_duplicates(self.config_data, df_stage)
 
-        df_raw_row_count = int(len(df_raw))
-        df_raw_post_deduplication_row_count = int(len(df_stage))
+        df_raw_row_count = df_raw.count()
+        df_raw_post_deduplication_row_count = df_stage.count()
         duplicate_rows_removed = df_raw_row_count - df_raw_post_deduplication_row_count
 
         # Remove rows with missing mandatory field values
@@ -97,8 +97,8 @@ class Strategy(ABC):
             df_raw_col_names_original.remove(self.DATE_CREATED)
 
         self.logger.info("df_raw cols: %s", df_raw_col_names_original)
-        self.logger.info("rows to be ingested into the Stage layer from dataframe df_raw: %s", len(df_stage))
-        stage_table_rows_to_be_inserted = int(len(df_stage))
+        self.logger.info("rows to be ingested into the Stage layer from dataframe df_raw: %s", df_stage.count())
+        stage_table_rows_to_be_inserted = df_stage.count()
 
         # Generate dtypes - for stage table
         stage_schema_columns = extract_element_by_name_and_validate(self.config_data, "columns", "stage_schema")
@@ -117,22 +117,22 @@ class Strategy(ABC):
         # Remove all nulls from key value records
         df_key_values = self.preprocessing.filter_null_values_and_null_strings(df_key_values, "value")
 
-        self.logger.info("rows to be ingested into the Stage layer key/value table from dataframe df_key_values: %s", len(df_key_values))
-        stage_key_rows_inserted = int(len(df_key_values))
+        self.logger.info("rows to be ingested into the Stage layer key/value table from dataframe df_key_values: %s", df_key_values.count())
+        stage_key_rows_inserted = df_key_values.count()
 
         # Generate list object with column names only
         # Enables selecting specific columns from df_raw
         # Extract column names as list
         stage_select_col_names_list = list(stage_schema_columns.keys())
-        df_stage = df_stage[stage_select_col_names_list]
+        df_stage = df_stage.select(stage_select_col_names_list)
         return df_stage, df_key_values, duplicate_rows_removed, stage_table_rows_to_be_inserted, stage_key_rows_inserted
 
     def load(self, df_stage, df_key_values):
         """Load staging, key value dataframes into respective glue tables.
 
         Parameters
-         df_stage (Pandas Dataframe): Transformed Staging table Dataframe
-         df_key_values (Pandas Dataframe): Transformed Key Value table Dataframe
+         df_stage (PySpark DataFrame): Transformed Staging table Dataframe
+         df_key_values (PySpark DataFrame): Transformed Key Value table Dataframe
 
         Returns
          None

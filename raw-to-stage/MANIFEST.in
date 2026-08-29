@@ -1,0 +1,2 @@
+include README.md
+recursive-include raw_to_stage_etl/vendor *
