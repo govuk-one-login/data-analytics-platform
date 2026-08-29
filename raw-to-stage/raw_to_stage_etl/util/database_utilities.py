@@ -33,14 +33,13 @@ def get_all_previous_processed_dts(glue_client, stage_database, stage_target_tab
             sql += """ order by processed_dt desc"""
 
             logger.info(f"Running query: {sql}")
-            dfs = glue_client.query_glue_table(stage_database, sql, 10)
+            df = glue_client.query_glue_table_single(stage_database, sql)
 
-            if dfs is None:
+            if df is None:
                 raise ValueError(f"Athena query return value is None, query ran was: {str(sql)}")
 
-            for df in dfs:
-                if "processed_dt" in df.columns:
-                    return df
+            if "processed_dt" in df.columns:
+                return df
     except Exception as e:
         raise QueryException(f"Exception Error retrieving daily processes {str(e)}")
 
@@ -115,14 +114,13 @@ def get_all_processed_times_per_day(glue_client, stage_database, stage_target_ta
             sql += """ order by processed_time desc"""
 
             logger.info(f"Running query: {sql}")
-            dfs = glue_client.query_glue_table(stage_database, sql, 10)
+            df = glue_client.query_glue_table_single(stage_database, sql)
 
-            if dfs is None:
+            if df is None:
                 raise ValueError(f"Athena query return value is None, query ran was: {str(sql)}")
 
-            for df in dfs:
-                if "processed_time" in df.columns:
-                    return df
+            if "processed_time" in df.columns:
+                return df
     except Exception as e:
         raise QueryException(f"Exception Error retrieving daily processes {str(e)}")
 
@@ -157,19 +155,18 @@ def get_max_timestamp(glue_client, stage_database, stage_target_table, processed
                 sql += f""" where processed_time={processed_time}"""
             logger.info(f"""Running query: {sql}""")
 
-            dfs = glue_client.query_glue_table(stage_database, sql)
+            df = glue_client.query_glue_table_single(stage_database, sql)
 
-            if dfs is None:
+            if df is None:
                 raise ValueError(f"Athena query return value is None, query ran was: {str(sql)}")
             else:
-                for df in dfs:
-                    if len(df.index) == 1:
-                        if "timestamp" in df.columns:
-                            # The column exists, so you can work with it
-                            timestamp = int(df["timestamp"].iloc[0])
-                            return timestamp
-                        else:
-                            raise QueryException("Stage table does not contain the timestamp column.")
+                if len(df.index) == 1:
+                    if "timestamp" in df.columns:
+                        # The column exists, so you can work with it
+                        timestamp = int(df["timestamp"].iloc[0])
+                        return timestamp
+                    else:
+                        raise QueryException("Stage table does not contain the timestamp column.")
 
         else:
             return 0
@@ -224,23 +221,22 @@ def get_max_processed_dt_when_table_doesnt_exist(glue_client, raw_database, raw_
                             )
                     ) as processed_dt
                     from \"{raw_database}\".\"{raw_source_table}\"'''
-    dfs = glue_client.query_glue_table(raw_database, sql)
-    if dfs is None:
+    df = glue_client.query_glue_table_single(raw_database, sql)
+    if df is None:
         raise ValueError(f"Athena query return value is None, query ran was: {str(sql)}")
     else:
-        for df in dfs:
-            if len(df.index) == 1:
-                if "processed_dt" in df.columns:
-                    # The column exists, so you can work with it
-                    filter_processed_dt = str(df["processed_dt"].iloc[0])
-                    # Minus 1 day from value due to filter query being '> processed_dt'
-                    date_obj = datetime.strptime(filter_processed_dt, "%Y%m%d")
-                    new_date_obj = date_obj - timedelta(days=1)
-                    new_filter_processed_dt = new_date_obj.strftime("%Y%m%d")
-                    return new_filter_processed_dt
-            else:
-                raise QueryException("Error returned querying the raw table for the min(year,month,day) value.")
-        return None
+        if len(df.index) == 1:
+            if "processed_dt" in df.columns:
+                # The column exists, so you can work with it
+                filter_processed_dt = str(df["processed_dt"].iloc[0])
+                # Minus 1 day from value due to filter query being '> processed_dt'
+                date_obj = datetime.strptime(filter_processed_dt, "%Y%m%d")
+                new_date_obj = date_obj - timedelta(days=1)
+                new_filter_processed_dt = new_date_obj.strftime("%Y%m%d")
+                return new_filter_processed_dt
+        else:
+            raise QueryException("Error returned querying the raw table for the min(year,month,day) value.")
+    return None
 
 
 def get_max_processed_dt_when_table_exists(glue_client, stage_database, stage_target_table):
@@ -265,20 +261,19 @@ def get_max_processed_dt_when_table_exists(glue_client, stage_database, stage_ta
                                         )
                             ) as processed_dt
                     from \"{stage_database}\".\"{stage_target_table}\"'''
-    dfs = glue_client.query_glue_table(stage_database, sql)
+    df = glue_client.query_glue_table_single(stage_database, sql)
 
-    if dfs is None:
+    if df is None:
         raise ValueError(f"Athena query return value is None, query ran was: {str(sql)}")
     else:
-        for df in dfs:
-            if len(df.index) == 1:
-                if "processed_dt" in df.columns:
-                    # The column exists, so you can work with it
-                    filter_processed_dt = str(df["processed_dt"].iloc[0])
-                    return filter_processed_dt
-                else:
-                    raise QueryException("Stage table does not contain the processed_dt column.")
-        return None
+        if len(df.index) == 1:
+            if "processed_dt" in df.columns:
+                # The column exists, so you can work with it
+                filter_processed_dt = str(df["processed_dt"].iloc[0])
+                return filter_processed_dt
+            else:
+                raise QueryException("Stage table does not contain the processed_dt column.")
+    return None
 
 
 def date_minus_days(max_processed_dt_str, days):
