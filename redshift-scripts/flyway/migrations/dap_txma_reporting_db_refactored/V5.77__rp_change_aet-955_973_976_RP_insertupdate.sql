@@ -1,7 +1,7 @@
 --DFT - Local Transport Data Collection
 
 INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME,department_name,agency_name) 
-SELECT '3382C-WpmLG68IHdDxQ-xGVLvzo','Local Transport Data Collection','DFT - Local Transport Data Collectionlod','DFT','DFT'
+SELECT '3382C-WpmLG68IHdDxQ-xGVLvzo','Local Transport Data Collection','DFT - Local Transport Data Collection','DFT','DFT'
 WHERE NOT EXISTS (
     SELECT 1
     FROM conformed_refactored.REF_RELYING_PARTIES_refactored
