@@ -86,7 +86,7 @@ jobs:
       - name: SAM build
         run: sam build
       - name: Assume AWS GitHub actions role
-        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_{0}', inputs.environment)] }}
@@ -128,7 +128,7 @@ jobs:
       - name: SAM build
         run: sam build
       - name: Assume AWS GitHub actions role
-        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_QUICKSIGHT_ACCESS_{0}', inputs.environment)] }}
@@ -169,7 +169,7 @@ jobs:
       - name: SAM build
         run: sam build
       - name: Assume AWS GitHub actions role
-        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_CORE_{0}', inputs.environment)] }}
