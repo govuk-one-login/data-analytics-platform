@@ -1,4 +1,4 @@
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { ensureDefined, getAccountId } from '../../shared/utils/utils';
 import { quicksightClient, s3Client } from '../../shared/clients';
 import type { DescribeAssetBundleExportJobCommandOutput } from '@aws-sdk/client-quicksight';
@@ -7,8 +7,6 @@ import type { Context } from 'aws-lambda';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { waitForJob } from '../../shared/utils/wait-for-job';
 import { filenameFromAnalysisId } from '../../shared/quicksight-import-export/filename-utils';
-
-const logger = getLogger('lambda/quicksight-export');
 
 // see https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-runtime
 const region = process.env.AWS_REGION ?? process.env.AWS_DEFAULT_REGION;

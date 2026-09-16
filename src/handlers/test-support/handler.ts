@@ -13,13 +13,13 @@ import {
 import { GetQueueUrlCommand, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { cloudwatchClient, firehoseClient, lambdaClient, s3Client, sfnClient, sqsClient } from '../../shared/clients';
 import * as zlib from 'zlib';
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { DescribeExecutionCommand, ListExecutionsCommand, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import type { Context } from 'aws-lambda';
 import { DescribeDeliveryStreamCommand } from '@aws-sdk/client-firehose';
 import { QueryRunner } from './query-runner';
 
-export const logger = getLogger('lambda/test-support');
+export { logger } from '../../shared/logger';
 
 const TEST_SUPPORT_COMMANDS = [
   'ATHENA_RUN_QUERY',

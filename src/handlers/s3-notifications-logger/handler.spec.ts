@@ -1,13 +1,19 @@
-import { handler, logger } from './handler';
+import { handler } from './handler';
+import { logger } from '../../shared/logger';
 import { getTestResource } from '../../shared/utils/test-utils';
 import type { S3ObjectCreatedNotificationEvent } from 'aws-lambda';
 
-const loggerInfoSpy = vi.spyOn(logger, 'info').mockImplementation(() => undefined);
-const loggerErrorSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
+vi.mock('../../shared/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
 
 beforeEach(() => {
-  loggerInfoSpy.mockReset();
-  loggerErrorSpy.mockReset();
+  vi.clearAllMocks();
 });
 
 test('create event', async () => {
@@ -16,8 +22,8 @@ test('create event', async () => {
 
   handler(event);
 
-  expect(loggerInfoSpy).toHaveBeenCalledTimes(1);
-  expect(loggerInfoSpy).toHaveBeenCalledWith('PutObject event for s3-bucket-name', { event });
+  expect(logger.info).toHaveBeenCalledTimes(1);
+  expect(logger.info).toHaveBeenCalledWith('PutObject event for s3-bucket-name', { event });
 });
 
 test('valid event', async () => {
@@ -26,8 +32,8 @@ test('valid event', async () => {
 
   handler(event);
 
-  expect(loggerInfoSpy).toHaveBeenCalledTimes(1);
-  expect(loggerInfoSpy).toHaveBeenCalledWith('DeleteObject event for s3-bucket-name', { event });
+  expect(logger.info).toHaveBeenCalledTimes(1);
+  expect(logger.info).toHaveBeenCalledWith('DeleteObject event for s3-bucket-name', { event });
 });
 
 test('invalid event or records', async () => {
@@ -38,10 +44,10 @@ test('invalid event or records', async () => {
   handler({ detail: null } as unknown as S3ObjectCreatedNotificationEvent);
   handler({ detail: undefined } as unknown as S3ObjectCreatedNotificationEvent);
 
-  expect(loggerErrorSpy).toHaveBeenCalledTimes(5);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or event detail', { event: null });
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or event detail', { event: undefined });
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or event detail', { event: {} });
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or event detail', { event: { detail: null } });
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Missing event or event detail', { event: { detail: undefined } });
+  expect(logger.error).toHaveBeenCalledTimes(5);
+  expect(logger.error).toHaveBeenCalledWith('Missing event or event detail', { event: null });
+  expect(logger.error).toHaveBeenCalledWith('Missing event or event detail', { event: undefined });
+  expect(logger.error).toHaveBeenCalledWith('Missing event or event detail', { event: {} });
+  expect(logger.error).toHaveBeenCalledWith('Missing event or event detail', { event: { detail: null } });
+  expect(logger.error).toHaveBeenCalledWith('Missing event or event detail', { event: { detail: undefined } });
 });

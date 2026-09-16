@@ -1,4 +1,4 @@
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { findOrThrow, getAWSEnvironment, getEnvironmentVariable, getErrorMessage } from '../../shared/utils/utils';
 import { getSecret } from '../../shared/secrets-manager/get-secret';
 import type { RedshiftSecret } from '../../shared/types/secrets-manager';
@@ -10,8 +10,6 @@ import * as fs from 'node:fs';
 import { Readable } from 'node:stream';
 import * as tar from 'tar';
 import * as path from 'node:path';
-
-const logger = getLogger('lambda/run-flyway-command');
 
 const FLYWAY_COMMANDS = ['clean', 'info', 'migrate', 'repair', 'validate'];
 

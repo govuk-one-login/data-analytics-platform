@@ -5,6 +5,7 @@ test-report/
 *.md
 .eslintignore
 .prettierignore
+.npmrc
 Pyproject.toml
 .flake8
 .husky/

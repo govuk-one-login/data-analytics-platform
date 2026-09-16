@@ -1,7 +1,7 @@
 import type { RedshiftSecret } from '../../shared/types/secrets-manager';
 import type { Knex } from 'knex';
 import { knex } from 'knex';
-import type { Logger } from '@aws-lambda-powertools/logger';
+import { logger } from '../../shared/logger';
 
 export abstract class Database {
   abstract destroy(): Promise<void>;
@@ -10,12 +10,6 @@ export abstract class Database {
 }
 
 export class DatabaseAccess {
-  private readonly logger: Logger;
-
-  constructor(logger: Logger) {
-    this.logger = logger;
-  }
-
   async getDatabaseConnection(secret: RedshiftSecret): Promise<Database | null> {
     try {
       const connectionDetails = {
@@ -25,7 +19,7 @@ export class DatabaseAccess {
         database: secret.dbname,
         port: parseInt(secret.port),
       };
-      this.logger.info('Connection details', { connectionDetails: { ...connectionDetails, password: undefined } });
+      logger.info('Connection details', { connectionDetails: { ...connectionDetails, password: undefined } });
       const connection = knex({
         client: 'pg',
         connection: connectionDetails,
@@ -34,7 +28,7 @@ export class DatabaseAccess {
       // and will only throw an error or hang the first time you attempt to use the connection
       return await this.validateConnection(connection);
     } catch (error) {
-      this.logger.error(`Error connecting to ${secret.dbname}`, { error });
+      logger.error(`Error connecting to ${secret.dbname}`, { error });
       return null;
     }
   }

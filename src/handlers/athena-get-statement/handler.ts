@@ -3,9 +3,7 @@ import { s3Client } from '../../shared/clients';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import type { AthenaGetStatementEvent } from '../../shared/types/raw-layer-processing';
 import { RawLayerProcessingActions } from '../../shared/types/raw-layer-processing';
-import { getLogger } from '../../shared/powertools';
-
-const logger = getLogger('lambda/athena-get-statement');
+import { logger } from '../../shared/logger';
 
 export const handler = async (event: AthenaGetStatementEvent): Promise<string> => {
   try {

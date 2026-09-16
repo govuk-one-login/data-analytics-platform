@@ -3,8 +3,11 @@ ARG NODE_VERSION=24
 
 FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS builder
 
+ARG NODE_AUTH_TOKEN
+ENV NODE_AUTH_TOKEN=${NODE_AUTH_TOKEN}
+
 WORKDIR /build-app
-COPY package.json package-lock.json tsconfig.json ./
+COPY package.json package-lock.json tsconfig.json .npmrc ./
 RUN npm ci
 
 

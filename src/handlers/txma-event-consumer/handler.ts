@@ -1,12 +1,12 @@
 import type { Context, SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import { getEnvironmentVariable } from '../../shared/utils/utils';
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { AuditEvent, validateAuditEvent } from '../../../common/types/event';
 import { parseJson } from '../../shared/objects/parse-json';
 import { getBodyAsBuffer } from '../../shared/objects/get-string-as-buffer';
 import { firehosePutRecordBatch } from '../../shared/firehose/put-batch-record';
 
-export const logger = getLogger('lambda/txma-event-consumer');
+export { logger } from '../../shared/logger';
 
 export const handler = async (event: SQSEvent, context: Context): Promise<SQSBatchResponse> => {
   logger.addContext(context);

@@ -571,3 +571,17 @@ Each step can also be run standalone for debugging or partial recovery:
 | `generate-import-template.ts` | Generate an import-only CloudFormation template | `npx tsx scripts/recovery/dev/generate-import-template.ts --environment ENV --input TEMPLATE --output FILE` |
 | `cleanup-orphaned-resources.sh` | Delete AWS resources orphaned after stack rollback | `./scripts/recovery/dev/cleanup-orphaned-resources.sh <stack-name> [--dry-run]` |
 | `list-retained-resources.sh` | List retained resources from IaC templates or a deployed stack | `./scripts/recovery/dev/list-retained-resources.sh [--stack STACK_NAME]` |
+
+## Lambda Error Codes
+
+Each lambda error has a unique code to aid tracking and debugging in CloudWatch and Splunk. Error codes appear in the `error.code` field of structured log entries.
+
+### copy-raw-to-stage-code
+
+Error codes are defined in [`src/handlers/copy-raw-to-stage-code/error-codes.ts`](src/handlers/copy-raw-to-stage-code/error-codes.ts).
+
+| Code | Constant | Description |
+|------|----------|-------------|
+| `DAP001` | `MISSING_DESTINATION_BUCKET` | The `DESTINATION_BUCKET` environment variable is not set on the lambda. |
+| `DAP002` | `S3_UPLOAD_FAILED` | An asset failed to upload to the S3 ELT metadata bucket during a Create or Update CloudFormation event. |
+| `DAP003` | `CUSTOM_RESOURCE_FAILED` | The custom resource handler encountered an unhandled error and sent a FAILED response to CloudFormation. |

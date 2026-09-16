@@ -1,10 +1,8 @@
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context } from 'aws-lambda';
 import { quicksightClient } from '../../shared/clients';
 import { GenerateEmbedUrlForRegisteredUserCommand } from '@aws-sdk/client-quicksight';
 import { getAWSEnvironment, getEnvironmentVariable } from '../../shared/utils/utils';
-
-export const logger = getLogger('lambda/cognito-quicksight-access');
 
 // see https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-runtime
 const region = process.env.AWS_REGION ?? process.env.AWS_DEFAULT_REGION;

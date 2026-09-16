@@ -1,9 +1,7 @@
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { getEnvironmentVariable, getRequiredParams } from '../../shared/utils/utils';
 import type { RedshiftConfig, RedshiftFileMetadata } from '../../shared/types/redshift-metadata';
 import { getConfigFile, getFilePathParts } from '../../shared/manual-reference-data-ingestion/redshift-metadata';
-
-const logger = getLogger('lambda/redshift-get-metadata');
 
 export interface RedshiftGetMetadataEvent {
   fileMetadata: string;

@@ -2,9 +2,7 @@ import { getRequiredParams, parseS3ResponseAsObject } from '../../shared/utils/u
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client } from '../../shared/clients';
 import type { AthenaGetConfigEvent, RawLayerEventStatus } from '../../shared/types/raw-layer-processing';
-import { getLogger } from '../../shared/powertools';
-
-const logger = getLogger('lambda/athena-get-config');
+import { logger } from '../../shared/logger';
 
 export const handler = async (event: AthenaGetConfigEvent): Promise<RawLayerEventStatus[]> => {
   try {
