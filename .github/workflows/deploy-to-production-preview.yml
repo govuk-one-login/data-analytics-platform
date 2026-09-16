@@ -32,6 +32,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      packages: read
     secrets: inherit
     uses: ./.github/workflows/sam-deploy.yml
     with:
@@ -44,6 +45,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      packages: read
     secrets: inherit
     uses: ./.github/workflows/upload-athena-files.yml
     with:
