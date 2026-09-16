@@ -1,11 +1,9 @@
 import type { S3Event, S3EventRecord } from 'aws-lambda';
 import { getEnvironmentVariable, getErrorMessage, getS3EventRecords } from '../../shared/utils/utils';
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { s3Client } from '../../shared/clients';
 import { getDatasource } from '../../shared/manual-reference-data-ingestion/redshift-metadata';
 import { ChecksumAlgorithm, CopyObjectCommand } from '@aws-sdk/client-s3';
-
-const logger = getLogger('lambda/s3-raw-to-staging');
 
 type S3RawToStageStatus = 'succeeded' | 'failed' | 'cancelled';
 

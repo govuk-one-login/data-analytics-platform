@@ -3,11 +3,11 @@ import {
   AdminUpdateUserAttributesCommandInput,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { cognitoClient } from '../../shared/clients';
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { PostAuthenticationTriggerEvent } from 'aws-lambda';
 import { getRequiredParams } from '../../shared/utils/utils';
 
-export const logger = getLogger('lambda/cognito-post-authentication');
+export { logger } from '../../shared/logger';
 
 export const handler = async (event: PostAuthenticationTriggerEvent): Promise<PostAuthenticationTriggerEvent> => {
   try {

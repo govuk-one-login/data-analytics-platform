@@ -1,15 +1,25 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
 import type { CloudFormationCustomResourceEvent } from 'aws-lambda';
+import { ERROR_CODES } from './error-codes';
 
-vi.mock('fs', async importOriginal => {
-  const actual = await importOriginal<typeof import('fs')>();
+vi.mock('node:fs', async importOriginal => {
+  const actual = await importOriginal<typeof import('node:fs')>();
   return {
     ...actual,
     readdirSync: vi.fn(() => ['raw_to_stage_etl_modules-0.1.0-py3-none-any.whl', 'raw_to_stage_process_glue_job.py']),
     readFileSync: vi.fn(() => Buffer.from('file-content')),
   };
 });
+
+vi.mock('../../shared/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
 
 const mockS3Client = mockClient(S3Client);
 
@@ -45,7 +55,7 @@ beforeEach(() => {
   global.fetch = vi.fn().mockResolvedValue({ ok: true });
 });
 
-test('Create event uploads all assets to S3', async () => {
+test('Create event uploads all assets to S3 and sends SUCCESS response', async () => {
   mockS3Client.on(PutObjectCommand).resolves({});
   const { handler } = await import('./handler');
 
@@ -73,7 +83,7 @@ test('Create event uploads all assets to S3', async () => {
   );
 });
 
-test('Update event uploads all assets to S3', async () => {
+test('Update event uploads all assets to S3 and sends SUCCESS response', async () => {
   mockS3Client.on(PutObjectCommand).resolves({});
   const { handler } = await import('./handler');
 
@@ -90,13 +100,12 @@ test('Update event uploads all assets to S3', async () => {
   );
 });
 
-test('Delete event does not upload anything', async () => {
+test('Delete event does not upload anything and sends SUCCESS response', async () => {
   const { handler } = await import('./handler');
 
   await handler(createEvent('Delete'));
 
-  const calls = mockS3Client.commandCalls(PutObjectCommand);
-  expect(calls).toHaveLength(0);
+  expect(mockS3Client.commandCalls(PutObjectCommand)).toHaveLength(0);
 
   expect(global.fetch).toHaveBeenCalledWith(
     'https://cloudformation-response.example.com',
@@ -106,9 +115,10 @@ test('Delete event does not upload anything', async () => {
   );
 });
 
-test('S3 upload failure sends FAILED response', async () => {
+test('S3 upload failure logs error with DAP002 code and sends FAILED response', async () => {
   mockS3Client.on(PutObjectCommand).rejects(new Error('Access Denied'));
   const { handler } = await import('./handler');
+  const { logger } = await import('../../shared/logger');
 
   await handler(createEvent('Create'));
 
@@ -118,19 +128,20 @@ test('S3 upload failure sends FAILED response', async () => {
       body: expect.stringContaining('"Status":"FAILED"'),
     }),
   );
-  expect(global.fetch).toHaveBeenCalledWith(
-    'https://cloudformation-response.example.com',
+
+  expect(logger.error).toHaveBeenCalledWith(
+    'Failed to upload asset to S3',
     expect.objectContaining({
-      body: expect.stringContaining('Access Denied'),
+      error: expect.objectContaining({ code: ERROR_CODES.S3_UPLOAD_FAILED }),
     }),
   );
 });
 
-test('missing DESTINATION_BUCKET sends FAILED response', async () => {
+test('missing DESTINATION_BUCKET logs error with DAP001 code and sends FAILED response', async () => {
   delete process.env.DESTINATION_BUCKET;
-  mockS3Client.on(PutObjectCommand).resolves({});
-
   const { handler } = await import('./handler');
+  const { logger } = await import('../../shared/logger');
+
   await handler(createEvent('Create'));
 
   expect(global.fetch).toHaveBeenCalledWith(
@@ -139,10 +150,11 @@ test('missing DESTINATION_BUCKET sends FAILED response', async () => {
       body: expect.stringContaining('"Status":"FAILED"'),
     }),
   );
-  expect(global.fetch).toHaveBeenCalledWith(
-    'https://cloudformation-response.example.com',
+
+  expect(logger.error).toHaveBeenCalledWith(
+    'Missing required environment variable',
     expect.objectContaining({
-      body: expect.stringContaining('DESTINATION_BUCKET'),
+      error: expect.objectContaining({ code: ERROR_CODES.MISSING_DESTINATION_BUCKET }),
     }),
   );
 

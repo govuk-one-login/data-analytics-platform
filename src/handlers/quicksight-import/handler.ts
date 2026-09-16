@@ -1,4 +1,4 @@
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { quicksightClient } from '../../shared/clients';
 import type {
   DescribeAssetBundleImportJobCommandOutput,
@@ -9,8 +9,6 @@ import type { Context } from 'aws-lambda';
 import { ensureDefined, getAccountId } from '../../shared/utils/utils';
 import { waitForJob } from '../../shared/utils/wait-for-job';
 import { analysisIdFromS3Uri } from '../../shared/quicksight-import-export/filename-utils';
-
-const logger = getLogger('lambda/quicksight-import');
 
 export interface QuicksightImportEvent {
   s3Uri: string;

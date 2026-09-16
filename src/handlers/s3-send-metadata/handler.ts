@@ -1,4 +1,4 @@
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { getEnvironmentVariable, getS3EventRecords } from '../../shared/utils/utils';
 import type { S3Event, S3EventRecord } from 'aws-lambda';
 import { sqsClient } from '../../shared/clients';
@@ -6,8 +6,6 @@ import type { SendMessageCommandOutput } from '@aws-sdk/client-sqs';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import * as path from 'node:path';
 import type { RedshiftFileMetadata } from '../../shared/types/redshift-metadata';
-
-const logger = getLogger('lambda/s3-send-metadata');
 
 interface MessageParams {
   filePath: string;

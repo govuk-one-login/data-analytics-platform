@@ -1,5 +1,5 @@
 import { ensureDefined, getEnvironmentVariable, getErrorMessage } from '../../shared/utils/utils';
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { secretsManagerClient } from '../../shared/clients';
 import type { DescribeSecretCommandOutput } from '@aws-sdk/client-secrets-manager';
 import {
@@ -13,8 +13,6 @@ import { DatabaseAccess } from './database-access';
 import { getSecret } from '../../shared/secrets-manager/get-secret';
 import type { RedshiftSecret, SecretRotationStage } from '../../shared/types/secrets-manager';
 
-const logger = getLogger('lambda/redshift-rotate-secret');
-
 export type RotateSecretStep = 'createSecret' | 'setSecret' | 'testSecret' | 'finishSecret';
 
 interface RotateSecretEvent {
@@ -23,7 +21,7 @@ interface RotateSecretEvent {
   ClientRequestToken: string;
 }
 
-export const databaseAccess = new DatabaseAccess(logger);
+export const databaseAccess = new DatabaseAccess();
 
 /**
  * Most of the code in this function is based on the AWS sample here<br>

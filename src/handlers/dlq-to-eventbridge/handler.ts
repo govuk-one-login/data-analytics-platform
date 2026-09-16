@@ -1,13 +1,13 @@
 import type { S3Event, SQSBatchItemFailure, SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import type { RedshiftGetMetadataEvent } from '../redshift-get-metadata/handler';
 import { getS3EventRecords, getSQSEventRecords } from '../../shared/utils/utils';
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { eventbridgeClient } from '../../shared/clients';
 import { PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import type { PutEventsRequestEntry } from '@aws-sdk/client-eventbridge';
 import type { RedshiftFileMetadata } from '../../shared/types/redshift-metadata';
 
-export const logger = getLogger('lambda/dlq-to-eventbridge');
+export { logger } from '../../shared/logger';
 
 /**
  * This function receives messages from <code>DeadLetterQueue</code> which means each record body could be any one of

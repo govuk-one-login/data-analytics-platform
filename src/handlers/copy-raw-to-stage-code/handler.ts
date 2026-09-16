@@ -1,16 +1,21 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client } from '../../shared/clients';
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { CloudFormationCustomResourceEvent, CloudFormationCustomResourceResponse } from 'aws-lambda';
-
-const logger = getLogger('lambda/copy-raw-to-stage-code');
+import { ERROR_CODES } from './error-codes';
 
 const ASSETS_DIR = join(process.env.LAMBDA_TASK_ROOT ?? import.meta.dirname, 'assets');
 
 export const handler = async (event: CloudFormationCustomResourceEvent): Promise<void> => {
-  logger.info('Received event', { requestType: event.RequestType });
+  const startTime = Date.now();
+
+  logger.info('Custom resource handler started', {
+    requestType: event.RequestType,
+    stackId: event.StackId,
+    logicalResourceId: event.LogicalResourceId,
+  });
 
   let status: 'SUCCESS' | 'FAILED' = 'SUCCESS';
   let reason = '';
@@ -21,10 +26,26 @@ export const handler = async (event: CloudFormationCustomResourceEvent): Promise
     } else {
       await copyAssetsToBucket();
     }
+
+    logger.info('Custom resource handler completed', {
+      requestType: event.RequestType,
+      outcome: 'success',
+      duration: Date.now() - startTime,
+    });
   } catch (error) {
     status = 'FAILED';
     reason = error instanceof Error ? error.message : 'Unknown error';
-    logger.error('Error processing custom resource event', { error });
+
+    logger.error('Custom resource handler failed', {
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: {
+        code: ERROR_CODES.CUSTOM_RESOURCE_FAILED,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
   }
 
   await sendResponse(event, status, reason);
@@ -35,10 +56,19 @@ const copyAssetsToBucket = async (): Promise<void> => {
   const prefix = process.env.DESTINATION_PREFIX ?? 'txma/raw_to_stage/';
 
   if (!bucket) {
-    throw new Error('DESTINATION_BUCKET environment variable is not set');
+    const error = new Error('DESTINATION_BUCKET environment variable is not set');
+    logger.error('Missing required environment variable', {
+      error: {
+        code: ERROR_CODES.MISSING_DESTINATION_BUCKET,
+        message: error.message,
+        name: error.name,
+      },
+    });
+    throw error;
   }
 
   const files = readdirSync(ASSETS_DIR);
+
   logger.info('Copying assets to S3', { bucket, prefix, fileCount: files.length });
 
   for (const file of files) {
@@ -46,15 +76,27 @@ const copyAssetsToBucket = async (): Promise<void> => {
     const body = readFileSync(filePath);
     const key = `${prefix}${file}`;
 
-    await s3Client.send(
-      new PutObjectCommand({
-        Bucket: bucket,
-        Key: key,
-        Body: body,
-      }),
-    );
-
-    logger.info('Uploaded file', { key });
+    try {
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: bucket,
+          Key: key,
+          Body: body,
+        }),
+      );
+      logger.info('Asset uploaded successfully', { key });
+    } catch (error) {
+      logger.error('Failed to upload asset to S3', {
+        error: {
+          code: ERROR_CODES.S3_UPLOAD_FAILED,
+          message: error instanceof Error ? error.message : 'Unknown error',
+          name: error instanceof Error ? error.name : 'UnknownError',
+          stack: error instanceof Error ? error.stack : undefined,
+        },
+        key,
+      });
+      throw error;
+    }
   }
 };
 

@@ -1,6 +1,5 @@
 import { DatabaseAccess } from './database-access';
 import type { RedshiftSecret } from '../../shared/types/secrets-manager';
-import { getLogger } from '../../shared/powertools';
 import { knex } from 'knex';
 import type { MockedFunction } from 'vitest';
 
@@ -19,8 +18,6 @@ const mockSecret: RedshiftSecret = {
   port: '5439',
 };
 
-const logger = getLogger('test');
-
 beforeEach(() => {
   vi.clearAllMocks();
 });
@@ -38,7 +35,7 @@ describe('DatabaseAccess', () => {
 
     mockKnex.mockReturnValue(mockConnection as unknown as ReturnType<typeof knex>);
 
-    const dbAccess = new DatabaseAccess(logger);
+    const dbAccess = new DatabaseAccess();
     const connection = await dbAccess.getDatabaseConnection(mockSecret);
 
     expect(connection).toBe(mockConnection);
@@ -62,7 +59,7 @@ describe('DatabaseAccess', () => {
       throw new Error('Connection failed');
     });
 
-    const dbAccess = new DatabaseAccess(logger);
+    const dbAccess = new DatabaseAccess();
     const connection = await dbAccess.getDatabaseConnection(mockSecret);
 
     expect(connection).toBe(null);
@@ -79,7 +76,7 @@ describe('DatabaseAccess', () => {
 
     mockKnex.mockReturnValue(mockConnection as unknown as ReturnType<typeof knex>);
 
-    const dbAccess = new DatabaseAccess(logger);
+    const dbAccess = new DatabaseAccess();
     const connection = await dbAccess.getDatabaseConnection(mockSecret);
 
     expect(connection).toBe(null);
@@ -95,7 +92,7 @@ describe('DatabaseAccess', () => {
 
     mockKnex.mockReturnValue(mockConnection as unknown as ReturnType<typeof knex>);
 
-    const dbAccess = new DatabaseAccess(logger);
+    const dbAccess = new DatabaseAccess();
     const connection = await dbAccess.getDatabaseConnection(mockSecret);
 
     expect(connection).toBe(mockConnection);
@@ -105,7 +102,7 @@ describe('DatabaseAccess', () => {
     // Unit Test
     mockKnex.mockReturnValue(null as unknown as ReturnType<typeof knex>);
 
-    const dbAccess = new DatabaseAccess(logger);
+    const dbAccess = new DatabaseAccess();
     const connection = await dbAccess.getDatabaseConnection(mockSecret);
 
     expect(connection).toBe(null);

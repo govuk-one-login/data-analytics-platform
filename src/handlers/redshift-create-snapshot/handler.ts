@@ -1,9 +1,9 @@
-import { getLogger } from '../../shared/powertools';
+import { logger } from '../../shared/logger';
 import { getEnvironmentVariable } from '../../shared/utils/utils';
 import { redshiftServerlessClient } from '../../shared/clients';
 import { CreateSnapshotCommand, CreateSnapshotCommandOutput } from '@aws-sdk/client-redshift-serverless';
 
-export const logger = getLogger('lambda/redshift-create-snapshot');
+export { logger } from '../../shared/logger';
 
 export const handler = async (): Promise<void> => {
   try {

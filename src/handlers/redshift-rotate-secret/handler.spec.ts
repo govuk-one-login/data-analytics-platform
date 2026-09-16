@@ -12,7 +12,6 @@ import type { RotateSecretStep } from './handler';
 import type { RedshiftSecret, SecretRotationStage } from '../../shared/types/secrets-manager';
 import type { Database } from './database-access';
 import { DatabaseAccess } from './database-access';
-import { getLogger } from '../../shared/powertools';
 import type { Knex } from 'knex';
 
 const mockSecretsManagerClient = mockClient(SecretsManagerClient);
@@ -231,7 +230,7 @@ test('secret to database connection', async () => {
     private async validateConnection(connection: Knex<any, unknown[]>): Promise<Knex<any, unknown[]>> {
       return connection;
     }
-  })(getLogger(''));
+  })();
 
   const secret = JSON.parse(getSecretString({ SecretId: 'hello', VersionStage: 'AWSCURRENT' }));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

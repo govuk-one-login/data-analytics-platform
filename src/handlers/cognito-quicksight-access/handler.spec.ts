@@ -1,10 +1,20 @@
-import { handler, logger } from './handler';
+import { handler } from './handler';
 import type { TokenResponse, UserInfoResponse } from './handler';
+import { logger } from '../../shared/logger';
 import { mockApiGatewayEvent } from '../../shared/utils/test-utils';
 import { mockClient } from 'aws-sdk-client-mock';
 import { GenerateEmbedUrlForRegisteredUserCommand, QuickSightClient } from '@aws-sdk/client-quicksight';
 import type { APIGatewayProxyEventV2, Context } from 'aws-lambda';
 import { type AWS_ENVIRONMENTS } from '../../shared/constants';
+
+vi.mock('../../shared/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
 
 const ACCOUNT_ID = '012345678901';
 
@@ -49,7 +59,7 @@ const setDomain = (domain: string): void => {
   COGNITO_DOMAIN = process.env.COGNITO_DOMAIN = domain;
 };
 
-const loggerErrorSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
+const loggerErrorSpy = vi.mocked(logger.error);
 
 interface LogInputObject {
   event: APIGatewayProxyEventV2;
@@ -57,7 +67,7 @@ interface LogInputObject {
 }
 
 beforeEach(async () => {
-  loggerErrorSpy.mockReset();
+  loggerErrorSpy.mockClear();
   mockQuicksightClient.reset();
   setClientId('aR4nd0MCl1EntiD');
   setDomain('https://my-cognito-domain.auth.eu-west-2.amazoncognito.com');
