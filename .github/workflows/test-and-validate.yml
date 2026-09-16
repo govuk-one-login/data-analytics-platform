@@ -16,8 +16,11 @@ jobs:
         with:
           node-version: 24
           cache: npm
+          registry-url: https://npm.pkg.github.com
       - name: Install node packages
         run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # js and ts
       - name: JS/TS linting and formatting

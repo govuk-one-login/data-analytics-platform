@@ -60,6 +60,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      packages: read
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
@@ -70,8 +71,11 @@ jobs:
         with:
           node-version: 24
           cache: npm
+          registry-url: https://npm.pkg.github.com
       - name: Install node packages
         run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build lambdas
         run: npm run build
       - name: Setup Python
@@ -117,6 +121,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      packages: read
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
@@ -127,8 +132,11 @@ jobs:
         with:
           node-version: 24
           cache: npm
+          registry-url: https://npm.pkg.github.com
       - name: Install node packages
         run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build lambdas
         run: npm run build
       - name: Build SAM template
@@ -158,6 +166,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      packages: read
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
@@ -168,8 +177,11 @@ jobs:
         with:
           node-version: 24
           cache: npm
+          registry-url: https://npm.pkg.github.com
       - name: Install node packages
         run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build lambdas
         run: npm run build
       - name: Build SAM template
