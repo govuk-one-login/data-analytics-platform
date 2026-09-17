@@ -30,9 +30,16 @@ export class QueryRunner {
       const queryId = await this.startQuery(event);
       await this.waitForQueryToSucceed(queryId, event.input.timeoutMs ?? 5000);
       return await this.getQueryResults(queryId);
-    } catch (e) {
-      logger.error(`Error executing ${this.databaseType} query with input ${JSON.stringify(event.input)}`, { e });
-      throw e;
+    } catch (error) {
+      logger.error('Error executing query', {
+        databaseType: this.databaseType,
+        error: {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          name: error instanceof Error ? error.name : 'UnknownError',
+          stack: error instanceof Error ? error.stack : undefined,
+        },
+      });
+      throw error;
     }
   }
 

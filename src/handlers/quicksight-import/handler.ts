@@ -22,7 +22,7 @@ export const handler = async (event: QuicksightImportEvent, context: Context): P
     // do this early as it also acts as validation of the s3 uri
     const analysisId = analysisIdFromS3Uri(event.s3Uri);
     const accountId = getAccountId(context);
-    logger.info('Starting quicksight import', { event });
+    logger.info('Starting quicksight import', { s3Uri: event.s3Uri, newName: event.newName });
     const jobId = await startImportJob(event, accountId, analysisId);
     await waitForImportToFinish(jobId, accountId);
     return { ...event, analysisId };
@@ -58,7 +58,7 @@ const startImportJob = async (event: QuicksightImportEvent, accountId: string, a
       `Start import job request with id ${response.AssetBundleImportJobId} returned status code of ${response.Status}`,
     );
   }
-  logger.info(`Import started with id ${jobId}`);
+  logger.info('Import job started', { jobId });
   return ensureDefined(() => response.AssetBundleImportJobId);
 };
 

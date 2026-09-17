@@ -16,9 +16,8 @@ interface MessageParams {
 export const handler = async (event: S3Event): Promise<void> => {
   try {
     const queueUrl = getEnvironmentVariable('METADATA_QUEUE_URL');
-    logger.info('Sending redshift metadata to SQS', { event, queueUrl });
-
     const records = getS3EventRecords(event);
+    logger.info('Sending redshift metadata to SQS', { queueUrl, recordCount: records.length });
     await Promise.all(
       records.map(async record => {
         const messageParams = getMessageParams(record);

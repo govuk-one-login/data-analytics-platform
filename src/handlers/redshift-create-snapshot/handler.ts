@@ -10,7 +10,10 @@ export const handler = async (): Promise<void> => {
     const namespaceName = getEnvironmentVariable('NAMESPACE_NAME');
     const retentionPeriod = Number.parseInt(getEnvironmentVariable('RETENTION_PERIOD_DAYS'), 10);
     const response = await createSnapshot(namespaceName, retentionPeriod);
-    logger.info('Snapshot creation initiated', { response });
+    logger.info('Snapshot creation initiated', {
+      snapshotName: response.snapshot?.snapshotName,
+      status: response.snapshot?.status,
+    });
   } catch (error) {
     logger.error('Error creating redshift snapshot', { error });
     throw error;

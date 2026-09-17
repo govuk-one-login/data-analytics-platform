@@ -23,7 +23,10 @@ test('create event', async () => {
   handler(event);
 
   expect(logger.info).toHaveBeenCalledTimes(1);
-  expect(logger.info).toHaveBeenCalledWith('PutObject event for s3-bucket-name', { event });
+  expect(logger.info).toHaveBeenCalledWith('S3 notification event received', {
+    reason: event.detail.reason,
+    bucketName: event.detail.bucket.name,
+  });
 });
 
 test('valid event', async () => {
@@ -33,7 +36,10 @@ test('valid event', async () => {
   handler(event);
 
   expect(logger.info).toHaveBeenCalledTimes(1);
-  expect(logger.info).toHaveBeenCalledWith('DeleteObject event for s3-bucket-name', { event });
+  expect(logger.info).toHaveBeenCalledWith('S3 notification event received', {
+    reason: event.detail.reason,
+    bucketName: event.detail.bucket.name,
+  });
 });
 
 test('invalid event or records', async () => {
@@ -45,9 +51,5 @@ test('invalid event or records', async () => {
   handler({ detail: undefined } as unknown as S3ObjectCreatedNotificationEvent);
 
   expect(logger.error).toHaveBeenCalledTimes(5);
-  expect(logger.error).toHaveBeenCalledWith('Missing event or event detail', { event: null });
-  expect(logger.error).toHaveBeenCalledWith('Missing event or event detail', { event: undefined });
-  expect(logger.error).toHaveBeenCalledWith('Missing event or event detail', { event: {} });
-  expect(logger.error).toHaveBeenCalledWith('Missing event or event detail', { event: { detail: null } });
-  expect(logger.error).toHaveBeenCalledWith('Missing event or event detail', { event: { detail: undefined } });
+  expect(logger.error).toHaveBeenCalledWith('Missing event or event detail');
 });
