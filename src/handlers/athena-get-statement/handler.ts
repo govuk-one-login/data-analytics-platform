@@ -7,7 +7,7 @@ import { logger } from '../../shared/logger';
 
 export const handler = async (event: AthenaGetStatementEvent): Promise<string> => {
   try {
-    logger.info(`Athena get statement lambda being called with event ${JSON.stringify(event)}`);
+    logger.info('Athena get statement lambda invoked', { action: event.action, datasource: event.datasource });
     return await handleEvent(validateEvent(event));
   } catch (error) {
     logger.error('Error getting athena statement', { error });

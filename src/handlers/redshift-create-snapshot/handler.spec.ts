@@ -43,7 +43,10 @@ test('success', async () => {
 
   expect(mockRedshiftServerlessClient.calls()).toHaveLength(1);
   expect(loggerInfoSpy).toHaveBeenCalledTimes(1);
-  expect(loggerInfoSpy).toHaveBeenCalledWith('Snapshot creation initiated', { response });
+  expect(loggerInfoSpy).toHaveBeenCalledWith('Snapshot creation initiated', {
+    snapshotName: response.snapshot?.snapshotName,
+    status: response.snapshot?.status,
+  });
   expect(loggerErrorSpy).toHaveBeenCalledTimes(0);
 });
 

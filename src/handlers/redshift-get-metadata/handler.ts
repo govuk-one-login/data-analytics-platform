@@ -18,7 +18,7 @@ export const handler = async (event: RedshiftGetMetadataEvent): Promise<string> 
     logger.info('Extracted file path parts', { filePathParts });
 
     const configFile = await getConfigFile(configFileBucket, filePathParts.configRef);
-    logger.info('Retrieved config file', { configFile });
+    logger.info('Retrieved config file', { configRef: filePathParts.configRef });
     return getMetadata(configFile, filePathParts.dashboardRef, filePathParts.dataSource);
   } catch (error) {
     logger.error('Error getting redshift metadata', { error });
@@ -35,7 +35,7 @@ const getMetadata = (configFile: RedshiftConfig, dashboardRef: string, dataSourc
   const dashboard = configFile[dashboardRef];
   const metadata = dashboard?.data_sources[dataSource]?.redshift_metadata;
   if (metadata === null || metadata === undefined) {
-    logger.error('Could not get metadata from config file', { configFile, dashboardRef, dataSource });
+    logger.error('Could not get metadata from config file', { dashboardRef, dataSource });
     throw new Error('Metadata was null or undefined');
   }
   return JSON.stringify(metadata);
