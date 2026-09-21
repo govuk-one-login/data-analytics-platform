@@ -18,6 +18,7 @@ export interface QuicksightImportEvent {
 type QuicksightImportResult = QuicksightImportEvent & { analysisId: string };
 
 export const handler = async (event: QuicksightImportEvent, context: Context): Promise<QuicksightImportResult> => {
+  logger.addContext(context);
   try {
     // do this early as it also acts as validation of the s3 uri
     const analysisId = analysisIdFromS3Uri(event.s3Uri);
@@ -27,7 +28,13 @@ export const handler = async (event: QuicksightImportEvent, context: Context): P
     await waitForImportToFinish(jobId, accountId);
     return { ...event, analysisId };
   } catch (error) {
-    logger.error('Error in quicksight import', { error });
+    logger.error('Error in quicksight import', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };
@@ -90,7 +97,13 @@ const describeImportJob = async (
       }),
     );
   } catch (error) {
-    logger.error('Error checking status of import job', { error });
+    logger.error('Error checking status of import job', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };

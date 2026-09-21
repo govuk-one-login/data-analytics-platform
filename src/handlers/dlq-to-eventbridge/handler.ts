@@ -37,7 +37,14 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
         const messages = filePaths.map(filePath => getEventbridgeMessage(filePath));
         await eventbridgeClient.send(new PutEventsCommand({ Entries: messages }));
       } catch (error) {
-        logger.error('Error processing DLQ event', { error });
+        logger.error('Error processing DLQ event', {
+          messageId: record.messageId,
+          error: {
+            message: error instanceof Error ? error.message : 'Unknown error',
+            name: error instanceof Error ? error.name : 'UnknownError',
+            stack: error instanceof Error ? error.stack : undefined,
+          },
+        });
         batchItemFailures.push({ itemIdentifier: record.messageId });
       }
     }),

@@ -21,7 +21,13 @@ export const handler = async (event: RedshiftGetMetadataEvent): Promise<string> 
     logger.info('Retrieved config file', { configRef: filePathParts.configRef });
     return getMetadata(configFile, filePathParts.dashboardRef, filePathParts.dataSource);
   } catch (error) {
-    logger.error('Error getting redshift metadata', { error });
+    logger.error('Error getting redshift metadata', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };

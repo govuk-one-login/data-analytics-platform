@@ -66,7 +66,7 @@ test('event error', async () => {
   expect(mockCognitoClient.calls()).toHaveLength(0);
   expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
   expect(loggerErrorSpy).toHaveBeenCalledWith('Error in post authentication lambda', {
-    error: new Error(expectedError),
+    error: expect.objectContaining({ message: expectedError }),
   });
 });
 
@@ -80,5 +80,7 @@ test('cognito error', async () => {
 
   expect(mockCognitoClient.calls()).toHaveLength(1);
   expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Error in post authentication lambda', { error: new Error(error) });
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Error in post authentication lambda', {
+    error: expect.objectContaining({ message: error }),
+  });
 });

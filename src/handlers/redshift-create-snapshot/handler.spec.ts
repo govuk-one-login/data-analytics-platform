@@ -71,5 +71,7 @@ test('redshift error', async () => {
   expect(mockRedshiftServerlessClient.calls()).toHaveLength(1);
   expect(loggerInfoSpy).toHaveBeenCalledTimes(0);
   expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Error creating redshift snapshot', { error: new Error(error) });
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Error creating redshift snapshot', {
+    error: expect.objectContaining({ message: error }),
+  });
 });

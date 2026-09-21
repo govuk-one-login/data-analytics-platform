@@ -15,7 +15,13 @@ export const handler = async (): Promise<void> => {
       status: response.snapshot?.status,
     });
   } catch (error) {
-    logger.error('Error creating redshift snapshot', { error });
+    logger.error('Error creating redshift snapshot', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };

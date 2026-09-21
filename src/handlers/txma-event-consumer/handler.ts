@@ -10,6 +10,7 @@ export { logger } from '../../shared/logger';
 
 export const handler = async (event: SQSEvent, context: Context): Promise<SQSBatchResponse> => {
   logger.addContext(context);
+  logger.info('TxMA event consumer lambda invoked', { recordCount: event.Records.length });
   const failedRecords = await processRecords(event.Records);
   return {
     batchItemFailures: failedRecords.map(record => ({ itemIdentifier: record.messageId })),
@@ -25,7 +26,14 @@ const processRecords = async (records: SQSRecord[]): Promise<SQSRecord[]> => {
     return failedRecords;
   } catch (error) {
     const streamName = process.env.FIREHOSE_STREAM_NAME ?? 'UNKNOWN';
-    logger.error("Error delivering batch data to DAP's Kinesis Firehose:", { streamName, error });
+    logger.error("Error delivering batch data to DAP's Kinesis Firehose", {
+      streamName,
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     return [...failedRecords, ...validRecords];
   }
 };
@@ -47,8 +55,15 @@ const validateRecords = (records: SQSRecord[]) => {
         } else {
           acc.validRecords.push(record);
         }
-      } catch (e) {
-        logger.error('Error processing record', { messageId: record.messageId, error: e });
+      } catch (error) {
+        logger.error('Error processing record', {
+          messageId: record.messageId,
+          error: {
+            message: error instanceof Error ? error.message : 'Unknown error',
+            name: error instanceof Error ? error.name : 'UnknownError',
+            stack: error instanceof Error ? error.stack : undefined,
+          },
+        });
         acc.failedRecords.push(record);
       }
       return acc;
