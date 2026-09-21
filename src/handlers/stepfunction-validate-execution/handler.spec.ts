@@ -40,7 +40,7 @@ test('missing state machine arn', async () => {
 
   expect(loggerSpy).toHaveBeenCalledTimes(1);
   expect(loggerSpy).toHaveBeenCalledWith('Error validating stepfunction execution', {
-    error: new Error(expectedErrorMessage),
+    error: expect.objectContaining({ message: expectedErrorMessage }),
   });
 
   expect(mockSFNClient.calls()).toHaveLength(0);
@@ -170,7 +170,7 @@ test('sfn client error', async () => {
 
   expect(loggerSpy).toHaveBeenCalledTimes(1);
   expect(loggerSpy).toHaveBeenCalledWith('Error validating stepfunction execution', {
-    error: new Error(errorMessage),
+    error: expect.objectContaining({ message: errorMessage }),
   });
 
   // one for the execution list

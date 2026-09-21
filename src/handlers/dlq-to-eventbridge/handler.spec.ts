@@ -104,9 +104,12 @@ test.each([
   expect(mockEventbridgeClient.calls()).toHaveLength(0);
 
   expect(loggerSpy).toHaveBeenCalledTimes(1);
-  expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: expect.objectContaining({ message: expectedError }),
-  });
+  expect(loggerSpy).toHaveBeenCalledWith(
+    'Error processing DLQ event',
+    expect.objectContaining({
+      error: expect.objectContaining({ message: expectedError }),
+    }),
+  );
 });
 
 test('multiple events', async () => {
@@ -135,10 +138,16 @@ test('multiple events', async () => {
   expect(mockEventbridgeClient.calls()).toHaveLength(3);
 
   expect(loggerSpy).toHaveBeenCalledTimes(2);
-  expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: expect.objectContaining({ message: 'Could not parse input event as any of the expected event types' }),
-  });
-  expect(loggerSpy).toHaveBeenCalledWith('Error processing DLQ event', {
-    error: expect.objectContaining({ message: `Unexpected token 'h', "hello world" is not valid JSON` }),
-  });
+  expect(loggerSpy).toHaveBeenCalledWith(
+    'Error processing DLQ event',
+    expect.objectContaining({
+      error: expect.objectContaining({ message: 'Could not parse input event as any of the expected event types' }),
+    }),
+  );
+  expect(loggerSpy).toHaveBeenCalledWith(
+    'Error processing DLQ event',
+    expect.objectContaining({
+      error: expect.objectContaining({ message: `Unexpected token 'h', "hello world" is not valid JSON` }),
+    }),
+  );
 });

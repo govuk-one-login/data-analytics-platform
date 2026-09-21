@@ -45,7 +45,13 @@ export const handler = async (event: RunFlywayEvent): Promise<RunFlywayResult> =
     const flywayEnvironment = await getFlywayEnvironment(validated, redshiftSecret);
     return runFlywayCommand(validated, flywayEnvironment);
   } catch (error) {
-    logger.error('Error running flyway command', { error });
+    logger.error('Error running flyway command', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };

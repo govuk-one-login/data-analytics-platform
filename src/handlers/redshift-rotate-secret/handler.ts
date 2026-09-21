@@ -56,14 +56,14 @@ const rotateSecret = async (event: RotateSecretEvent): Promise<void> => {
   const versions = metadata.VersionIdsToStages ?? {};
   const version = versions[event.ClientRequestToken];
   if (version === undefined || version.length === 0) {
-    logAndThrow(`Secret version ${event.ClientRequestToken} has no stage for rotation`);
+    logAndThrow('Secret version has no stage for rotation', { clientRequestToken: event.ClientRequestToken });
   }
 
   if (version!.includes('AWSCURRENT')) {
     logger.info('Secret version already set as AWSCURRENT', { clientRequestToken: event.ClientRequestToken });
     return;
   } else if (!version!.includes('AWSPENDING')) {
-    logAndThrow(`Secret version ${event.ClientRequestToken} not set as AWSPENDING`);
+    logAndThrow('Secret version not set as AWSPENDING', { clientRequestToken: event.ClientRequestToken });
   }
 
   if (event.Step === 'createSecret') {
@@ -75,7 +75,7 @@ const rotateSecret = async (event: RotateSecretEvent): Promise<void> => {
   } else if (event.Step === 'finishSecret') {
     await finishSecret(event, versions);
   } else {
-    logAndThrow(`Invalid step parameter ${JSON.stringify(event.Step)}`);
+    logAndThrow('Invalid step parameter', { step: event.Step });
   }
 };
 
@@ -119,9 +119,14 @@ const setSecret = async (event: RotateSecretEvent): Promise<void> => {
   // if we get a connection, set the admin password to the pending secret password
   try {
     await connection.raw(`alter user ${loginSecret.username} with password '${hashedPasswordUsername(pendingSecret)}'`);
-    logger.info(`setSecret: Successfully set password for user ${loginSecret.username} in Redshift DB`);
+    logger.info('setSecret: Successfully set password for user in Redshift DB', { username: loginSecret.username });
   } catch (error) {
-    logAndThrow(`setSecret: Error changing database password - ${getErrorMessage(error)}`);
+    logAndThrow('setSecret: Error changing database password', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+      },
+    });
   } finally {
     await connection.destroy();
   }
@@ -228,9 +233,10 @@ const updateSecretVersionStage = async (
   }
 };
 
-const logAndThrow = (message: string): never => {
+const logAndThrow = (message: string, metadata?: Record<string, unknown>): never => {
   logger.error(message, {
     error: { message, name: 'Error' },
+    ...metadata,
   });
   throw new Error(message);
 };

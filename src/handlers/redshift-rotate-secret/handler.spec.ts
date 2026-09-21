@@ -53,7 +53,7 @@ test('no stage for rotation', async () => {
 
   await expect(
     handler({ Step: 'createSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN }),
-  ).rejects.toThrow(`Secret version ${CLIENT_REQUEST_TOKEN} has no stage for rotation`);
+  ).rejects.toThrow('Secret version has no stage for rotation');
 
   // describeSecret
   expect(mockSecretsManagerClient.calls()).toHaveLength(1);
@@ -69,7 +69,7 @@ test('invalid step', async () => {
       SecretId: SECRET_ID,
       ClientRequestToken: CLIENT_REQUEST_TOKEN,
     }),
-  ).rejects.toThrow('Invalid step parameter "invalid"');
+  ).rejects.toThrow('Invalid step parameter');
 
   // describeSecret
   expect(mockSecretsManagerClient.calls()).toHaveLength(1);
@@ -149,7 +149,7 @@ test('set secret error changing password', async () => {
 
   await expect(
     handler({ Step: 'setSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN }),
-  ).rejects.toThrow(`setSecret: Error changing database password - ${errorMessage}`);
+  ).rejects.toThrow('setSecret: Error changing database password');
 
   // describeSecret, getSecret, getSecret
   expect(mockSecretsManagerClient.calls()).toHaveLength(3);

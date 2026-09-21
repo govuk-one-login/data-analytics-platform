@@ -96,9 +96,9 @@ test('missing stream name', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(0);
-  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose:", {
+  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose", {
     streamName: '',
-    error: expect.any(Error),
+    error: expect.objectContaining({ message: expect.any(String) }),
   });
 });
 
@@ -142,9 +142,9 @@ test('firehose error', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(1);
-  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose:", {
+  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose", {
     streamName: 'stream-name',
-    error: expect.any(Error),
+    error: expect.objectContaining({ message: expect.any(String) }),
   });
 });
 
@@ -159,12 +159,12 @@ test('batch error handling', async () => {
   // All 4 records should fail: 3 valid ones fail due to Firehose error, 1 fails due to invalid JSON
   expect(response.batchItemFailures).toHaveLength(4);
   expect(mockFirehoseClient.calls()).toHaveLength(1);
-  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose:", {
+  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose", {
     streamName: 'stream-name',
-    error: expect.any(Error),
+    error: expect.objectContaining({ message: expect.any(String) }),
   });
   expect(loggerErrorSpy).toHaveBeenCalledWith('Error processing record', {
     messageId: expect.any(String),
-    error: expect.any(TypeError),
+    error: expect.objectContaining({ message: expect.any(String) }),
   });
 });
