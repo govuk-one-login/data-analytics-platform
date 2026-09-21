@@ -32,10 +32,17 @@ export const databaseAccess = new DatabaseAccess();
  */
 export const handler = async (event: RotateSecretEvent): Promise<void> => {
   try {
-    logger.info('Rotate secret lambda', { event });
+    logger.info('Rotate secret lambda invoked', { step: event.Step, secretId: event.SecretId });
     await rotateSecret(event);
   } catch (error) {
-    logger.error(`Error rotating secret ${event.SecretId}`, { error });
+    logger.error('Error rotating secret', {
+      secretId: event.SecretId,
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };
@@ -53,7 +60,7 @@ const rotateSecret = async (event: RotateSecretEvent): Promise<void> => {
   }
 
   if (version!.includes('AWSCURRENT')) {
-    logger.info(`Secret version ${event.ClientRequestToken} already set as AWSCURRENT`);
+    logger.info('Secret version already set as AWSCURRENT', { clientRequestToken: event.ClientRequestToken });
     return;
   } else if (!version!.includes('AWSPENDING')) {
     logAndThrow(`Secret version ${event.ClientRequestToken} not set as AWSPENDING`);
@@ -79,7 +86,7 @@ const createSecret = async (event: RotateSecretEvent): Promise<void> => {
     logger.info('createSecret: Successfully retrieved secret');
   } catch (error) {
     await updateSecretPassword(event);
-    logger.info(`createSecret: Successfully put secret version ${event.ClientRequestToken}`);
+    logger.info('createSecret: Successfully put secret version', { clientRequestToken: event.ClientRequestToken });
   }
 };
 
@@ -138,7 +145,7 @@ const finishSecret = async (event: RotateSecretEvent, versions: Record<string, s
   for (const [versionId, stages] of Object.entries(versions)) {
     if (stages.includes('AWSCURRENT')) {
       if (versionId === event.ClientRequestToken) {
-        logger.info(`finishSecret: Version ${versionId} already marked as AWSCURRENT`);
+        logger.info('finishSecret: Version already marked as AWSCURRENT', { versionId });
         return;
       }
       currentVersion = versionId;
@@ -147,7 +154,7 @@ const finishSecret = async (event: RotateSecretEvent, versions: Record<string, s
   }
 
   await updateSecretVersionStage(event, currentVersion);
-  logger.info(`finishSecret: Successfully set AWSCURRENT stage to version ${event.ClientRequestToken} for secret`);
+  logger.info('finishSecret: Successfully set AWSCURRENT stage', { clientRequestToken: event.ClientRequestToken });
 };
 
 const getRedshiftSecret = async (event: RotateSecretEvent, stage: SecretRotationStage): Promise<RedshiftSecret> => {
@@ -222,7 +229,9 @@ const updateSecretVersionStage = async (
 };
 
 const logAndThrow = (message: string): never => {
-  logger.error(message);
+  logger.error(message, {
+    error: { message, name: 'Error' },
+  });
   throw new Error(message);
 };
 

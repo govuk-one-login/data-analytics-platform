@@ -7,22 +7,22 @@ export type AuditEvent = {
 };
 
 export const validateAuditEvent = (auditEvent: AuditEvent): string[] => {
+  if (typeof auditEvent !== 'object' || auditEvent === null) {
+    return ['Audit event is not an object'];
+  }
+
   const errorTypes = [
-    {
-      errorMessage: 'Audit event is not an object',
-      condition: typeof auditEvent !== 'object' || auditEvent === null,
-    },
     {
       errorMessage: 'Event name is missing from audit event or is invalid',
       condition: typeof auditEvent.event_name !== 'string' || auditEvent.event_name.length === 0,
     },
     {
-      errorMessage: 'Timestamp is not in expected format',
-      condition: !isValidTimestamp(auditEvent.timestamp),
+      errorMessage: 'Timestamp is missing from audit event or is invalid',
+      condition: typeof auditEvent.timestamp !== 'number',
     },
     {
-      errorMessage: 'Timestamp is not a integer',
-      condition: typeof auditEvent.timestamp !== 'number',
+      errorMessage: 'Timestamp is in milliseconds, expected seconds',
+      condition: typeof auditEvent.timestamp === 'number' && !isValidTimestamp(auditEvent.timestamp),
     },
   ];
 

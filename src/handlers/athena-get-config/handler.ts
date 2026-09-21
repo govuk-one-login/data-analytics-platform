@@ -16,7 +16,7 @@ export const handler = async (event: AthenaGetConfigEvent): Promise<RawLayerEven
       Key: `${datasource}/process_config/${configFilePrefix}_config.json`,
     });
 
-    logger.info('Getting athena config', { input: request.input });
+    logger.info('Getting athena config', { bucket: Bucket, datasource });
     const response = await s3Client.send(request);
     return await parseS3ResponseAsObject(response);
   } catch (error) {

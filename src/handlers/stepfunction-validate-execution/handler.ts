@@ -18,7 +18,11 @@ interface ValidateExecutionResponse {
 export const handler = async (event: ValidateExecutionEvent): Promise<ValidateExecutionResponse> => {
   try {
     const stateMachineArn = getEnvironmentVariable('STATE_MACHINE_ARN');
-    logger.info('Validating stepfunction execution', { event, stateMachineArn });
+    logger.info('Validating stepfunction execution', {
+      currentExecutionArn: event.currentExecutionArn,
+      messageGroupId: event.messageGroupId,
+      stateMachineArn,
+    });
 
     const allExecutions = await getAllExecutions(stateMachineArn);
     const currentExecution = getCurrentExecution(event, allExecutions);

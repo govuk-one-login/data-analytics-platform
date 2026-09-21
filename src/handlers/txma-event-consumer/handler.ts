@@ -20,10 +20,12 @@ const processRecords = async (records: SQSRecord[]): Promise<SQSRecord[]> => {
   const { validRecords, failedRecords } = validateRecords(records);
   if (validRecords.length === 0) return failedRecords;
   try {
-    await sendToFirehose(validRecords);
+    const streamName = getEnvironmentVariable('FIREHOSE_STREAM_NAME');
+    await sendToFirehose(validRecords, streamName);
     return failedRecords;
   } catch (error) {
-    logger.error("Error delivering batch data to DAP's Kinesis Firehose:", { error });
+    const streamName = process.env.FIREHOSE_STREAM_NAME ?? 'UNKNOWN';
+    logger.error("Error delivering batch data to DAP's Kinesis Firehose:", { streamName, error });
     return [...failedRecords, ...validRecords];
   }
 };
@@ -36,7 +38,7 @@ const validateRecords = (records: SQSRecord[]) => {
         const errors = validateAuditEvent(auditEvent);
 
         if (errors.length > 0) {
-          logger.error('Invalid audit event:', {
+          logger.error('Invalid audit event', {
             eventId: auditEvent.event_id ?? 'UNKNOWN',
             componentId: auditEvent.component_id ?? 'UNKNOWN',
             errors: [...errors],
@@ -46,7 +48,7 @@ const validateRecords = (records: SQSRecord[]) => {
           acc.validRecords.push(record);
         }
       } catch (e) {
-        logger.error('Error processing record', { error: e });
+        logger.error('Error processing record', { messageId: record.messageId, error: e });
         acc.failedRecords.push(record);
       }
       return acc;
@@ -55,9 +57,9 @@ const validateRecords = (records: SQSRecord[]) => {
   );
 };
 
-const sendToFirehose = async (records: SQSRecord[]) => {
+const sendToFirehose = async (records: SQSRecord[], streamName: string) => {
   const firehoseRecords = records.map(record => ({
     Data: getBodyAsBuffer(record.body),
   }));
-  await firehosePutRecordBatch(getEnvironmentVariable('FIREHOSE_STREAM_NAME'), firehoseRecords);
+  await firehosePutRecordBatch(streamName, firehoseRecords);
 };

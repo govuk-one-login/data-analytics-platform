@@ -38,7 +38,7 @@ interface RunFlywayResult {
 export const handler = async (event: RunFlywayEvent): Promise<RunFlywayResult> => {
   try {
     const validated = validateEvent(event);
-    logger.info('Starting run flyway command lambda', { event: validated });
+    logger.info('Starting run flyway command lambda', { command: validated.command, database: validated.database });
     await getFlywayFiles();
     await setupFlywayLibrary();
     const redshiftSecret = await getRedshiftSecret();
