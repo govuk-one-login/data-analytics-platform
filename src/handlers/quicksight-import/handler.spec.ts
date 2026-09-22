@@ -109,6 +109,25 @@ test('describe import job throws', async () => {
   await expect(handler(event, CONTEXT)).rejects.toThrow(describeError);
 });
 
+test('outer catch with non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in the outer handler catch
+  const event = getEvent();
+  mockQuicksightClient.on(StartAssetBundleImportJobCommand).rejects({ code: 'NOT_AN_ERROR' });
+  await expect(handler(event, CONTEXT)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+});
+
+test('describe import job non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in describeImportJob catch
+  const event = getEvent();
+  const analysisId = analysisIdFromS3Uri(event.s3Uri);
+  mockQuicksightClient
+    .on(StartAssetBundleImportJobCommand)
+    .resolves({ Status: 200, AssetBundleImportJobId: analysisId })
+    .on(DescribeAssetBundleImportJobCommand)
+    .rejects({ code: 'NOT_AN_ERROR' });
+  await expect(handler(event, CONTEXT)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+});
+
 interface QuicksightMocksConfig {
   startJobStatus?: number;
   startJobError?: string;

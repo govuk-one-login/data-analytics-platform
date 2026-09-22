@@ -112,6 +112,28 @@ test.each([
   );
 });
 
+test('non-Error thrown during processing', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in the catch block
+  // aws-sdk-client-mock always wraps rejects() in an Error, so we spy on send directly
+  const { EventBridgeClient } = await import('@aws-sdk/client-eventbridge');
+  const sendSpy = vi.spyOn(EventBridgeClient.prototype, 'send').mockRejectedValueOnce({ code: 'NOT_AN_ERROR' });
+
+  const filepath = 'rfm file path';
+  const redshiftFileMetadata = { bucket: 's3 bucket', file_path: filepath };
+  const event = sqsEvent(redshiftFileMetadata);
+  const batchResponse = await handler(event);
+
+  sendSpy.mockRestore();
+
+  expect(batchResponse.batchItemFailures).toHaveLength(1);
+  expect(loggerSpy).toHaveBeenCalledWith(
+    'Error processing DLQ event',
+    expect.objectContaining({
+      error: expect.objectContaining({ message: 'Unknown error', name: 'UnknownError' }),
+    }),
+  );
+});
+
 test('multiple events', async () => {
   // Unit Test
   const event = sqsEvent(

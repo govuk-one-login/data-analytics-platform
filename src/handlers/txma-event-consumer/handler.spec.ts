@@ -148,6 +148,44 @@ test('firehose error', async () => {
   });
 });
 
+test('firehose non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in processRecords catch
+  // aws-sdk-client-mock always wraps rejects() in an Error, so we spy on send directly
+  const { FirehoseClient } = await import('@aws-sdk/client-firehose');
+  const sendSpy = vi.spyOn(FirehoseClient.prototype, 'send').mockRejectedValueOnce({ code: 'NOT_AN_ERROR' });
+
+  const validEvent = JSON.stringify({ event_name: 'test', timestamp: 1234567890, event_id: 'test-id' });
+  const sqsEvent = mockSQSEvent(validEvent);
+  const response = await handler(sqsEvent, mockLambdaContext);
+
+  sendSpy.mockRestore();
+
+  expect(response.batchItemFailures).toHaveLength(1);
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    "Error delivering batch data to DAP's Kinesis Firehose",
+    expect.objectContaining({ error: expect.objectContaining({ message: 'Unknown error' }) }),
+  );
+});
+
+test('validateRecords non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in validateRecords catch
+  const originalParse = JSON.parse;
+  JSON.parse = () => {
+    throw { code: 'NOT_AN_ERROR' };
+  };
+
+  const sqsEvent = mockSQSEvent('anything');
+  const response = await handler(sqsEvent, mockLambdaContext);
+
+  JSON.parse = originalParse;
+
+  expect(response.batchItemFailures).toHaveLength(1);
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    'Error processing record',
+    expect.objectContaining({ error: expect.objectContaining({ message: 'Unknown error' }) }),
+  );
+});
+
 test('batch error handling', async () => {
   // Unit Test
   mockFirehoseClient.rejects();

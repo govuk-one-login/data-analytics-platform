@@ -121,6 +121,84 @@ test('running execution with same id started after', async () => {
   expect(mockSFNClient.calls()).toHaveLength(3);
 });
 
+test('running execution with empty input array', async () => {
+  // Unit Test - covers the optional chain false branch when parsedInput.at(0) is undefined
+  const otherArn = 'arn:aws:states:eu-west-2:123456789012:execution:state-machine:other-execution';
+  mockSFNClient.on(ListExecutionsCommand, { stateMachineArn: STATE_MACHINE_ARN }).resolves({
+    executions: [
+      {
+        stateMachineArn: STATE_MACHINE_ARN,
+        executionArn: EXECUTION_ARN,
+        status: 'RUNNING',
+        startDate: new Date(),
+      } as unknown as ExecutionListItem,
+      {
+        stateMachineArn: STATE_MACHINE_ARN,
+        executionArn: otherArn,
+        status: 'RUNNING',
+        startDate: new Date(),
+      } as unknown as ExecutionListItem,
+    ],
+  });
+  mockSFNClient
+    .on(DescribeExecutionCommand, { executionArn: EXECUTION_ARN })
+    .resolves({
+      stateMachineArn: STATE_MACHINE_ARN,
+      executionArn: EXECUTION_ARN,
+      input: executionInput(),
+      startDate: new Date(),
+    })
+    .on(DescribeExecutionCommand, { executionArn: otherArn })
+    .resolves({
+      stateMachineArn: STATE_MACHINE_ARN,
+      executionArn: otherArn,
+      input: JSON.stringify([]),
+      startDate: new Date(),
+    });
+
+  const response = await handler(TEST_EVENT);
+  expect(response).toEqual({ continue: 'true' });
+});
+
+test('running execution with input missing attributes', async () => {
+  // Unit Test - covers the optional chain false branch when attributes is undefined
+  const otherArn = 'arn:aws:states:eu-west-2:123456789012:execution:state-machine:other-execution';
+  mockSFNClient.on(ListExecutionsCommand, { stateMachineArn: STATE_MACHINE_ARN }).resolves({
+    executions: [
+      {
+        stateMachineArn: STATE_MACHINE_ARN,
+        executionArn: EXECUTION_ARN,
+        status: 'RUNNING',
+        startDate: new Date(),
+      } as unknown as ExecutionListItem,
+      {
+        stateMachineArn: STATE_MACHINE_ARN,
+        executionArn: otherArn,
+        status: 'RUNNING',
+        startDate: new Date(),
+      } as unknown as ExecutionListItem,
+    ],
+  });
+  mockSFNClient
+    .on(DescribeExecutionCommand, { executionArn: EXECUTION_ARN })
+    .resolves({
+      stateMachineArn: STATE_MACHINE_ARN,
+      executionArn: EXECUTION_ARN,
+      input: executionInput(),
+      startDate: new Date(),
+    })
+    .on(DescribeExecutionCommand, { executionArn: otherArn })
+    .resolves({
+      stateMachineArn: STATE_MACHINE_ARN,
+      executionArn: otherArn,
+      input: JSON.stringify([{ noAttributes: true }]),
+      startDate: new Date(),
+    });
+
+  const response = await handler(TEST_EVENT);
+  expect(response).toEqual({ continue: 'true' });
+});
+
 test('multiple with same id and some before', async () => {
   // Unit Test
   mockSetup(

@@ -132,6 +132,17 @@ test('client error', async () => {
   expect(mockS3Client.calls()).toHaveLength(1);
 });
 
+test('non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in the catch block
+  const { S3Client } = await import('@aws-sdk/client-s3');
+  const sendSpy = vi.spyOn(S3Client.prototype, 'send').mockRejectedValueOnce({ code: 'NOT_AN_ERROR' });
+
+  await expect(handler(TEST_EVENT)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+  sendSpy.mockRestore();
+
+  expect(mockS3Client.calls()).toHaveLength(0);
+});
+
 test('getinsertquery needs valid row and data', async () => {
   // Unit Test
   mockS3Client.resolves({});
