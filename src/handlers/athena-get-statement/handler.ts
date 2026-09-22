@@ -10,7 +10,13 @@ export const handler = async (event: AthenaGetStatementEvent): Promise<string> =
     logger.info('Athena get statement lambda invoked', { action: event.action, datasource: event.datasource });
     return await handleEvent(validateEvent(event));
   } catch (error) {
-    logger.error('Error getting athena statement', { error });
+    logger.error('Error getting athena statement', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };

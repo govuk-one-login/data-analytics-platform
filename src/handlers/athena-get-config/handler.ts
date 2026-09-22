@@ -20,7 +20,13 @@ export const handler = async (event: AthenaGetConfigEvent): Promise<RawLayerEven
     const response = await s3Client.send(request);
     return await parseS3ResponseAsObject(response);
   } catch (error) {
-    logger.error('Error getting athena config', { error });
+    logger.error('Error getting athena config', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };

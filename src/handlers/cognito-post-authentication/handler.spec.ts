@@ -66,7 +66,7 @@ test('event error', async () => {
   expect(mockCognitoClient.calls()).toHaveLength(0);
   expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
   expect(loggerErrorSpy).toHaveBeenCalledWith('Error in post authentication lambda', {
-    error: new Error(expectedError),
+    error: expect.objectContaining({ message: expectedError }),
   });
 });
 
@@ -80,5 +80,24 @@ test('cognito error', async () => {
 
   expect(mockCognitoClient.calls()).toHaveLength(1);
   expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Error in post authentication lambda', { error: new Error(error) });
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Error in post authentication lambda', {
+    error: expect.objectContaining({ message: error }),
+  });
+});
+
+test('non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in the catch block
+  // aws-sdk-client-mock always wraps rejects() in an Error, so we spy on send directly
+  const { CognitoIdentityProviderClient } = await import('@aws-sdk/client-cognito-identity-provider');
+  const sendSpy = vi
+    .spyOn(CognitoIdentityProviderClient.prototype, 'send')
+    .mockRejectedValueOnce({ code: 'NOT_AN_ERROR' });
+
+  const event = await handler(TEST_EVENT);
+  sendSpy.mockRestore();
+
+  expect(event).toEqual(TEST_EVENT);
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Error in post authentication lambda', {
+    error: expect.objectContaining({ message: 'Unknown error', name: 'UnknownError' }),
+  });
 });

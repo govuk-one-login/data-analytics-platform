@@ -19,6 +19,7 @@ export interface QuicksightExportEvent {
 type QuicksightExportResult = QuicksightExportEvent & { filename: string };
 
 export const handler = async (event: QuicksightExportEvent, context: Context): Promise<QuicksightExportResult> => {
+  logger.addContext(context);
   try {
     // do this early as it also acts as validation of the analysis id
     const filename = filenameFromAnalysisId(event.analysisId);
@@ -29,7 +30,13 @@ export const handler = async (event: QuicksightExportEvent, context: Context): P
     await uploadToS3(event, downloadUrl, filename);
     return { ...event, filename };
   } catch (error) {
-    logger.error('Error in quicksight export', { error });
+    logger.error('Error in quicksight export', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };
@@ -85,7 +92,13 @@ const describeExportJob = async (
       }),
     );
   } catch (error) {
-    logger.error('Error checking status of export job', { error });
+    logger.error('Error checking status of export job', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };
@@ -102,7 +115,13 @@ const uploadToS3 = async (event: QuicksightExportEvent, downloadUrl: string, key
       }),
     );
   } catch (error) {
-    logger.error('Error uploading export bundle to S3', { error });
+    logger.error('Error uploading export bundle to S3', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };

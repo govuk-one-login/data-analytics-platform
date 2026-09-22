@@ -30,7 +30,13 @@ export const handler = async (event: S3Event): Promise<S3RawToStageResult[]> => 
       }),
     );
   } catch (error) {
-    logger.error('Error copying raw to stage', { error });
+    logger.error('Error copying raw to stage', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };
@@ -51,7 +57,14 @@ const copyFileToStaging = async (record: S3EventRecord, stageBucketName: string)
       )
       .then(response => ({ filename, status: 'succeeded' }));
   } catch (error) {
-    logger.error('Error copying file from raw to stage', { error });
+    logger.error('Error copying file from raw to stage', {
+      filename,
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     return { filename, status: 'failed', error: getErrorMessage(error) };
   }
 };

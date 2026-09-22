@@ -19,7 +19,7 @@ export class DatabaseAccess {
         database: secret.dbname,
         port: parseInt(secret.port),
       };
-      logger.info('Connection details', { connectionDetails: { ...connectionDetails, password: undefined } });
+      logger.info('Attempting database connection', { dbname: secret.dbname, host: secret.host, port: secret.port });
       const connection = knex({
         client: 'pg',
         connection: connectionDetails,

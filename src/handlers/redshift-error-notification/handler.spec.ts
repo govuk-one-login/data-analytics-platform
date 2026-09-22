@@ -165,4 +165,29 @@ describe('redshift-error-notification', () => {
     const event = createMockEvent(logMessage);
     await expect(handler(event)).rejects.toThrow('EventBridge Error');
   });
+
+  it('should use N/A when execution_arn is absent', async () => {
+    // Unit Test - covers the `message.execution_arn ?? 'N/A'` false branch (line 28)
+    const logMessage = {
+      details: {
+        output: JSON.stringify({
+          sql_output: {
+            Status: 'FAILED',
+            Error: 'Some error',
+            QueryString: 'test query',
+            Database: 'test_db',
+            WorkgroupName: 'test_workgroup',
+          },
+        }),
+      },
+      // no execution_arn
+    };
+
+    const event = createMockEvent(logMessage);
+    await handler(event);
+
+    expect(mockSend).toHaveBeenCalledTimes(1);
+    const detail = JSON.parse(mockSend.mock.calls[0]![0].input.Entries[0].Detail);
+    expect(detail.notification.content.description).toContain('`N/A`');
+  });
 });

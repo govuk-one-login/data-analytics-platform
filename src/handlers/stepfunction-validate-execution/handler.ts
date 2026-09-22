@@ -44,7 +44,10 @@ export const handler = async (event: ValidateExecutionEvent): Promise<ValidateEx
       );
       if (startedBeforeWithSameId.length > 0) {
         logger.error('One or more other executions found with the same MessageGroupId that started before this one', {
-          startedBeforeWithSameId,
+          startedBeforeWithSameId: startedBeforeWithSameId.map(e => ({
+            executionArn: e.executionArn,
+            startDate: e.startDate,
+          })),
         });
         return { continue: 'false' };
       } else {
@@ -52,7 +55,13 @@ export const handler = async (event: ValidateExecutionEvent): Promise<ValidateEx
       }
     }
   } catch (error) {
-    logger.error('Error validating stepfunction execution', { error });
+    logger.error('Error validating stepfunction execution', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };

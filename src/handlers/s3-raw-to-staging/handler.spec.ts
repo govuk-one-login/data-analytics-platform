@@ -122,3 +122,32 @@ test('failed with s3 error', async () => {
 
   expect(mockS3Client.calls()).toHaveLength(2);
 });
+
+test('failed with non-Error s3 error', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in copyFileToStaging
+  TEST_EVENT.Records[0]!.s3.object.key = S3_KEY_PROCESSING_ENABLED;
+
+  const clients = await import('../../shared/clients');
+  let callCount = 0;
+  const sendSpy = vi.spyOn(clients.s3Client, 'send').mockImplementation(async (...args) => {
+    callCount++;
+    if (callCount >= 2) throw { code: 'NOT_AN_ERROR' };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return mockS3Client.send(...(args as [any])) as any;
+  });
+
+  const response = await handler(TEST_EVENT);
+  sendSpy.mockRestore();
+
+  expect(response).toHaveLength(1);
+  expect(response[0]!.status).toEqual('failed');
+});
+
+test('outer catch with non-Error thrown from getDatasource', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in the outer catch
+  const clients = await import('../../shared/clients');
+  const sendSpy = vi.spyOn(clients.s3Client, 'send').mockRejectedValueOnce({ code: 'NOT_AN_ERROR' });
+
+  await expect(handler(TEST_EVENT)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+  sendSpy.mockRestore();
+});
