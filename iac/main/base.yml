@@ -84,16 +84,22 @@ Mappings:
   EnvironmentConfiguration:
     dev:
       dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
+      redshiftPollIntervalSeconds: 20
     build:
       dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
+      redshiftPollIntervalSeconds: 20
     staging:
       dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
+      redshiftPollIntervalSeconds: 120
     integration:
       dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceNonProductionVariables
+      redshiftPollIntervalSeconds: 120
     production-preview:
       dynatraceSecretArn: unused
+      redshiftPollIntervalSeconds: 120
     production:
       dynatraceSecretArn: arn:aws:secretsmanager:eu-west-2:216552277552:secret:DynatraceProductionVariables
+      redshiftPollIntervalSeconds: 120
 
 Conditions:
   UseCodeSigning: !Not

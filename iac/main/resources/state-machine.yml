@@ -911,6 +911,7 @@ RedshiftConsolidatedModelProcessingStateMachine:
         - !Ref ADMV3RefreshStateMachine
         - !Ref 'AWS::NoValue'
       IsADMEnvironment: !If [IsProduction, true, false]
+      RedshiftPollIntervalSeconds: !FindInMap [EnvironmentConfiguration, !Ref Environment, redshiftPollIntervalSeconds]
 
 ADMV3RefreshStateMachine:
   Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
