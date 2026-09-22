@@ -40,7 +40,7 @@ const processLogEvent = async (message: Record<string, unknown>): Promise<void> 
 
   const parsedOutput = JSON.parse(details.output as string);
   const output: RedshiftErrorDetails | undefined = parsedOutput?.sql_output;
-  if (!output || output.Status !== 'FAILED' || !output.Error) return;
+  if (output?.Status !== 'FAILED' || !output.Error) return;
 
   const executionArn = (message.execution_arn as string | undefined) ?? 'N/A';
   logger.error('Redshift stored procedure failure detected', {
