@@ -18,50 +18,8 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
     const compressed = Buffer.from(event.awslogs.data, 'base64');
     const decompressed = gunzipSync(compressed as InputType);
     const logData: CloudWatchLogsDecodedData = JSON.parse(decompressed.toString());
-
     for (const logEvent of logData.logEvents) {
-      const message = JSON.parse(logEvent.message);
-
-      if (message.details?.output) {
-        const parsedOutput = JSON.parse(message.details.output);
-
-        if (parsedOutput.sql_output) {
-          const output: RedshiftErrorDetails = parsedOutput.sql_output;
-
-          if (output.Status === 'FAILED' && output.Error) {
-            logger.error('Redshift stored procedure failure detected', {
-              database: output.Database,
-              workgroupName: output.WorkgroupName,
-              executionArn: message.execution_arn ?? 'N/A',
-            });
-
-            const customNotification = {
-              version: '1.0',
-              source: 'custom',
-              content: {
-                textType: 'client-markdown',
-                title: ':Alert: Redshift Stored Procedure Failure :Alert:',
-                description: `*Database:* ${output.Database}\n*Query:* ${output.QueryString}\n\n*Error:* ${output.Error}\n\n*Execution:* \`${message.execution_arn || 'N/A'}\``,
-              },
-            };
-
-            const command = new PutEventsCommand({
-              Entries: [
-                {
-                  Source: 'dap.redshift.errors',
-                  DetailType: 'Redshift Error',
-                  Detail: JSON.stringify({
-                    notification: customNotification,
-                    subject: 'DAP Redshift Stored Procedure Failure',
-                  }),
-                },
-              ],
-            });
-            await eventbridgeClient.send(command);
-            logger.info('Redshift error notification sent to EventBridge', { database: output.Database });
-          }
-        }
-      }
+      await processLogEvent(JSON.parse(logEvent.message));
     }
   } catch (error) {
     logger.error('Error processing redshift error notification', {
@@ -73,4 +31,47 @@ export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
     });
     throw error;
   }
+};
+
+const processLogEvent = async (message: Record<string, unknown>): Promise<void> => {
+  if (!message.details) return;
+  const details = message.details as Record<string, unknown>;
+  if (!details.output) return;
+
+  const parsedOutput = JSON.parse(details.output as string);
+  const output: RedshiftErrorDetails = parsedOutput.sql_output;
+  if (!output || output.Status !== 'FAILED' || !output.Error) return;
+
+  const executionArn = (message.execution_arn as string | undefined) ?? 'N/A';
+  logger.error('Redshift stored procedure failure detected', {
+    database: output.Database,
+    workgroupName: output.WorkgroupName,
+    executionArn,
+  });
+
+  const customNotification = {
+    version: '1.0',
+    source: 'custom',
+    content: {
+      textType: 'client-markdown',
+      title: ':Alert: Redshift Stored Procedure Failure :Alert:',
+      description: `*Database:* ${output.Database}\n*Query:* ${output.QueryString}\n\n*Error:* ${output.Error}\n\n*Execution:* \`${executionArn}\``,
+    },
+  };
+
+  await eventbridgeClient.send(
+    new PutEventsCommand({
+      Entries: [
+        {
+          Source: 'dap.redshift.errors',
+          DetailType: 'Redshift Error',
+          Detail: JSON.stringify({
+            notification: customNotification,
+            subject: 'DAP Redshift Stored Procedure Failure',
+          }),
+        },
+      ],
+    }),
+  );
+  logger.info('Redshift error notification sent to EventBridge', { database: output.Database });
 };
