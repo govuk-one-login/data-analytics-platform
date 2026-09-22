@@ -39,7 +39,7 @@ const processLogEvent = async (message: Record<string, unknown>): Promise<void> 
   if (!details.output) return;
 
   const parsedOutput = JSON.parse(details.output as string);
-  const output: RedshiftErrorDetails = parsedOutput.sql_output;
+  const output: RedshiftErrorDetails | undefined = parsedOutput?.sql_output;
   if (!output || output.Status !== 'FAILED' || !output.Error) return;
 
   const executionArn = (message.execution_arn as string | undefined) ?? 'N/A';
