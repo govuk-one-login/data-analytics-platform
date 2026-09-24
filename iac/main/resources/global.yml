@@ -976,3 +976,38 @@ UnauthorizedApiCallSNSTopicSubscription:
     Protocol: 'email'
     Endpoint: 'dap-notifications@digital.cabinet-office.gov.uk'
     TopicArn: !Ref UnauthorizedApiCallSNSTopic
+
+# SSM parameters published so that shared txma-infra stacks (e.g. dev-tools)
+# can resolve DAP's core encryption keys and logging bucket by the same names
+# they use in other accounts (where a separate txma-infra `core` stack creates
+# discrete keys). DAP consolidates onto a single data KMS key (`KmsKey`,
+# alias `${Environment}-dap-key`) and a single access-logs bucket
+# (`GlobalLogBucket`, `${Environment}-dap-s3-logs`), so all three KMS
+# parameters intentionally point at the same key.
+DatabaseKmsKeyArnParameter:
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: DatabaseKmsKeyArn
+    Type: String
+    Value: !GetAtt KmsKey.Arn
+
+FirehoseKmsKeyArnParameter:
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: FirehoseKmsKeyArn
+    Type: String
+    Value: !GetAtt KmsKey.Arn
+
+LambdaKmsKeyArnParameter:
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: LambdaKmsKeyArn
+    Type: String
+    Value: !GetAtt KmsKey.Arn
+
+S3LogsBucketNameParameter:
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: S3LogsBucketName
+    Type: String
+    Value: !Ref GlobalLogBucket
