@@ -126,7 +126,11 @@ npm run test:cov
 
 #### Integration tests
 
-Integration tests verify the data pipeline from SQS ingestion through to the conform layer. These are enabled to run in _dev_ or _build_ environment. They use [Jest](https://jestjs.io) and are organized into two test projects that run concurrently. The main test suite uses a shared global setup file ([setup-main-test-suite.ts](tests/integration-tests/setup-main-test-suite.ts)) that processes all test events through the pipeline before tests run, while the raw-to-stage unhappy path tests execute the Step Function individually within each test to verify error handling.
+Integration tests verify the data pipeline from SQS ingestion through to the conform layer. These are enabled to run in _dev_ or _build_ environment. They use [Vitest](https://vitest.dev) and are organized into two test projects that run **concurrently**. The main test suite uses a shared global setup file ([setup-main-test-suite.ts](tests/integration-tests/setup-main-test-suite.ts)) that processes all test events through the pipeline before tests run, while the raw-to-stage unhappy path tests execute the Step Function individually within each test to verify error handling.
+
+The two suites share the same raw S3 layer and the same raw-to-stage ETL Step Function. The unhappy path suite deliberately writes malformed-JSON events to the raw layer to assert that the ETL fails. Because the main suite's ETL processes the entire recent raw partition window (`datecreated >= max_processed_dt - 1 day`), any malformed event present in the raw layer at ETL time causes the main suite's ETL to fail with a JSON parsing error.
+
+To keep the two suites isolated while still running concurrently, the raw-to-stage unhappy path suite's global setup ([setup-raw-to-stage-unhappy-path.ts](tests/integration-tests/setup-raw-to-stage-unhappy-path.ts)) sweeps the raw layer for orphaned malformed events **both before it runs and in a guaranteed teardown** (via [sweep-malformed-raw-events.ts](tests/integration-tests/helpers/aws/s3/sweep-malformed-raw-events.ts)). The teardown runs even if tests fail or are aborted, so a malformed event can never be left behind to poison future main-suite runs. This removes the _persistent_ contamination that previously broke every run. A smaller _transient_ race remains: while an unhappy path test's malformed event is briefly live in the raw layer, a concurrently running main-suite ETL could read it, causing occasional flakiness. This trade-off is accepted in favour of the shorter concurrent runtime; re-running the suite resolves such a transient failure.
 
 The main test suite global setup:
 1. Sends test events to the TxMA SQS queue
@@ -187,7 +191,7 @@ npm run test:integration -- event-replay        # Run only event replay tests
 
 These tests are split into two projects based on their execution patterns. The main test suite executes the ETL Step Function once in the global setup file, processing all events before any tests run. The raw-to-stage unhappy path tests execute the Step Function individually within each test (expecting failures for invalid data), making them take longer to run.
 
-Running `npm run test:integration` will run all tests concurrently in two projects. The Step Function executions are isolated between the different test suites. The full test suite typically takes approximately 14 minutes to complete. Tests automatically clean up all test data from S3 and Athena after completion.
+Running `npm run test:integration` runs all tests concurrently in two projects. The suites share the same raw S3 layer and the same raw-to-stage ETL Step Function; isolation is maintained by the raw-to-stage unhappy path suite sweeping orphaned malformed events from the raw layer before it runs and in a guaranteed teardown (see the description above). The full test suite typically takes approximately 14 minutes to complete. Tests automatically clean up all test data from S3 and Athena after completion.
 
 #### E2E tests
 
