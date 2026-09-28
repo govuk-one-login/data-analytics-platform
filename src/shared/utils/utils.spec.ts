@@ -1,5 +1,6 @@
 import {
   arrayPartition,
+  buildErrorMetadata,
   decodeObject,
   encodeObject,
   ensureDefined,
@@ -242,3 +243,35 @@ const mockS3Response = (body: unknown): GetObjectCommandOutput => {
 const mockContext = (invokedFunctionArn: string): Context => {
   return { invokedFunctionArn } as unknown as Context;
 };
+
+test('buildErrorMetadata extracts message, name and stack from an Error and includes the code', () => {
+  // Unit Test
+  const error = new Error('something failed');
+  error.name = 'CustomError';
+
+  const metadata = buildErrorMetadata(error, 'DAP999');
+
+  expect(metadata.code).toEqual('DAP999');
+  expect(metadata.message).toEqual('something failed');
+  expect(metadata.name).toEqual('CustomError');
+  expect(metadata.stack).toEqual(error.stack);
+});
+
+test('buildErrorMetadata omits the code when none is provided', () => {
+  // Unit Test
+  const metadata = buildErrorMetadata(new Error('no code'));
+
+  expect(metadata.code).toBeUndefined();
+  expect(metadata.message).toEqual('no code');
+  expect(metadata.name).toEqual('Error');
+});
+
+test('buildErrorMetadata handles non-Error values', () => {
+  // Unit Test
+  const metadata = buildErrorMetadata({ some: 'object' }, 'DAP998');
+
+  expect(metadata.code).toEqual('DAP998');
+  expect(metadata.message).toEqual('Unknown error');
+  expect(metadata.name).toEqual('UnknownError');
+  expect(metadata.stack).toBeUndefined();
+});

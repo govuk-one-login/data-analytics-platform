@@ -5,6 +5,7 @@ import {
 import { mockClient } from 'aws-sdk-client-mock';
 import { PostAuthenticationTriggerEvent } from 'aws-lambda';
 import { handler, logger } from './handler';
+import { mockLambdaContext } from '../../shared/utils/test-utils';
 
 const mockCognitoClient = mockClient(CognitoIdentityProviderClient);
 
@@ -50,7 +51,7 @@ test('success', async () => {
     .on(AdminUpdateUserAttributesCommand, { UserAttributes: [{ Name: 'custom:last_login', Value: now.toString() }] })
     .resolvesOnce({});
 
-  const event = await handler(TEST_EVENT);
+  const event = await handler(TEST_EVENT, mockLambdaContext);
   expect(event).toEqual(TEST_EVENT);
 
   expect(mockCognitoClient.calls()).toHaveLength(1);

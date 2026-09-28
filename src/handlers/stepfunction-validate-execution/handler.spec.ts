@@ -2,6 +2,7 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { DescribeExecutionCommand, ListExecutionsCommand, SFNClient } from '@aws-sdk/client-sfn';
 import type { ExecutionListItem, ExecutionStatus } from '@aws-sdk/client-sfn';
 import { handler, logger } from './handler';
+import { mockLambdaContext } from '../../shared/utils/test-utils';
 
 const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
 
@@ -53,7 +54,7 @@ test('no executions', async () => {
   // Unit Test
   mockSetup(new MockExecution({ executionArn: EXECUTION_ARN }));
 
-  const response = await handler(TEST_EVENT);
+  const response = await handler(TEST_EVENT, mockLambdaContext);
   expect(response).toEqual({ continue: 'true' });
 
   expect(loggerSpy).toHaveBeenCalledTimes(0);
