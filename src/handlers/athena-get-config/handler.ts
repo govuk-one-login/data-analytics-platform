@@ -1,10 +1,19 @@
-import { getRequiredParams, parseS3ResponseAsObject } from '../../shared/utils/utils';
+import { buildErrorMetadata, getRequiredParams, parseS3ResponseAsObject } from '../../shared/utils/utils';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client } from '../../shared/clients';
 import type { AthenaGetConfigEvent, RawLayerEventStatus } from '../../shared/types/raw-layer-processing';
-import { logger } from '../../shared/logger';
+import { logger, initialiseLogger } from '../../shared/logger';
+import { ERROR_CODES } from '../../shared/error-codes';
+import type { Context } from 'aws-lambda';
 
-export const handler = async (event: AthenaGetConfigEvent): Promise<RawLayerEventStatus[]> => {
+export const handler = async (event: AthenaGetConfigEvent, context?: Context): Promise<RawLayerEventStatus[]> => {
+  if (context !== undefined) {
+    initialiseLogger(context);
+  }
+  const startTime = Date.now();
+  const correlationId = context?.awsRequestId;
+  logger.info('Athena get config handler started', { correlationId, datasource: event.datasource });
+
   try {
     const {
       datasource,
@@ -16,16 +25,21 @@ export const handler = async (event: AthenaGetConfigEvent): Promise<RawLayerEven
       Key: `${datasource}/process_config/${configFilePrefix}_config.json`,
     });
 
-    logger.info('Getting athena config', { bucket: Bucket, datasource });
+    logger.info('Getting athena config', { correlationId, bucket: Bucket, datasource });
     const response = await s3Client.send(request);
-    return await parseS3ResponseAsObject(response);
+    const config = await parseS3ResponseAsObject<RawLayerEventStatus[]>(response);
+    logger.info('Athena get config handler completed', {
+      correlationId,
+      outcome: 'success',
+      duration: Date.now() - startTime,
+    });
+    return config;
   } catch (error) {
     logger.error('Error getting athena config', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.GET_CONFIG_FAILED),
     });
     throw error;
   }

@@ -1,8 +1,10 @@
-import { logger } from '../../shared/logger';
+import { logger, initialiseLogger } from '../../shared/logger';
 import { sfnClient } from '../../shared/clients';
-import { ensureDefined, getEnvironmentVariable } from '../../shared/utils/utils';
+import { buildErrorMetadata, ensureDefined, getEnvironmentVariable } from '../../shared/utils/utils';
+import { ERROR_CODES } from '../../shared/error-codes';
 import { DescribeExecutionCommand, ListExecutionsCommand } from '@aws-sdk/client-sfn';
 import type { DescribeExecutionCommandOutput } from '@aws-sdk/client-sfn';
+import type { Context } from 'aws-lambda';
 
 export { logger } from '../../shared/logger';
 
@@ -15,11 +17,21 @@ interface ValidateExecutionResponse {
   continue: 'true' | 'false';
 }
 
-export const handler = async (event: ValidateExecutionEvent): Promise<ValidateExecutionResponse> => {
+export const handler = async (event: ValidateExecutionEvent, context?: Context): Promise<ValidateExecutionResponse> => {
+  if (context !== undefined) {
+    initialiseLogger(context);
+  }
+  const startTime = Date.now();
+  const correlationId = event.currentExecutionArn;
+  logger.info('Validate execution handler started', {
+    correlationId,
+    messageGroupId: event.messageGroupId,
+  });
+
   try {
     const stateMachineArn = getEnvironmentVariable('STATE_MACHINE_ARN');
     logger.info('Validating stepfunction execution', {
-      currentExecutionArn: event.currentExecutionArn,
+      correlationId,
       messageGroupId: event.messageGroupId,
       stateMachineArn,
     });
@@ -27,42 +39,63 @@ export const handler = async (event: ValidateExecutionEvent): Promise<ValidateEx
     const allExecutions = await getAllExecutions(stateMachineArn);
     const currentExecution = getCurrentExecution(event, allExecutions);
     const otherExecutions = allExecutions.filter(execution => execution.executionArn !== currentExecution.executionArn);
-    if (otherExecutions.length === 0) {
-      return { continue: 'true' };
-    }
-
-    const otherExecutionsWithSameId = otherExecutions.filter(execution => {
-      const input = ensureDefined(() => execution.input);
-      const parsedInput = JSON.parse(input);
-      return parsedInput?.at(0)?.attributes?.MessageGroupId === event.messageGroupId;
+    const result = evaluateExecutions(event, currentExecution, otherExecutions, correlationId);
+    logger.info('Validate execution handler completed', {
+      correlationId,
+      outcome: 'success',
+      duration: Date.now() - startTime,
+      continue: result.continue,
     });
-    if (otherExecutionsWithSameId.length === 0) {
-      return { continue: 'true' };
-    } else {
-      const startedBeforeWithSameId = otherExecutionsWithSameId.filter(execution =>
-        startedBefore(currentExecution, execution),
-      );
-      if (startedBeforeWithSameId.length > 0) {
-        logger.error('One or more other executions found with the same MessageGroupId that started before this one', {
-          startedBeforeWithSameId: startedBeforeWithSameId.map(e => ({
-            executionArn: e.executionArn,
-            startDate: e.startDate,
-          })),
-        });
-        return { continue: 'false' };
-      } else {
-        return { continue: 'true' };
-      }
-    }
+    return result;
   } catch (error) {
     logger.error('Error validating stepfunction execution', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.VALIDATE_EXECUTION_FAILED),
     });
     throw error;
+  }
+};
+
+const evaluateExecutions = (
+  event: ValidateExecutionEvent,
+  currentExecution: DescribeExecutionCommandOutput,
+  otherExecutions: DescribeExecutionCommandOutput[],
+  correlationId: string,
+): ValidateExecutionResponse => {
+  if (otherExecutions.length === 0) {
+    return { continue: 'true' };
+  }
+
+  const otherExecutionsWithSameId = otherExecutions.filter(execution => {
+    const input = ensureDefined(() => execution.input);
+    const parsedInput = JSON.parse(input);
+    return parsedInput?.at(0)?.attributes?.MessageGroupId === event.messageGroupId;
+  });
+  if (otherExecutionsWithSameId.length === 0) {
+    return { continue: 'true' };
+  } else {
+    const startedBeforeWithSameId = otherExecutionsWithSameId.filter(execution =>
+      startedBefore(currentExecution, execution),
+    );
+    if (startedBeforeWithSameId.length > 0) {
+      const error = new Error(
+        'One or more other executions found with the same MessageGroupId that started before this one',
+      );
+      error.name = 'DuplicateExecutionError';
+      logger.error('One or more other executions found with the same MessageGroupId that started before this one', {
+        correlationId,
+        startedBeforeWithSameId: startedBeforeWithSameId.map(e => ({
+          executionArn: e.executionArn,
+          startDate: e.startDate,
+        })),
+        error: buildErrorMetadata(error, ERROR_CODES.DUPLICATE_EXECUTION_DETECTED),
+      });
+      return { continue: 'false' };
+    } else {
+      return { continue: 'true' };
+    }
   }
 };
 

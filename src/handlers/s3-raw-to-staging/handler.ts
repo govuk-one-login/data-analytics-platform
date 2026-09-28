@@ -1,6 +1,12 @@
-import type { S3Event, S3EventRecord } from 'aws-lambda';
-import { getEnvironmentVariable, getErrorMessage, getS3EventRecords } from '../../shared/utils/utils';
-import { logger } from '../../shared/logger';
+import type { Context, S3Event, S3EventRecord } from 'aws-lambda';
+import {
+  buildErrorMetadata,
+  getEnvironmentVariable,
+  getErrorMessage,
+  getS3EventRecords,
+} from '../../shared/utils/utils';
+import { logger, initialiseLogger } from '../../shared/logger';
+import { ERROR_CODES } from '../../shared/error-codes';
 import { s3Client } from '../../shared/clients';
 import { getDatasource } from '../../shared/manual-reference-data-ingestion/redshift-metadata';
 import { ChecksumAlgorithm, CopyObjectCommand } from '@aws-sdk/client-s3';
@@ -13,35 +19,54 @@ interface S3RawToStageResult {
   error?: string;
 }
 
-export const handler = async (event: S3Event): Promise<S3RawToStageResult[]> => {
+export const handler = async (event: S3Event, context: Context): Promise<S3RawToStageResult[]> => {
+  initialiseLogger(context);
+  const startTime = Date.now();
+  const correlationId = context.awsRequestId;
+  logger.info('S3 raw to stage handler started', { correlationId });
+
   try {
     const stageBucketName = getEnvironmentVariable('STAGE_BUCKET_NAME');
     const records = getS3EventRecords(event);
-    logger.info('Copying from raw to stage', { stageBucketName, recordCount: records.length });
-    return await Promise.all(
+    logger.info('Copying from raw to stage', { correlationId, stageBucketName, recordCount: records.length });
+    const results = await Promise.all(
       records.map(async record => {
-        logger.info('Starting raw to stage copy', { key: record.s3.object.key, bucket: record.s3.bucket.name });
+        logger.info('Starting raw to stage copy', {
+          correlationId,
+          key: record.s3.object.key,
+          bucket: record.s3.bucket.name,
+        });
         const datasource = await getDatasource(record, logger);
         if (!datasource.ingestion_enabled_status) {
-          logger.warn('Ingestion not enabled for datasource');
-          return { filename: record.s3.object.key, status: 'cancelled' };
+          logger.warn('Ingestion not enabled for datasource', { correlationId, key: record.s3.object.key });
+          return { filename: record.s3.object.key, status: 'cancelled' as const };
         }
-        return await copyFileToStaging(record, stageBucketName);
+        return await copyFileToStaging(record, stageBucketName, correlationId);
       }),
     );
+    logger.info('S3 raw to stage handler completed', {
+      correlationId,
+      outcome: results.some(result => result.status === 'failed') ? 'partial' : 'success',
+      duration: Date.now() - startTime,
+      recordCount: records.length,
+    });
+    return results;
   } catch (error) {
     logger.error('Error copying raw to stage', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.RAW_TO_STAGE_FAILED),
     });
     throw error;
   }
 };
 
-const copyFileToStaging = async (record: S3EventRecord, stageBucketName: string): Promise<S3RawToStageResult> => {
+const copyFileToStaging = async (
+  record: S3EventRecord,
+  stageBucketName: string,
+  correlationId: string,
+): Promise<S3RawToStageResult> => {
   const rawBucketName = record.s3.bucket.name;
   const filename = record.s3.object.key;
 
@@ -55,15 +80,12 @@ const copyFileToStaging = async (record: S3EventRecord, stageBucketName: string)
           ChecksumAlgorithm: ChecksumAlgorithm.CRC32,
         }),
       )
-      .then(response => ({ filename, status: 'succeeded' }));
+      .then(() => ({ filename, status: 'succeeded' as const }));
   } catch (error) {
     logger.error('Error copying file from raw to stage', {
+      correlationId,
       filename,
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      error: buildErrorMetadata(error, ERROR_CODES.RAW_TO_STAGE_COPY_FAILED),
     });
     return { filename, status: 'failed', error: getErrorMessage(error) };
   }

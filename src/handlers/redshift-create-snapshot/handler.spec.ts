@@ -1,6 +1,8 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import { CreateSnapshotCommand, RedshiftServerlessClient } from '@aws-sdk/client-redshift-serverless';
 import { handler, logger } from './handler';
+import { mockLambdaContext } from '../../shared/utils/test-utils';
+import { ERROR_CODES } from '../../shared/error-codes';
 
 const NAMESPACE_NAME = 'test-redshift-serverless-ns';
 const RETENTION_PERIOD_DAYS = 7;
@@ -39,14 +41,18 @@ test('success', async () => {
     })
     .resolvesOnce(response);
 
-  await handler();
+  await handler({}, mockLambdaContext);
 
   expect(mockRedshiftServerlessClient.calls()).toHaveLength(1);
-  expect(loggerInfoSpy).toHaveBeenCalledTimes(1);
   expect(loggerInfoSpy).toHaveBeenCalledWith('Snapshot creation initiated', {
+    correlationId: mockLambdaContext.awsRequestId,
     snapshotName: response.snapshot?.snapshotName,
     status: response.snapshot?.status,
   });
+  expect(loggerInfoSpy).toHaveBeenCalledWith(
+    'Redshift create snapshot handler completed',
+    expect.objectContaining({ outcome: 'success', duration: expect.any(Number) }),
+  );
   expect(loggerErrorSpy).toHaveBeenCalledTimes(0);
 });
 
@@ -66,14 +72,18 @@ test('redshift error', async () => {
     })
     .rejectsOnce(error);
 
-  await expect(handler()).rejects.toThrow(error);
+  await expect(handler({}, mockLambdaContext)).rejects.toThrow(error);
 
   expect(mockRedshiftServerlessClient.calls()).toHaveLength(1);
-  expect(loggerInfoSpy).toHaveBeenCalledTimes(0);
   expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Error creating redshift snapshot', {
-    error: expect.objectContaining({ message: error }),
-  });
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    'Error creating redshift snapshot',
+    expect.objectContaining({
+      outcome: 'failure',
+      duration: expect.any(Number),
+      error: expect.objectContaining({ message: error, code: ERROR_CODES.CREATE_SNAPSHOT_FAILED }),
+    }),
+  );
 });
 
 test('non-Error thrown', async () => {
@@ -82,10 +92,13 @@ test('non-Error thrown', async () => {
   const { RedshiftServerlessClient } = await import('@aws-sdk/client-redshift-serverless');
   const sendSpy = vi.spyOn(RedshiftServerlessClient.prototype, 'send').mockRejectedValueOnce({ code: 'NOT_AN_ERROR' });
 
-  await expect(handler()).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+  await expect(handler({}, mockLambdaContext)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
   sendSpy.mockRestore();
 
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Error creating redshift snapshot', {
-    error: expect.objectContaining({ message: 'Unknown error', name: 'UnknownError' }),
-  });
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    'Error creating redshift snapshot',
+    expect.objectContaining({
+      error: expect.objectContaining({ message: 'Unknown error', name: 'UnknownError' }),
+    }),
+  );
 });

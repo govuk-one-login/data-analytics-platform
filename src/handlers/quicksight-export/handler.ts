@@ -1,5 +1,6 @@
-import { logger } from '../../shared/logger';
-import { ensureDefined, getAccountId } from '../../shared/utils/utils';
+import { logger, initialiseLogger } from '../../shared/logger';
+import { buildErrorMetadata, ensureDefined, getAccountId } from '../../shared/utils/utils';
+import { ERROR_CODES } from '../../shared/error-codes';
 import { quicksightClient, s3Client } from '../../shared/clients';
 import type { DescribeAssetBundleExportJobCommandOutput } from '@aws-sdk/client-quicksight';
 import { DescribeAssetBundleExportJobCommand, StartAssetBundleExportJobCommand } from '@aws-sdk/client-quicksight';
@@ -19,29 +20,45 @@ export interface QuicksightExportEvent {
 type QuicksightExportResult = QuicksightExportEvent & { filename: string };
 
 export const handler = async (event: QuicksightExportEvent, context: Context): Promise<QuicksightExportResult> => {
-  logger.addContext(context);
+  initialiseLogger(context);
+  const startTime = Date.now();
+  const correlationId = context.awsRequestId;
+  logger.info('Quicksight export handler started', { correlationId, analysisId: event.analysisId });
+
   try {
     // do this early as it also acts as validation of the analysis id
     const filename = filenameFromAnalysisId(event.analysisId);
     const accountId = getAccountId(context);
-    logger.info('Starting quicksight export', { analysisId: event.analysisId, bucketName: event.bucketName });
-    const jobId = await startExportJob(event, accountId);
-    const downloadUrl = await waitForExportToFinish(jobId, accountId);
-    await uploadToS3(event, downloadUrl, filename);
+    logger.info('Starting quicksight export', {
+      correlationId,
+      analysisId: event.analysisId,
+      bucketName: event.bucketName,
+    });
+    const jobId = await startExportJob(event, accountId, correlationId);
+    const downloadUrl = await waitForExportToFinish(jobId, accountId, correlationId);
+    await uploadToS3(event, downloadUrl, filename, correlationId);
+    logger.info('Quicksight export handler completed', {
+      correlationId,
+      outcome: 'success',
+      duration: Date.now() - startTime,
+    });
     return { ...event, filename };
   } catch (error) {
     logger.error('Error in quicksight export', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.QUICKSIGHT_EXPORT_FAILED),
     });
     throw error;
   }
 };
 
-const startExportJob = async (event: QuicksightExportEvent, accountId: string): Promise<string> => {
+const startExportJob = async (
+  event: QuicksightExportEvent,
+  accountId: string,
+  correlationId: string,
+): Promise<string> => {
   const analysisArn = `arn:aws:quicksight:${region}:${accountId}:analysis/${event.analysisId}`;
   const jobId = `export-${Math.random().toString(36).substring(2)}`;
   const response = await quicksightClient.send(
@@ -59,21 +76,25 @@ const startExportJob = async (event: QuicksightExportEvent, accountId: string): 
       `Start export job request with id ${response?.AssetBundleExportJobId} returned status code of ${response.Status}`,
     );
   }
-  logger.info('Export job started', { jobId });
+  logger.info('Export job started', { correlationId, jobId });
   return ensureDefined(() => response.AssetBundleExportJobId);
 };
 
-const waitForExportToFinish = async (jobId: string, accountId: string): Promise<string> => {
+const waitForExportToFinish = async (jobId: string, accountId: string, correlationId: string): Promise<string> => {
   const response = await waitForJob<DescribeAssetBundleExportJobCommandOutput>({
-    statusGetter: async () => await describeExportJob(jobId, accountId),
+    statusGetter: async () => await describeExportJob(jobId, accountId, correlationId),
     statusStringGetter: response => response.JobStatus,
     successStatuses: ['SUCCESSFUL'],
     failureStatuses: ['FAILED'],
     onError: response => {
+      const error = new Error(`Export job did not complete - status ${response?.JobStatus}`);
+      error.name = 'QuicksightExportJobError';
       logger.error('Export job did not complete', {
+        correlationId,
         status: response?.JobStatus,
         errors: response?.Errors,
         warnings: response?.Warnings,
+        error: buildErrorMetadata(error, ERROR_CODES.QUICKSIGHT_EXPORT_JOB_INCOMPLETE),
       });
     },
   });
@@ -83,6 +104,7 @@ const waitForExportToFinish = async (jobId: string, accountId: string): Promise<
 const describeExportJob = async (
   exportJobId: string,
   accountId: string,
+  correlationId: string,
 ): Promise<DescribeAssetBundleExportJobCommandOutput> => {
   try {
     return await quicksightClient.send(
@@ -93,17 +115,19 @@ const describeExportJob = async (
     );
   } catch (error) {
     logger.error('Error checking status of export job', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      error: buildErrorMetadata(error, ERROR_CODES.QUICKSIGHT_EXPORT_JOB_STATUS_FAILED),
     });
     throw error;
   }
 };
 
-const uploadToS3 = async (event: QuicksightExportEvent, downloadUrl: string, key: string): Promise<void> => {
+const uploadToS3 = async (
+  event: QuicksightExportEvent,
+  downloadUrl: string,
+  key: string,
+  correlationId: string,
+): Promise<void> => {
   try {
     await s3Client.send(
       new PutObjectCommand({
@@ -116,11 +140,8 @@ const uploadToS3 = async (event: QuicksightExportEvent, downloadUrl: string, key
     );
   } catch (error) {
     logger.error('Error uploading export bundle to S3', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      error: buildErrorMetadata(error, ERROR_CODES.QUICKSIGHT_EXPORT_UPLOAD_FAILED),
     });
     throw error;
   }

@@ -1,7 +1,7 @@
 import { handler } from './handler';
 import { mockClient } from 'aws-sdk-client-mock';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import { getTestResource } from '../../shared/utils/test-utils';
+import { getTestResource, mockLambdaContext } from '../../shared/utils/test-utils';
 import type { S3Event } from 'aws-lambda';
 
 const mockSQSClient = mockClient(SQSClient);
@@ -35,7 +35,9 @@ test('missing queue url', async () => {
   // Unit Test
   process.env.METADATA_QUEUE_URL = '';
 
-  await expect(handler(TEST_EVENT)).rejects.toThrow('METADATA_QUEUE_URL is not defined in this environment');
+  await expect(handler(TEST_EVENT, mockLambdaContext)).rejects.toThrow(
+    'METADATA_QUEUE_URL is not defined in this environment',
+  );
 
   expect(mockSQSClient.calls()).toHaveLength(0);
 });
@@ -55,7 +57,7 @@ test('success', async () => {
     })
     .resolves({});
 
-  await handler(TEST_EVENT);
+  await handler(TEST_EVENT, mockLambdaContext);
 
   expect(mockSQSClient.calls()).toHaveLength(1);
 });
@@ -65,7 +67,9 @@ test('filename parsing error', async () => {
   const testEvent = { ...TEST_EVENT };
   testEvent.Records[0]!.s3.object.key = 'invalid-filename.csv';
 
-  await expect(handler(testEvent)).rejects.toThrow('Unable to parse key path string "invalid-filename"');
+  await expect(handler(testEvent, mockLambdaContext)).rejects.toThrow(
+    'Unable to parse key path string "invalid-filename"',
+  );
 
   expect(mockSQSClient.calls()).toHaveLength(0);
 });
@@ -76,6 +80,6 @@ test('non-Error thrown', async () => {
   const clients = await import('../../shared/clients');
   const sendSpy = vi.spyOn(clients.sqsClient, 'send').mockRejectedValueOnce({ code: 'NOT_AN_ERROR' });
 
-  await expect(handler(TEST_EVENT)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+  await expect(handler(TEST_EVENT, mockLambdaContext)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
   sendSpy.mockRestore();
 });

@@ -1,5 +1,12 @@
-import { logger } from '../../shared/logger';
-import { findOrThrow, getAWSEnvironment, getEnvironmentVariable, getErrorMessage } from '../../shared/utils/utils';
+import { logger, initialiseLogger } from '../../shared/logger';
+import {
+  buildErrorMetadata,
+  findOrThrow,
+  getAWSEnvironment,
+  getEnvironmentVariable,
+  getErrorMessage,
+} from '../../shared/utils/utils';
+import { ERROR_CODES } from '../../shared/error-codes';
 import { getSecret } from '../../shared/secrets-manager/get-secret';
 import type { RedshiftSecret } from '../../shared/types/secrets-manager';
 import * as child_process from 'node:child_process';
@@ -10,6 +17,7 @@ import * as fs from 'node:fs';
 import { Readable } from 'node:stream';
 import * as tar from 'tar';
 import * as path from 'node:path';
+import type { Context } from 'aws-lambda';
 
 const FLYWAY_COMMANDS = ['clean', 'info', 'migrate', 'repair', 'validate'];
 
@@ -35,22 +43,43 @@ interface RunFlywayResult {
   error?: Error;
 }
 
-export const handler = async (event: RunFlywayEvent): Promise<RunFlywayResult> => {
+export const handler = async (event: RunFlywayEvent, context?: Context): Promise<RunFlywayResult> => {
+  if (context !== undefined) {
+    initialiseLogger(context);
+  }
+  const startTime = Date.now();
+  const correlationId = context?.awsRequestId;
+  logger.info('Run flyway command handler started', {
+    correlationId,
+    command: event.command,
+    database: event.database,
+  });
+
   try {
     const validated = validateEvent(event);
-    logger.info('Starting run flyway command lambda', { command: validated.command, database: validated.database });
+    logger.info('Starting run flyway command lambda', {
+      correlationId,
+      command: validated.command,
+      database: validated.database,
+    });
     await getFlywayFiles();
     await setupFlywayLibrary();
     const redshiftSecret = await getRedshiftSecret();
     const flywayEnvironment = await getFlywayEnvironment(validated, redshiftSecret);
-    return runFlywayCommand(validated, flywayEnvironment);
+    const result = runFlywayCommand(validated, flywayEnvironment);
+    logger.info('Run flyway command handler completed', {
+      correlationId,
+      outcome: result.status === 0 ? 'success' : 'failure',
+      duration: Date.now() - startTime,
+      status: result.status,
+    });
+    return result;
   } catch (error) {
     logger.error('Error running flyway command', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.FLYWAY_COMMAND_FAILED),
     });
     throw error;
   }

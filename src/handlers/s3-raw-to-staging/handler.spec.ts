@@ -1,6 +1,6 @@
 import { handler } from './handler';
 import { mockClient } from 'aws-sdk-client-mock';
-import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
+import { getTestResource, mockLambdaContext, mockS3BodyStream } from '../../shared/utils/test-utils';
 import type { S3Event } from 'aws-lambda';
 import { CopyObjectCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
@@ -48,7 +48,9 @@ test('missing stage bucket name', async () => {
   // Unit Test
   process.env.STAGE_BUCKET_NAME = '';
 
-  await expect(handler(TEST_EVENT)).rejects.toThrow('STAGE_BUCKET_NAME is not defined in this environment');
+  await expect(handler(TEST_EVENT, mockLambdaContext)).rejects.toThrow(
+    'STAGE_BUCKET_NAME is not defined in this environment',
+  );
 
   expect(mockS3Client.calls()).toHaveLength(0);
 });
@@ -57,7 +59,9 @@ test('missing metadata bucket name', async () => {
   // Unit Test
   process.env.METADATA_BUCKET_NAME = '';
 
-  await expect(handler(TEST_EVENT)).rejects.toThrow('METADATA_BUCKET_NAME is not defined in this environment');
+  await expect(handler(TEST_EVENT, mockLambdaContext)).rejects.toThrow(
+    'METADATA_BUCKET_NAME is not defined in this environment',
+  );
 
   expect(mockS3Client.calls()).toHaveLength(0);
 });
@@ -75,7 +79,7 @@ test('success when ingestion enabled', async () => {
     })
     .resolves({});
 
-  const response = await handler(TEST_EVENT);
+  const response = await handler(TEST_EVENT, mockLambdaContext);
   expect(response).toHaveLength(1);
   expect(response[0]!.filename).toEqual(S3_KEY_PROCESSING_ENABLED);
   expect(response[0]!.status).toEqual('succeeded');
@@ -90,7 +94,7 @@ test('cancelled when ingestion disabled', async () => {
 
   mockS3Client.on(CopyObjectCommand).rejects();
 
-  const response = await handler(TEST_EVENT);
+  const response = await handler(TEST_EVENT, mockLambdaContext);
   expect(response).toHaveLength(1);
   expect(response[0]!.filename).toEqual(S3_KEY_PROCESSING_DISABLED);
   expect(response[0]!.status).toEqual('cancelled');
@@ -114,7 +118,7 @@ test('failed with s3 error', async () => {
     })
     .rejects(error);
 
-  const response = await handler(TEST_EVENT);
+  const response = await handler(TEST_EVENT, mockLambdaContext);
   expect(response).toHaveLength(1);
   expect(response[0]!.filename).toEqual(S3_KEY_PROCESSING_ENABLED);
   expect(response[0]!.status).toEqual('failed');
@@ -136,7 +140,7 @@ test('failed with non-Error s3 error', async () => {
     return mockS3Client.send(...(args as [any])) as any;
   });
 
-  const response = await handler(TEST_EVENT);
+  const response = await handler(TEST_EVENT, mockLambdaContext);
   sendSpy.mockRestore();
 
   expect(response).toHaveLength(1);
@@ -148,6 +152,6 @@ test('outer catch with non-Error thrown from getDatasource', async () => {
   const clients = await import('../../shared/clients');
   const sendSpy = vi.spyOn(clients.s3Client, 'send').mockRejectedValueOnce({ code: 'NOT_AN_ERROR' });
 
-  await expect(handler(TEST_EVENT)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+  await expect(handler(TEST_EVENT, mockLambdaContext)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
   sendSpy.mockRestore();
 });
