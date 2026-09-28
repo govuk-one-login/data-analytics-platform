@@ -16,18 +16,26 @@ interface MessageParams {
 export const handler = async (event: S3Event): Promise<void> => {
   try {
     const queueUrl = getEnvironmentVariable('METADATA_QUEUE_URL');
-    logger.info('Sending redshift metadata to SQS', { event, queueUrl });
-
     const records = getS3EventRecords(event);
+    logger.info('Sending redshift metadata to SQS', { queueUrl, recordCount: records.length });
     await Promise.all(
       records.map(async record => {
         const messageParams = getMessageParams(record);
-        logger.info('Extracted message params', { messageParams });
+        logger.info('Sending metadata to SQS', {
+          filePath: messageParams.filePath,
+          filePathGroupId: messageParams.filePathGroupId,
+        });
         await sendToSQS(queueUrl, messageParams);
       }),
     );
   } catch (error) {
-    logger.error('Error sending S3 metadata', { error });
+    logger.error('Error sending S3 metadata', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };

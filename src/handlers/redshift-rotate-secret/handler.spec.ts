@@ -53,9 +53,20 @@ test('no stage for rotation', async () => {
 
   await expect(
     handler({ Step: 'createSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN }),
-  ).rejects.toThrow(`Secret version ${CLIENT_REQUEST_TOKEN} has no stage for rotation`);
+  ).rejects.toThrow('Secret version has no stage for rotation');
 
   // describeSecret
+  expect(mockSecretsManagerClient.calls()).toHaveLength(1);
+});
+
+test('empty stage array for rotation', async () => {
+  // Unit Test - covers the `version.length === 0` branch (line 77)
+  mockSecretsManager({ versions: { [CLIENT_REQUEST_TOKEN]: [] } });
+
+  await expect(
+    handler({ Step: 'createSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN }),
+  ).rejects.toThrow('Secret version has no stage for rotation');
+
   expect(mockSecretsManagerClient.calls()).toHaveLength(1);
 });
 
@@ -69,7 +80,7 @@ test('invalid step', async () => {
       SecretId: SECRET_ID,
       ClientRequestToken: CLIENT_REQUEST_TOKEN,
     }),
-  ).rejects.toThrow('Invalid step parameter "invalid"');
+  ).rejects.toThrow('Invalid step parameter');
 
   // describeSecret
   expect(mockSecretsManagerClient.calls()).toHaveLength(1);
@@ -149,7 +160,7 @@ test('set secret error changing password', async () => {
 
   await expect(
     handler({ Step: 'setSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN }),
-  ).rejects.toThrow(`setSecret: Error changing database password - ${errorMessage}`);
+  ).rejects.toThrow('setSecret: Error changing database password');
 
   // describeSecret, getSecret, getSecret
   expect(mockSecretsManagerClient.calls()).toHaveLength(3);
@@ -222,6 +233,58 @@ test('finish secret no current version', async () => {
   expect(mockSecretsManagerClient.calls()).toHaveLength(2);
 });
 
+test('describeSecret non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in describeSecret catch
+  const clients = await import('../../shared/clients');
+  const sendSpy = vi.spyOn(clients.secretsManagerClient, 'send').mockRejectedValueOnce({ code: 'NOT_AN_ERROR' });
+
+  await expect(
+    handler({ Step: 'createSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN }),
+  ).rejects.toThrow('Error getting secret metadata');
+
+  sendSpy.mockRestore();
+});
+
+test('getRandomPassword non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in getRandomPassword catch
+  // Call sequence with pendingSecretError: 1=DescribeSecret, 2=GetSecretValue(AWSPENDING→throws),
+  // 3=GetSecretValue(AWSCURRENT), 4=GetRandomPassword
+  mockSecretsManager({ pendingSecretError: true });
+  const clients = await import('../../shared/clients');
+  let callCount = 0;
+  const sendSpy = vi.spyOn(clients.secretsManagerClient, 'send').mockImplementation(async (...args) => {
+    callCount++;
+    if (callCount >= 4) throw { code: 'NOT_AN_ERROR' };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return mockSecretsManagerClient.send(...(args as [any])) as any;
+  });
+
+  await expect(
+    handler({ Step: 'createSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN }),
+  ).rejects.toThrow('Error getting random password');
+
+  sendSpy.mockRestore();
+});
+
+test('updateSecretVersionStage non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in updateSecretVersionStage catch
+  mockSecretsManager();
+  const clients = await import('../../shared/clients');
+  let callCount = 0;
+  const sendSpy = vi.spyOn(clients.secretsManagerClient, 'send').mockImplementation(async (...args) => {
+    callCount++;
+    if (callCount >= 2) throw { code: 'NOT_AN_ERROR' };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return mockSecretsManagerClient.send(...(args as [any])) as any;
+  });
+
+  await expect(
+    handler({ Step: 'finishSecret', SecretId: SECRET_ID, ClientRequestToken: CLIENT_REQUEST_TOKEN }),
+  ).rejects.toThrow('Error updating secret version stage');
+
+  sendSpy.mockRestore();
+});
+
 test('secret to database connection', async () => {
   // Unit Test
   // @ts-expect-error this incorrectly extends DatabaseAccess by overriding a private method but it's fine as it's a test
@@ -244,6 +307,21 @@ test('secret to database connection', async () => {
     database: secret.dbname,
     port: parseInt(secret.port, 10),
   });
+});
+
+test('getDatabaseConnection non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in getDatabaseConnection catch
+  // @ts-expect-error overriding private method for test purposes
+  const databaseAccess = new (class extends DatabaseAccess {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private async validateConnection(_connection: Knex<any, unknown[]>): Promise<Knex<any, unknown[]>> {
+      throw { code: 'NOT_AN_ERROR' };
+    }
+  })();
+
+  const secret = JSON.parse(getSecretString({ SecretId: 'hello', VersionStage: 'AWSCURRENT' }));
+  const result = await databaseAccess.getDatabaseConnection(secret);
+  expect(result).toBeNull();
 });
 
 const mockSecretsManager = (config: SecretsManagerMockingConfig = {}): void => {

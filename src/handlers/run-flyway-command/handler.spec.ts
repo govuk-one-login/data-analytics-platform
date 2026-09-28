@@ -251,6 +251,18 @@ test('spawn sync uncaught error', async () => {
   expect(mockSecretsManagerClient.calls()).toHaveLength(1);
 });
 
+test('non-Error thrown in outer catch', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in the outer catch
+  mockS3Responses();
+  mockSecretsManagerResponses();
+
+  spawnSyncSpy.mockImplementation(() => {
+    throw { code: 'NOT_AN_ERROR' };
+  });
+
+  await expect(handler(TEST_EVENT)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+});
+
 test('getting files', async () => {
   // Unit Test
   const contents = [

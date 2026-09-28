@@ -160,3 +160,35 @@ test('missing DESTINATION_BUCKET logs error with DAP001 code and sends FAILED re
 
   process.env.DESTINATION_BUCKET = 'dev-dap-elt-metadata';
 });
+
+test('DESTINATION_PREFIX defaults to txma/raw_to_stage/ when env var not set', async () => {
+  // Unit Test - covers the `process.env.DESTINATION_PREFIX ?? 'txma/raw_to_stage/'` false branch (line 37)
+  delete process.env.DESTINATION_PREFIX;
+  mockS3Client.on(PutObjectCommand).resolves({});
+  const { handler } = await import('./handler');
+
+  await handler(createEvent('Create'));
+
+  const calls = mockS3Client.commandCalls(PutObjectCommand);
+  expect(calls[0]!.args[0].input.Key).toMatch(/^txma\/raw_to_stage\//u);
+
+  process.env.DESTINATION_PREFIX = 'txma/raw_to_stage/';
+});
+
+test('ASSETS_DIR uses import.meta.dirname fallback when LAMBDA_TASK_ROOT not set', async () => {
+  // Unit Test - covers the `process.env.LAMBDA_TASK_ROOT ?? import.meta.dirname` false branch (line 9)
+  delete process.env.LAMBDA_TASK_ROOT;
+  mockS3Client.on(PutObjectCommand).resolves({});
+  vi.resetModules();
+  const { handler } = await import('./handler');
+
+  // handler should still complete (assets dir may not exist but fetch is mocked)
+  await handler(createEvent('Delete'));
+
+  expect(global.fetch).toHaveBeenCalledWith(
+    'https://cloudformation-response.example.com',
+    expect.objectContaining({ method: 'PUT' }),
+  );
+
+  process.env.LAMBDA_TASK_ROOT = '/var/task';
+});

@@ -18,16 +18,23 @@ export interface QuicksightImportEvent {
 type QuicksightImportResult = QuicksightImportEvent & { analysisId: string };
 
 export const handler = async (event: QuicksightImportEvent, context: Context): Promise<QuicksightImportResult> => {
+  logger.addContext(context);
   try {
     // do this early as it also acts as validation of the s3 uri
     const analysisId = analysisIdFromS3Uri(event.s3Uri);
     const accountId = getAccountId(context);
-    logger.info('Starting quicksight import', { event });
+    logger.info('Starting quicksight import', { s3Uri: event.s3Uri, newName: event.newName });
     const jobId = await startImportJob(event, accountId, analysisId);
     await waitForImportToFinish(jobId, accountId);
     return { ...event, analysisId };
   } catch (error) {
-    logger.error('Error in quicksight import', { error });
+    logger.error('Error in quicksight import', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };
@@ -58,7 +65,7 @@ const startImportJob = async (event: QuicksightImportEvent, accountId: string, a
       `Start import job request with id ${response.AssetBundleImportJobId} returned status code of ${response.Status}`,
     );
   }
-  logger.info(`Import started with id ${jobId}`);
+  logger.info('Import job started', { jobId });
   return ensureDefined(() => response.AssetBundleImportJobId);
 };
 
@@ -90,7 +97,13 @@ const describeImportJob = async (
       }),
     );
   } catch (error) {
-    logger.error('Error checking status of import job', { error });
+    logger.error('Error checking status of import job', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };

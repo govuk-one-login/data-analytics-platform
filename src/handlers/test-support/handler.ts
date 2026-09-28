@@ -58,10 +58,16 @@ export interface S3CopyCommandResult {
 
 export const handler = async (event: TestSupportEvent, context: Context): Promise<unknown> => {
   try {
-    logger.info(`Test support lambda being called with event ${JSON.stringify(event)}`);
+    logger.info('Test support lambda invoked', { command: event.command, environment: event.environment });
     return await handleEvent(validateEvent(event), context);
   } catch (error) {
-    logger.error(`Error calling test support lambda`, { error });
+    logger.error('Error calling test support lambda', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };
@@ -150,7 +156,7 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
     }
     case 'SFN_START_EXECUTION': {
       const stateMachineArn = getStateMachineArn(event, context);
-      logger.info(`Starting execution of state machine with arn ${stateMachineArn}`);
+      logger.info('Starting state machine execution', { stateMachineArn });
       return await sfnClient.send(new StartExecutionCommand({ stateMachineArn }));
     }
     case 'SFN_DESCRIBE_EXECUTION': {

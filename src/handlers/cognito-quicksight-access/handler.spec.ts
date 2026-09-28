@@ -61,11 +61,6 @@ const setDomain = (domain: string): void => {
 
 const loggerErrorSpy = vi.mocked(logger.error);
 
-interface LogInputObject {
-  event: APIGatewayProxyEventV2;
-  error: Error;
-}
-
 beforeEach(async () => {
   loggerErrorSpy.mockClear();
   mockQuicksightClient.reset();
@@ -100,7 +95,7 @@ test('bad query parameters', async () => {
   // Unit Test
   setEvent(await mockApiGatewayEvent({ hello: 'world' }, ACCOUNT_ID));
 
-  await verifyErrorResponseAndLogs('code query param is missing or invalid - parameters are {"hello":"world"}');
+  await verifyErrorResponseAndLogs('code query param is missing or invalid');
 
   expect(mockQuicksightClient.calls()).toHaveLength(0);
 });
@@ -256,7 +251,6 @@ const verifyErrorResponseAndLogs = async (expectedErrorMessage: string): Promise
 
   expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
   expect(loggerErrorSpy.mock.calls[0]![0]).toEqual('Error getting embed URL');
-  const logInput = loggerErrorSpy.mock.calls[0]![1] as unknown as LogInputObject;
-  expect(logInput.event).toEqual(EVENT);
+  const logInput = loggerErrorSpy.mock.calls[0]![1] as unknown as { error: { message: string } };
   expect(logInput.error?.message).toEqual(expectedErrorMessage);
 };

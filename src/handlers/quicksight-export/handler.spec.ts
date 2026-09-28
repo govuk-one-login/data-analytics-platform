@@ -242,6 +242,34 @@ describe('region environment variable handling', () => {
   });
 });
 
+test('outer catch with non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in the outer handler catch
+  const event = getEvent();
+  mockQuicksightClient.on(StartAssetBundleExportJobCommand).rejects({ code: 'NOT_AN_ERROR' });
+  setupS3Mocks(event);
+  await expect(handler(event, CONTEXT)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+});
+
+test('describe job non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in describeExportJob catch
+  const event = getEvent();
+  mockQuicksightClient
+    .on(StartAssetBundleExportJobCommand)
+    .resolves({ Status: 200, AssetBundleExportJobId: event.analysisId })
+    .on(DescribeAssetBundleExportJobCommand)
+    .rejects({ code: 'NOT_AN_ERROR' });
+  setupS3Mocks(event);
+  await expect(handler(event, CONTEXT)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+});
+
+test('s3 upload non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in uploadToS3 catch
+  const event = getEvent();
+  setupQuicksightMocks(event);
+  mockS3Client.on(PutObjectCommand).rejects({ code: 'NOT_AN_ERROR' });
+  await expect(handler(event, CONTEXT)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+});
+
 test('start job with undefined response', async () => {
   // Unit Test
   const event = getEvent();

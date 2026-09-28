@@ -40,7 +40,7 @@ jobs:
       - name: IaC linting checks
         run: npm run iac:lint
       - name: Checkov actions scan
-        uses: bridgecrewio/checkov-action@f967808197a8d784d3e72919f38c3ff0cda7884e # v12
+        uses: bridgecrewio/checkov-action@444c9db6fa75e2d9c19ebf1fde7322089be9009e # v12
         with:
           config_file: .checkov.ci.yml
           directory: iac-dist

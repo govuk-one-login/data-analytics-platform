@@ -43,7 +43,10 @@ test('success', async () => {
 
   expect(mockRedshiftServerlessClient.calls()).toHaveLength(1);
   expect(loggerInfoSpy).toHaveBeenCalledTimes(1);
-  expect(loggerInfoSpy).toHaveBeenCalledWith('Snapshot creation initiated', { response });
+  expect(loggerInfoSpy).toHaveBeenCalledWith('Snapshot creation initiated', {
+    snapshotName: response.snapshot?.snapshotName,
+    status: response.snapshot?.status,
+  });
   expect(loggerErrorSpy).toHaveBeenCalledTimes(0);
 });
 
@@ -68,5 +71,21 @@ test('redshift error', async () => {
   expect(mockRedshiftServerlessClient.calls()).toHaveLength(1);
   expect(loggerInfoSpy).toHaveBeenCalledTimes(0);
   expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Error creating redshift snapshot', { error: new Error(error) });
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Error creating redshift snapshot', {
+    error: expect.objectContaining({ message: error }),
+  });
+});
+
+test('non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in the catch block
+  // aws-sdk-client-mock always wraps rejects() in an Error, so we spy on send directly
+  const { RedshiftServerlessClient } = await import('@aws-sdk/client-redshift-serverless');
+  const sendSpy = vi.spyOn(RedshiftServerlessClient.prototype, 'send').mockRejectedValueOnce({ code: 'NOT_AN_ERROR' });
+
+  await expect(handler()).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+  sendSpy.mockRestore();
+
+  expect(loggerErrorSpy).toHaveBeenCalledWith('Error creating redshift snapshot', {
+    error: expect.objectContaining({ message: 'Unknown error', name: 'UnknownError' }),
+  });
 });

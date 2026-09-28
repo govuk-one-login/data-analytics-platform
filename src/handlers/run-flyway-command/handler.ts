@@ -38,14 +38,20 @@ interface RunFlywayResult {
 export const handler = async (event: RunFlywayEvent): Promise<RunFlywayResult> => {
   try {
     const validated = validateEvent(event);
-    logger.info('Starting run flyway command lambda', { event: validated });
+    logger.info('Starting run flyway command lambda', { command: validated.command, database: validated.database });
     await getFlywayFiles();
     await setupFlywayLibrary();
     const redshiftSecret = await getRedshiftSecret();
     const flywayEnvironment = await getFlywayEnvironment(validated, redshiftSecret);
     return runFlywayCommand(validated, flywayEnvironment);
   } catch (error) {
-    logger.error('Error running flyway command', { error });
+    logger.error('Error running flyway command', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };

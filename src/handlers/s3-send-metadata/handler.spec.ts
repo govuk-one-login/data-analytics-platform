@@ -28,6 +28,7 @@ beforeEach(() => {
   });
 
   process.env.METADATA_QUEUE_URL = METADATA_QUEUE_URL;
+  TEST_EVENT.Records[0]!.s3.object.key = S3_KEY;
 });
 
 test('missing queue url', async () => {
@@ -67,4 +68,14 @@ test('filename parsing error', async () => {
   await expect(handler(testEvent)).rejects.toThrow('Unable to parse key path string "invalid-filename"');
 
   expect(mockSQSClient.calls()).toHaveLength(0);
+});
+
+test('non-Error thrown', async () => {
+  // Unit Test - covers the `error instanceof Error ? ... : 'Unknown error'` false branch in the catch block
+  // Spy directly on the singleton client instance imported by the handler
+  const clients = await import('../../shared/clients');
+  const sendSpy = vi.spyOn(clients.sqsClient, 'send').mockRejectedValueOnce({ code: 'NOT_AN_ERROR' });
+
+  await expect(handler(TEST_EVENT)).rejects.toMatchObject({ code: 'NOT_AN_ERROR' });
+  sendSpy.mockRestore();
 });

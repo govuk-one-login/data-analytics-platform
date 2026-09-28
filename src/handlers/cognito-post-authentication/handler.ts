@@ -11,10 +11,20 @@ export { logger } from '../../shared/logger';
 
 export const handler = async (event: PostAuthenticationTriggerEvent): Promise<PostAuthenticationTriggerEvent> => {
   try {
+    logger.info('Cognito post authentication lambda invoked', {
+      userPoolId: event.userPoolId,
+      userName: event.userName,
+    });
     const updateAttributesCommand = getUpdateAttributesCommand(event);
     await cognitoClient.send(new AdminUpdateUserAttributesCommand(updateAttributesCommand));
   } catch (error) {
-    logger.error('Error in post authentication lambda', { error });
+    logger.error('Error in post authentication lambda', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
   }
   return event;
 };

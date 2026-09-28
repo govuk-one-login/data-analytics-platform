@@ -12,7 +12,7 @@ export const getDatasource = async (record: S3EventRecord, logger: Logger): Prom
 
   const configFileBucket = getEnvironmentVariable('METADATA_BUCKET_NAME');
   const configFile = await getConfigFile(configFileBucket, filePathParts.configRef);
-  logger.info('Retrieved config file', { configFile });
+  logger.info('Retrieved config file', { configRef: filePathParts.configRef });
   return configFile[filePathParts.dashboardRef]!.data_sources[filePathParts.dataSource]!;
 };
 

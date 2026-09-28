@@ -19,17 +19,24 @@ export interface QuicksightExportEvent {
 type QuicksightExportResult = QuicksightExportEvent & { filename: string };
 
 export const handler = async (event: QuicksightExportEvent, context: Context): Promise<QuicksightExportResult> => {
+  logger.addContext(context);
   try {
     // do this early as it also acts as validation of the analysis id
     const filename = filenameFromAnalysisId(event.analysisId);
     const accountId = getAccountId(context);
-    logger.info('Starting quicksight export', { event });
+    logger.info('Starting quicksight export', { analysisId: event.analysisId, bucketName: event.bucketName });
     const jobId = await startExportJob(event, accountId);
     const downloadUrl = await waitForExportToFinish(jobId, accountId);
     await uploadToS3(event, downloadUrl, filename);
     return { ...event, filename };
   } catch (error) {
-    logger.error('Error in quicksight export', { error });
+    logger.error('Error in quicksight export', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };
@@ -52,7 +59,7 @@ const startExportJob = async (event: QuicksightExportEvent, accountId: string): 
       `Start export job request with id ${response?.AssetBundleExportJobId} returned status code of ${response.Status}`,
     );
   }
-  logger.info(`Export started with id ${jobId}`);
+  logger.info('Export job started', { jobId });
   return ensureDefined(() => response.AssetBundleExportJobId);
 };
 
@@ -85,7 +92,13 @@ const describeExportJob = async (
       }),
     );
   } catch (error) {
-    logger.error('Error checking status of export job', { error });
+    logger.error('Error checking status of export job', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };
@@ -102,7 +115,13 @@ const uploadToS3 = async (event: QuicksightExportEvent, downloadUrl: string, key
       }),
     );
   } catch (error) {
-    logger.error('Error uploading export bundle to S3', { error });
+    logger.error('Error uploading export bundle to S3', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };

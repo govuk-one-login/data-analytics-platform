@@ -26,18 +26,25 @@ export { logger } from '../../shared/logger';
  * @see MessageParams#messageBody
  */
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
-  logger.info('Received event from DLQ', { event });
   const batchItemFailures: SQSBatchItemFailure[] = [];
   const records = getSQSEventRecords(event);
+  logger.info('Received event from DLQ', { recordCount: records.length });
   await Promise.all(
     records.map(async record => {
       try {
-        logger.info('Processing record', { record });
+        logger.info('Processing record', { messageId: record.messageId });
         const filePaths = getFilePaths(record.body);
         const messages = filePaths.map(filePath => getEventbridgeMessage(filePath));
         await eventbridgeClient.send(new PutEventsCommand({ Entries: messages }));
       } catch (error) {
-        logger.error('Error processing DLQ event', { error });
+        logger.error('Error processing DLQ event', {
+          messageId: record.messageId,
+          error: {
+            message: error instanceof Error ? error.message : 'Unknown error',
+            name: error instanceof Error ? error.name : 'UnknownError',
+            stack: error instanceof Error ? error.stack : undefined,
+          },
+        });
         batchItemFailures.push({ itemIdentifier: record.messageId });
       }
     }),

@@ -39,7 +39,13 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
       },
     };
   } catch (error) {
-    logger.error('Error getting embed URL', { error, event });
+    logger.error('Error getting embed URL', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     return {
       statusCode: 500,
       headers: {
@@ -53,9 +59,7 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
 const getCode = async (event: APIGatewayProxyEventV2): Promise<string> => {
   const code = event?.queryStringParameters?.code;
   if (code === null || code === undefined || code.length === 0) {
-    throw new Error(
-      `code query param is missing or invalid - parameters are ${JSON.stringify(event.queryStringParameters)}`,
-    );
+    throw new Error('code query param is missing or invalid');
   }
   return code;
 };

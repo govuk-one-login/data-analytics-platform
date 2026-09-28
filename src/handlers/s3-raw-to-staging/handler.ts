@@ -16,12 +16,11 @@ interface S3RawToStageResult {
 export const handler = async (event: S3Event): Promise<S3RawToStageResult[]> => {
   try {
     const stageBucketName = getEnvironmentVariable('STAGE_BUCKET_NAME');
-    logger.info('Copying from raw to stage', { event, stageBucketName });
-
     const records = getS3EventRecords(event);
+    logger.info('Copying from raw to stage', { stageBucketName, recordCount: records.length });
     return await Promise.all(
       records.map(async record => {
-        logger.info('Starting raw to stage copy', { record });
+        logger.info('Starting raw to stage copy', { key: record.s3.object.key, bucket: record.s3.bucket.name });
         const datasource = await getDatasource(record, logger);
         if (!datasource.ingestion_enabled_status) {
           logger.warn('Ingestion not enabled for datasource');
@@ -31,7 +30,13 @@ export const handler = async (event: S3Event): Promise<S3RawToStageResult[]> => 
       }),
     );
   } catch (error) {
-    logger.error('Error copying raw to stage', { error });
+    logger.error('Error copying raw to stage', {
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     throw error;
   }
 };
@@ -52,7 +57,14 @@ const copyFileToStaging = async (record: S3EventRecord, stageBucketName: string)
       )
       .then(response => ({ filename, status: 'succeeded' }));
   } catch (error) {
-    logger.error('Error copying file from raw to stage', { error });
+    logger.error('Error copying file from raw to stage', {
+      filename,
+      error: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'UnknownError',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    });
     return { filename, status: 'failed', error: getErrorMessage(error) };
   }
 };

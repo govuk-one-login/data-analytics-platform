@@ -19,7 +19,7 @@ export class DatabaseAccess {
         database: secret.dbname,
         port: parseInt(secret.port),
       };
-      logger.info('Connection details', { connectionDetails: { ...connectionDetails, password: undefined } });
+      logger.info('Attempting database connection', { dbname: secret.dbname, host: secret.host, port: secret.port });
       const connection = knex({
         client: 'pg',
         connection: connectionDetails,
@@ -28,7 +28,14 @@ export class DatabaseAccess {
       // and will only throw an error or hang the first time you attempt to use the connection
       return await this.validateConnection(connection);
     } catch (error) {
-      logger.error(`Error connecting to ${secret.dbname}`, { error });
+      logger.error('Error connecting to database', {
+        dbname: secret.dbname,
+        error: {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          name: error instanceof Error ? error.name : 'UnknownError',
+          stack: error instanceof Error ? error.stack : undefined,
+        },
+      });
       return null;
     }
   }
