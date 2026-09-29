@@ -1,6 +1,9 @@
 name: ✳️ Run integration tests in dev
 
-# Manually-triggered workflow that:
+# Deploys and integration-tests a branch in the dev environment. Runs on push to
+# any branch except main (for development/testing of this flow) and can also be
+# triggered manually for a chosen branch via workflow_dispatch. On dispatch the
+# `branch` input selects the ref; on push the pushed ref is used. This workflow:
 #   1. Deploys a chosen branch's code to the dev environment. NOTE: DAP resources
 #      use fixed names (they are NOT prefixed with the CloudFormation stack name),
 #      so we cannot create a separate per-branch stack without resource collisions.
@@ -18,17 +21,34 @@ name: ✳️ Run integration tests in dev
 # `dap-dev-tools` stack deployed to the dev account from the txma-infra repo.
 
 on:
+  # Manual trigger: choose any branch to deploy + test.
   workflow_dispatch:
     inputs:
       branch:
         description: 'Branch to deploy to dev and run integration tests against'
         required: true
         type: string
+  # Push trigger: used while developing/testing this workflow. Runs against the
+  # pushed branch. `main` is excluded because merges to main are already handled
+  # by deploy-to-dev.yml (and both target the shared `dap` stack, so they must
+  # not run concurrently). Adjust/remove the branch filter as needed.
+  push:
+    branches-ignore:
+      - main
+
+# Only one run at a time may target the shared `dap` dev stack. Newer runs cancel
+# in-progress ones to avoid concurrent deploys clobbering each other.
+concurrency:
+  group: run-integration-tests-dev
+  cancel-in-progress: true
 
 env:
   AWS_REGION: eu-west-2
-  # DAP resources have fixed names, so the deploy must target the existing `dap` stack.
+  # DAP resources have fixed names, so the deployment must target the existing `dap` stack.
   STACK_NAME: dap
+  # Ref to check out and deploy: the manually-supplied branch when dispatched,
+  # otherwise the ref that was pushed.
+  DEPLOY_REF: ${{ inputs.branch || github.ref }}
 
 jobs:
   deploy-to-dev:
@@ -43,7 +63,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ env.DEPLOY_REF }}
       - name: Node setup
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -108,7 +128,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ env.DEPLOY_REF }}
       - name: Derive image tag from commit
         id: derive-image-tag
         run: |
