@@ -1,7 +1,7 @@
 #!/bin/bash
 cd /test-app || exit 1
 
-if [ "$TEST_ENVIRONMENT" = "build" ]; then
+if [ "$TEST_ENVIRONMENT" = "build" ] || [ "$TEST_ENVIRONMENT" = "dev" ]; then
   if [ "$SAM_STACK_NAME" = "dap" ]; then
     npm run test:integration:ci
     TESTS_EXIT_CODE=$?
