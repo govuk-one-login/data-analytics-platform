@@ -233,23 +233,47 @@ jobs:
           # DAP deploys to the shared `dap` stack in dev, so the tests read that stack.
           SAM_STACK_NAME: dap
           TEST_ENVIRONMENT: dev
+          # Environment used to build the VPC CloudFormation export names.
+          ENVIRONMENT: dev
         run: |
           echo "Running integration tests against cluster: $ECS_CLUSTER"
 
-          SUBNET_IDS=$(aws cloudformation describe-stacks \
-            --stack-name vpc \
-            --output json | jq -r '.Stacks[].Outputs[] | select(.OutputKey == "ProtectedSubnetIdA") | .OutputValue')
+          # The VPC is shared and its networking values are published as
+          # CloudFormation exports (not a stack named `vpc`). The DAP IaC consumes
+          # these same exports (see iac/quicksight-access/resources/*.yml), e.g.
+          # `${Environment}-dap-vpc-ProtectedSubnetIdA` and
+          # `${Environment}-dap-vpc-AWSServicesEndpointSecurityGroupId`. The Fargate
+          # task runs in the protected subnets and reaches AWS services via the VPC
+          # interface/gateway endpoints allowed by that security group, so no public IP.
+          EXPORTS=$(aws cloudformation list-exports --output json)
 
-          if [ -z "$SUBNET_IDS" ] || [ "$SUBNET_IDS" = "null" ]; then
-            echo "::error::Could not resolve ProtectedSubnetIdA from the vpc stack"
+          get_export() {
+            echo "$EXPORTS" | jq -r --arg NAME "$1" '.Exports[] | select(.Name == $NAME) | .Value'
+          }
+
+          SUBNET_A=$(get_export "${ENVIRONMENT}-dap-vpc-ProtectedSubnetIdA")
+          SUBNET_B=$(get_export "${ENVIRONMENT}-dap-vpc-ProtectedSubnetIdB")
+          SUBNET_C=$(get_export "${ENVIRONMENT}-dap-vpc-ProtectedSubnetIdC")
+          SECURITY_GROUP=$(get_export "${ENVIRONMENT}-dap-vpc-AWSServicesEndpointSecurityGroupId")
+
+          SUBNETS=$(echo "$SUBNET_A,$SUBNET_B,$SUBNET_C" | tr ',' '\n' | grep -v '^$' | paste -sd ',' -)
+
+          if [ -z "$SUBNETS" ]; then
+            echo "::error::Could not resolve any ${ENVIRONMENT}-dap-vpc-ProtectedSubnetId* CloudFormation exports"
             exit 1
           fi
+          if [ -z "$SECURITY_GROUP" ]; then
+            echo "::error::Could not resolve ${ENVIRONMENT}-dap-vpc-AWSServicesEndpointSecurityGroupId CloudFormation export"
+            exit 1
+          fi
+          echo "Using subnets: $SUBNETS"
+          echo "Using security group: $SECURITY_GROUP"
 
           TASK_ARN=$(aws ecs run-task \
             --cluster "$ECS_CLUSTER" \
             --task-definition "$TASK_DEF_ARN" \
             --launch-type FARGATE \
-            --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_IDS],assignPublicIp=DISABLED}" \
+            --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SECURITY_GROUP],assignPublicIp=DISABLED}" \
             --overrides '{
               "containerOverrides": [{
                 "name": "'"$CONTAINER_NAME"'",
