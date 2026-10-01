@@ -2,7 +2,7 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { handler, logger } from './handler';
 import type { S3Event, SQSEvent, SQSRecord } from 'aws-lambda';
-import { getTestResource } from '../../shared/utils/test-utils';
+import { getTestResource, mockLambdaContext } from '../../shared/utils/test-utils';
 import type { RedshiftGetMetadataEvent } from '../redshift-get-metadata/handler';
 import type { RedshiftFileMetadata } from '../../shared/types/redshift-metadata';
 
@@ -45,7 +45,7 @@ test('process s3 event', async () => {
     .resolves({});
 
   const event = sqsEvent(s3Event);
-  const batchResponse = await handler(event);
+  const batchResponse = await handler(event, mockLambdaContext);
   expect(batchResponse.batchItemFailures).toHaveLength(0);
 
   expect(mockEventbridgeClient.calls()).toHaveLength(1);
@@ -62,7 +62,7 @@ test('process redshift get metadata event', async () => {
     .resolves({});
 
   const event = sqsEvent(redshiftGetMetadataEvent);
-  const batchResponse = await handler(event);
+  const batchResponse = await handler(event, mockLambdaContext);
   expect(batchResponse.batchItemFailures).toHaveLength(0);
 
   expect(mockEventbridgeClient.calls()).toHaveLength(1);
@@ -78,7 +78,7 @@ test('process redshift file metadata', async () => {
     .resolves({});
 
   const event = sqsEvent(redshiftFileMetadata);
-  const batchResponse = await handler(event);
+  const batchResponse = await handler(event, mockLambdaContext);
   expect(batchResponse.batchItemFailures).toHaveLength(0);
 
   expect(mockEventbridgeClient.calls()).toHaveLength(1);
@@ -97,7 +97,7 @@ test.each([
   },
 ])('$name input event', async ({ event, expectedError }) => {
   // Unit Test
-  const batchResponse = await handler(event);
+  const batchResponse = await handler(event, mockLambdaContext);
   expect(batchResponse.batchItemFailures).toHaveLength(1);
   expect(batchResponse.batchItemFailures[0]).toEqual({ itemIdentifier: event.Records[0]!.messageId });
 
@@ -121,7 +121,7 @@ test('non-Error thrown during processing', async () => {
   const filepath = 'rfm file path';
   const redshiftFileMetadata = { bucket: 's3 bucket', file_path: filepath };
   const event = sqsEvent(redshiftFileMetadata);
-  const batchResponse = await handler(event);
+  const batchResponse = await handler(event, mockLambdaContext);
 
   sendSpy.mockRestore();
 
@@ -152,7 +152,7 @@ test('multiple events', async () => {
     .on(PutEventsCommand, { Entries: [{ ...EVENTBRIDGE_ENTRY_BASE, Detail: JSON.stringify({ filepath: 'fp3' }) }] })
     .resolves({});
 
-  const batchResponse = await handler(event);
+  const batchResponse = await handler(event, mockLambdaContext);
   expect(batchResponse.batchItemFailures).toHaveLength(2);
   expect(batchResponse.batchItemFailures[0]).toEqual({ itemIdentifier: event.Records[1]!.messageId });
   expect(batchResponse.batchItemFailures[1]).toEqual({ itemIdentifier: event.Records[3]!.messageId });

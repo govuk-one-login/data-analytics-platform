@@ -2,7 +2,7 @@ import type { RedshiftGetMetadataEvent } from './handler';
 import { handler } from './handler';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
-import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
+import { getTestResource, mockLambdaContext, mockS3BodyStream } from '../../shared/utils/test-utils';
 import type { RedshiftConfig } from '../../shared/types/redshift-metadata';
 
 const mockS3Client = mockClient(S3Client);
@@ -164,7 +164,7 @@ test('success', async () => {
     .resolves({ Body: mockS3BodyStream({ stringValue: TEST_CONFIG_FILE }) });
 
   // test second and third of the file path parts (benefits_dashboard and account_login) indirectly as they should have led to the right bit of JSON being returned
-  const response = await handler(TEST_EVENT);
+  const response = await handler(TEST_EVENT, mockLambdaContext);
   expect(response).toBeDefined();
 
   const parsedFile: RedshiftConfig = JSON.parse(TEST_CONFIG_FILE);

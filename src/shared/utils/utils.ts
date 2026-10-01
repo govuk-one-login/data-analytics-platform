@@ -114,6 +114,28 @@ export const getErrorMessage = (error: unknown): string => {
   return error instanceof Error ? error.message : JSON.stringify(error);
 };
 
+/**
+ * Structured error metadata for consistent error logging (see DPT-2736 logging standards).
+ * Consistently extracts <code>message</code>, <code>name</code> and <code>stack</code> from
+ * <code>Error</code> objects, and optionally attaches a stable error <code>code</code> for
+ * cross-referencing in CloudWatch/Splunk.
+ */
+export interface StructuredError {
+  code?: string | undefined;
+  message: string;
+  name: string;
+  stack?: string | undefined;
+}
+
+export const buildErrorMetadata = (error: unknown, code?: string): StructuredError => {
+  return {
+    ...(code === undefined ? {} : { code }),
+    message: error instanceof Error ? error.message : 'Unknown error',
+    name: error instanceof Error ? error.name : 'UnknownError',
+    stack: error instanceof Error ? error.stack : undefined,
+  };
+};
+
 export const arrayPartition = <T>(array: T[], partitionSize: number): T[][] => {
   if (partitionSize < 1) {
     throw new Error('Partition size must be greater than zero');

@@ -1,6 +1,7 @@
-import { logger } from '../../shared/logger';
-import { getEnvironmentVariable, getS3EventRecords } from '../../shared/utils/utils';
-import type { S3Event, S3EventRecord } from 'aws-lambda';
+import { logger, initialiseLogger } from '../../shared/logger';
+import { buildErrorMetadata, getEnvironmentVariable, getS3EventRecords } from '../../shared/utils/utils';
+import { ERROR_CODES } from '../../shared/error-codes';
+import type { Context, S3Event, S3EventRecord } from 'aws-lambda';
 import { sqsClient } from '../../shared/clients';
 import type { SendMessageCommandOutput } from '@aws-sdk/client-sqs';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
@@ -13,28 +14,39 @@ interface MessageParams {
   messageBody: string;
 }
 
-export const handler = async (event: S3Event): Promise<void> => {
+export const handler = async (event: S3Event, context: Context): Promise<void> => {
+  initialiseLogger(context);
+  const startTime = Date.now();
+  const correlationId = context.awsRequestId;
+  logger.info('S3 send metadata handler started', { correlationId });
+
   try {
     const queueUrl = getEnvironmentVariable('METADATA_QUEUE_URL');
     const records = getS3EventRecords(event);
-    logger.info('Sending redshift metadata to SQS', { queueUrl, recordCount: records.length });
+    logger.info('Sending redshift metadata to SQS', { correlationId, queueUrl, recordCount: records.length });
     await Promise.all(
       records.map(async record => {
         const messageParams = getMessageParams(record);
         logger.info('Sending metadata to SQS', {
+          correlationId,
           filePath: messageParams.filePath,
           filePathGroupId: messageParams.filePathGroupId,
         });
         await sendToSQS(queueUrl, messageParams);
       }),
     );
+    logger.info('S3 send metadata handler completed', {
+      correlationId,
+      outcome: 'success',
+      duration: Date.now() - startTime,
+      recordCount: records.length,
+    });
   } catch (error) {
     logger.error('Error sending S3 metadata', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.SEND_METADATA_FAILED),
     });
     throw error;
   }

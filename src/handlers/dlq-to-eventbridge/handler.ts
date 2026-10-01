@@ -1,7 +1,8 @@
-import type { S3Event, SQSBatchItemFailure, SQSBatchResponse, SQSEvent } from 'aws-lambda';
+import type { Context, S3Event, SQSBatchItemFailure, SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import type { RedshiftGetMetadataEvent } from '../redshift-get-metadata/handler';
-import { getS3EventRecords, getSQSEventRecords } from '../../shared/utils/utils';
-import { logger } from '../../shared/logger';
+import { buildErrorMetadata, getS3EventRecords, getSQSEventRecords } from '../../shared/utils/utils';
+import { logger, initialiseLogger } from '../../shared/logger';
+import { ERROR_CODES } from '../../shared/error-codes';
 import { eventbridgeClient } from '../../shared/clients';
 import { PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import type { PutEventsRequestEntry } from '@aws-sdk/client-eventbridge';
@@ -19,36 +20,46 @@ export { logger } from '../../shared/logger';
  * </ul>
  *
  * @param event the SQS event from the DLQ
+ * @param context the lambda context
  *
  * @see S3Event
  * @see RedshiftGetMetadataEvent
  * @see RedshiftFileMetadata
  * @see MessageParams#messageBody
  */
-export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
+export const handler = async (event: SQSEvent, context: Context): Promise<SQSBatchResponse> => {
+  initialiseLogger(context);
+  const startTime = Date.now();
   const batchItemFailures: SQSBatchItemFailure[] = [];
   const records = getSQSEventRecords(event);
-  logger.info('Received event from DLQ', { recordCount: records.length });
+  logger.info('DLQ to EventBridge handler started', {
+    correlationId: context.awsRequestId,
+    recordCount: records.length,
+  });
   await Promise.all(
     records.map(async record => {
       try {
-        logger.info('Processing record', { messageId: record.messageId });
+        logger.info('Processing record', { correlationId: record.messageId, messageId: record.messageId });
         const filePaths = getFilePaths(record.body);
         const messages = filePaths.map(filePath => getEventbridgeMessage(filePath));
         await eventbridgeClient.send(new PutEventsCommand({ Entries: messages }));
       } catch (error) {
         logger.error('Error processing DLQ event', {
+          correlationId: record.messageId,
           messageId: record.messageId,
-          error: {
-            message: error instanceof Error ? error.message : 'Unknown error',
-            name: error instanceof Error ? error.name : 'UnknownError',
-            stack: error instanceof Error ? error.stack : undefined,
-          },
+          error: buildErrorMetadata(error, ERROR_CODES.DLQ_EVENT_PROCESSING_FAILED),
         });
         batchItemFailures.push({ itemIdentifier: record.messageId });
       }
     }),
   );
+  logger.info('DLQ to EventBridge handler completed', {
+    correlationId: context.awsRequestId,
+    outcome: batchItemFailures.length === 0 ? 'success' : 'partial',
+    duration: Date.now() - startTime,
+    recordCount: records.length,
+    failedCount: batchItemFailures.length,
+  });
   return { batchItemFailures };
 };
 

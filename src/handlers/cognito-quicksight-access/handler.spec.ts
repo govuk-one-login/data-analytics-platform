@@ -14,6 +14,7 @@ vi.mock('../../shared/logger', () => ({
     warn: vi.fn(),
     debug: vi.fn(),
   },
+  initialiseLogger: vi.fn(),
 }));
 
 const ACCOUNT_ID = '012345678901';

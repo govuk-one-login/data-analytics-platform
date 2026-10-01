@@ -3,7 +3,7 @@ import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-sec
 import { handler } from './handler';
 import type { RunFlywayEvent } from './handler';
 import * as child_process from 'node:child_process';
-import { getTestResource } from '../../shared/utils/test-utils';
+import { getTestResource, mockLambdaContext } from '../../shared/utils/test-utils';
 import * as fs from 'node:fs';
 import { GetObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { Readable } from 'node:stream';
@@ -179,7 +179,7 @@ test('flyway success', async () => {
     return spawnSyncResult(0, FLYWAY_INFO, {});
   });
 
-  const response = await handler(TEST_EVENT);
+  const response = await handler(TEST_EVENT, mockLambdaContext);
   expect(response.status).toEqual(0);
   expect(response.stderr).toEqual({});
   expect(response.stdout).toEqual(FLYWAY_INFO);
@@ -291,7 +291,7 @@ test('getting files', async () => {
   });
   existsSyncSpy.mockImplementation(path => existingFolders.includes(path.toString()));
 
-  const response = await handler(TEST_EVENT);
+  const response = await handler(TEST_EVENT, mockLambdaContext);
   expect(response.status).toEqual(0);
   expect(response.stderr).toEqual({});
   expect(response.stdout).toEqual(FLYWAY_INFO);

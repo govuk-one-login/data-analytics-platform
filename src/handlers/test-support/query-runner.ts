@@ -2,7 +2,8 @@ import { logger } from './handler';
 import type { TestSupportEvent } from './handler';
 import { GetQueryExecutionCommand, GetQueryResultsCommand, StartQueryExecutionCommand } from '@aws-sdk/client-athena';
 import type { GetQueryResultsOutput } from '@aws-sdk/client-athena';
-import { getEnvironmentVariable, getRequiredParams, sleep } from '../../shared/utils/utils';
+import { buildErrorMetadata, getEnvironmentVariable, getRequiredParams, sleep } from '../../shared/utils/utils';
+import { ERROR_CODES } from '../../shared/error-codes';
 import { athenaClient, redshiftDataClient } from '../../shared/clients';
 import {
   DescribeStatementCommand,
@@ -25,19 +26,16 @@ export class QueryRunner {
     this.databaseType = databaseType;
   }
 
-  async runQuery(event: TestSupportEvent): Promise<unknown> {
+  async runQuery(event: TestSupportEvent, correlationId?: string): Promise<unknown> {
     try {
       const queryId = await this.startQuery(event);
       await this.waitForQueryToSucceed(queryId, event.input.timeoutMs ?? 5000);
       return await this.getQueryResults(queryId);
     } catch (error) {
       logger.error('Error executing query', {
+        correlationId,
         databaseType: this.databaseType,
-        error: {
-          message: error instanceof Error ? error.message : 'Unknown error',
-          name: error instanceof Error ? error.name : 'UnknownError',
-          stack: error instanceof Error ? error.stack : undefined,
-        },
+        error: buildErrorMetadata(error, ERROR_CODES.TEST_SUPPORT_QUERY_FAILED),
       });
       throw error;
     }

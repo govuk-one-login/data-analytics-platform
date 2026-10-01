@@ -1,4 +1,5 @@
 import { handler, logger } from './handler';
+import { ERROR_CODES } from '../../shared/error-codes';
 import { mockLambdaContext, mockSQSEvent } from '../../shared/utils/test-utils';
 import { FirehoseClient } from '@aws-sdk/client-firehose';
 import { mockClient } from 'aws-sdk-client-mock';
@@ -45,11 +46,19 @@ test('event with invalid timestamp', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(0);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event', {
-    componentId: 'UNKNOWN',
-    eventId: 'test-id',
-    errors: ['Timestamp is in milliseconds, expected seconds'],
-  });
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    'Invalid audit event',
+    expect.objectContaining({
+      componentId: 'UNKNOWN',
+      eventId: 'test-id',
+      errors: ['Timestamp is in milliseconds, expected seconds'],
+      error: expect.objectContaining({
+        code: ERROR_CODES.INVALID_AUDIT_EVENT,
+        message: expect.any(String),
+        name: expect.any(String),
+      }),
+    }),
+  );
 });
 
 test('event with multiple validation errors', async () => {
@@ -66,11 +75,17 @@ test('event with multiple validation errors', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(0);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event', {
-    componentId: 'UNKNOWN',
-    eventId: 'test-id',
-    errors: ['Event name is missing from audit event or is invalid', 'Timestamp is in milliseconds, expected seconds'],
-  });
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    'Invalid audit event',
+    expect.objectContaining({
+      componentId: 'UNKNOWN',
+      eventId: 'test-id',
+      errors: [
+        'Event name is missing from audit event or is invalid',
+        'Timestamp is in milliseconds, expected seconds',
+      ],
+    }),
+  );
 });
 
 test('invalid events', async () => {
@@ -96,10 +111,13 @@ test('missing stream name', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(0);
-  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose", {
-    streamName: '',
-    error: expect.objectContaining({ message: expect.any(String) }),
-  });
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    "Error delivering batch data to DAP's Kinesis Firehose",
+    expect.objectContaining({
+      streamName: '',
+      error: expect.objectContaining({ message: expect.any(String) }),
+    }),
+  );
 });
 
 test('multiple valid events, one invalid event', async () => {
@@ -125,11 +143,14 @@ test('multiple valid events, one invalid event', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(1);
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Invalid audit event', {
-    componentId: 'test-component-id',
-    eventId: 'test-id',
-    errors: ['Event name is missing from audit event or is invalid'],
-  });
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    'Invalid audit event',
+    expect.objectContaining({
+      componentId: 'test-component-id',
+      eventId: 'test-id',
+      errors: ['Event name is missing from audit event or is invalid'],
+    }),
+  );
 });
 
 test('firehose error', async () => {
@@ -142,10 +163,13 @@ test('firehose error', async () => {
 
   expect(response.batchItemFailures).toHaveLength(1);
   expect(mockFirehoseClient.calls()).toHaveLength(1);
-  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose", {
-    streamName: 'stream-name',
-    error: expect.objectContaining({ message: expect.any(String) }),
-  });
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    "Error delivering batch data to DAP's Kinesis Firehose",
+    expect.objectContaining({
+      streamName: 'stream-name',
+      error: expect.objectContaining({ message: expect.any(String) }),
+    }),
+  );
 });
 
 test('firehose non-Error thrown', async () => {
@@ -197,12 +221,18 @@ test('batch error handling', async () => {
   // All 4 records should fail: 3 valid ones fail due to Firehose error, 1 fails due to invalid JSON
   expect(response.batchItemFailures).toHaveLength(4);
   expect(mockFirehoseClient.calls()).toHaveLength(1);
-  expect(loggerErrorSpy).toHaveBeenCalledWith("Error delivering batch data to DAP's Kinesis Firehose", {
-    streamName: 'stream-name',
-    error: expect.objectContaining({ message: expect.any(String) }),
-  });
-  expect(loggerErrorSpy).toHaveBeenCalledWith('Error processing record', {
-    messageId: expect.any(String),
-    error: expect.objectContaining({ message: expect.any(String) }),
-  });
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    "Error delivering batch data to DAP's Kinesis Firehose",
+    expect.objectContaining({
+      streamName: 'stream-name',
+      error: expect.objectContaining({ message: expect.any(String) }),
+    }),
+  );
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    'Error processing record',
+    expect.objectContaining({
+      messageId: expect.any(String),
+      error: expect.objectContaining({ message: expect.any(String) }),
+    }),
+  );
 });

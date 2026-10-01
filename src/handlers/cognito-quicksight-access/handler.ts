@@ -1,8 +1,9 @@
-import { logger } from '../../shared/logger';
+import { logger, initialiseLogger } from '../../shared/logger';
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2, Context } from 'aws-lambda';
 import { quicksightClient } from '../../shared/clients';
 import { GenerateEmbedUrlForRegisteredUserCommand } from '@aws-sdk/client-quicksight';
-import { getAWSEnvironment, getEnvironmentVariable } from '../../shared/utils/utils';
+import { buildErrorMetadata, getAWSEnvironment, getEnvironmentVariable } from '../../shared/utils/utils';
+import { ERROR_CODES } from '../../shared/error-codes';
 
 // see https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-runtime
 const region = process.env.AWS_REGION ?? process.env.AWS_DEFAULT_REGION;
@@ -27,11 +28,21 @@ export interface UserInfoResponse {
 }
 
 export const handler = async (event: APIGatewayProxyEventV2, context: Context): Promise<APIGatewayProxyResultV2> => {
+  initialiseLogger(context);
+  const startTime = Date.now();
+  const correlationId = context.awsRequestId;
+  logger.info('Cognito quicksight access handler started', { correlationId });
+
   try {
     const code = await getCode(event);
     const tokens = await callTokenEndpoint(event.requestContext.domainName, event.requestContext.http.path, code);
     const userInfo = await callUserInfoEndpoint(tokens);
     const embedUrl = await getEmbedUrl(event.requestContext.accountId, userInfo.username);
+    logger.info('Cognito quicksight access handler completed', {
+      correlationId,
+      outcome: 'success',
+      duration: Date.now() - startTime,
+    });
     return {
       statusCode: 302, // temporary redirect (instead of permanent 301) to avoid browser caching
       headers: {
@@ -40,11 +51,10 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
     };
   } catch (error) {
     logger.error('Error getting embed URL', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.QUICKSIGHT_EMBED_URL_FAILED),
     });
     return {
       statusCode: 500,

@@ -1,4 +1,4 @@
-import { CloudWatchLogsEvent } from 'aws-lambda';
+import { CloudWatchLogsEvent, Context } from 'aws-lambda';
 import { gzipSync } from 'node:zlib';
 
 interface MockLogMessage {
@@ -27,8 +27,18 @@ vi.doMock('@aws-lambda-powertools/logger', () => ({
   })),
 }));
 
+vi.doMock('../../shared/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  },
+  initialiseLogger: vi.fn(),
+}));
+
 // Import handler after mocking
-let handler: (event: CloudWatchLogsEvent) => Promise<void>;
+let handler: (event: CloudWatchLogsEvent, context?: Context) => Promise<void>;
 beforeAll(async () => {
   const handlerModule = await import('./handler');
   handler = handlerModule.handler;
@@ -79,7 +89,7 @@ describe('redshift-error-notification', () => {
 
     const event = createMockEvent(logMessage);
 
-    await handler(event);
+    await handler(event, { awsRequestId: 'test-request-id' } as unknown as Context);
 
     expect(mockSend).toHaveBeenCalledTimes(1);
 

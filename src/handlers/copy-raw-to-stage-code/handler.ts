@@ -62,6 +62,7 @@ const copyAssetsToBucket = async (): Promise<void> => {
         code: ERROR_CODES.MISSING_DESTINATION_BUCKET,
         message: error.message,
         name: error.name,
+        stack: error.stack,
       },
     });
     throw error;
