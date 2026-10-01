@@ -1,6 +1,6 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
+import { getTestResource, mockLambdaContext, mockS3BodyStream } from '../../shared/utils/test-utils';
 import { handler } from './handler';
 import type {
   AthenaGetStatementEvent,
@@ -186,7 +186,7 @@ test('get insert query success', async () => {
     })
     .resolves({ Body: mockS3BodyStream({ stringValue: await getTestResource('AUTH_CREATE_ACCOUNT.sql') }) });
 
-  const response = await handler({ ...TEST_EVENT, action: 'GetInsertQuery' });
+  const response = await handler({ ...TEST_EVENT, action: 'GetInsertQuery' }, mockLambdaContext);
 
   expect(response).toBeDefined();
   const expectedFilterValue =

@@ -1,6 +1,7 @@
 import { handler } from './handler';
 import { logger } from '../../shared/logger';
 import { getTestResource } from '../../shared/utils/test-utils';
+import { ERROR_CODES } from '../../shared/error-codes';
 import type { S3ObjectCreatedNotificationEvent } from 'aws-lambda';
 
 vi.mock('../../shared/logger', () => ({
@@ -10,6 +11,7 @@ vi.mock('../../shared/logger', () => ({
     warn: vi.fn(),
     debug: vi.fn(),
   },
+  initialiseLogger: vi.fn(),
 }));
 
 beforeEach(() => {
@@ -22,11 +24,15 @@ test('create event', async () => {
 
   handler(event);
 
-  expect(logger.info).toHaveBeenCalledTimes(1);
   expect(logger.info).toHaveBeenCalledWith('S3 notification event received', {
+    correlationId: event.id,
     reason: event.detail.reason,
     bucketName: event.detail.bucket.name,
   });
+  expect(logger.info).toHaveBeenCalledWith(
+    'S3 notifications logger handler completed',
+    expect.objectContaining({ outcome: 'success', duration: expect.any(Number) }),
+  );
 });
 
 test('valid event', async () => {
@@ -35,11 +41,15 @@ test('valid event', async () => {
 
   handler(event);
 
-  expect(logger.info).toHaveBeenCalledTimes(1);
   expect(logger.info).toHaveBeenCalledWith('S3 notification event received', {
+    correlationId: event.id,
     reason: event.detail.reason,
     bucketName: event.detail.bucket.name,
   });
+  expect(logger.info).toHaveBeenCalledWith(
+    'S3 notifications logger handler completed',
+    expect.objectContaining({ outcome: 'success', duration: expect.any(Number) }),
+  );
 });
 
 test('invalid event or records', async () => {
@@ -51,5 +61,10 @@ test('invalid event or records', async () => {
   handler({ detail: undefined } as unknown as S3ObjectCreatedNotificationEvent);
 
   expect(logger.error).toHaveBeenCalledTimes(5);
-  expect(logger.error).toHaveBeenCalledWith('Missing event or event detail');
+  expect(logger.error).toHaveBeenCalledWith(
+    'Missing event or event detail',
+    expect.objectContaining({
+      error: expect.objectContaining({ code: ERROR_CODES.MISSING_EVENT_DETAIL }),
+    }),
+  );
 });

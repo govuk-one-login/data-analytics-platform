@@ -1,8 +1,10 @@
-import { CloudWatchLogsEvent, CloudWatchLogsDecodedData } from 'aws-lambda';
+import { CloudWatchLogsEvent, CloudWatchLogsDecodedData, Context } from 'aws-lambda';
 import { PutEventsCommand } from '@aws-sdk/client-eventbridge';
 import { gunzipSync, InputType } from 'node:zlib';
 import { eventbridgeClient } from '../../shared/clients';
-import { logger } from '../../shared/logger';
+import { logger, initialiseLogger } from '../../shared/logger';
+import { buildErrorMetadata } from '../../shared/utils/utils';
+import { ERROR_CODES } from '../../shared/error-codes';
 
 interface RedshiftErrorDetails {
   Error: string;
@@ -12,28 +14,38 @@ interface RedshiftErrorDetails {
   WorkgroupName: string;
 }
 
-export const handler = async (event: CloudWatchLogsEvent): Promise<void> => {
-  logger.info('Redshift error notification lambda invoked');
+export const handler = async (event: CloudWatchLogsEvent, context?: Context): Promise<void> => {
+  if (context !== undefined) {
+    initialiseLogger(context);
+  }
+  const startTime = Date.now();
+  const correlationId = context?.awsRequestId;
+  logger.info('Redshift error notification handler started', { correlationId });
+
   try {
     const compressed = Buffer.from(event.awslogs.data, 'base64');
     const decompressed = gunzipSync(compressed as InputType);
     const logData: CloudWatchLogsDecodedData = JSON.parse(decompressed.toString());
     for (const logEvent of logData.logEvents) {
-      await processLogEvent(JSON.parse(logEvent.message));
+      await processLogEvent(JSON.parse(logEvent.message), correlationId);
     }
+    logger.info('Redshift error notification handler completed', {
+      correlationId,
+      outcome: 'success',
+      duration: Date.now() - startTime,
+    });
   } catch (error) {
     logger.error('Error processing redshift error notification', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.REDSHIFT_ERROR_NOTIFICATION_FAILED),
     });
     throw error;
   }
 };
 
-const processLogEvent = async (message: Record<string, unknown>): Promise<void> => {
+const processLogEvent = async (message: Record<string, unknown>, correlationId: string | undefined): Promise<void> => {
   if (!message.details) return;
   const details = message.details as Record<string, unknown>;
   if (!details.output) return;
@@ -43,10 +55,14 @@ const processLogEvent = async (message: Record<string, unknown>): Promise<void> 
   if (output?.Status !== 'FAILED' || !output.Error) return;
 
   const executionArn = (message.execution_arn as string | undefined) ?? 'N/A';
+  const storedProcedureError = new Error(output.Error);
+  storedProcedureError.name = 'RedshiftStoredProcedureError';
   logger.error('Redshift stored procedure failure detected', {
+    correlationId,
     database: output.Database,
     workgroupName: output.WorkgroupName,
     executionArn,
+    error: buildErrorMetadata(storedProcedureError, ERROR_CODES.REDSHIFT_STORED_PROCEDURE_FAILURE),
   });
 
   const customNotification = {
@@ -73,5 +89,5 @@ const processLogEvent = async (message: Record<string, unknown>): Promise<void> 
       ],
     }),
   );
-  logger.info('Redshift error notification sent to EventBridge', { database: output.Database });
+  logger.info('Redshift error notification sent to EventBridge', { correlationId, database: output.Database });
 };

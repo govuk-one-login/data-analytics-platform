@@ -1,4 +1,4 @@
-import { logger } from '../../shared/logger';
+import { logger, initialiseLogger } from '../../shared/logger';
 import { quicksightClient } from '../../shared/clients';
 import type {
   DescribeAssetBundleImportJobCommandOutput,
@@ -6,7 +6,8 @@ import type {
 } from '@aws-sdk/client-quicksight';
 import { DescribeAssetBundleImportJobCommand, StartAssetBundleImportJobCommand } from '@aws-sdk/client-quicksight';
 import type { Context } from 'aws-lambda';
-import { ensureDefined, getAccountId } from '../../shared/utils/utils';
+import { buildErrorMetadata, ensureDefined, getAccountId } from '../../shared/utils/utils';
+import { ERROR_CODES } from '../../shared/error-codes';
 import { waitForJob } from '../../shared/utils/wait-for-job';
 import { analysisIdFromS3Uri } from '../../shared/quicksight-import-export/filename-utils';
 
@@ -18,28 +19,41 @@ export interface QuicksightImportEvent {
 type QuicksightImportResult = QuicksightImportEvent & { analysisId: string };
 
 export const handler = async (event: QuicksightImportEvent, context: Context): Promise<QuicksightImportResult> => {
-  logger.addContext(context);
+  initialiseLogger(context);
+  const startTime = Date.now();
+  const correlationId = context.awsRequestId;
+  logger.info('Quicksight import handler started', { correlationId, s3Uri: event.s3Uri });
+
   try {
     // do this early as it also acts as validation of the s3 uri
     const analysisId = analysisIdFromS3Uri(event.s3Uri);
     const accountId = getAccountId(context);
-    logger.info('Starting quicksight import', { s3Uri: event.s3Uri, newName: event.newName });
-    const jobId = await startImportJob(event, accountId, analysisId);
-    await waitForImportToFinish(jobId, accountId);
+    logger.info('Starting quicksight import', { correlationId, s3Uri: event.s3Uri, newName: event.newName });
+    const jobId = await startImportJob(event, accountId, analysisId, correlationId);
+    await waitForImportToFinish(jobId, accountId, correlationId);
+    logger.info('Quicksight import handler completed', {
+      correlationId,
+      outcome: 'success',
+      duration: Date.now() - startTime,
+    });
     return { ...event, analysisId };
   } catch (error) {
     logger.error('Error in quicksight import', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.QUICKSIGHT_IMPORT_FAILED),
     });
     throw error;
   }
 };
 
-const startImportJob = async (event: QuicksightImportEvent, accountId: string, analysisId: string): Promise<string> => {
+const startImportJob = async (
+  event: QuicksightImportEvent,
+  accountId: string,
+  analysisId: string,
+  correlationId: string,
+): Promise<string> => {
   const jobId = `import-${Math.random().toString(36).substring(2)}`;
   const input: StartAssetBundleImportJobCommandInput = {
     AwsAccountId: accountId,
@@ -65,21 +79,25 @@ const startImportJob = async (event: QuicksightImportEvent, accountId: string, a
       `Start import job request with id ${response.AssetBundleImportJobId} returned status code of ${response.Status}`,
     );
   }
-  logger.info('Import job started', { jobId });
+  logger.info('Import job started', { correlationId, jobId });
   return ensureDefined(() => response.AssetBundleImportJobId);
 };
 
-const waitForImportToFinish = async (jobId: string, accountId: string): Promise<void> => {
+const waitForImportToFinish = async (jobId: string, accountId: string, correlationId: string): Promise<void> => {
   await waitForJob<DescribeAssetBundleImportJobCommandOutput>({
-    statusGetter: async () => await describeImportJob(jobId, accountId),
+    statusGetter: async () => await describeImportJob(jobId, accountId, correlationId),
     statusStringGetter: response => response.JobStatus,
     successStatuses: ['SUCCESSFUL'],
     failureStatuses: ['FAILED', 'FAILED_ROLLBACK_COMPLETED', 'FAILED_ROLLBACK_ERROR'],
     onError: response => {
+      const error = new Error(`Import job did not complete - status ${response?.JobStatus}`);
+      error.name = 'QuicksightImportJobError';
       logger.error('Import job did not complete', {
+        correlationId,
         status: response?.JobStatus,
         errors: response?.Errors,
         rollbackErrors: response?.RollbackErrors,
+        error: buildErrorMetadata(error, ERROR_CODES.QUICKSIGHT_IMPORT_JOB_INCOMPLETE),
       });
     },
   });
@@ -88,6 +106,7 @@ const waitForImportToFinish = async (jobId: string, accountId: string): Promise<
 const describeImportJob = async (
   importJobId: string,
   accountId: string,
+  correlationId: string,
 ): Promise<DescribeAssetBundleImportJobCommandOutput> => {
   try {
     return await quicksightClient.send(
@@ -98,11 +117,8 @@ const describeImportJob = async (
     );
   } catch (error) {
     logger.error('Error checking status of import job', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      error: buildErrorMetadata(error, ERROR_CODES.QUICKSIGHT_IMPORT_JOB_STATUS_FAILED),
     });
     throw error;
   }

@@ -3,27 +3,42 @@ import {
   AdminUpdateUserAttributesCommandInput,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { cognitoClient } from '../../shared/clients';
-import { logger } from '../../shared/logger';
-import { PostAuthenticationTriggerEvent } from 'aws-lambda';
-import { getRequiredParams } from '../../shared/utils/utils';
+import { logger, initialiseLogger } from '../../shared/logger';
+import { Context, PostAuthenticationTriggerEvent } from 'aws-lambda';
+import { buildErrorMetadata, getRequiredParams } from '../../shared/utils/utils';
+import { ERROR_CODES } from '../../shared/error-codes';
 
 export { logger } from '../../shared/logger';
 
-export const handler = async (event: PostAuthenticationTriggerEvent): Promise<PostAuthenticationTriggerEvent> => {
+export const handler = async (
+  event: PostAuthenticationTriggerEvent,
+  context?: Context,
+): Promise<PostAuthenticationTriggerEvent> => {
+  if (context !== undefined) {
+    initialiseLogger(context);
+  }
+  const startTime = Date.now();
+  const correlationId = context?.awsRequestId;
+  logger.info('Cognito post authentication handler started', {
+    correlationId,
+    userPoolId: event.userPoolId,
+    userName: event.userName,
+  });
+
   try {
-    logger.info('Cognito post authentication lambda invoked', {
-      userPoolId: event.userPoolId,
-      userName: event.userName,
-    });
     const updateAttributesCommand = getUpdateAttributesCommand(event);
     await cognitoClient.send(new AdminUpdateUserAttributesCommand(updateAttributesCommand));
+    logger.info('Cognito post authentication handler completed', {
+      correlationId,
+      outcome: 'success',
+      duration: Date.now() - startTime,
+    });
   } catch (error) {
     logger.error('Error in post authentication lambda', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.POST_AUTHENTICATION_FAILED),
     });
   }
   return event;

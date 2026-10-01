@@ -2,6 +2,7 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { DescribeExecutionCommand, ListExecutionsCommand, SFNClient } from '@aws-sdk/client-sfn';
 import type { ExecutionListItem, ExecutionStatus } from '@aws-sdk/client-sfn';
 import { handler, logger } from './handler';
+import { mockLambdaContext } from '../../shared/utils/test-utils';
 
 const loggerSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
 
@@ -39,9 +40,12 @@ test('missing state machine arn', async () => {
   await expect(handler(TEST_EVENT)).rejects.toThrow(expectedErrorMessage);
 
   expect(loggerSpy).toHaveBeenCalledTimes(1);
-  expect(loggerSpy).toHaveBeenCalledWith('Error validating stepfunction execution', {
-    error: expect.objectContaining({ message: expectedErrorMessage }),
-  });
+  expect(loggerSpy).toHaveBeenCalledWith(
+    'Error validating stepfunction execution',
+    expect.objectContaining({
+      error: expect.objectContaining({ message: expectedErrorMessage }),
+    }),
+  );
 
   expect(mockSFNClient.calls()).toHaveLength(0);
 });
@@ -50,7 +54,7 @@ test('no executions', async () => {
   // Unit Test
   mockSetup(new MockExecution({ executionArn: EXECUTION_ARN }));
 
-  const response = await handler(TEST_EVENT);
+  const response = await handler(TEST_EVENT, mockLambdaContext);
   expect(response).toEqual({ continue: 'true' });
 
   expect(loggerSpy).toHaveBeenCalledTimes(0);
@@ -247,9 +251,12 @@ test('sfn client error', async () => {
   await expect(handler(TEST_EVENT)).rejects.toThrow(errorMessage);
 
   expect(loggerSpy).toHaveBeenCalledTimes(1);
-  expect(loggerSpy).toHaveBeenCalledWith('Error validating stepfunction execution', {
-    error: expect.objectContaining({ message: errorMessage }),
-  });
+  expect(loggerSpy).toHaveBeenCalledWith(
+    'Error validating stepfunction execution',
+    expect.objectContaining({
+      error: expect.objectContaining({ message: errorMessage }),
+    }),
+  );
 
   // one for the execution list
   expect(mockSFNClient.calls()).toHaveLength(1);

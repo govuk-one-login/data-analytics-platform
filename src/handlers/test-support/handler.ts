@@ -1,5 +1,5 @@
 import { AWS_ENVIRONMENTS } from '../../shared/constants';
-import { getAccountId, getRequiredParams, lambdaInvokeResponse } from '../../shared/utils/utils';
+import { buildErrorMetadata, getAccountId, getRequiredParams, lambdaInvokeResponse } from '../../shared/utils/utils';
 import { DescribeLogStreamsCommand, GetLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
 import { InvokeCommand, ListEventSourceMappingsCommand } from '@aws-sdk/client-lambda';
 import type { CopyObjectCommandOutput, DeleteObjectCommandOutput, GetObjectCommandOutput } from '@aws-sdk/client-s3';
@@ -13,7 +13,8 @@ import {
 import { GetQueueUrlCommand, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { cloudwatchClient, firehoseClient, lambdaClient, s3Client, sfnClient, sqsClient } from '../../shared/clients';
 import * as zlib from 'zlib';
-import { logger } from '../../shared/logger';
+import { logger, initialiseLogger } from '../../shared/logger';
+import { ERROR_CODES } from '../../shared/error-codes';
 import { DescribeExecutionCommand, ListExecutionsCommand, StartExecutionCommand } from '@aws-sdk/client-sfn';
 import type { Context } from 'aws-lambda';
 import { DescribeDeliveryStreamCommand } from '@aws-sdk/client-firehose';
@@ -57,16 +58,30 @@ export interface S3CopyCommandResult {
 }
 
 export const handler = async (event: TestSupportEvent, context: Context): Promise<unknown> => {
+  initialiseLogger(context);
+  const startTime = Date.now();
+  const correlationId = context.awsRequestId;
+  logger.info('Test support handler started', {
+    correlationId,
+    command: event.command,
+    environment: event.environment,
+  });
+
   try {
-    logger.info('Test support lambda invoked', { command: event.command, environment: event.environment });
-    return await handleEvent(validateEvent(event), context);
+    const result = await handleEvent(validateEvent(event), context, correlationId);
+    logger.info('Test support handler completed', {
+      correlationId,
+      outcome: 'success',
+      duration: Date.now() - startTime,
+      command: event.command,
+    });
+    return result;
   } catch (error) {
     logger.error('Error calling test support lambda', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.TEST_SUPPORT_FAILED),
     });
     throw error;
   }
@@ -82,10 +97,10 @@ const validateEvent = (event: TestSupportEvent): TestSupportEvent => {
   return event;
 };
 
-const handleEvent = async (event: TestSupportEvent, context: Context): Promise<unknown> => {
+const handleEvent = async (event: TestSupportEvent, context: Context, correlationId: string): Promise<unknown> => {
   switch (event.command) {
     case 'ATHENA_RUN_QUERY': {
-      return await new QueryRunner('athena').runQuery(event);
+      return await new QueryRunner('athena').runQuery(event, correlationId);
     }
     case 'CLOUDWATCH_GET': {
       const request = new GetLogEventsCommand({
@@ -120,7 +135,7 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
       return await lambdaClient.send(request);
     }
     case 'REDSHIFT_RUN_QUERY': {
-      return await new QueryRunner('redshift').runQuery(event);
+      return await new QueryRunner('redshift').runQuery(event, correlationId);
     }
     case 'S3_COPY': {
       return await s3Copy(event);
@@ -156,7 +171,7 @@ const handleEvent = async (event: TestSupportEvent, context: Context): Promise<u
     }
     case 'SFN_START_EXECUTION': {
       const stateMachineArn = getStateMachineArn(event, context);
-      logger.info('Starting state machine execution', { stateMachineArn });
+      logger.info('Starting state machine execution', { correlationId, stateMachineArn });
       return await sfnClient.send(new StartExecutionCommand({ stateMachineArn }));
     }
     case 'SFN_DESCRIBE_EXECUTION': {

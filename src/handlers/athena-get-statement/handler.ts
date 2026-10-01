@@ -1,21 +1,43 @@
-import { getAWSEnvironment, getRequiredParams, parseS3ResponseAsString } from '../../shared/utils/utils';
+import {
+  buildErrorMetadata,
+  getAWSEnvironment,
+  getRequiredParams,
+  parseS3ResponseAsString,
+} from '../../shared/utils/utils';
 import { s3Client } from '../../shared/clients';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import type { AthenaGetStatementEvent } from '../../shared/types/raw-layer-processing';
 import { RawLayerProcessingActions } from '../../shared/types/raw-layer-processing';
-import { logger } from '../../shared/logger';
+import { logger, initialiseLogger } from '../../shared/logger';
+import { ERROR_CODES } from '../../shared/error-codes';
+import type { Context } from 'aws-lambda';
 
-export const handler = async (event: AthenaGetStatementEvent): Promise<string> => {
+export const handler = async (event: AthenaGetStatementEvent, context?: Context): Promise<string> => {
+  if (context !== undefined) {
+    initialiseLogger(context);
+  }
+  const startTime = Date.now();
+  const correlationId = context?.awsRequestId;
+  logger.info('Athena get statement handler started', {
+    correlationId,
+    action: event.action,
+    datasource: event.datasource,
+  });
+
   try {
-    logger.info('Athena get statement lambda invoked', { action: event.action, datasource: event.datasource });
-    return await handleEvent(validateEvent(event));
+    const result = await handleEvent(validateEvent(event));
+    logger.info('Athena get statement handler completed', {
+      correlationId,
+      outcome: 'success',
+      duration: Date.now() - startTime,
+    });
+    return result;
   } catch (error) {
     logger.error('Error getting athena statement', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      correlationId,
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.GET_STATEMENT_FAILED),
     });
     throw error;
   }

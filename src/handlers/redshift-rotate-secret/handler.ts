@@ -1,5 +1,6 @@
-import { ensureDefined, getEnvironmentVariable, getErrorMessage } from '../../shared/utils/utils';
-import { logger } from '../../shared/logger';
+import { buildErrorMetadata, ensureDefined, getEnvironmentVariable, getErrorMessage } from '../../shared/utils/utils';
+import { logger, initialiseLogger } from '../../shared/logger';
+import { ERROR_CODES } from '../../shared/error-codes';
 import { secretsManagerClient } from '../../shared/clients';
 import type { DescribeSecretCommandOutput } from '@aws-sdk/client-secrets-manager';
 import {
@@ -12,6 +13,7 @@ import * as crypto from 'node:crypto';
 import { DatabaseAccess } from './database-access';
 import { getSecret } from '../../shared/secrets-manager/get-secret';
 import type { RedshiftSecret, SecretRotationStage } from '../../shared/types/secrets-manager';
+import type { Context } from 'aws-lambda';
 
 export type RotateSecretStep = 'createSecret' | 'setSecret' | 'testSecret' | 'finishSecret';
 
@@ -30,18 +32,33 @@ export const databaseAccess = new DatabaseAccess();
  * and a JavaScript version here (src/rotateSingleUser.js)<br>
  * {@link https://www.npmjs.com/package/aws-secrets-manager-rotation-lambdas?activeTab=code}
  */
-export const handler = async (event: RotateSecretEvent): Promise<void> => {
+export const handler = async (event: RotateSecretEvent, context?: Context): Promise<void> => {
+  if (context !== undefined) {
+    initialiseLogger(context);
+  }
+  const startTime = Date.now();
+  const correlationId = event.ClientRequestToken;
+  logger.info('Redshift rotate secret handler started', {
+    correlationId,
+    step: event.Step,
+    secretId: event.SecretId,
+  });
+
   try {
-    logger.info('Rotate secret lambda invoked', { step: event.Step, secretId: event.SecretId });
     await rotateSecret(event);
+    logger.info('Redshift rotate secret handler completed', {
+      correlationId,
+      outcome: 'success',
+      duration: Date.now() - startTime,
+      step: event.Step,
+    });
   } catch (error) {
     logger.error('Error rotating secret', {
+      correlationId,
       secretId: event.SecretId,
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
+      outcome: 'failure',
+      duration: Date.now() - startTime,
+      error: buildErrorMetadata(error, ERROR_CODES.ROTATE_SECRET_FAILED),
     });
     throw error;
   }
@@ -121,12 +138,7 @@ const setSecret = async (event: RotateSecretEvent): Promise<void> => {
     await connection.raw(`alter user ${loginSecret.username} with password '${hashedPasswordUsername(pendingSecret)}'`);
     logger.info('setSecret: Successfully set password for user in Redshift DB', { username: loginSecret.username });
   } catch (error) {
-    logAndThrow('setSecret: Error changing database password', {
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-      },
-    });
+    logAndThrow('setSecret: Error changing database password', undefined, error);
   } finally {
     await connection.destroy();
   }
@@ -233,10 +245,13 @@ const updateSecretVersionStage = async (
   }
 };
 
-const logAndThrow = (message: string, metadata?: Record<string, unknown>): never => {
+const logAndThrow = (message: string, metadata?: Record<string, unknown>, cause?: unknown): never => {
   logger.error(message, {
-    error: { message, name: 'Error' },
     ...metadata,
+    error:
+      cause === undefined
+        ? { code: ERROR_CODES.ROTATE_SECRET_FAILED, message, name: 'Error' }
+        : buildErrorMetadata(cause, ERROR_CODES.ROTATE_SECRET_FAILED),
   });
   throw new Error(message);
 };

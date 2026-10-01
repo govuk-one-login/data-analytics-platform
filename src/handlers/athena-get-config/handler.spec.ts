@@ -2,7 +2,7 @@ import { handler } from './handler';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
 import type { AthenaGetConfigEvent } from '../../shared/types/raw-layer-processing';
-import { getTestResource, mockS3BodyStream } from '../../shared/utils/test-utils';
+import { getTestResource, mockLambdaContext, mockS3BodyStream } from '../../shared/utils/test-utils';
 
 const mockS3Client = mockClient(S3Client);
 
@@ -92,7 +92,7 @@ test('success', async () => {
     })
     .resolves({ Body: mockS3BodyStream({ stringValue: await getTestResource('txma_config.json') }) });
 
-  const response = await handler(TEST_EVENT);
+  const response = await handler(TEST_EVENT, mockLambdaContext);
   expect(response).toBeDefined();
   expect(response).toHaveLength(2);
   expect(response[0]).toEqual({ event_name: 'auth_create_account', enabled: true });
