@@ -1,6 +1,7 @@
 import { checkEventLog } from '../../helpers/aws/cloudwatch/check-event-log';
 import { executeAthenaQuery } from '../../../shared-test-code/aws/athena/execute-athena-query';
 import { getIntegrationTestEnv } from '../../helpers/utils/utils';
+import { pollDlqForEvent } from '../../helpers/aws/sqs/poll-dlq-for-event';
 
 const setupStartTime = Date.now() - 30 * 60 * 1000; // 30 minutes before test start
 
@@ -16,22 +17,29 @@ describe('TxMA consumer lambda unhappy path tests', () => {
   // - Event with timestamp as string
   // - Event with timestamp in milliseconds
   test.each(getUnhappyPathEventPairs())(
-    '$description does not appear in raw layer and txma-event-consumer lambda logs "Invalid audit event"',
+    '$description is rejected: logs "Invalid audit event", goes to the DLQ and does not appear in the raw layer',
     async ({ auditEvent }) => {
       // Component Test
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const eventId = (auditEvent as any).event_id;
 
+      // 1. The lambda logs the validation error
       const logGroupName = `/aws/lambda/txma-event-consumer`;
       const filterPattern = '"Invalid audit event"';
       const logFound = await checkEventLog(logGroupName, filterPattern, eventId, setupStartTime);
       expect(logFound).toBe(true);
 
+      // 2. The rejected event is sent to the dead letter queue
+      const dlqUrl = getIntegrationTestEnv('DAP_TXMA_CONSUMER_DLQ_URL');
+      const dlqMessageFound = await pollDlqForEvent(dlqUrl, eventId);
+      expect(dlqMessageFound).toBe(true);
+
+      // 3. The event does not appear in the raw layer txma-refactored table.
       const rawLayerDatabase = getIntegrationTestEnv('RAW_LAYER_DATABASE');
       const query = `SELECT * FROM "${rawLayerDatabase}"."txma-refactored" WHERE event_id = '${eventId}'`;
       const results = await executeAthenaQuery(query, rawLayerDatabase);
       expect(results.length).toBe(1);
     },
-    30000,
+    60000,
   );
 });

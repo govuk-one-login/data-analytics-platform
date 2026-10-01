@@ -157,6 +157,14 @@ EventConsumerQueueTestUrl:
     Type: String
     Value: !GetAtt EventConsumerQueue.QueueUrl
 
+EventConsumerDlqTestUrl:
+  Condition: IsDevOrBuild
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: !Sub /tests/${AWS::StackName}/dapTXMAConsumerDLQUrl
+    Type: String
+    Value: !GetAtt EventConsumerDlq.QueueUrl
+
 E2ETestProducerQueueKmsKey:
   Type: AWS::KMS::Key
   DeletionPolicy: Retain
