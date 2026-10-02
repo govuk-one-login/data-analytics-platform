@@ -57,7 +57,7 @@
             },
             "wait_on_dim_event_upsert": {
               "Type": "Wait",
-              "Seconds": 120,
+              "Seconds": ${RedshiftPollIntervalSeconds},
               "Next": "dim_event_upsert_status_check"
             },
             "dim_event_upsert_status_check": {
@@ -112,7 +112,7 @@
             },
             "wait_on_dim_user_journey_event_upsert": {
               "Type": "Wait",
-              "Seconds": 120,
+              "Seconds": ${RedshiftPollIntervalSeconds},
               "Next": "dim_user_journey_event_upsert_status_check"
             },
             "dim_user_journey_event_upsert_status_check": {
@@ -167,7 +167,7 @@
             },
             "wait_on_dim_user_refactored_upsert": {
               "Type": "Wait",
-              "Seconds": 120,
+              "Seconds": ${RedshiftPollIntervalSeconds},
               "Next": "dim_user_refactored_upsert_status_check"
             },
             "dim_user_refactored_upsert_status_check": {
@@ -222,7 +222,7 @@
             },
             "wait_on_dim_journey_channel_refactored_upsert": {
               "Type": "Wait",
-              "Seconds": 120,
+              "Seconds": ${RedshiftPollIntervalSeconds},
               "Next": "dim_journey_channel_refactored_upsert_status_check"
             },
             "dim_journey_channel_refactored_upsert_status_check": {
@@ -277,7 +277,7 @@
             },
             "wait_on_dim_relying_party_refactored_upsert": {
               "Type": "Wait",
-              "Seconds": 120,
+              "Seconds": ${RedshiftPollIntervalSeconds},
               "Next": "dim_relying_party_refactored_upsert_status_check"
             },
             "dim_relying_party_refactored_upsert_status_check": {
@@ -331,7 +331,7 @@
     },
     "wait_on_fact_user_journey_event_refactored_upsert": {
       "Type": "Wait",
-      "Seconds": 120,
+      "Seconds": ${RedshiftPollIntervalSeconds},
       "Next": "fact_user_journey_event_refactored_upsert_status_check"
     },
     "fact_user_journey_event_refactored_upsert_status_check": {
@@ -377,7 +377,7 @@
     },
     "wait_on_event_extensions_refactored_upsert": {
       "Type": "Wait",
-      "Seconds": 120,
+      "Seconds": ${RedshiftPollIntervalSeconds},
       "Next": "event_extensions_refactored_upsert_status_check"
     },
     "event_extensions_refactored_upsert_status_check": {
@@ -423,7 +423,7 @@
     },
     "wait_on_update_event_batch_table": {
       "Type": "Wait",
-      "Seconds": 120,
+      "Seconds": ${RedshiftPollIntervalSeconds},
       "Next": "update_event_batch_table_status_check"
     },
     "update_event_batch_table_status_check": {
