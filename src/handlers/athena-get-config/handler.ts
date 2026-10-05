@@ -12,7 +12,7 @@ export const handler = async (event: AthenaGetConfigEvent, context?: Context): P
   }
   const startTime = Date.now();
   const correlationId = context?.awsRequestId;
-  logger.info('Athena get config handler started', { correlationId, datasource: event.datasource });
+  logger.info('Handler started', { correlationId, datasource: event.datasource });
 
   try {
     const {
@@ -28,7 +28,7 @@ export const handler = async (event: AthenaGetConfigEvent, context?: Context): P
     logger.info('Getting athena config', { correlationId, bucket: Bucket, datasource });
     const response = await s3Client.send(request);
     const config = await parseS3ResponseAsObject<RawLayerEventStatus[]>(response);
-    logger.info('Athena get config handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,

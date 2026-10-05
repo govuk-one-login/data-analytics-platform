@@ -18,7 +18,7 @@ export const handler = async (event: AthenaGetStatementEvent, context?: Context)
   }
   const startTime = Date.now();
   const correlationId = context?.awsRequestId;
-  logger.info('Athena get statement handler started', {
+  logger.info('Handler started', {
     correlationId,
     action: event.action,
     datasource: event.datasource,
@@ -26,7 +26,7 @@ export const handler = async (event: AthenaGetStatementEvent, context?: Context)
 
   try {
     const result = await handleEvent(validateEvent(event));
-    logger.info('Athena get statement handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,

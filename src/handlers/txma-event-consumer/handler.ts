@@ -13,11 +13,11 @@ export const handler = async (event: SQSEvent, context: Context): Promise<SQSBat
   initialiseLogger(context);
   const startTime = Date.now();
   const correlationId = context.awsRequestId;
-  logger.info('TxMA event consumer handler started', { correlationId, recordCount: event.Records.length });
+  logger.info('Handler started', { correlationId, recordCount: event.Records.length });
 
   const failedRecords = await processRecords(event.Records, correlationId);
 
-  logger.info('TxMA event consumer handler completed', {
+  logger.info('Handler completed', {
     correlationId,
     outcome: failedRecords.length === 0 ? 'success' : 'partial',
     duration: Date.now() - startTime,

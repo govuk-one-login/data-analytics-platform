@@ -49,7 +49,7 @@ export const handler = async (event: RunFlywayEvent, context?: Context): Promise
   }
   const startTime = Date.now();
   const correlationId = context?.awsRequestId;
-  logger.info('Run flyway command handler started', {
+  logger.info('Handler started', {
     correlationId,
     command: event.command,
     database: event.database,
@@ -67,7 +67,7 @@ export const handler = async (event: RunFlywayEvent, context?: Context): Promise
     const redshiftSecret = await getRedshiftSecret();
     const flywayEnvironment = await getFlywayEnvironment(validated, redshiftSecret);
     const result = runFlywayCommand(validated, flywayEnvironment);
-    logger.info('Run flyway command handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: result.status === 0 ? 'success' : 'failure',
       duration: Date.now() - startTime,

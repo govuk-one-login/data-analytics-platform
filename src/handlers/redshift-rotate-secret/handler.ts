@@ -38,7 +38,7 @@ export const handler = async (event: RotateSecretEvent, context?: Context): Prom
   }
   const startTime = Date.now();
   const correlationId = event.ClientRequestToken;
-  logger.info('Redshift rotate secret handler started', {
+  logger.info('Handler started', {
     correlationId,
     step: event.Step,
     secretId: event.SecretId,
@@ -46,7 +46,7 @@ export const handler = async (event: RotateSecretEvent, context?: Context): Prom
 
   try {
     await rotateSecret(event);
-    logger.info('Redshift rotate secret handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,

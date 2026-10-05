@@ -15,7 +15,7 @@ export const handler = async (event: RedshiftGetMetadataEvent, context?: Context
   }
   const startTime = Date.now();
   const correlationId = context?.awsRequestId;
-  logger.info('Redshift get metadata handler started', { correlationId });
+  logger.info('Handler started', { correlationId });
 
   try {
     const fileMetadata = getFileMetadata(event);
@@ -29,7 +29,7 @@ export const handler = async (event: RedshiftGetMetadataEvent, context?: Context
     const configFile = await getConfigFile(configFileBucket, filePathParts.configRef);
     logger.info('Retrieved config file', { correlationId, configRef: filePathParts.configRef });
     const metadata = getMetadata(configFile, filePathParts.dashboardRef, filePathParts.dataSource, correlationId);
-    logger.info('Redshift get metadata handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,

@@ -61,7 +61,7 @@ export const handler = async (event: TestSupportEvent, context: Context): Promis
   initialiseLogger(context);
   const startTime = Date.now();
   const correlationId = context.awsRequestId;
-  logger.info('Test support handler started', {
+  logger.info('Handler started', {
     correlationId,
     command: event.command,
     environment: event.environment,
@@ -69,7 +69,7 @@ export const handler = async (event: TestSupportEvent, context: Context): Promis
 
   try {
     const result = await handleEvent(validateEvent(event), context, correlationId);
-    logger.info('Test support handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,
