@@ -10,7 +10,6 @@ import { firehosePutRecordBatch } from '../../shared/firehose/put-batch-record';
 export { logger } from '../../shared/logger';
 
 export const handler = async (event: SQSEvent, context: Context): Promise<SQSBatchResponse> => {
-<<<<<<< HEAD
   initialiseLogger(context);
   const startTime = Date.now();
   const correlationId = context.awsRequestId;
@@ -26,11 +25,6 @@ export const handler = async (event: SQSEvent, context: Context): Promise<SQSBat
     failedCount: failedRecords.length,
   });
 
-=======
-  logger.addContext(context);
-  logger.info('TxMA event consumer lambda invoked', { recordCount: event.Records.length });
-  const failedRecords = await processRecords(event.Records);
->>>>>>> f6a080a (added extra logging)
   return {
     batchItemFailures: failedRecords.map(record => ({ itemIdentifier: record.messageId })),
   };
@@ -46,18 +40,9 @@ const processRecords = async (records: SQSRecord[], correlationId: string): Prom
   } catch (error) {
     const streamName = process.env.FIREHOSE_STREAM_NAME ?? 'UNKNOWN';
     logger.error("Error delivering batch data to DAP's Kinesis Firehose", {
-<<<<<<< HEAD
       correlationId,
       streamName,
       error: buildErrorMetadata(error, ERROR_CODES.FIREHOSE_DELIVERY_FAILED),
-=======
-      streamName,
-      error: {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        name: error instanceof Error ? error.name : 'UnknownError',
-        stack: error instanceof Error ? error.stack : undefined,
-      },
->>>>>>> f6a080a (added extra logging)
     });
     return [...failedRecords, ...validRecords];
   }
@@ -86,18 +71,9 @@ const validateRecords = (records: SQSRecord[], correlationId: string) => {
         }
       } catch (error) {
         logger.error('Error processing record', {
-<<<<<<< HEAD
           correlationId: record.messageId,
           messageId: record.messageId,
           error: buildErrorMetadata(error, ERROR_CODES.RECORD_PROCESSING_FAILED),
-=======
-          messageId: record.messageId,
-          error: {
-            message: error instanceof Error ? error.message : 'Unknown error',
-            name: error instanceof Error ? error.name : 'UnknownError',
-            stack: error instanceof Error ? error.stack : undefined,
-          },
->>>>>>> f6a080a (added extra logging)
         });
         acc.failedRecords.push(record);
       }
