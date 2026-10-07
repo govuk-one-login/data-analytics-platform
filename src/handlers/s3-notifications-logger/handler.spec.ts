@@ -30,7 +30,7 @@ test('create event', async () => {
     bucketName: event.detail.bucket.name,
   });
   expect(logger.info).toHaveBeenCalledWith(
-    'S3 notifications logger handler completed',
+    'Handler completed',
     expect.objectContaining({ outcome: 'success', duration: expect.any(Number) }),
   );
 });
@@ -47,7 +47,7 @@ test('valid event', async () => {
     bucketName: event.detail.bucket.name,
   });
   expect(logger.info).toHaveBeenCalledWith(
-    'S3 notifications logger handler completed',
+    'Handler completed',
     expect.objectContaining({ outcome: 'success', duration: expect.any(Number) }),
   );
 });

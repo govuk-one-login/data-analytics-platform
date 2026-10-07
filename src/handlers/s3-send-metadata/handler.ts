@@ -18,7 +18,7 @@ export const handler = async (event: S3Event, context: Context): Promise<void> =
   initialiseLogger(context);
   const startTime = Date.now();
   const correlationId = context.awsRequestId;
-  logger.info('S3 send metadata handler started', { correlationId });
+  logger.info('Handler started', { correlationId });
 
   try {
     const queueUrl = getEnvironmentVariable('METADATA_QUEUE_URL');
@@ -35,7 +35,7 @@ export const handler = async (event: S3Event, context: Context): Promise<void> =
         await sendToSQS(queueUrl, messageParams);
       }),
     );
-    logger.info('S3 send metadata handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,

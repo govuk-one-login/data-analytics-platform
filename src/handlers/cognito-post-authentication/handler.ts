@@ -19,7 +19,7 @@ export const handler = async (
   }
   const startTime = Date.now();
   const correlationId = context?.awsRequestId;
-  logger.info('Cognito post authentication handler started', {
+  logger.info('Handler started', {
     correlationId,
     userPoolId: event.userPoolId,
     userName: event.userName,
@@ -28,7 +28,7 @@ export const handler = async (
   try {
     const updateAttributesCommand = getUpdateAttributesCommand(event);
     await cognitoClient.send(new AdminUpdateUserAttributesCommand(updateAttributesCommand));
-    logger.info('Cognito post authentication handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,

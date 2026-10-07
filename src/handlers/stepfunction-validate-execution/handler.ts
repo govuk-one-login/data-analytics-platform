@@ -23,7 +23,7 @@ export const handler = async (event: ValidateExecutionEvent, context?: Context):
   }
   const startTime = Date.now();
   const correlationId = event.currentExecutionArn;
-  logger.info('Validate execution handler started', {
+  logger.info('Handler started', {
     correlationId,
     messageGroupId: event.messageGroupId,
   });
@@ -40,7 +40,7 @@ export const handler = async (event: ValidateExecutionEvent, context?: Context):
     const currentExecution = getCurrentExecution(event, allExecutions);
     const otherExecutions = allExecutions.filter(execution => execution.executionArn !== currentExecution.executionArn);
     const result = evaluateExecutions(event, currentExecution, otherExecutions, correlationId);
-    logger.info('Validate execution handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,

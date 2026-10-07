@@ -20,7 +20,7 @@ export const handler = async (event: CloudWatchLogsEvent, context?: Context): Pr
   }
   const startTime = Date.now();
   const correlationId = context?.awsRequestId;
-  logger.info('Redshift error notification handler started', { correlationId });
+  logger.info('Handler started', { correlationId });
 
   try {
     const compressed = Buffer.from(event.awslogs.data, 'base64');
@@ -29,7 +29,7 @@ export const handler = async (event: CloudWatchLogsEvent, context?: Context): Pr
     for (const logEvent of logData.logEvents) {
       await processLogEvent(JSON.parse(logEvent.message), correlationId);
     }
-    logger.info('Redshift error notification handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,

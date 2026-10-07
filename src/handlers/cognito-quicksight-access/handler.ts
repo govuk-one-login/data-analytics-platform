@@ -31,14 +31,14 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
   initialiseLogger(context);
   const startTime = Date.now();
   const correlationId = context.awsRequestId;
-  logger.info('Cognito quicksight access handler started', { correlationId });
+  logger.info('Handler started', { correlationId });
 
   try {
     const code = await getCode(event);
     const tokens = await callTokenEndpoint(event.requestContext.domainName, event.requestContext.http.path, code);
     const userInfo = await callUserInfoEndpoint(tokens);
     const embedUrl = await getEmbedUrl(event.requestContext.accountId, userInfo.username);
-    logger.info('Cognito quicksight access handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,

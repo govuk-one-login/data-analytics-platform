@@ -23,7 +23,7 @@ export const handler = async (event: QuicksightExportEvent, context: Context): P
   initialiseLogger(context);
   const startTime = Date.now();
   const correlationId = context.awsRequestId;
-  logger.info('Quicksight export handler started', { correlationId, analysisId: event.analysisId });
+  logger.info('Handler started', { correlationId, analysisId: event.analysisId });
 
   try {
     // do this early as it also acts as validation of the analysis id
@@ -37,7 +37,7 @@ export const handler = async (event: QuicksightExportEvent, context: Context): P
     const jobId = await startExportJob(event, accountId, correlationId);
     const downloadUrl = await waitForExportToFinish(jobId, accountId, correlationId);
     await uploadToS3(event, downloadUrl, filename, correlationId);
-    logger.info('Quicksight export handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,

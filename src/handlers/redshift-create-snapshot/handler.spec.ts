@@ -50,7 +50,7 @@ test('success', async () => {
     status: response.snapshot?.status,
   });
   expect(loggerInfoSpy).toHaveBeenCalledWith(
-    'Redshift create snapshot handler completed',
+    'Handler completed',
     expect.objectContaining({ outcome: 'success', duration: expect.any(Number) }),
   );
   expect(loggerErrorSpy).toHaveBeenCalledTimes(0);

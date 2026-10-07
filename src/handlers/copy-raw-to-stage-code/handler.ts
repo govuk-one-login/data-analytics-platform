@@ -11,7 +11,7 @@ const ASSETS_DIR = join(process.env.LAMBDA_TASK_ROOT ?? import.meta.dirname, 'as
 export const handler = async (event: CloudFormationCustomResourceEvent): Promise<void> => {
   const startTime = Date.now();
 
-  logger.info('Custom resource handler started', {
+  logger.info('Handler started', {
     requestType: event.RequestType,
     stackId: event.StackId,
     logicalResourceId: event.LogicalResourceId,
@@ -27,7 +27,7 @@ export const handler = async (event: CloudFormationCustomResourceEvent): Promise
       await copyAssetsToBucket();
     }
 
-    logger.info('Custom resource handler completed', {
+    logger.info('Handler completed', {
       requestType: event.RequestType,
       outcome: 'success',
       duration: Date.now() - startTime,
