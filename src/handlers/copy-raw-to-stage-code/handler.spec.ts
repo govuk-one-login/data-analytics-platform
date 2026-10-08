@@ -2,6 +2,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
 import type { CloudFormationCustomResourceEvent } from 'aws-lambda';
 import { ERROR_CODES } from './error-codes';
+import { mockLambdaContext } from '../../shared/utils/test-utils';
 
 vi.mock('node:fs', async importOriginal => {
   const actual = await importOriginal<typeof import('node:fs')>();
@@ -19,6 +20,7 @@ vi.mock('../../shared/logger', () => ({
     warn: vi.fn(),
     debug: vi.fn(),
   },
+  initialiseLogger: vi.fn(),
 }));
 
 const mockS3Client = mockClient(S3Client);
@@ -59,7 +61,7 @@ test('Create event uploads all assets to S3 and sends SUCCESS response', async (
   mockS3Client.on(PutObjectCommand).resolves({});
   const { handler } = await import('./handler');
 
-  await handler(createEvent('Create'));
+  await handler(createEvent('Create'), mockLambdaContext);
 
   const calls = mockS3Client.commandCalls(PutObjectCommand);
   expect(calls).toHaveLength(2);
@@ -87,7 +89,7 @@ test('Update event uploads all assets to S3 and sends SUCCESS response', async (
   mockS3Client.on(PutObjectCommand).resolves({});
   const { handler } = await import('./handler');
 
-  await handler(createEvent('Update'));
+  await handler(createEvent('Update'), mockLambdaContext);
 
   const calls = mockS3Client.commandCalls(PutObjectCommand);
   expect(calls).toHaveLength(2);
@@ -103,7 +105,7 @@ test('Update event uploads all assets to S3 and sends SUCCESS response', async (
 test('Delete event does not upload anything and sends SUCCESS response', async () => {
   const { handler } = await import('./handler');
 
-  await handler(createEvent('Delete'));
+  await handler(createEvent('Delete'), mockLambdaContext);
 
   expect(mockS3Client.commandCalls(PutObjectCommand)).toHaveLength(0);
 
@@ -120,7 +122,7 @@ test('S3 upload failure logs error with DAP002 code and sends FAILED response', 
   const { handler } = await import('./handler');
   const { logger } = await import('../../shared/logger');
 
-  await handler(createEvent('Create'));
+  await handler(createEvent('Create'), mockLambdaContext);
 
   expect(global.fetch).toHaveBeenCalledWith(
     'https://cloudformation-response.example.com',
@@ -142,7 +144,7 @@ test('missing DESTINATION_BUCKET logs error with DAP001 code and sends FAILED re
   const { handler } = await import('./handler');
   const { logger } = await import('../../shared/logger');
 
-  await handler(createEvent('Create'));
+  await handler(createEvent('Create'), mockLambdaContext);
 
   expect(global.fetch).toHaveBeenCalledWith(
     'https://cloudformation-response.example.com',
@@ -167,7 +169,7 @@ test('DESTINATION_PREFIX defaults to txma/raw_to_stage/ when env var not set', a
   mockS3Client.on(PutObjectCommand).resolves({});
   const { handler } = await import('./handler');
 
-  await handler(createEvent('Create'));
+  await handler(createEvent('Create'), mockLambdaContext);
 
   const calls = mockS3Client.commandCalls(PutObjectCommand);
   expect(calls[0]!.args[0].input.Key).toMatch(/^txma\/raw_to_stage\//u);
@@ -183,7 +185,7 @@ test('ASSETS_DIR uses import.meta.dirname fallback when LAMBDA_TASK_ROOT not set
   const { handler } = await import('./handler');
 
   // handler should still complete (assets dir may not exist but fetch is mocked)
-  await handler(createEvent('Delete'));
+  await handler(createEvent('Delete'), mockLambdaContext);
 
   expect(global.fetch).toHaveBeenCalledWith(
     'https://cloudformation-response.example.com',

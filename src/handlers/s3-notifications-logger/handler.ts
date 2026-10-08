@@ -1,9 +1,13 @@
-import type { S3ObjectCreatedNotificationEvent, S3ObjectDeletedNotificationEvent } from 'aws-lambda';
-import { logger } from '../../shared/logger';
+import type { Context, S3ObjectCreatedNotificationEvent, S3ObjectDeletedNotificationEvent } from 'aws-lambda';
+import { logger, initialiseLogger } from '../../shared/logger';
 import { buildErrorMetadata } from '../../shared/utils/utils';
 import { ERROR_CODES } from '../../shared/error-codes';
 
-export const handler = (event: S3ObjectCreatedNotificationEvent | S3ObjectDeletedNotificationEvent): void => {
+export const handler = (
+  event: S3ObjectCreatedNotificationEvent | S3ObjectDeletedNotificationEvent,
+  context: Context,
+): void => {
+  initialiseLogger(context);
   const startTime = Date.now();
   const correlationId = event?.id;
   logger.info('Handler started', { correlationId });
