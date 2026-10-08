@@ -1,6 +1,6 @@
 import { handler } from './handler';
 import { logger } from '../../shared/logger';
-import { getTestResource } from '../../shared/utils/test-utils';
+import { getTestResource, mockLambdaContext } from '../../shared/utils/test-utils';
 import { ERROR_CODES } from '../../shared/error-codes';
 import type { S3ObjectCreatedNotificationEvent } from 'aws-lambda';
 
@@ -22,7 +22,7 @@ test('create event', async () => {
   // Unit Test
   const event = JSON.parse(await getTestResource('eventbridge-s3-object-creation.json'));
 
-  handler(event);
+  handler(event, mockLambdaContext);
 
   expect(logger.info).toHaveBeenCalledWith('S3 notification event received', {
     correlationId: event.id,
@@ -39,7 +39,7 @@ test('valid event', async () => {
   // Unit Test
   const event = JSON.parse(await getTestResource('eventbridge-s3-object-deletion.json'));
 
-  handler(event);
+  handler(event, mockLambdaContext);
 
   expect(logger.info).toHaveBeenCalledWith('S3 notification event received', {
     correlationId: event.id,
@@ -54,11 +54,11 @@ test('valid event', async () => {
 
 test('invalid event or records', async () => {
   // Unit Test
-  handler(null as unknown as S3ObjectCreatedNotificationEvent);
-  handler(undefined as unknown as S3ObjectCreatedNotificationEvent);
-  handler({} as unknown as S3ObjectCreatedNotificationEvent);
-  handler({ detail: null } as unknown as S3ObjectCreatedNotificationEvent);
-  handler({ detail: undefined } as unknown as S3ObjectCreatedNotificationEvent);
+  handler(null as unknown as S3ObjectCreatedNotificationEvent, mockLambdaContext);
+  handler(undefined as unknown as S3ObjectCreatedNotificationEvent, mockLambdaContext);
+  handler({} as unknown as S3ObjectCreatedNotificationEvent, mockLambdaContext);
+  handler({ detail: null } as unknown as S3ObjectCreatedNotificationEvent, mockLambdaContext);
+  handler({ detail: undefined } as unknown as S3ObjectCreatedNotificationEvent, mockLambdaContext);
 
   expect(logger.error).toHaveBeenCalledTimes(5);
   expect(logger.error).toHaveBeenCalledWith(

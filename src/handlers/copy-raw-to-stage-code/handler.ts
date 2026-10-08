@@ -1,14 +1,15 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client } from '../../shared/clients';
-import { logger } from '../../shared/logger';
+import { logger, initialiseLogger } from '../../shared/logger';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import type { CloudFormationCustomResourceEvent, CloudFormationCustomResourceResponse } from 'aws-lambda';
+import type { CloudFormationCustomResourceEvent, CloudFormationCustomResourceResponse, Context } from 'aws-lambda';
 import { ERROR_CODES } from './error-codes';
 
 const ASSETS_DIR = join(process.env.LAMBDA_TASK_ROOT ?? import.meta.dirname, 'assets');
 
-export const handler = async (event: CloudFormationCustomResourceEvent): Promise<void> => {
+export const handler = async (event: CloudFormationCustomResourceEvent, context: Context): Promise<void> => {
+  initialiseLogger(context);
   const startTime = Date.now();
 
   logger.info('Handler started', {
