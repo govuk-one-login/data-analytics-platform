@@ -56,7 +56,7 @@
     "tar": "^7.5.22",
     "tsx": "^4.23.15",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.71.0",
+    "typescript-eslint": "^8.71.1",
     "uuid": "^14.0.2",
     "vitest": "^5.0.1"
   },
