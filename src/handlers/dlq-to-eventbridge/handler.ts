@@ -32,7 +32,7 @@ export const handler = async (event: SQSEvent, context: Context): Promise<SQSBat
   const startTime = Date.now();
   const batchItemFailures: SQSBatchItemFailure[] = [];
   const records = getSQSEventRecords(event);
-  logger.info('DLQ to EventBridge handler started', {
+  logger.info('Handler started', {
     correlationId: context.awsRequestId,
     recordCount: records.length,
   });
@@ -53,7 +53,7 @@ export const handler = async (event: SQSEvent, context: Context): Promise<SQSBat
       }
     }),
   );
-  logger.info('DLQ to EventBridge handler completed', {
+  logger.info('Handler completed', {
     correlationId: context.awsRequestId,
     outcome: batchItemFailures.length === 0 ? 'success' : 'partial',
     duration: Date.now() - startTime,

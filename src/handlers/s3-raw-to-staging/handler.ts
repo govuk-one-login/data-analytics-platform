@@ -23,7 +23,7 @@ export const handler = async (event: S3Event, context: Context): Promise<S3RawTo
   initialiseLogger(context);
   const startTime = Date.now();
   const correlationId = context.awsRequestId;
-  logger.info('S3 raw to stage handler started', { correlationId });
+  logger.info('Handler started', { correlationId });
 
   try {
     const stageBucketName = getEnvironmentVariable('STAGE_BUCKET_NAME');
@@ -44,7 +44,7 @@ export const handler = async (event: S3Event, context: Context): Promise<S3RawTo
         return await copyFileToStaging(record, stageBucketName, correlationId);
       }),
     );
-    logger.info('S3 raw to stage handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: results.some(result => result.status === 'failed') ? 'partial' : 'success',
       duration: Date.now() - startTime,

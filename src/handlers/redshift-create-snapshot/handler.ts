@@ -11,7 +11,7 @@ export const handler = async (_event: unknown, context: Context): Promise<void> 
   initialiseLogger(context);
   const startTime = Date.now();
   const correlationId = context.awsRequestId;
-  logger.info('Redshift create snapshot handler started', { correlationId });
+  logger.info('Handler started', { correlationId });
 
   try {
     const namespaceName = getEnvironmentVariable('NAMESPACE_NAME');
@@ -22,7 +22,7 @@ export const handler = async (_event: unknown, context: Context): Promise<void> 
       snapshotName: response.snapshot?.snapshotName,
       status: response.snapshot?.status,
     });
-    logger.info('Redshift create snapshot handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,

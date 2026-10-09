@@ -22,7 +22,7 @@ export const handler = async (event: QuicksightImportEvent, context: Context): P
   initialiseLogger(context);
   const startTime = Date.now();
   const correlationId = context.awsRequestId;
-  logger.info('Quicksight import handler started', { correlationId, s3Uri: event.s3Uri });
+  logger.info('Handler started', { correlationId, s3Uri: event.s3Uri });
 
   try {
     // do this early as it also acts as validation of the s3 uri
@@ -31,7 +31,7 @@ export const handler = async (event: QuicksightImportEvent, context: Context): P
     logger.info('Starting quicksight import', { correlationId, s3Uri: event.s3Uri, newName: event.newName });
     const jobId = await startImportJob(event, accountId, analysisId, correlationId);
     await waitForImportToFinish(jobId, accountId, correlationId);
-    logger.info('Quicksight import handler completed', {
+    logger.info('Handler completed', {
       correlationId,
       outcome: 'success',
       duration: Date.now() - startTime,

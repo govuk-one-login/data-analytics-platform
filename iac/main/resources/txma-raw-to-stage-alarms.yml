@@ -2,7 +2,7 @@ TXMAEventConsumerFunctionFirehoseErrorMetricFilter:
   Type: AWS::Logs::MetricFilter
   Properties:
     LogGroupName: '/aws/lambda/txma-event-consumer'
-    FilterPattern: '{ $.message = "Error delivering data" }'
+    FilterPattern: '{ $.message = "Error delivering batch data to DAP*" }'
     MetricTransformations:
       - MetricValue: '1'
         MetricNamespace: DAP/TXMAEventConsumer/Logs
