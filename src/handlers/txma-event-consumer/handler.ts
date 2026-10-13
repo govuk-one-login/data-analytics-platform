@@ -11,19 +11,9 @@ export { logger } from '../../shared/logger';
 
 export const handler = async (event: SQSEvent, context: Context): Promise<SQSBatchResponse> => {
   initialiseLogger(context);
-  const startTime = Date.now();
   const correlationId = context.awsRequestId;
-  logger.info('Handler started', { correlationId, recordCount: event.Records.length });
 
   const failedRecords = await processRecords(event.Records, correlationId);
-
-  logger.info('Handler completed', {
-    correlationId,
-    outcome: failedRecords.length === 0 ? 'success' : 'partial',
-    duration: Date.now() - startTime,
-    recordCount: event.Records.length,
-    failedCount: failedRecords.length,
-  });
 
   return {
     batchItemFailures: failedRecords.map(record => ({ itemIdentifier: record.messageId })),
