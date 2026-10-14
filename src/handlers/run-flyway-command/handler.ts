@@ -75,7 +75,7 @@ export const handler = async (event: RunFlywayEvent, context?: Context): Promise
     });
     return result;
   } catch (error) {
-    logger.error('Error running flyway command', {
+    logger.error('Handler failed', {
       correlationId,
       outcome: 'failure',
       duration: Date.now() - startTime,
