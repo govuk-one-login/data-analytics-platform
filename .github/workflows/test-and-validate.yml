@@ -33,14 +33,14 @@ jobs:
       - name: Script formatting checks
         run: npm run scripts:format:check
       - name: SAM setup
-        uses: aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310 # v2
+        uses: aws-actions/setup-sam@341eee193f458fa5aae5d52c94b0c5cf3a1c5a52 # v2
         with:
           use-installer: true
           version: 1.134.0
       - name: IaC linting checks
         run: npm run iac:lint
       - name: Checkov actions scan
-        uses: bridgecrewio/checkov-action@6f26dc90000b74feb589a906cdfae540f5119895 # v12
+        uses: bridgecrewio/checkov-action@c3e106d5f8f4253a6de5110efb41a080f83db294 # v12
         with:
           config_file: .checkov.ci.yml
           directory: iac-dist
