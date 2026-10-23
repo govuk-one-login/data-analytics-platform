@@ -83,7 +83,7 @@ jobs:
       - name: Build SAM template
         run: npm run iac:build -- main
       - name: SAM setup
-        uses: aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310 # v2
+        uses: aws-actions/setup-sam@341eee193f458fa5aae5d52c94b0c5cf3a1c5a52 # v2
         with:
           use-installer: true
           version: 1.134.0
@@ -95,7 +95,7 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_{0}', inputs.environment)] }}
       - name: Trigger secure pipeline deployment
-        uses: govuk-one-login/devplatform-upload-action@7076683de6e38a0ecdfbcd273b510a47c7b9489c # v4.4.0
+        uses: govuk-one-login/devplatform-upload-action@6677f824e2e0899e207870cfc8224858d1dd6fac # v4.4.1
         with:
           artifact-bucket-name: ${{ secrets[format('ARTIFACT_BUCKET_NAME_{0}', inputs.environment)] }}
           signing-profile-name: ${{ secrets[format('SIGNING_PROFILE_NAME_{0}', inputs.environment)] }}
@@ -129,7 +129,7 @@ jobs:
       - name: Build SAM template
         run: npm run iac:build -- quicksight-access
       - name: SAM setup
-        uses: aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310 # v2
+        uses: aws-actions/setup-sam@341eee193f458fa5aae5d52c94b0c5cf3a1c5a52 # v2
         with:
           use-installer: true
           version: 1.134.0
@@ -141,7 +141,7 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_QUICKSIGHT_ACCESS_{0}', inputs.environment)] }}
       - name: Trigger secure pipeline deployment
-        uses: govuk-one-login/devplatform-upload-action@7076683de6e38a0ecdfbcd273b510a47c7b9489c # v4.4.0
+        uses: govuk-one-login/devplatform-upload-action@6677f824e2e0899e207870cfc8224858d1dd6fac # v4.4.1
         with:
           artifact-bucket-name: ${{ secrets[format('ARTIFACT_BUCKET_NAME_QUICKSIGHT_ACCESS_{0}', inputs.environment)] }}
           signing-profile-name: ${{ secrets[format('SIGNING_PROFILE_NAME_{0}', inputs.environment)] }}
@@ -174,7 +174,7 @@ jobs:
       - name: Build SAM template
         run: npm run iac:build -- core
       - name: SAM setup
-        uses: aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310 # v2
+        uses: aws-actions/setup-sam@341eee193f458fa5aae5d52c94b0c5cf3a1c5a52 # v2
         with:
           use-installer: true
           version: 1.134.0
@@ -186,7 +186,7 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets[format('GH_ACTIONS_ROLE_ARN_CORE_{0}', inputs.environment)] }}
       - name: Trigger secure pipeline deployment
-        uses: govuk-one-login/devplatform-upload-action@7076683de6e38a0ecdfbcd273b510a47c7b9489c # v4.4.0
+        uses: govuk-one-login/devplatform-upload-action@6677f824e2e0899e207870cfc8224858d1dd6fac # v4.4.1
         with:
           artifact-bucket-name: ${{ secrets[format('ARTIFACT_BUCKET_NAME_CORE_{0}', inputs.environment)] }}
           signing-profile-name: ${{ secrets[format('SIGNING_PROFILE_NAME_{0}', inputs.environment)] }}
