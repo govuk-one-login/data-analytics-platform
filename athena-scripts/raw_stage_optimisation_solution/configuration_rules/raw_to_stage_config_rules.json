@@ -70,7 +70,8 @@
       "extensions",
       "user",
       "txma",
-      "restricted"
+      "restricted",
+      "platform"
     ]
   },
   "stage_schema": {
