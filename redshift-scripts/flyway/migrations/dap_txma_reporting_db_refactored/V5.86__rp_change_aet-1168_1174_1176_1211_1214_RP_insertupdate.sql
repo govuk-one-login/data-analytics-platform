@@ -92,3 +92,27 @@ SET relying_party_name = 'Business Online Support Service',
     department_name   = 'WG',
     agency_name       = 'WG'
 WHERE client_id = 'ozjDqT8nalrJiMlLwOZHAGVCI5A';
+
+
+--WG - Business Online Support Service
+
+INSERT INTO conformed_refactored.REF_RELYING_PARTIES_refactored
+(CLIENT_ID,CLIENT_NAME,DISPLAY_NAME
+,department_name,agency_name) 
+SELECT 'eOdiLYgDEhC7nccrVaObaQ4AgEE'
+       ,'Make a Lasting Power of Attorney'
+       ,'MOJ - Make a Lasting Power of Attorney'
+       ,'MOJ'
+       ,'MOJ'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM conformed_refactored.REF_RELYING_PARTIES_refactored
+    WHERE client_id = 'eOdiLYgDEhC7nccrVaObaQ4AgEE');
+
+
+UPDATE conformed_refactored.dim_relying_party_refactored
+SET relying_party_name = 'Make a Lasting Power of Attorney',
+    display_name      = 'MOJ - Make a Lasting Power of Attorney',
+    department_name   = 'MOJ',
+    agency_name       = 'MOJ'
+WHERE client_id = 'eOdiLYgDEhC7nccrVaObaQ4AgEE';
