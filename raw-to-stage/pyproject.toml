@@ -7,6 +7,8 @@ build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 160
+# The code runs on AWS Glue Python shell (Python 3.9), so never emit newer-only syntax
+target-version = ["py39"]
 
 [[tool.mypy.overrides]]
 module = ["untyped_package.*"]

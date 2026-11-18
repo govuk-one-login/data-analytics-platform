@@ -10,6 +10,7 @@ type RawLayerInput = {
   event_timestamp_ms_formatted: string | null;
   extensions: string | null;
   restricted?: string | null;
+  platform?: string | null;
   txma: string | null;
   datecreated: string;
 };
@@ -29,6 +30,7 @@ export const buildExpectedRawLayerRow = (data: RawLayerInput) => [
       { VarCharValue: 'event_timestamp_ms_formatted' },
       { VarCharValue: 'extensions' },
       { VarCharValue: 'restricted' },
+      { VarCharValue: 'platform' },
       { VarCharValue: 'txma' },
       { VarCharValue: 'datecreated' },
     ],
@@ -41,6 +43,7 @@ export const buildExpectedRawLayerRow = (data: RawLayerInput) => [
         .map(value => (value === null ? {} : { VarCharValue: String(value) })),
       data.extensions === null ? {} : { VarCharValue: data.extensions },
       data.restricted === null || data.restricted === undefined ? {} : { VarCharValue: data.restricted },
+      data.platform === null || data.platform === undefined ? {} : { VarCharValue: data.platform },
       data.txma === null ? {} : { VarCharValue: data.txma },
       { VarCharValue: data.datecreated },
     ],
