@@ -190,8 +190,6 @@ TxmaRefactoredTable:
             Type: string
           - Name: restricted
             Type: string
-          - Name: platform
-            Type: string
           - Name: txma
             Type: string
         Compressed: true
