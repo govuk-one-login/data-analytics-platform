@@ -36,6 +36,18 @@ DbtBastionInstanceProfile:
 # The bastion only forwards TCP traffic. It has no inbound rules, no public IP and no SSH. RedshiftAccessEC2SecurityGroup
 # allows it to reach Redshift on 5439 (see VPCDefaultSecurityGroupRedshiftIngress) and the SSM VPC endpoints on 443
 # (VpcEndpointSecurityGroup allows 443 from the VPC CIDR)
+#
+# AWS::EC2::Instance has no MetadataOptions property, so IMDSv2 is enforced through a launch template
+DbtBastionLaunchTemplate:
+  Condition: IsProductionPreview
+  Type: AWS::EC2::LaunchTemplate
+  Properties:
+    LaunchTemplateName: !Sub ${Environment}-dap-dbt-bastion
+    LaunchTemplateData:
+      MetadataOptions:
+        HttpTokens: required
+        HttpEndpoint: enabled
+
 DbtBastionInstance:
   Condition: IsProductionPreview
   Type: AWS::EC2::Instance
@@ -47,11 +59,11 @@ DbtBastionInstance:
     SecurityGroupIds:
       - !Ref RedshiftAccessEC2SecurityGroup
     IamInstanceProfile: !Ref DbtBastionInstanceProfile
+    LaunchTemplate:
+      LaunchTemplateId: !Ref DbtBastionLaunchTemplate
+      Version: !GetAtt DbtBastionLaunchTemplate.LatestVersionNumber
     Monitoring: true
     EbsOptimized: true
-    MetadataOptions:
-      HttpTokens: required
-      HttpEndpoint: enabled
     BlockDeviceMappings:
       - DeviceName: /dev/xvda
         Ebs:
