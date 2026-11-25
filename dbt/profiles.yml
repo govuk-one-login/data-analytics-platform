@@ -1,0 +1,25 @@
+# dbt connection profile. This file holds no credentials - dbt gets a temporary database password with
+# redshift-serverless:GetCredentials, using the AWS credentials of the profile in AWS_PROFILE.
+# dbt picks this file up automatically when it is run from the dbt/ directory.
+# See docs/dbt-local-access.md for the required environment variables and the SSM tunnel.
+dap:
+  target: prod_preview
+  outputs:
+    prod_preview:
+      type: redshift
+      method: iam
+      # the local end of the SSM tunnel to the Redshift workgroup
+      host: localhost
+      port: "{{ env_var('DBT_TUNNEL_PORT', '5439') | as_number }}"
+      dbname: dap_txma_reporting_db_refactored
+      # every developer builds into their own schema, e.g. dbt_jsmith
+      schema: "dbt_{{ env_var('DBT_DEVELOPER_NAME') | lower }}"
+      region: eu-west-2
+      is_serverless: true
+      serverless_work_group: production-preview-redshift-serverless-workgroup
+      serverless_acct_id: '339712909359'
+      user: ''
+      # verify-full isn't possible as the certificate isn't valid for localhost - the connection is still encrypted
+      sslmode: require
+      threads: 4
+      connect_timeout: 30

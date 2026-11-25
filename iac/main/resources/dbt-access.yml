@@ -144,7 +144,13 @@ DbtDeveloperRole:
               Action:
                 - ssm:TerminateSession
                 - ssm:ResumeSession
-              Resource: !Sub arn:aws:ssm:*:*:session/${!aws:userid}-*
+              Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:session/*
+              # Session Manager tags each session with the caller's user ID (role-id:role-session-name for a role session).
+              # Matching on the session ID prefix doesn't work for roles, as aws:userid includes the role ID but the
+              # session ID only starts with the role session name
+              Condition:
+                StringLike:
+                  'ssm:resourceTag/aws:ssmmessages:session-id': '${aws:userid}'
             - Sid: GetRedshiftCredentials
               Effect: Allow
               Action: redshift-serverless:GetCredentials

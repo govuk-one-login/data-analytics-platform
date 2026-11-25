@@ -1,0 +1,2 @@
+dbt-core==1.11.17
+dbt-redshift==1.11.2
