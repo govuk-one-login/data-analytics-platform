@@ -96,7 +96,7 @@ DbtPortForwardSessionDocument:
           default: '5439'
           allowedPattern: '^[0-9]{4,5}$'
       properties:
-        type: LocalPortForward
+        type: LocalPortForwarding
         host: !GetAtt RedshiftServerlessWorkgroup.Workgroup.Endpoint.Address
         portNumber: '5439'
         localPortNumber: '{{ localPortNumber }}'
@@ -145,7 +145,6 @@ DbtDeveloperRole:
             - Sid: GetRedshiftCredentials
               Effect: Allow
               Action: redshift-serverless:GetCredentials
+              # GetCredentials only supports the aws:ResourceTag condition key, so the database can't be restricted here.
+              # What the database user can do is controlled by the grants in redshift_dbt_access_setup.sql
               Resource: !GetAtt RedshiftServerlessWorkgroup.Workgroup.WorkgroupArn
-              Condition:
-                StringEquals:
-                  'redshift-serverless:DbName': dap_txma_reporting_db_refactored
