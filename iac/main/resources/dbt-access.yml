@@ -84,6 +84,9 @@ DbtPortForwardSessionDocument:
   Type: AWS::SSM::Document
   Properties:
     Name: !Sub ${Environment}-dap-redshift-port-forward
+    # update the existing document with a new (default) version rather than replacing it - replacement fails because the
+    # document has a fixed name and CloudFormation creates the replacement before deleting the original
+    UpdateMethod: NewVersion
     DocumentType: Session
     Content:
       schemaVersion: '1.0'
