@@ -1,0 +1,151 @@
+# Resources that let developers run dbt from a local machine against the production-preview Redshift Serverless workgroup.
+#
+# All resources are only created in production-preview.
+#
+# Access path: local machine -> AWS SSM port forwarding session -> DbtBastionInstance (private subnet, no inbound access)
+# -> Redshift workgroup (port 5439). Authentication is IAM based (redshift-serverless:GetCredentials), so no database
+# passwords and none of the admin secret is involved.
+#
+# A developer first needs to be elevated in TEAM to ApprovedReadOnly or ApprovedPowerUser on the production-preview account,
+# then assumes DbtDeveloperRole from that session. The database user is IAMR:<environment>-dap-dbt-developer-role and its
+# grants are applied by redshift-scripts/setup_process_refactored/redshift_dbt_access_setup.sql (a manual, one off script).
+
+DbtBastionRole:
+  Condition: IsProductionPreview
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: !Sub ${Environment}-dap-dbt-bastion-role
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service: ec2.amazonaws.com
+          Action: sts:AssumeRole
+    ManagedPolicyArns:
+      # only what the SSM agent needs to register with Session Manager through the VPC endpoints
+      - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+DbtBastionInstanceProfile:
+  Condition: IsProductionPreview
+  Type: AWS::IAM::InstanceProfile
+  Properties:
+    Roles:
+      - !Ref DbtBastionRole
+
+# The bastion only forwards TCP traffic. It has no inbound rules, no public IP and no SSH. RedshiftAccessEC2SecurityGroup
+# allows it to reach Redshift on 5439 (see VPCDefaultSecurityGroupRedshiftIngress) and the SSM VPC endpoints on 443
+# (VpcEndpointSecurityGroup allows 443 from the VPC CIDR)
+#
+# AWS::EC2::Instance has no MetadataOptions property, so IMDSv2 is enforced through a launch template
+DbtBastionLaunchTemplate:
+  Condition: IsProductionPreview
+  Type: AWS::EC2::LaunchTemplate
+  Properties:
+    LaunchTemplateName: !Sub ${Environment}-dap-dbt-bastion
+    LaunchTemplateData:
+      MetadataOptions:
+        HttpTokens: required
+        HttpEndpoint: enabled
+
+DbtBastionInstance:
+  Condition: IsProductionPreview
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: t3.micro
+    # resolved at deploy time, which means a deployment may replace the instance when a new AMI is published
+    ImageId: '{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}'
+    SubnetId: !Ref SubnetForDAP1
+    SecurityGroupIds:
+      - !Ref RedshiftAccessEC2SecurityGroup
+    IamInstanceProfile: !Ref DbtBastionInstanceProfile
+    LaunchTemplate:
+      LaunchTemplateId: !Ref DbtBastionLaunchTemplate
+      Version: !GetAtt DbtBastionLaunchTemplate.LatestVersionNumber
+    Monitoring: true
+    EbsOptimized: true
+    BlockDeviceMappings:
+      - DeviceName: /dev/xvda
+        Ebs:
+          VolumeSize: 8
+          VolumeType: gp3
+          Encrypted: true
+    Tags:
+      - Key: Name
+        Value: !Sub ${Environment}-dap-dbt-bastion
+      - Key: Environment
+        Value: !Ref Environment
+
+# Session document that can only forward to the Redshift workgroup endpoint on 5439.
+# The generic AWS-StartPortForwardingSessionToRemoteHost document lets the caller choose any host and port in the VPC,
+# so DbtDeveloperRole is only allowed to use this one instead.
+DbtPortForwardSessionDocument:
+  Condition: IsProductionPreview
+  Type: AWS::SSM::Document
+  Properties:
+    Name: !Sub ${Environment}-dap-redshift-port-forward
+    DocumentType: Session
+    Content:
+      schemaVersion: '1.0'
+      description: Forward a local port to the DAP Redshift Serverless workgroup
+      sessionType: Port
+      parameters:
+        localPortNumber:
+          type: String
+          description: Local port to listen on
+          default: '5439'
+          allowedPattern: '^[0-9]{4,5}$'
+      properties:
+        type: LocalPortForward
+        host: !GetAtt RedshiftServerlessWorkgroup.Workgroup.Endpoint.Address
+        portNumber: '5439'
+        localPortNumber: '{{ localPortNumber }}'
+
+# Assumed by developers from an approved SSO session (see top of file). The role name is what Redshift uses to name the
+# database user (IAMR:<role name>) so it needs to stay in step with redshift_dbt_access_setup.sql
+DbtDeveloperRole:
+  Condition: IsProductionPreview
+  Type: AWS::IAM::Role
+  DeletionPolicy: Retain
+  UpdateReplacePolicy: Retain
+  Properties:
+    RoleName: !Sub ${Environment}-dap-dbt-developer-role
+    MaxSessionDuration: 3600
+    AssumeRolePolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+          Action: sts:AssumeRole
+          Condition:
+            ArnLike:
+              # the permission sets that are approved through TEAM. The standing ViewOnlyAccessPermission is deliberately not trusted
+              'aws:PrincipalArn':
+                - !Sub arn:aws:iam::${AWS::AccountId}:role/aws-reserved/sso.amazonaws.com/*/AWSReservedSSO_ApprovedReadOnly_*
+                - !Sub arn:aws:iam::${AWS::AccountId}:role/aws-reserved/sso.amazonaws.com/*/AWSReservedSSO_ApprovedPowerUser_*
+                - !Sub arn:aws:iam::${AWS::AccountId}:role/aws-reserved/sso.amazonaws.com/*/AWSReservedSSO_ApprovedAdmin_*
+    Policies:
+      - PolicyName: !Sub ${Environment}-dap-dbt-developer-policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Sid: StartPortForwardingSession
+              Effect: Allow
+              Action: ssm:StartSession
+              Resource:
+                - !Sub arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/${DbtBastionInstance}
+                - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:document/${DbtPortForwardSessionDocument}
+            - Sid: ManageOwnSessions
+              Effect: Allow
+              Action:
+                - ssm:TerminateSession
+                - ssm:ResumeSession
+              Resource: !Sub arn:aws:ssm:*:*:session/${!aws:userid}-*
+            - Sid: GetRedshiftCredentials
+              Effect: Allow
+              Action: redshift-serverless:GetCredentials
+              Resource: !GetAtt RedshiftServerlessWorkgroup.Workgroup.WorkgroupArn
+              Condition:
+                StringEquals:
+                  'redshift-serverless:DbName': dap_txma_reporting_db_refactored
