@@ -61,6 +61,51 @@ test('event with invalid timestamp', async () => {
   );
 });
 
+test('event with missing timestamp', async () => {
+  // Unit Test
+  mockFirehoseClient.resolves({});
+
+  const invalidEvent = JSON.stringify({
+    event_name: 'AUTH_AUTH_CODE_ISSUED',
+    event_id: 'test-id',
+  });
+  const sqsEvent = mockSQSEvent(invalidEvent);
+  const response = await handler(sqsEvent, mockLambdaContext);
+
+  expect(response.batchItemFailures).toHaveLength(1);
+  expect(mockFirehoseClient.calls()).toHaveLength(0);
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    'Invalid audit event',
+    expect.objectContaining({
+      eventId: 'test-id',
+      errors: ['Timestamp is missing from audit event or is invalid'],
+    }),
+  );
+});
+
+test('event with timestamp as string', async () => {
+  // Unit Test
+  mockFirehoseClient.resolves({});
+
+  const invalidEvent = JSON.stringify({
+    event_name: 'AUTH_AUTH_CODE_ISSUED',
+    timestamp: '1234567890',
+    event_id: 'test-id',
+  });
+  const sqsEvent = mockSQSEvent(invalidEvent);
+  const response = await handler(sqsEvent, mockLambdaContext);
+
+  expect(response.batchItemFailures).toHaveLength(1);
+  expect(mockFirehoseClient.calls()).toHaveLength(0);
+  expect(loggerErrorSpy).toHaveBeenCalledWith(
+    'Invalid audit event',
+    expect.objectContaining({
+      eventId: 'test-id',
+      errors: ['Timestamp is missing from audit event or is invalid'],
+    }),
+  );
+});
+
 test('event with multiple validation errors', async () => {
   // Unit Test
   mockFirehoseClient.resolves({});
